@@ -1,0 +1,67 @@
+---
+title: 'SDK Quickstart (iOS - SwiftUI)'
+description: 'Integrate Helium in 5 minutes'
+icon: 'code'
+---
+## Device Requirements
+
+- Minimum iOS deployment target is `16.0`.
+
+## 1) Installation
+
+Helium is available via Swift Package Manager under [https://github.com/cloudcaptainai/helium-swift](https://github.com/amplitude/Amplitude-Swift).
+
+1) Install `helium-swift` into your XCode project via SPM. In XCode, you can find it under [https://github.com/cloudcaptainai/helium-swift](https://github.com/amplitude/Amplitude-Swift), or add it directly to your `Package.swift`:
+
+```swift Package.swift
+let package = Package(
+    ...
+    dependencies: [
+        ...
+        .package(
+            url: "https://github.com/cloudcaptainai/helium-swift.git",
+            from: "0.1.0"
+        ),
+    ],
+    targets: [
+        .target(
+            name: "YourTargetName",
+            dependencies: [
+                .product(
+                    name: "Helium",
+                    package: "helium-swift"
+                ),
+            ]
+        )
+    ]
+)
+```
+
+## 2) Initialize Helium and fetch variants
+
+Add the following lines somewhere in your app initialization code, typically in `AppDelegate` (or, if using SwiftUI’s `App` lifecycle, in your main ContentView’s `init()` method).
+
+This code should be called *after* fetching remote config for Firebase.
+
+- The Amplitude API key will be used by the SDK to forward events to Amplitude. Events will be tagged with the keyword `[Helium] <event name>`.
+
+```swift
+// In your AppDelegate
+import Helium
+
+// Initialize Helium 
+Helium.initialize(
+	heliumAPIKey: "<your-helium-api-key>",
+	amplitudeSettings: Helium.AmplitudeAnalyticsSettings(
+		amplitudeAPIKey: "<your-amplitude-api-key>",
+		enableEventsLogging: true
+	)
+);
+
+// Download the variant/remote paywall configs 
+// for this user. Caching is to set to true.
+await Helium.downloadPaywallConfig(
+	cacheVariants: true) { error in
+	  // handle the error
+ }
+```

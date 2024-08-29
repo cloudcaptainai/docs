@@ -199,3 +199,115 @@ Now, anywhere in your SwiftUI app, you can use the `triggerUpsell` modifier to (
 
 - You don’t actually specify the paywall version name here - we load that from the backend.
 - What *is* specified is a “trigger name”. These trigger names should be **unique** across your app. User interactions with paywalls will be tracked and used to optimize the paywall for each trigger.
+
+# Paywall Events Documentation
+
+## User Interaction Events
+
+### CTA Pressed
+```swift
+case ctaPressed(ctaName: String, triggerName: String, paywallTemplateName: String)
+```
+Triggered when a user presses a Call-To-Action (CTA) button on the paywall.
+- `ctaName`: The name or identifier of the CTA button pressed.
+- `triggerName`: The name of the trigger that initiated the paywall.
+- `paywallTemplateName`: The name of the paywall template being used.
+
+### Offer Selected
+```swift
+case offerSelected(productKey: String, triggerName: String, paywallTemplateName: String)
+```
+Triggered when a user selects a specific offer or product.
+- `productKey`: The key or identifier of the selected product or offer.
+- `triggerName`: The name of the trigger that initiated the paywall.
+- `paywallTemplateName`: The name of the paywall template being used.
+
+### Subscription Pressed
+```swift
+case subscriptionPressed(productKey: String, triggerName: String, paywallTemplateName: String)
+```
+Triggered when a user presses the subscribe button for a specific product.
+- `productKey`: The key or identifier of the product being subscribed to.
+- `triggerName`: The name of the trigger that initiated the paywall.
+- `paywallTemplateName`: The name of the paywall template being used.
+
+## Subscription Status Events
+
+### Subscription Cancelled
+```swift
+case subscriptionCancelled(productKey: String, triggerName: String, paywallTemplateName: String)
+```
+Triggered when a subscription process is cancelled by the user.
+
+### Subscription Succeeded
+```swift
+case subscriptionSucceeded(productKey: String, triggerName: String, paywallTemplateName: String)
+```
+Triggered when a subscription is successfully completed.
+
+### Subscription Failed
+```swift
+case subscriptionFailed(productKey: String, triggerName: String, paywallTemplateName: String)
+```
+Triggered when a subscription process fails for any reason.
+
+### Subscription Restored
+```swift
+case subscriptionRestored(productKey: String, triggerName: String, paywallTemplateName: String)
+```
+Triggered when a previous subscription is successfully restored.
+
+### Subscription Pending
+```swift
+case subscriptionPending(productKey: String, triggerName: String, paywallTemplateName: String)
+```
+Triggered when a subscription is in a pending state (e.g., waiting for approval).
+
+## Paywall Lifecycle Events
+
+### Paywall Open
+```swift
+case paywallOpen(triggerName: String, paywallTemplateName: String)
+```
+Triggered when a paywall is successfully opened and displayed to the user.
+
+### Paywall Open Failed
+```swift
+case paywallOpenFailed(triggerName: String, paywallTemplateName: String)
+```
+Triggered when there's an error opening or displaying the paywall.
+
+### Paywall Close
+```swift
+case paywallClose(triggerName: String, paywallTemplateName: String)
+```
+Triggered when the paywall is closed programmatically.
+
+### Paywall Dismissed
+```swift
+case paywallDismissed(triggerName: String, paywallTemplateName: String)
+```
+Triggered when the user dismisses the paywall.
+
+## Paywall Configuration Events
+
+### Paywalls Download Success
+```swift
+case paywallsDownloadSuccess(configId: UUID)
+```
+Triggered when paywall configurations are successfully downloaded.
+- `configId`: The unique identifier of the downloaded configuration.
+
+### Paywalls Download Error
+```swift
+case paywallsDownloadError(error: String)
+```
+Triggered when there's an error downloading paywall configurations.
+- `error`: A string describing the error that occurred during download.
+
+---
+
+Note: For all events related to subscriptions and paywall interactions, the following parameters are consistently used:
+- `productKey`: Identifies the specific product or subscription tier.
+- `triggerName`: Indicates what caused the paywall to be displayed.
+- `paywallTemplateName`: Specifies which paywall design template is being used.

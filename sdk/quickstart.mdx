@@ -169,6 +169,36 @@ struct helium_demoApp: App {
 }
 ```
 
+### Checking Download Status
+
+After the initialization code above runs, you can check the status of the paywall configuration download using the `Helium.shared.downloadStatus()` method. This method returns a value of type `HeliumFetchedConfigStatus`, which is defined as follows:
+
+```swift
+public enum HeliumFetchedConfigStatus: Codable {
+    case notDownloadedYet
+    case downloadSuccess(fetchedConfigId: UUID)
+    case downloadFailure
+}
+```
+
+`notDownloadedYet`: Indicates that the download has not been initiated or is still in progress.
+
+`downloadSuccess(fetchedConfigId: UUID)`: Indicates a successful download. The returned `fetchedConfigID` provides the UUID of the fetched configuration.
+
+`downloadFailure`: Indicates that the download attempt failed.
+
+You can use this to handle different states in your app, for example:
+```swift
+switch Helium.shared.downloadStatus() {
+    case .notDownloadedYet:
+        print("Download not started or in progress")
+    case .downloadSuccess(let configId):
+        print("Download successful with config ID: \(configId)")
+    case .downloadFailure:
+        print("Download failed")
+}
+```
+
 ## Presenting Paywalls
 
 Now, anywhere in your iOS app, you can use the `triggerUpsell` modifier to (conditionally) trigger a Helium paywall!

@@ -131,8 +131,8 @@ await Helium.shared.initializeAndFetchVariants(
     // The delegate you created earlier.
     heliumPaywallDelegate: YourHeliumPaywallDelegate(),
 
-    // this view will be provided to you during setup! This view also defines the fallback paywall to show in case downloads fail.
-    baseTemplateView: any BaseTemplateView.Type,
+    // Defines a fallback paywall to show in case connection to the server fails. 
+    fallbackView: (any View)? = nil,
     
     // Whether or not to cache the upsell experience on device after fetching it.
     // Turn this off to enable experimentation and optimization over paywalls.

@@ -262,6 +262,7 @@ class YourHeliumPaywallDelegate: HeliumPaywallDelegate {
                     // your custom dismissal action for this trigger
                 }
             }
+            ... other cases
         }
     }    
 
@@ -270,7 +271,8 @@ class YourHeliumPaywallDelegate: HeliumPaywallDelegate {
 ```
 
 How it works is that any component (e.g. an X out icon, decline text, etc.) can be remotely configured to be a wrapped in a `Button` with a name. When this button component
-is tapped, we fire the `onCTAPressed` method with the button name. 
+is tapped, we fire the delegate's `onCTAPressed` method with the button name. So, once you've implemented custom swift code from your delegate, you can remotely configure
+components in the paywall to trigger those methods.
 
 ## Testing
 

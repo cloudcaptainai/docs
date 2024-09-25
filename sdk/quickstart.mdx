@@ -236,12 +236,11 @@ Button("Try Premium") {
 
 ### Explicitly getting the Helium Paywall View
 
-You can also explicitly use the Helium paywall view via `Helium.shared.upsellViewForTrigger`
+You can also explicitly get the Helium paywall view via `Helium.shared.upsellViewForTrigger`. This method takes a trigger and returns the paywall
+as an `AnyView`. 
 
 ```swift
-Button("Try Premium") {
-    Helium.shared.presentUpsell(trigger: "postOnboardingButtonPress")
-}
+let heliumView: AnyView = Helium.shared.upsellViewForTrigger(trigger: "postOnboardingButtonPress")
 ```
 
 ### Custom dismissal/navigation actions

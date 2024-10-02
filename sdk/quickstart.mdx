@@ -51,7 +51,7 @@ public enum HeliumPaywallTransactionStatus {
     // if the subscription was abandoned
     case abandoned
     
-    // if the subscription failed with another error
+    // if the subscription failed. Pass in the error as an argument for both logging and downstream handling.
     case failed(Error)
     
     // if the user restored their subscription
@@ -324,9 +324,10 @@ Triggered when a subscription is successfully completed.
 
 #### Subscription Failed
 ```swift
-case subscriptionFailed(productKey: String, triggerName: String, paywallTemplateName: String)
+case subscriptionFailed(productKey: String, triggerName: String, paywallTemplateName: String, error: String?)
 ```
-Triggered when a subscription process fails for any reason.
+Triggered when the subscription process fails for any reason. `error` will be the localizedDescription of the underlying 
+error returned by HeliumPaywallDelegate.makePurchase().
 
 #### Subscription Restored
 ```swift

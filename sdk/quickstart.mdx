@@ -131,10 +131,9 @@ await Helium.shared.initializeAndFetchVariants(
 
     // Defines a fallback paywall to show in case connection to the server fails. 
     fallbackView: (any View)? = nil,
-    
-    // Whether or not to cache the upsell experience on device after fetching it.
-    // Turn this off to enable experimentation and optimization over paywalls.
-    useCache: false
+
+    // If set, a custom user id to use instead of Helium's (e.g. from your own analytics service)
+    customUserId: String? = nil
 )
 ```
 
@@ -165,6 +164,16 @@ struct helium_demoApp: App {
         }
     }
 }
+```
+
+#### Custom user ID
+
+By default, Helium generates a UUID per app session and identifies each user + interaction with this. You can pass override this value with a custom user id (e.g. from a 3rd party analytics service)
+by passing it in as a parameter in `Helium.shared.initializeAndFetchVariants`, or by explicitly calling `Helium.shared.overrideUserId`:
+
+```swift
+// Somewhere BEFORE initializeAndFetchVariants:
+Helium.shared.overrideUserId(newUserId: '<your-custom-user-id>');
 ```
 
 ### Checking Download Status

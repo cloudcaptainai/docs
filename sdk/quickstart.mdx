@@ -119,20 +119,21 @@ class DemoHeliumPaywallDelegate: HeliumPaywallDelegate {
 
 ### Initialize Helium and Download Paywall Configs
 
-Somewhere in your app's initialization code (e.g. your `main App` if using SwiftUI, or `AppDelegate` if using ViewController), add the following line in an async context to actually download paywall config/variants.
+Somewhere in your app's initialization code (e.g. your `main App` if using SwiftUI, or `AppDelegate` if using ViewController), add the following line to actually download paywall config/variants.
+Don't worry about scheduling it on a background thread - we do that for you!
 
 ```swift
-await Helium.shared.initializeAndFetchVariants(
+Helium.shared.initializeAndFetchVariants(
     // you'll get this from Helium founders during setup!
     apiKey: "<your-helium-api-key>",
         
     // The delegate you created earlier.
     heliumPaywallDelegate: YourHeliumPaywallDelegate(),
 
-    // Defines a fallback paywall to show in case connection to the server fails. 
+    // Defines a fallback paywall to show in case the user's device is not connected to the internet.
     fallbackView: (any View)? = nil,
 
-    // If set, a custom user id to use instead of Helium's (e.g. from your own analytics service)
+    // If set, a custom user id to use instead of Helium's. (e.g. from your own analytics service)
     customUserId: String? = nil
 )
 ```
@@ -147,15 +148,13 @@ import HeliumCore
 struct helium_demoApp: App {
     
     init() {
-        Task {
-            let delegate = DemoHeliumPaywallDelegate()
-            
-            await Helium.shared.initializeAndFetchVariants(
-                apiKey: "<your-helium-api-key>",
-                heliumPaywallDelegate: delegate,
-                useCache: true
-            )
-        }
+        let delegate = DemoHeliumPaywallDelegate()
+        
+        Helium.shared.initialize(
+            apiKey: "<your-helium-api-key>",
+            heliumPaywallDelegate: delegate,
+            useCache: true
+        )
     }
 
     var body: some Scene {

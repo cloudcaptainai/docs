@@ -34,6 +34,11 @@
       "pages": [
         "sdk/quickstart"
       ]
+    }, {
+      "group": "Targeting",
+      "pages": [
+        "targeting/dynamic-variables"
+      ]
     }
   ]
 }

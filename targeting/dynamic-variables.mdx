@@ -1,0 +1,56 @@
+# Dynamic Variables
+
+Dynamic variables allow you to customize content based on device, application, and user context. These variables can be used within your content to create personalized experiences that adapt to different conditions.
+
+## Available Variables
+
+| Variable Name | Description | Type | Example Values | Minimum SDK Required |
+|--------------|-------------|------|----------------|---------------------|
+| `app.version` | Application version number | String | "1.0.0" | Version 1.5.0 |
+| `app.build` | Application build number | String | "123" | Version 1.5.0 |
+| `app.completeAppVersion` | Combined version and build number | String | "1.0.0 (123)" | Version 1.5.0 |
+| `app.appDisplayName` | Display name of the application | String | "My App" | Version 1.5.0 |
+| `app.heliumSdkVersion` | Current version of the Helium SDK | String | "1.5.0" | Version 1.5.0 |
+| `locale.currentCountry` | User's current country code | String | "US" | Version 1.5.0 |
+| `locale.currentCurrency` | User's current currency code | String | "USD" | Version 1.5.0 |
+| `locale.currentCurrencySymbol` | Currency symbol for user's locale | String | "$" | Version 1.5.0 |
+| `locale.currentLanguage` | User's language code | String | "en" | Version 1.5.0 |
+| `locale.currentTimeZone` | User's timezone identifier | String | "America/Los_Angeles" | Version 1.5.0 |
+| `locale.currentTimeZoneName` | User's timezone name | String | "Pacific Standard Time" | Version 1.5.0 |
+| `locale.decimalSeparator` | Decimal separator for user's locale | String | "." | Version 1.5.0 |
+| `locale.usesMetricSystem` | Whether user's locale uses metric system | Boolean | true/false | Version 1.5.0 |
+| `screen.brightness` | Screen brightness level | Float | 0.5 | Version 1.5.0 |
+| `screen.nativeBounds` | Screen native bounds | Object | {x: 0, y: 0, width: 1170, height: 2532} | Version 1.5.0 |
+| `screen.nativeScale` | Screen native scale factor | Float | 3.0 | Version 1.5.0 |
+| `screen.bounds` | Screen bounds in points | Object | {x: 0, y: 0, width: 390, height: 844} | Version 1.5.0 |
+| `screen.scale` | Screen scale factor | Float | 3.0 | Version 1.5.0 |
+| `device.currentDeviceIdentifier` | Unique device identifier | String | "1234-5678-9ABC-DEF0" | Version 1.5.0 |
+| `device.orientation` | Device orientation value | Integer | 1 | Version 1.5.0 |
+| `device.systemName` | Operating system name | String | "iOS" | Version 1.5.0 |
+| `device.systemVersion` | Operating system version | String | "15.0" | Version 1.5.0 |
+| `device.deviceModel` | Device model identifier | String | "iPhone14,3" | Version 1.5.0 |
+| `device.userInterfaceIdiom` | Device interface type | String | "phone" | Version 1.5.0 |
+| `datetime.month` | Current month (1-12) | Integer | 11 | Version 1.5.0 |
+| `datetime.dayOfWeek` | Current day of week | String | "MONDAY" | Version 1.5.0 |
+| `datetime.dayOfMonth` | Current day of month (1-31) | Integer | 26 | Version 1.5.0 |
+| `datetime.hour` | Current hour (0-23) | Integer | 14 | Version 1.5.0 |
+| `datetime.minute` | Current minute (0-59) | Integer | 30 | Version 1.5.0 |
+| `products.productIds` | List of associated product IDs | Array of Strings | ["prod_123", "prod_456"] | Version 1.5.0 |
+
+## Usage
+
+You can use these variables in your content using the following syntax:
+
+```handlebars
+Hello user from {{locale.currentCountry}}!
+Your current time is {{datetime.hour}}:{{datetime.minute}}
+```
+
+The variables will be automatically replaced with their actual values when the content is displayed to the user.
+
+## Notes
+
+- All variables are optional and may return null if the value is not available
+- Time-based variables use the device's current timezone and locale settings
+- Device-specific variables may vary depending on the device type and operating system version
+- Screen-related variables will update if the device orientation changes

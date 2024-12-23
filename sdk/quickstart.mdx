@@ -35,7 +35,36 @@ Select "Up to next Major Version" with minimum version set to **1.0.0** and maxi
 
 ### Set up your HeliumPaywallDelegate
 
-Helium doesn't handle subscription logic [yet]. To integrate Helium paywalls with your subscription logic, first create a subclass of `HeliumPaywallDelegate` 
+To integrate Helium paywalls, create a subclass of `HeliumPaywallDelegate`. This class is responsible for handling the purchase logic for your paywalls.
+```swift
+public protocol HeliumPaywallDelegate: AnyObject {
+
+    // [REQUIRED] - Trigger the purchase of a product with the following App Store Connect Product ID.
+    // This method should return a HeliumPaywallTransactionStatus enum, described below.
+    // Loading states/UI/UX here gets configured in the Helium dashboard, so this method should just trigger the purchase.
+    func makePurchase(productId: String) async -> HeliumPaywallTransactionStatus
+
+    // [OPTIONAL] - Restore any existing subscriptions.
+    // This method should return a boolean indicating whether the restore was successful.
+    // This method gets called if you've configured a CTA in the editor to restore purchases, which is recommended.
+    func restorePurchases() async -> Bool
+
+    // [OPTIONAL] Custom analytics/error logging for paywall/helium
+    // related events can be added here.
+
+    // By default, we log events to your analytics service (Amplitude, etc.), but you can override this method to add additional custom logging/handling.
+    // For example, you can log failure events to a Sentry instance, or add custom alerts/notifications on certain paywall events here.
+    func onHeliumPaywallEvent(event: HeliumPaywallEvent)
+
+
+    // [OPTIONAL] - Return a dictionary of custom variable values to be used in the paywall.
+    // This method should return a dictionary of key-value pairs, where the key is the name of the variable and the value is the value of the variable.
+    // These variables can be used to customize the paywall for each user.
+    func getCustomVariableValues() -> [String: Any?]
+}
+```
+
+HeliumPaywallTransactionStatus is an enum that defines the possible states of a paywall transaction.
 
 ```swift
 import Helium
@@ -60,19 +89,6 @@ public enum HeliumPaywallTransactionStatus {
     // if the subscription is 'pending' (requires action from developer)
     case pending
 }
-
-public protocol HeliumPaywallDelegate: AnyObject {
-    // [REQUIRED] - Actually make the purchase 
-    func makePurchase(productId: String) async -> HeliumPaywallTransactionStatus
-}
-
-extension HeliumPaywallDelegate {
-    // [OPTIONAL] Custom analytics/error logging for paywall/helium
-    // related events can be added here. 
-    // By default, we log events to Amplitude
-    public func onHeliumPaywallEvent(event: HeliumPaywallEvent) {}
-} 
-```
 
 ### Example Delegate:
 
@@ -114,16 +130,23 @@ class DemoHeliumPaywallDelegate: HeliumPaywallDelegate {
             return .failed(error)
         }
     }
+
+    func getCustomVariableValues() -> [String: Any?] {
+        return [
+            "userSubscriptionStatus": checkUserSubscriptionStatus(),
+            "userIntent": checkUserIntent(),
+        ]
+    }
 }
 ```
 
 ### Initialize Helium and Download Paywall Configs
 
 Somewhere in your app's initialization code (e.g. your `main App` if using SwiftUI, or `AppDelegate` if using ViewController), add the following line to actually download paywall config/variants.
-Don't worry about scheduling it on a background thread - we do that for you!
+We schedule it on a background thread, so you don't have to worry about it blocking your app's launch time.
 
 ```swift
-Helium.shared.initializeAndFetchVariants(
+Helium.shared.initialize(
     // you'll get this from Helium founders during setup!
     apiKey: "<your-helium-api-key>",
         

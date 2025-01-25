@@ -7,17 +7,17 @@ icon: 'lightbulb'
 ## **Deep dive: How it works**
 
 
-Our editor stack uses HTML/CSS to build customizable and performant paywalls that you can edit in seconds. **Here’s how it works:**
+Our editor stack uses HTML/CSS to build customizable and performant paywalls that you can edit in seconds. **Here's how it works:**
 
 -   User our visual editor to create any paywall. You can add components from the layout tab, or drag right from the blocks tab onto the editor.
     -   Add pre-created components like buttons and product selectors, or create your own. Upload your own fonts or images from the assets page, and add your own button interactions and subscribe actions on the right tab.
 -   Once your paywall is saved, Helium will optimize the HTML/CSS and bundle it to be ready for remote fetching and rendering.
--   When a user opens their app and you call **`initialize`** the paywall will be fetched down. We’ve heavily optimized our serving infrastructure to get to an average latency of around 75ms.
+-   When a user opens their app and you call **`initialize`** the paywall will be fetched down. We've heavily optimized our serving infrastructure to get to an average latency of around 75ms.
     -   Assets like fonts and images will then be cached to reduce latency further on the next app opens.
 -   Then, when you decide to **`triggerUpsell`** the paywall will display immediately. Because we preload all assets there is generally no loading time.
 -   Any actions the user takes with the paywall are translated with our SDK, leading to virtually no incremental delays on actions like opening bottomsheets, switching plans, or subscribing.
--   We’ve extensively tested our paywalls and shown them to convert just as well as native paywalls [and even better once you run your first tests ;)]. We’re always happy to work together to run a comparison test to prove it out.
--   Once your paywalls are implemented, now you’ll be able to run tests in just minutes instead of days! Get growing!
+-   We've extensively tested our paywalls and shown them to convert just as well as native paywalls [and even better once you run your first tests ;)]. We're always happy to work together to run a comparison test to prove it out.
+-   Once your paywalls are implemented, now you'll be able to run tests in just minutes instead of days! Get growing!
 
 ## **How to plan your paywall experiments**
 
@@ -51,8 +51,8 @@ Free trials can significantly reduce purchase friction by letting users taste th
 Choosing the right pricing structure has a huge impact on LTV and monthly recurring revenue.
 
 -   **Begin with 2–3 Durations**: Example: Monthly, Annual, and possibly weekly.
--   **Test prices**: Start by testing drastically different price values (e.g. $2.99 and $11.99) to triangulate the tradeoff between LTV and conversion. Realize that higher prices will generally have lower trial to paid conversion and retention. 
--   **Price annual as a premium on monthly LTV**:  Longer duration will tend to be more valuable, and you'll often want to discount it down to slightly above your LTV on the shorter plans. E.g. if your monthly plan costs $6.99 and your average retention is 4.5 months, your LTV is around $31.46 (ignoring re-subscribes). You may consider pricing the annual offering at ~$49.99, which is about a 40% discount from 12 months of the monthly rate, but still >50% higher LTV than your monthly plan.
+-   **Test prices**: Start by testing drastically different price values (e.g. 2.99 and 11.99) to triangulate the tradeoff between LTV and conversion. Realize that higher prices will generally have lower trial to paid conversion and retention. 
+-   **Price annual as a premium on monthly LTV**:  Longer duration will tend to be more valuable, and you'll often want to discount it down to slightly above your LTV on the shorter plans. E.g. if your monthly plan costs 6.99 and your average retention is 4.5 months, your LTV is around 31.46 (ignoring re-subscribes). You may consider pricing the annual offering at ~$49.99, which is about a 40% discount from 12 months of the monthly rate, but still >50% higher LTV than your monthly plan.
 -   **Plan differentiation**: Once you have solid traction on your initial plans, consider adding higher-tier plans to take advantage of populations with higher willingness to pay. 
 
 ----------
@@ -63,15 +63,15 @@ How you frame your plans can be just as important as the price itself.
 
 -   **Plan Highlights**: Test showing the number of plans you show, plan naming, and how you present the plans. Generally two stacked full-width product offerings work best, but all apps vary. 
 -   **Uniform Pricing Units**: Show all prices in weekly terms or highlight the monthly equivalent of the annual plan. E.g. 
-	- Monthly:  $3.99/mo 
-	- Yearly: $2.99/mo (billed as $36 yearly)
+	- Monthly: 3.99/mo 
+	- Yearly: 2.99/mo (billed as $36 yearly)
 -   **Default Selection**: Pre-select your preferred plan, but keep toggling simple for a user-friendly experience.
 
 ----------
 
 ### 5. General Display
 
-A paywall’s layout and messaging should clearly convey why your premium is worth it.
+A paywall's layout and messaging should clearly convey why your premium is worth it.
 
 -   **Core Benefits**: Test different hero value propositions and highlighted features
 -   **Layout & Hierarchy**:    Use design elements (color, icons) to draw attention to the primary action and top value plan.
@@ -87,7 +87,7 @@ Discounts can boost conversions but should be used strategically to avoid diluti
 
 -   **Exit Discounts**" Offer a discount when a user tries to close the paywall.
 -   **Win-Back Discounts**: Send targeted offers to users who have canceled or shown signs of churn.
--   **Time-Limited Promotions**: Create urgency with a countdown timer or “limited time” messaging.
+-   **Time-Limited Promotions**: Create urgency with a countdown timer or "limited time" messaging.
 
 ----------
 

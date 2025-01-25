@@ -32,12 +32,17 @@
     {
       "group": "SDK",
       "pages": [
-        "sdk/quickstart"
+        "sdk/quickstart-ios"
       ]
     }, {
       "group": "Targeting",
       "pages": [
         "targeting/dynamic-variables"
+      ]
+    }, {
+      "group": "Background",
+      "pages": [
+        "background/how-it-works"
       ]
     }
   ]

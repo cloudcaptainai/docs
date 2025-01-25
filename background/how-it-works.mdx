@@ -1,0 +1,102 @@
+---
+title: 'How it works'
+description: 'How Helium works'
+icon: 'lightbulb'
+---
+
+## **Deep dive: How it works**
+
+
+Our editor stack uses HTML/CSS to build customizable and performant paywalls that you can edit in seconds. **Here’s how it works:**
+
+-   User our visual editor to create any paywall. You can add components from the layout tab, or drag right from the blocks tab onto the editor.
+    -   Add pre-created components like buttons and product selectors, or create your own. Upload your own fonts or images from the assets page, and add your own button interactions and subscribe actions on the right tab.
+-   Once your paywall is saved, Helium will optimize the HTML/CSS and bundle it to be ready for remote fetching and rendering.
+-   When a user opens their app and you call **`initialize`** the paywall will be fetched down. We’ve heavily optimized our serving infrastructure to get to an average latency of around 75ms.
+    -   Assets like fonts and images will then be cached to reduce latency further on the next app opens.
+-   Then, when you decide to **`triggerUpsell`** the paywall will display immediately. Because we preload all assets there is generally no loading time.
+-   Any actions the user takes with the paywall are translated with our SDK, leading to virtually no incremental delays on actions like opening bottomsheets, switching plans, or subscribing.
+-   We’ve extensively tested our paywalls and shown them to convert just as well as native paywalls [and even better once you run your first tests ;)]. We’re always happy to work together to run a comparison test to prove it out.
+-   Once your paywalls are implemented, now you’ll be able to run tests in just minutes instead of days! Get growing!
+
+## **How to plan your paywall experiments**
+
+Here's our suggestion on how to experiment on your paywalls: 
+
+### 1. Presentations
+
+If your users rarely see the paywall, all other optimizations are moot. Aim for at least 80% of weekly active users (WAU) to encounter it. 
+
+The easiest way to do that is just shop pop-ups on app open, but those tend to be low conversion. The best way to drive high-conversion paywall presentations is to encourage users to engage with "Premium" or "Gated" functionality that leads them to a paywall — pique their curiosity get them excited about what they'll get with premium.
+
+- **Add new entrypoints:** Find opportunities to encourage people to "try" your premium features. It's often effective to add paywall entrypoints that would lead directly to the Premium functionality. E.g. if one of your premium features lets you "Talk with an AI coach", don't make the entrypoint "Buy premium to talk to AI", instead find a natural place to add a CTA "Get best practices from a virtual coach" that leads to your paywall.
+- **Add a paywall in onboarding**: You should *always* add a paywall in onboarding as this generally accounts for well over >50% of conversions for most apps. This can seem scary as it's before users have seen your app, but is generally the moment of maximum intent and maximum volume. 
+- **Add a persistent Premium CTA**: Often users are curious about premium, and you want to make it extremely low effort for them to discover your subscription. Often this is best achieved through a persistent, always-viewable CTA. This could be a top-banner, a bottom tab item, or a pinned item in a feed. Generally apps pair this with an option to upgrade in settings or profile.
+- **Announce relevant features**: If you add new premium features, consider adding banners, modals, or cards to advertise the new feature and drive users into the paywall flow. 
+
+----------
+
+### 2. Trials
+
+Free trials can significantly reduce purchase friction by letting users taste the benefits risk-free.
+
+-   **Trial Length Variations** :   3-day vs. 7-day vs. 14-day: Test which length results in the best balance between user trust and eventual paid conversion.
+-   **Onboarding Trial Offer**:   Prompt new users to start a free trial after they see a key use case of your app.
+-   **Reminder & Transparency**: Test sending reminders before a trial ends, clearly stating when billing will begin.
+
+----------
+
+### 3. Pricing and Plans
+
+Choosing the right pricing structure has a huge impact on LTV and monthly recurring revenue.
+
+-   **Begin with 2–3 Durations**: Example: Monthly, Annual, and possibly weekly.
+-   **Test prices**: Start by testing drastically different price values (e.g. $2.99 and $11.99) to triangulate the tradeoff between LTV and conversion. Realize that higher prices will generally have lower trial to paid conversion and retention. 
+-   **Price annual as a premium on monthly LTV**:  Longer duration will tend to be more valuable, and you'll often want to discount it down to slightly above your LTV on the shorter plans. E.g. if your monthly plan costs $6.99 and your average retention is 4.5 months, your LTV is around $31.46 (ignoring re-subscribes). You may consider pricing the annual offering at ~$49.99, which is about a 40% discount from 12 months of the monthly rate, but still >50% higher LTV than your monthly plan.
+-   **Plan differentiation**: Once you have solid traction on your initial plans, consider adding higher-tier plans to take advantage of populations with higher willingness to pay. 
+
+----------
+
+### 4. Product Display
+
+How you frame your plans can be just as important as the price itself.
+
+-   **Plan Highlights**: Test showing the number of plans you show, plan naming, and how you present the plans. Generally two stacked full-width product offerings work best, but all apps vary. 
+-   **Uniform Pricing Units**: Show all prices in weekly terms or highlight the monthly equivalent of the annual plan. E.g. 
+	- Monthly:  $3.99/mo 
+	- Yearly: $2.99/mo (billed as $36 yearly)
+-   **Default Selection**: Pre-select your preferred plan, but keep toggling simple for a user-friendly experience.
+
+----------
+
+### 5. General Display
+
+A paywall’s layout and messaging should clearly convey why your premium is worth it.
+
+-   **Core Benefits**: Test different hero value propositions and highlighted features
+-   **Layout & Hierarchy**:    Use design elements (color, icons) to draw attention to the primary action and top value plan.
+-   **Exit styles**:  Test different exit CTAs, including location (top left corner, top right corner, bottom). Often text can work better than "X's" — E.g. "Skip", "I don't want this")
+-   **Social Proof**: Display testimonials, ratings, or user counts to add credibility.
+-   **Purchase CTA**: Generally less committal CTAs ("Start trial", "Try now", "Continue") work better than more committal CTAs ("Buy now", "Subscribe")
+
+----------
+
+### 6. Discounting
+
+Discounts can boost conversions but should be used strategically to avoid diluting perceived value.
+
+-   **Exit Discounts**" Offer a discount when a user tries to close the paywall.
+-   **Win-Back Discounts**: Send targeted offers to users who have canceled or shown signs of churn.
+-   **Time-Limited Promotions**: Create urgency with a countdown timer or “limited time” messaging.
+
+----------
+
+### 7. Personalization
+
+Tailoring paywalls to various user segments lets you fine-tune pricing and messaging. This is often some of the most valuable testing you can run, but also the hardest. This is where Helium's SmartSelect algorithm can help. 
+
+-   **Cohort-Based**": High-intent power users vs. casual users may respond differently to certain price points or offers.
+-   **Geo-Specific**:    Adjust pricing based on region to match local purchasing power.
+-   **Behavioral Triggers**: Offer different discounts or highlight different premium features based on past in-app actions.
+
+Good luck and get growing!

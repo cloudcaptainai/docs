@@ -30,6 +30,12 @@
   ],
   "navigation": [
     {
+      "group": "Home",
+      "pages": [
+        "welcome"
+      ]
+    },
+    {
       "group": "SDK",
       "pages": [
         "sdk/quickstart-ios"

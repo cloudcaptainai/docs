@@ -156,49 +156,37 @@ Helium.shared.initialize(
     // Defines a fallback paywall to show in case the user's device is not connected to the internet.
     fallbackView: (any View)? = nil,
 
-    // If set, a custom user id to use instead of Helium's. (e.g. from your own analytics service)
+    // If set, a custom user id to use instead of Helium's. (e.g. an amplitude user id, or a custom user id from your own analytics service)
     customUserId: String? = nil
+
+    // Pass in custom user traits to be used for targeting, personalization, and dynamic content.
+    customUserTraits: HeliumUserTraits? = nil,
 )
 ```
 
-Here's a full example, using the demo paywall delegate from above.
+#### Passing in Custom User Traits
+
+HeliumUserTraits is a struct that defines the possible user traits that can be passed in. It can be created with any dictionary, as long as the key is a string and the value is a `Codable` type.
 
 ```swift
-import Helium
-import HeliumCore
-
-@main
-struct helium_demoApp: App {
-    
-    init() {
-        let delegate = DemoHeliumPaywallDelegate()
-        
-        Helium.shared.initialize(
-            apiKey: "<your-helium-api-key>",
-            heliumPaywallDelegate: delegate,
-            useCache: true
-        )
-    }
-
-    var body: some Scene {
-        WindowGroup {
-            ContentView()
-        }
-    }
-}
+let customUserTraits = HeliumUserTraits(traits: [
+    "account_age": 100,
+    "subscription_status": "active",
+    "user_intent": "upgrade",
+])
 ```
 
-#### Custom user ID
+#### Passing in a Custom User ID
 
 By default, Helium generates a UUID per app session and identifies each user + interaction with this. You can pass override this value with a custom user id (e.g. from a 3rd party analytics service)
 by passing it in as a parameter in `Helium.shared.initializeAndFetchVariants`, or by explicitly calling `Helium.shared.overrideUserId`:
 
 ```swift
-// Somewhere BEFORE initializeAndFetchVariants:
+// Somewhere BEFORE initialize:
 Helium.shared.overrideUserId(newUserId: '<your-custom-user-id>');
 ```
 
-### Checking Download Status
+#### Checking Download Status
 
 After the initialization code above runs, you can check the status of the paywall configuration download using the `Helium.shared.downloadStatus()` method. This method returns a value of type `HeliumFetchedConfigStatus`, which is defined as follows:
 
@@ -306,7 +294,7 @@ components in the paywall to trigger those methods.
 
 ## Testing
 
-Docs here coming soon! After integration, please message us directly to get set up with a test app.
+Docs here coming soon! After integration, please message us directly to get set up with a test app + in-app test support.
 
 ## Paywall Events
 

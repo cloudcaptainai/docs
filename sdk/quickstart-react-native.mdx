@@ -9,12 +9,12 @@ icon: 'code'
 Get set up with the Helium SDK for iOS in 5 minutes. Reach out over your Helium slack channel, or email founders@tryhelium.com for any questions.
 ## **Installation**
 
-Install **@helium/react-native** using your preferred package manager:
+Install **@tryhelium/paywall-sdk** using your preferred package manager:
 
 ```bash
-npm install @helium/react-native
+npm install @tryhelium/paywall-sdk
 # or
-yarn add @helium/react-native
+yarn add @tryhelium/paywall-sdk
 ```
 
 ## **Configuration**
@@ -24,7 +24,7 @@ yarn add @helium/react-native
 Wrap your app's root component with `HeliumProvider`. This provider makes Helium's functionality available throughout your app:
 
 ```tsx
-import { HeliumProvider } from '@helium/react-native';
+import { HeliumProvider } from '@tryhelium/paywall-sdk';
 
 function App() {
   return (
@@ -43,7 +43,7 @@ function App() {
 Initialize Helium by calling `Helium.initialize()` early in your app's lifecycle, typically in your root component:
 
 ```tsx
-import { initializeHelium } from '@helium/react-native';
+import { initializeHelium } from '@tryhelium/paywall-sdk';
 
 function App() {
   useEffect(() => {
@@ -144,7 +144,7 @@ const paymentDelegate: HeliumPaymentDelegate = {
 Monitor the status of paywall configuration downloads using the `useHeliumStatus` hook:
 
 ```typescript
-import { useHeliumStatus } from '@helium/react-native';
+import { useHeliumStatus } from '@tryhelium/paywall-sdk';
 
 function YourComponent() {
   const status = useHeliumStatus();
@@ -174,7 +174,7 @@ function YourComponent() {
 Use the `presentPaywall` method in any component under the `HeliumProvider` to present a paywall:
 
 ```typescript
-import { presentPaywall } from '@helium/react-native';
+import { presentPaywall } from '@tryhelium/paywall-sdk';
 
 function YourComponent() {
   const handlePremiumPress = useCallback(async () => {

@@ -38,7 +38,8 @@
     {
       "group": "SDK",
       "pages": [
-        "sdk/quickstart-ios"
+        "sdk/quickstart-ios",
+        "sdk/quickstart-react-native"
       ]
     }, {
       "group": "Targeting",

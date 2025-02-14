@@ -9,13 +9,65 @@ icon: 'code'
 Get set up with the Helium SDK for iOS in 5 minutes. Reach out over your Helium slack channel, or email founders@tryhelium.com for any questions.
 ## **Installation**
 
-Install **@tryhelium/paywall-sdk** using your preferred package manager:
+Install **@tryheliumai/paywall-sdk-react-native** using your preferred package manager:
 
 ```bash
-npm install @tryhelium/paywall-sdk
+npm install @tryheliumai/paywall-sdk-react-native
 # or
-yarn add @tryhelium/paywall-sdk
+yarn add @tryheliumai/paywall-sdk-react-native
 ```
+
+and then run the following to install the native dependencies:
+
+```bash
+npx react-native link @tryheliumai/paywall-sdk-react-native
+```
+
+### Expo installation
+
+If you're using Expo's managed workflow, you can install the package by adding it to your project:
+
+```bash
+npx expo install @tryheliumai/paywall-sdk-react-native
+```
+
+### If you see an error about "The following Swift pods cannot yet be integrated as static libraries"
+
+1) `cd` into your ios directory, and open the `Podfile`
+
+2) Add the following to the `target 'YourApp' do` section:
+
+```ruby
+pod 'Helium', :modular_headers => true
+pod 'Analytics', :modular_headers => true
+```
+
+Here's an example section with these modular_headers added:
+
+```
+target 'YourApp' do
+  use_expo_modules!
+
+  if ENV['EXPO_USE_COMMUNITY_AUTOLINKING'] == '1'
+    config_command = ['node', '-e', "process.argv=['', '', 'config'];require('@react-native-community/cli').run()"];
+  else
+    config_command = [
+      'node',
+      '--no-warnings',
+      '--eval',
+      'require(require.resolve(\'expo-modules-autolinking\', { paths: [require.resolve(\'expo/package.json\')] }))(process.argv.slice(1))',
+      'react-native-config',
+      '--json',
+      '--platform',
+      'ios'
+    ]
+  end
+  pod 'Helium', :modular_headers => true
+  pod 'Analytics', :modular_headers => true
+end
+```
+
+3) Then, rerun `npx expo install @tryheliumai/paywall-sdk-react-native`, and you should see the pods correctly install.
 
 ## **Configuration**
 
@@ -24,13 +76,12 @@ yarn add @tryhelium/paywall-sdk
 Wrap your app's root component with `HeliumProvider`. This provider makes Helium's functionality available throughout your app:
 
 ```tsx
-import { HeliumProvider } from '@tryhelium/paywall-sdk';
+import { HeliumProvider } from '@tryheliumai/paywall-sdk-react-native';
 
 function App() {
   return (
     <HeliumProvider
-      apiKey="<your-helium-api-key>"
-      fallbackComponent={YourFallbackComponent}
+      fallbackComponent={YourFallbackPaywallComponent}
     >
       <YourAppComponent />
     </HeliumProvider>
@@ -38,12 +89,14 @@ function App() {
 }
 ```
 
+The fallback paywall component should be a react native component that renders a fallback paywall for users who don't have network connectivity.
+
 ### Initialization
 
 Initialize Helium by calling `Helium.initialize()` early in your app's lifecycle, typically in your root component:
 
 ```tsx
-import { initializeHelium } from '@tryhelium/paywall-sdk';
+import { initializeHelium } from '@tryheliumai/paywall-sdk-react-native';
 
 function App() {
   useEffect(() => {

@@ -148,9 +148,6 @@ export interface HeliumPaymentDelegate {
 
   // [OPTIONAL] Handle Helium paywall events
   onPaywallEvent?: (event: HeliumPaywallEvent) => void;
-
-  // [OPTIONAL] Provides custom variables for dynamic paywall content
-  getCustomVariables?: () => Record<string, any>;
 }
 ```
 

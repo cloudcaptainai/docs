@@ -225,15 +225,15 @@ function YourComponent() {
 
 ### Using the Hook
 
-Use the `presentPaywall` method in any component under the `HeliumProvider` to present a paywall:
+Use the `presentUpsell` method in any component under the `HeliumProvider` to present a paywall:
 
 ```typescript
-import { presentPaywall } from '@tryhelium/paywall-sdk';
+import { presentUpsell } from '@tryhelium/paywall-sdk-react-native';
 
 function YourComponent() {
   const handlePremiumPress = useCallback(async () => {
-    await presentPaywall({ trigger: 'premium_feature_press' });
-  }, [presentPaywall]);
+    await presentUpsell('premium_feature_press');
+  }, [presentUpsell]);
 
   return (
     <Button title="Try Premium" onPress={handlePremiumPress} />

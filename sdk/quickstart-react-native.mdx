@@ -193,39 +193,10 @@ const paymentDelegate: HeliumPaymentDelegate = {
 };
 ```
 
-### Checking Download Status
-
-Monitor the status of paywall configuration downloads using the `useHeliumStatus` hook:
-
-```typescript
-import { useHeliumStatus } from '@tryhelium/paywall-sdk';
-
-function YourComponent() {
-  const status = useHeliumStatus();
-
-  useEffect(() => {
-    switch (status.type) {
-      case 'not_downloaded':
-        console.log('Download not started or in progress');
-        break;
-      case 'success':
-        console.log('Download successful with config ID:', status.configId);
-        break;
-      case 'error':
-        console.log('Download failed');
-        break;
-    }
-  }, [status]);
-
-  return <YourContent />;
-}
-```
-
 ## **Presenting Paywalls**
 
-### Using the Hook
-
-Use the `presentUpsell` method in any component under the `HeliumProvider` to present a paywall:
+Use the `presentUpsell` method in any component under the `HeliumProvider` to present a paywall. `presentUpsell` takes in one argument,
+the `triggerName`, and will open the paywall as a full screen modal.
 
 ```typescript
 import { presentUpsell } from '@tryhelium/paywall-sdk-react-native';
@@ -241,7 +212,7 @@ function YourComponent() {
 }
 ```
 
-### Custom Navigation
+## Custom Navigation
 
 Handle custom navigation or dismissal by implementing the `onPaywallEvent` method in your payment delegate:
 

@@ -132,22 +132,14 @@ function App() {
 
 ### Callbacks Implementation
 
-Helium lets you define your own purchase, restoration logic, and callbacks to execute on common events. You create an object of type `HeliumCallbacks`, implement
+Helium lets you define your own purchase, restoration logic, and callbacks to execute on common events.
 
-- `makePurchase`: (productId: string) => Promise<HeliumTransactionStatus>;
-- `restorePurchases`: () => Promise<boolean>;
-- `onHeliumPaywallEvent`: (event: any) => void;
-
+To do this, create an object of type `HeliumCallbacks` that matches this interface, and then pass it in 
+as the first argument to the `initialize()` call above:
 
 ```typescript
-export type HeliumTransactionStatus =
-  | { type: 'purchased' }
-  | { type: 'failed' }
-  | { type: 'cancelled' }
-  | { type: 'restored' }
-  | { type: 'pending' };
 
-export interface YourHeliumCallbacks {
+export interface HeliumCallbacks {
   // [REQUIRED] Trigger the purchase of a product
   makePurchase: (productId: string) => Promise<HeliumTransactionStatus>;
 
@@ -157,16 +149,125 @@ export interface YourHeliumCallbacks {
   // [OPTIONAL] Handle Helium paywall events
   onPaywallEvent?: (event: HeliumPaywallEvent) => void;
 }
+
+export type HeliumTransactionStatus =
+  | { type: 'purchased' }
+  | { type: 'failed' }
+  | { type: 'cancelled' }
+  | { type: 'restored' }
+  | { type: 'pending' };
+
 ```
 
 ### Example Callbacks Implementation
 
+You can wire up your own purchase logic to Helium by creating an object or instance of a class that adheres to the `HeliumCallbacks`. In this section,
+we define a few example classes. To pass them in to initialize() you'd create a new instance of the class.
+
+#### Use RevenueCat with Helium
+
+This class demonstrates how to implement a RevenueCat purchasing flow with Helium. It assumes you have packages that are stored in revenuecat's api.
+**Important** This class assumes that you've already installed and configured RevenueCat's `Purchases` client - if not, follow [`https://www.revenuecat.com/docs/getting-started/configuring-sdk`](https://www.revenuecat.com/docs/getting-started/configuring-sdk) for more details.
+Make sure that the Purchases client is configured before initializing this object.
+
+```javascript
+import { HELIUM_CTA_NAMES, HeliumCallbacks, HeliumTransactionStatus } from '@tryheliumai/paywall-sdk-react-native';
+import { track } from '@amplitude/analytics-react-native';
+import Purchases, { PURCHASES_ERROR_CODE } from 'react-native-purchases';
+import { Linking } from 'react-native';
+
+// RevenueCat implementation example
+export class RevenueCatHeliumCallbacks {
+  constructor() {
+    this.events = [];
+    this.productIdToPackageMapping = {};
+    this.initializePackageMapping();
+  }
+
+  async initializePackageMapping() {
+    try {
+      // In a real implementation, you would fetch packages from RevenueCat
+      // This is just a placeholder for demonstration purposes
+      const offerings = await Purchases.getOfferings();
+      if (offerings.current?.availablePackages) {
+        // Map product IDs to their corresponding packages
+        offerings.current.availablePackages.forEach(pkg => {
+          if (pkg.product.identifier) {
+            this.productIdToPackageMapping[pkg.product.identifier] = pkg;
+          }
+        });
+      }
+    } catch (error) {
+      console.error('Failed to initialize package mapping:', error);
+    }
+  }
+
+  async makePurchase(productId) {
+    try {
+      const pkg = this.productIdToPackageMapping[productId];
+      const { customerInfo } = await Purchases.purchasePackage(pkg);
+
+      if (customerInfo.activeSubscriptions.includes(productId)) {
+        return 'purchased';
+      }
+      return 'failed';
+    } catch (error) {
+      const purchasesError = error;
+      if (purchasesError && purchasesError.code === PURCHASES_ERROR_CODE.PAYMENT_PENDING_ERROR) {
+        return 'pending';
+      }
+      if (purchasesError && purchasesError.code === PURCHASES_ERROR_CODE.PURCHASE_CANCELLED_ERROR) {
+        return 'cancelled';
+      }
+      return 'failed';
+    }
+  }
+
+  async restorePurchases() {
+    try {
+      const customerInfo = await Purchases.restorePurchases();
+      // Check if any entitlements are active after restoration
+      return Object.keys(customerInfo.entitlements.active).length > 0;
+    } catch (error) {
+      console.error('Failed to restore purchases:', error);
+      return false;
+    }
+  }
+
+  onHeliumPaywallEvent(event) {
+    switch (event.type) {
+      case 'paywallOpen':
+        break;
+      case 'ctaPressed':
+        // Paywalls will be configured for you with different CTA names that correspond to common functionality.
+        if (event.ctaName === HELIUM_CTA_NAMES.SCHEDULE_CALL) {
+          Linking.openURL('https://example.com');
+        }
+        break;
+      case 'subscriptionSucceeded':
+        const rcPackage = this.productIdToPackageMapping[event.productKey];
+        // Helium will automatically track subscription successes with an event called `helium_subscriptionSucceeded`
+        // You can also track your own custom events like this, e.g. this event will also associate revenuecat info with the event:
+        track('rc_subscription_succeeded', {
+          productKey: event.productKey,
+          productName: rcPackage?.product.title,
+          price: rcPackage?.product.priceString,
+          currency: rcPackage?.product.currencyCode,
+          // ... etc
+        });
+        break;
+    }
+  }
+}
+```
+
+#### Use the `react-native-iap` library with Helium
 Here's an example callbacks implementation using React Native's in-app purchases:
 
 ```typescript
 import * as RNIap from 'react-native-iap';
 
-const paymentDelegate = {
+export class ReactNativeIAPHeliumCallbacks {
   async makePurchase(productId: string): Promise<HeliumTransactionStatus> {
     try {
       const products = await RNIap.getProducts([productId]);
@@ -190,13 +291,6 @@ const paymentDelegate = {
       console.error('Restore failed:', error);
       return false;
     }
-  },
-
-  getCustomVariables() {
-    return {
-      userSubscriptionStatus: checkUserSubscriptionStatus(),
-      userIntent: checkUserIntent(),
-    };
   }
 };
 ```

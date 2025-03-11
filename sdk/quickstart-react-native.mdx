@@ -97,25 +97,29 @@ The fallback paywall component should be a react native component that renders a
 
 ### Initialization
 
-Initialize Helium by calling `Helium.initialize()` early in your app's lifecycle, typically in your root component:
+Initialize Helium by calling `initialize()` early in your app's lifecycle, typically in your root component.
+`initialize` takes in two arguments: a callbacks object that implements your purchase + callback logic (makePurchase, restorePurchases, and onHeliumPaywallEvent), and 
+a dictionary of type `HeliumConfig` that defines additional values.
+
+We'll go into the format of the callbacks object in the next section.
 
 ```tsx
-import { initializeHelium } from '@tryheliumai/paywall-sdk-react-native';
+import { initialize } from '@tryheliumai/paywall-sdk-react-native';
 
 function App() {
+  const callbacks = {
+    ...
+  }
   useEffect(() => {
-    initializeHelium({
+    initialize(callbacks, {
       // Helium provided api key
       apiKey: '<your-helium-api-key>',
-
-      // Purchase handlers: described in next section
-      delegate: yourDelegate
 
       // Custom user id - e.g. your amplitude analytics user id.
       customUserId: '<your-custom-user-id>',
 
       // Helium provided custom API endpoint
-      customApiEndpoint: '<your-custom-api-endpoint>',
+      customAPIEndpoint: '<your-custom-api-endpoint>',
 
       // Custom user traits
       customUserTraits: {
@@ -126,20 +130,24 @@ function App() {
 }
 ```
 
-### Payment Delegate Implementation
+### Callbacks Implementation
 
-Create a payment delegate object that implements the `HeliumPaymentDelegate` interface. This delegate handles purchase logic for your paywalls:
+Helium lets you define your own purchase, restoration logic, and callbacks to execute on common events. You create an object of type `HeliumCallbacks`, implement
+
+- `makePurchase`: (productId: string) => Promise<HeliumTransactionStatus>;
+- `restorePurchases`: () => Promise<boolean>;
+- `onHeliumPaywallEvent`: (event: any) => void;
+
 
 ```typescript
 export type HeliumTransactionStatus =
   | { type: 'purchased' }
+  | { type: 'failed' }
   | { type: 'cancelled' }
-  | { type: 'abandoned' }
-  | { type: 'failed', error: Error }
   | { type: 'restored' }
   | { type: 'pending' };
 
-export interface HeliumPaymentDelegate {
+export interface YourHeliumCallbacks {
   // [REQUIRED] Trigger the purchase of a product
   makePurchase: (productId: string) => Promise<HeliumTransactionStatus>;
 
@@ -151,14 +159,14 @@ export interface HeliumPaymentDelegate {
 }
 ```
 
-### Example Delegate
+### Example Callbacks Implementation
 
-Here's an example delegate using React Native's in-app purchases:
+Here's an example callbacks implementation using React Native's in-app purchases:
 
 ```typescript
 import * as RNIap from 'react-native-iap';
 
-const paymentDelegate: HeliumPaymentDelegate = {
+const paymentDelegate = {
   async makePurchase(productId: string): Promise<HeliumTransactionStatus> {
     try {
       const products = await RNIap.getProducts([productId]);
@@ -199,7 +207,7 @@ Use the `presentUpsell` method in any component under the `HeliumProvider` to pr
 the `triggerName`, and will open the paywall as a full screen modal.
 
 ```typescript
-import { presentUpsell } from '@tryhelium/paywall-sdk-react-native';
+import { presentUpsell } from '@tryheliumai/paywall-sdk-react-native';
 
 function YourComponent() {
   const handlePremiumPress = useCallback(async () => {

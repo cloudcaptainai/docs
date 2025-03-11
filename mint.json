@@ -19,13 +19,13 @@
   ],
   "topbarCtaButton": {
     "name": "Schedule Demo",
-    "url": "https://cal.com/anishdoshi/chat"
+    "url": "https://app.apollo.io/#/meet/managed-meetings/zach_witzel_10c/q2n-ntd-ivh/30-min"
   },
   "anchors": [
     {
       "name": "More Info",
       "icon": "rocket",
-      "url": "https://www.ycombinator.com/launches/LXq-helium-improve-your-paywall-at-the-speed-of-thought"
+      "url": "https://tryhelium.com"
     }
   ],
   "navigation": [
@@ -39,9 +39,11 @@
       "group": "SDK",
       "pages": [
         "sdk/quickstart-ios",
-        "sdk/quickstart-react-native"
+        "sdk/quickstart-react-native",
+        "sdk/helium-events"
       ]
-    }, {
+    }, 
+    {
       "group": "Targeting",
       "pages": [
         "targeting/dynamic-variables"

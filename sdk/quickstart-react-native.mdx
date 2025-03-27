@@ -297,15 +297,20 @@ export class ReactNativeIAPHeliumCallbacks {
 
 ## **Presenting Paywalls**
 
-Use the `presentUpsell` method in any component under the `HeliumProvider` to present a paywall. `presentUpsell` takes in one argument,
-the `triggerName`, and will open the paywall as a full screen modal.
+Use the `presentUpsell` method in any component under the `HeliumProvider` to present a paywall. `presentUpsell` takes in a dictionary
+specifying the `triggerName` as well as an optional `onFallback` parameter defining custom fallback behavior (in case the user didn't have network)
 
 ```typescript
 import { presentUpsell } from '@tryheliumai/paywall-sdk-react-native';
 
 function YourComponent() {
   const handlePremiumPress = useCallback(async () => {
-    await presentUpsell('premium_feature_press');
+    await presentUpsell({
+      triggerName: 'premium_feature_press',
+      onFallback: () => {
+        openFallbackPaywall();
+      }
+    });
   }, [presentUpsell]);
 
   return (

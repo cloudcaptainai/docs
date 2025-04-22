@@ -94,7 +94,7 @@ class DemoHeliumPaywallDelegate: HeliumPaywallDelegate {
         }
     }
     
-    func makePurchase(productId: String) async -> HeliumCore.HeliumPaywallTransactionStatus {
+    func makePurchase(productId: String) async -> HeliumPaywallTransactionStatus {
         do {
             let result = try await self.subscriptions[1].purchase();
             switch (result) {
@@ -342,7 +342,7 @@ class YourHeliumPaywallDelegate: HeliumPaywallDelegate {
     func onHeliumPaywallEvent(event: HeliumPaywallEvent) {
         switch (event) {
             case .ctaPressed(let ctaName, let triggerName, let paywallTemplateName): {
-                if (ctaName === 'dismiss') {
+                if (ctaName == 'dismiss') {
                     // your custom dismissal action for this trigger
                 }
             }

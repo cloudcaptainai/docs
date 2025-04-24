@@ -228,6 +228,55 @@ export class RevenueCatHeliumCallbacks {
 }
 ```
 
+#### Using Adapty with Helium
+```typescript
+import { adapty, AdaptyProduct, AdaptyError, AdaptyProfile } from 'react-native-adapty';
+import { HeliumPaymentDelegate, HeliumTransactionStatus } from '@tryhelium/paywall-sdk-react-native';
+
+export class AdaptyHeliumDelegate implements HeliumPaymentDelegate {
+  // Map of product identifiers to Adapty product objects
+  private productMap: Record<string, AdaptyProduct>;
+
+  constructor(products: AdaptyProduct[]) {
+    // Initialize mapping from store product IDs to AdaptyProduct
+    this.productMap = {};
+    for (const product of products) {
+      this.productMap[product.vendorProductId] = product;
+    }
+  }
+
+  async makePurchase(productId: string): Promise<HeliumTransactionStatus> {
+    try {
+      const product = this.productMap[productId];
+      if (!product) {
+        throw new Error(`Product ${productId} not found in Adapty products`);
+      }
+      // Use Adapty to initiate the purchase
+      await adapty.makePurchase(product);
+      return { type: 'purchased' };
+    } catch (error: any) {
+      if (error instanceof AdaptyError && error.userCancelled) {
+        // The purchase flow was cancelled by the user
+        return { type: 'cancelled' };
+      }
+      // An error occurred during purchase
+      return { type: 'failed', error };
+    }
+  }
+
+  async restorePurchases(): Promise<boolean> {
+    try {
+      const profile: AdaptyProfile = await adapty.restorePurchases();
+      // Return true if the user has any active entitlement after restore
+      return Object.values(profile.accessLevels).some(level => level.isActive);
+    } catch (error) {
+      console.error('Restore failed:', error);
+      return false;
+    }
+  }
+}
+```
+
 #### Use the `react-native-iap` library with Helium
 Here's an example callbacks implementation using React Native's in-app purchases:
 

@@ -297,9 +297,9 @@ You can present a paywall programmatically using the `presentUpsell` method:
 
 ```dart
 ElevatedButton(
-  onPressed: () async {
+  onPressed: () {
     final heliumFlutter = HeliumFlutter();
-    await heliumFlutter.presentUpsell(context: context, trigger: 'onboarding');
+    heliumFlutter.presentUpsell(context: context, trigger: 'onboarding');
   },
   child: Text('Show Premium Features'),
 ),

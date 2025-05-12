@@ -11,6 +11,8 @@ Get set up with the Helium SDK for iOS in 5 minutes. Reach out over your Helium 
 
 Install **@tryheliumai/paywall-sdk-react-native** using your preferred package manager:
 
+We use semantic versioning and recommend version 0.2.0+
+
 ```bash
 npm install @tryheliumai/paywall-sdk-react-native
 # or
@@ -38,55 +40,67 @@ with all kinds of versioning, upgrade, and custom build plugin work.
 
 ## **Configuration**
 
-### Provider Setup
+### Wrap things in a `HeliumProvider`
 
-Wrap your app's root component with `HeliumProvider`. This provider makes Helium's functionality available throughout your app:
+Wrap a suitably root-y component with `HeliumProvider`. We recommend placing wrapping your navigation provider, but placing HeliumProvider UNDER your sentry error boundary, to make sure
+errors get logged.
 
 ```tsx
 import { HeliumProvider } from '@tryheliumai/paywall-sdk-react-native';
 
 function App() {
   return (
-    <HeliumProvider
-      fallbackView={() => (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <Text>Your native paywall component</Text>
-        </View>
-      )}
-    >
+    <HeliumProvider>
       <YourAppComponent />
     </HeliumProvider>
   );
 }
 ```
 
-The fallback paywall component should be a react native component that renders a fallback paywall for users who don't have network connectivity.
-
 ### Initialization
 
 Initialize Helium by calling `initialize()` early in your app's lifecycle, typically in your root component.
-`initialize` takes in two arguments: a callbacks object that implements your purchase + callback logic (makePurchase, restorePurchases, and onHeliumPaywallEvent), and 
-a dictionary of type `HeliumConfig` that defines additional values.
-
-We'll go into the format of the callbacks object in the next section.
+`initialize` takes in a configuration object that includes your purchase config, event handlers, and other settings.
 
 ```tsx
-import { initialize } from '@tryheliumai/paywall-sdk-react-native';
+import { initialize, createRevenueCatPurchaseConfig, createCustomPurchaseConfig } from '@tryheliumai/paywall-sdk-react-native';
 
 function App() {
-  const callbacks = {
-    ...
-  }
   useEffect(() => {
-    initialize(callbacks, {
+    initialize({
       // Helium provided api key
       apiKey: '<your-helium-api-key>',
 
-      // Custom user id - e.g. your amplitude analytics user id.
+      // Custom user id - e.g. your amplitude analytics user id. 
       customUserId: '<your-custom-user-id>',
 
-      // Helium provided custom API endpoint
-      customAPIEndpoint: '<your-custom-api-endpoint>',
+      // Purchase configuration
+      purchaseConfig: createCustomPurchaseConfig({
+        makePurchase: async (productId) => {
+          // Your purchase logic here
+          return { type: 'purchased' };
+        },
+        restorePurchases: async () => {
+          // Your restore logic here
+          return true;
+        }
+      }),
+
+      // Event handler for paywall events
+      onHeliumPaywallEvent: (event) => {
+        switch (event.type) {
+          case 'paywallOpen':
+            break;
+          case 'ctaPressed':
+            if (event.ctaName === HELIUM_CTA_NAMES.SCHEDULE_CALL) {
+              // Handle schedule call
+            }
+            break;
+          case 'subscriptionSucceeded':
+            // Handle successful subscription
+            break;
+        }
+      },
 
       // Custom user traits
       customUserTraits: {
@@ -97,219 +111,41 @@ function App() {
 }
 ```
 
-### Callbacks Implementation
+### Purchase Configuration
 
-Helium lets you define your own purchase, restoration logic, and callbacks to execute on common events.
-
-To do this, create an object of type `HeliumCallbacks` that matches this interface, and then pass it in 
-as the first argument to the `initialize()` call above:
-
-```typescript
-
-export interface HeliumCallbacks {
-  // [REQUIRED] Trigger the purchase of a product
-  makePurchase: (productId: string) => Promise<HeliumTransactionStatus>;
-
-  // [OPTIONAL] Restore existing subscriptions
-  restorePurchases?: () => Promise<boolean>;
-
-  // [OPTIONAL] Handle Helium paywall events
-  onPaywallEvent?: (event: HeliumPaywallEvent) => void;
-}
-
-export type HeliumTransactionStatus =
-  | { type: 'purchased' }
-  | { type: 'failed' }
-  | { type: 'cancelled' }
-  | { type: 'restored' }
-  | { type: 'pending' };
-
-```
-
-### Example Callbacks Implementation
-
-You can wire up your own purchase logic to Helium by creating an object or instance of a class that adheres to the `HeliumCallbacks`. In this section,
-we define a few example classes. To pass them in to initialize() you'd create a new instance of the class.
+If you're using RevenueCat, you can wire up purchase configuration with `createRevenueCatPurchaseConfig`. If using custom logic, use `createCustomPurchaseConfig`.
 
 #### Use RevenueCat with Helium
 
-This class demonstrates how to implement a RevenueCat purchasing flow with Helium. It assumes you have packages that are stored in revenuecat's api.
-**Important** This class assumes that you've already installed and configured RevenueCat's `Purchases` client - if not, follow [`https://www.revenuecat.com/docs/getting-started/configuring-sdk`](https://www.revenuecat.com/docs/getting-started/configuring-sdk) for more details.
-Make sure that the Purchases client is configured before initializing this object.
+**Important** Make sure that you've already
+- installed and configured RevenueCat's `Purchases` client - if not, follow [`https://www.revenuecat.com/docs/getting-started/configuring-sdk`](https://www.revenuecat.com/docs/getting-started/configuring-sdk) for more details.
+- have packages configured for each apple app store SKU
+- assigned on of your Offerings as "default"
 
 ```javascript
-import { HELIUM_CTA_NAMES, HeliumCallbacks, HeliumTransactionStatus } from '@tryheliumai/paywall-sdk-react-native';
-import { track } from '@amplitude/analytics-react-native';
-import Purchases, { PURCHASES_ERROR_CODE } from 'react-native-purchases';
+import { createRevenueCatPurchaseConfig, HELIUM_CTA_NAMES } from '@tryheliumai/paywall-sdk-react-native';
+
 import { Linking } from 'react-native';
 
-// RevenueCat implementation example
-export class RevenueCatHeliumCallbacks {
-  constructor() {
-    this.events = [];
-    this.productIdToPackageMapping = {};
-    this.initializePackageMapping();
-  }
-
-  async initializePackageMapping() {
-    try {
-      // In a real implementation, you would fetch packages from RevenueCat
-      // This is just a placeholder for demonstration purposes
-      const offerings = await Purchases.getOfferings();
-      if (offerings.current?.availablePackages) {
-        // Map product IDs to their corresponding packages
-        offerings.current.availablePackages.forEach(pkg => {
-          if (pkg.product.identifier) {
-            this.productIdToPackageMapping[pkg.product.identifier] = pkg;
-          }
-        });
-      }
-    } catch (error) {
-      console.error('Failed to initialize package mapping:', error);
-    }
-  }
-
-  async makePurchase(productId) {
-    try {
-      const pkg = this.productIdToPackageMapping[productId];
-      const { customerInfo } = await Purchases.purchasePackage(pkg);
-
-      if (customerInfo.activeSubscriptions.includes(productId)) {
-        return 'purchased';
-      }
-      return 'failed';
-    } catch (error) {
-      const purchasesError = error;
-      if (purchasesError && purchasesError.code === PURCHASES_ERROR_CODE.PAYMENT_PENDING_ERROR) {
-        return 'pending';
-      }
-      if (purchasesError && purchasesError.code === PURCHASES_ERROR_CODE.PURCHASE_CANCELLED_ERROR) {
-        return 'cancelled';
-      }
-      return 'failed';
-    }
-  }
-
-  async restorePurchases() {
-    try {
-      const customerInfo = await Purchases.restorePurchases();
-      // Check if any entitlements are active after restoration
-      return Object.keys(customerInfo.entitlements.active).length > 0;
-    } catch (error) {
-      console.error('Failed to restore purchases:', error);
-      return false;
-    }
-  }
-
-  onHeliumPaywallEvent(event) {
+// Usage in your app:
+await initialize({
+  apiKey: '<your-helium-api-key>',
+  customUserId: '<your-custom-user-id>',
+  purchaseConfig: createRevenueCatPurchaseConfig(),
+  onHeliumPaywallEvent: (event) => {
     switch (event.type) {
-      case 'paywallOpen':
-        break;
-      case 'ctaPressed':
-        // Paywalls will be configured for you with different CTA names that correspond to common functionality.
-        if (event.ctaName === HELIUM_CTA_NAMES.SCHEDULE_CALL) {
-          Linking.openURL('https://example.com');
-        }
+      case 'subscriptionFailed':
+        // Custom logic
         break;
       case 'subscriptionSucceeded':
-        const rcPackage = this.productIdToPackageMapping[event.productKey];
-        // Helium will automatically track subscription successes with an event called `helium_subscriptionSucceeded`
-        // You can also track your own custom events like this, e.g. this event will also associate revenuecat info with the event:
-        track('rc_subscription_succeeded', {
-          productKey: event.productKey,
-          productName: rcPackage?.product.title,
-          price: rcPackage?.product.priceString,
-          currency: rcPackage?.product.currencyCode,
-          // ... etc
-        });
+        // Handle a subscription success event
+        // e.g. navigate to a premium page
         break;
     }
   }
-}
+});
 ```
 
-#### Using Adapty with Helium
-```typescript
-import { adapty, AdaptyProduct, AdaptyError, AdaptyProfile } from 'react-native-adapty';
-import { HeliumPaymentDelegate, HeliumTransactionStatus } from '@tryhelium/paywall-sdk-react-native';
-
-export class AdaptyHeliumDelegate implements HeliumPaymentDelegate {
-  // Map of product identifiers to Adapty product objects
-  private productMap: Record<string, AdaptyProduct>;
-
-  constructor(products: AdaptyProduct[]) {
-    // Initialize mapping from store product IDs to AdaptyProduct
-    this.productMap = {};
-    for (const product of products) {
-      this.productMap[product.vendorProductId] = product;
-    }
-  }
-
-  async makePurchase(productId: string): Promise<HeliumTransactionStatus> {
-    try {
-      const product = this.productMap[productId];
-      if (!product) {
-        throw new Error(`Product ${productId} not found in Adapty products`);
-      }
-      // Use Adapty to initiate the purchase
-      await adapty.makePurchase(product);
-      return { type: 'purchased' };
-    } catch (error: any) {
-      if (error instanceof AdaptyError && error.userCancelled) {
-        // The purchase flow was cancelled by the user
-        return { type: 'cancelled' };
-      }
-      // An error occurred during purchase
-      return { type: 'failed', error };
-    }
-  }
-
-  async restorePurchases(): Promise<boolean> {
-    try {
-      const profile: AdaptyProfile = await adapty.restorePurchases();
-      // Return true if the user has any active entitlement after restore
-      return Object.values(profile.accessLevels).some(level => level.isActive);
-    } catch (error) {
-      console.error('Restore failed:', error);
-      return false;
-    }
-  }
-}
-```
-
-#### Use the `react-native-iap` library with Helium
-Here's an example callbacks implementation using React Native's in-app purchases:
-
-```typescript
-import * as RNIap from 'react-native-iap';
-
-export class ReactNativeIAPHeliumCallbacks {
-  async makePurchase(productId: string): Promise<HeliumTransactionStatus> {
-    try {
-      const products = await RNIap.getProducts([productId]);
-      const purchase = await RNIap.requestPurchase(productId);
-      
-      if (purchase) {
-        return { type: 'purchased' };
-      }
-      return { type: 'cancelled' };
-    } catch (error) {
-      return { type: 'failed', error };
-    }
-  },
-
-  async restorePurchases(): Promise<boolean> {
-    try {
-      await RNIap.initConnection();
-      const restored = await RNIap.restorePurchases();
-      return restored.length > 0;
-    } catch (error) {
-      console.error('Restore failed:', error);
-      return false;
-    }
-  }
-};
-```
 
 ## **Presenting Paywalls**
 
@@ -324,6 +160,7 @@ function YourComponent() {
     await presentUpsell({
       triggerName: 'premium_feature_press',
       onFallback: () => {
+        // Logic to open a default paywall
         openFallbackPaywall();
       }
     });

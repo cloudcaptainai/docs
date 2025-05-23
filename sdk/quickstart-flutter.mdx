@@ -224,14 +224,14 @@ void main() {
   // Initialize Helium
   final heliumFlutter = HeliumFlutter();
   heliumFlutter.initialize(
-    // You'll get this from Helium founders during setup!
+    // [Required] You'll get this from Helium founders during setup!
     apiKey: "<your-helium-api-key>",
     
-    // The callbacks implementation you created earlier
+    // [Required] The callbacks implementation you created earlier
     callbacks: paymentCallbacks,
 
-    // Defines a fallback paywall to show in case the user's device is not connected to the internet. This can be any Flutter view e.g. your existing one. It should be defined with subscription and post purchase navigation logic.
-    fallbackPaywall: <your fallback paywall>
+    // [Required] Defines a fallback paywall to show in case the user's device is not connected to the internet. This can be any Flutter view e.g. your existing one. It should be defined with subscription and post purchase navigation logic.
+    fallbackPaywall: <your fallback paywall view>
     
     // If set, a custom API endpoint (usually provided by Helium)
     customAPIEndpoint: "https://api-v2.tryhelium.com/on-launch",

@@ -1,0 +1,71 @@
+---
+title: "StoreKit Testing Guide"
+description: "This guide covers how to set up StoreKit Testing in Xcode to test paywall displays across different regions and configurations."
+---
+
+## Overview
+
+StoreKit Testing allows you to test in-app purchases and paywall presentations locally without connecting to App Store servers or making real purchases.
+
+## Prerequisites
+
+- Xcode 14 or later (for synced StoreKit configuration files)
+- iOS 14.0\+ target
+
+## Setting Up StoreKit Testing
+
+### 1. Create a StoreKit Configuration File
+
+1. In Xcode, go to **File → New → File from Template...**
+2. Search for and select **StoreKit Configuration File** as the file template, the **Next**
+3. Optional - check the "Sync this file with an app in App Store Connect" box to automatically configure the file with products you have already set up in App Store Connect
+4. Complete the file creation flow, saving the file in the top-level folder of your project. You don't need to add it to a target.
+
+### 2. Configure your StoreKit Configuration File
+
+**Note -** If you’ve chosen to sync your configuration file with the App Store Connect, your file will already be populated with your products. To re-sync with App Store Connect, click on the file and then Sync at the bottom-left. If you want to manually edit it, use **Editor \> Convert to Local StoreKit Configuration**.
+
+Use the **\+** at the bottom-left to add a product.
+
+![Screenshot2025 05 27at12 57 55PM Pn](/images/Screenshot2025-05-27at12.57.55PM.png)
+
+Complete the form that pops up. Once created, you can edit all details of a product such as price, product ID, etc.
+
+## Run Your App With StoreKit Testing
+
+You can either edit an existing scheme or create a new one (recommended):
+
+1. In Xcode, go to **Product → Scheme → Manage Schemes...**
+2. Select your primary scheme and find the option to **Duplicate**:
+
+   ![Screenshot2025 05 27at11 49 00AM Pn](/images/Screenshot2025-05-27at11.49.00AM.png)
+3. Edit the new scheme's name so you know it's for StoreKit testing.
+4. Select the **Run** action.
+5. Click the **Options** tab.
+6. For the **StoreKit Configuration** option, select a configuration file and click Close.
+7. Run your project (make sure your active scheme is the one with the StoreKit Configuration option set\!)
+
+An Xcode project can contain multiple StoreKit configuration files but only one can be active at a time. When it’s active, your app gets StoreKit data as defined in your configuration file instead of accessing App Store Connect or the sandbox server.
+
+## Regional Testing
+
+Go to your StoreKit config file and under **Configuration Settings**, change **Default Storefront**:
+
+![Screenshot2025 05 27at12 25 46PM Pn](/images/Screenshot2025-05-27at12.25.46PM.png)
+
+Then run your app again, and you should be able to see pricing displays for the selected region. Note that the price numerical value will still be what is specified in the config file, but you should see a change in currency symbols.
+
+## Additional Resources
+
+### Test Purchases
+
+For actual purchase flow testing, refer to Apple's documentation on [receipt validation](https://developer.apple.com/documentation/xcode/setting-up-storekit-testing-in-xcode/#Prepare-to-validate-receipts-in-the-test-environment and the [transaction manager](https://developer.apple.com/documentation/xcode/testing-in-app-purchases-with-storekit-transaction-manager-in-code)
+
+### Other Ways to Test Across Regions
+
+1. Use Xcode and your sandbox account. You can [change the region of your sandbox account](https://developer.apple.com/documentation/storekit/testing-in-app-purchases-with-sandbox#Test-In-App-Purchases-for-all-regions). Make sure you have disabled StoreKit Testing for this.
+2. On a TestFlight build, you can [use your sandbox account as well](https://developer.apple.com/documentation/storekit/testing-in-app-purchases-with-sandbox#Sign-in-to-your-Sandbox-Apple-Account-for-a-TestFlight-app), but only do this on a dedicated testing device\!
+
+### Automated Testing
+
+You can utilize StoreKit Testing in your continuous integration tests. See Apple's documentation [here](https://developer.apple.com/documentation/StoreKitTest) and a more detailed testing overview [here](https://developer.apple.com/documentation/StoreKit/testing-at-all-stages-of-development-with-xcode-and-the-sandbox).

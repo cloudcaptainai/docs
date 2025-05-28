@@ -41,7 +41,8 @@
         "sdk/quickstart-ios",
         "sdk/quickstart-react-native",
         "sdk/quickstart-flutter",
-        "sdk/helium-events"
+        "sdk/helium-events",
+        "sdk/storekit-testing"
       ]
     }, 
     {

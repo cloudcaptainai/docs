@@ -143,11 +143,12 @@ Triggered when the paywall is closed programmatically.
 
 #### Paywall Dismissed
 ```swift
-case paywallDismissed(triggerName: String, paywallTemplateName: String)
+case paywallDismissed(triggerName: String, paywallTemplateName: String, dismissAll: Bool = false)
 ```
 Triggered when the user dismisses the paywall.
 - `triggerName`: The name of the trigger that initiated the paywall.
 - `paywallTemplateName`: The name of the paywall template being used.
+- `dismissAll`: Whether this dismiss action should dismiss ALL visible paywalls (i.e. secondary and primary paywalls). Typically after a successful purchase.
 
 #### Paywall WebView Rendered
 ```swift

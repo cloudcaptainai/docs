@@ -1,7 +1,7 @@
 ---
-title: 'Helium Events'
-description: 'Understanding Helium SDK Events'
-icon: 'bolt'
+title: "Helium Events"
+description: "Understanding Helium SDK Events"
+icon: "bolt"
 ---
 
 # Helium Events
@@ -15,8 +15,8 @@ You can listen to these events by implementing the `onHeliumPaywallEvent` method
 ```swift
 func onHeliumPaywallEvent(event: HeliumPaywallEvent) {
     switch (event) {
-    case .paywallOpen(let triggerName, let paywallTemplateName):
-        print("Paywall opened: \(triggerName), template: \(paywallTemplateName)")
+    case .paywallOpen(let triggerName, let paywallTemplateName, let viewType):
+        print("Paywall opened: \(triggerName), template: \(paywallTemplateName), viewType: \(viewType)")
     case .subscriptionSucceeded(let productKey, let triggerName, let paywallTemplateName):
         print("Subscription succeeded for product: \(productKey)")
     // Handle other events as needed
@@ -33,36 +33,47 @@ Helium events are organized into the following categories:
 ### Initialization Events
 
 #### Initialize Start
+
 ```swift
 case initializeStart
 ```
+
 Triggered when the Helium SDK initialization process begins.
 
 ### User Interaction Events
 
 #### CTA Pressed
+
 ```swift
 case ctaPressed(ctaName: String, triggerName: String, paywallTemplateName: String)
 ```
+
 Triggered when a user presses a Call-To-Action (CTA) button on the paywall.
+
 - `ctaName`: The name or identifier of the CTA button pressed.
 - `triggerName`: The name of the trigger that initiated the paywall.
 - `paywallTemplateName`: The name of the paywall template being used.
 
 #### Offer Selected
+
 ```swift
 case offerSelected(productKey: String, triggerName: String, paywallTemplateName: String)
 ```
+
 Triggered when a user selects a specific offer or product.
+
 - `productKey`: The key or identifier of the selected product or offer.
 - `triggerName`: The name of the trigger that initiated the paywall.
 - `paywallTemplateName`: The name of the paywall template being used.
 
 #### Subscription Pressed
+
 ```swift
 case subscriptionPressed(productKey: String, triggerName: String, paywallTemplateName: String)
 ```
+
 Triggered when a user presses the subscribe button for a specific product.
+
 - `productKey`: The key or identifier of the product being subscribed to.
 - `triggerName`: The name of the trigger that initiated the paywall.
 - `paywallTemplateName`: The name of the paywall template being used.
@@ -70,47 +81,73 @@ Triggered when a user presses the subscribe button for a specific product.
 ### Subscription Status Events
 
 #### Subscription Cancelled
+
 ```swift
 case subscriptionCancelled(productKey: String, triggerName: String, paywallTemplateName: String)
 ```
+
 Triggered when a subscription process is cancelled by the user.
+
 - `productKey`: The key or identifier of the product.
 - `triggerName`: The name of the trigger that initiated the paywall.
 - `paywallTemplateName`: The name of the paywall template being used.
 
 #### Subscription Succeeded
+
 ```swift
 case subscriptionSucceeded(productKey: String, triggerName: String, paywallTemplateName: String)
 ```
+
 Triggered when a subscription is successfully completed.
+
 - `productKey`: The key or identifier of the product.
 - `triggerName`: The name of the trigger that initiated the paywall.
 - `paywallTemplateName`: The name of the paywall template being used.
 
 #### Subscription Failed
+
 ```swift
 case subscriptionFailed(productKey: String, triggerName: String, paywallTemplateName: String, error: String? = nil)
 ```
+
 Triggered when the subscription process fails for any reason.
+
 - `productKey`: The key or identifier of the product.
 - `triggerName`: The name of the trigger that initiated the paywall.
 - `paywallTemplateName`: The name of the paywall template being used.
 - `error`: Optional string describing the error that occurred during the subscription process.
 
 #### Subscription Restored
+
 ```swift
 case subscriptionRestored(productKey: String, triggerName: String, paywallTemplateName: String)
 ```
+
 Triggered when a previous subscription is successfully restored.
-- `productKey`: The key or identifier of the product.
+
+- `productKey`: The key or identifier of the product (if available otherwise "HELIUM_GENERIC_PRODUCT").
+- `triggerName`: The name of the trigger that initiated the paywall.
+- `paywallTemplateName`: The name of the paywall template being used.
+
+#### Subscription Restore Failed
+
+```swift
+subscriptionRestoreFailed(triggerName: String, paywallTemplateName: String)
+```
+
+Triggered when an attempt to restore purchases fails.
+
 - `triggerName`: The name of the trigger that initiated the paywall.
 - `paywallTemplateName`: The name of the paywall template being used.
 
 #### Subscription Pending
+
 ```swift
 case subscriptionPending(productKey: String, triggerName: String, paywallTemplateName: String)
 ```
+
 Triggered when a subscription is in a pending state (e.g., waiting for approval).
+
 - `productKey`: The key or identifier of the product.
 - `triggerName`: The name of the trigger that initiated the paywall.
 - `paywallTemplateName`: The name of the paywall template being used.
@@ -118,43 +155,67 @@ Triggered when a subscription is in a pending state (e.g., waiting for approval)
 ### Paywall Lifecycle Events
 
 #### Paywall Open
+
 ```swift
-case paywallOpen(triggerName: String, paywallTemplateName: String)
+case paywallOpen(triggerName: String, paywallTemplateName: String, viewType: String)
 ```
+
 Triggered when a paywall is successfully opened and displayed to the user.
+
 - `triggerName`: The name of the trigger that initiated the paywall.
 - `paywallTemplateName`: The name of the paywall template being used.
+- `viewType`: How the paywall was displayed. It maps to this enum:
+
+```swift
+public enum PaywallOpenViewType : String {
+    case presented = "presented" // via presentUpsell
+    case triggered = "triggered" // shown via SwiftUI view modifier
+    case embedded = "embedded" // paywall was manually embedded
+}
+```
 
 #### Paywall Open Failed
+
 ```swift
 case paywallOpenFailed(triggerName: String, paywallTemplateName: String)
 ```
+
 Triggered when there's an error opening or displaying the paywall.
+
 - `triggerName`: The name of the trigger that initiated the paywall.
 - `paywallTemplateName`: The name of the paywall template being used.
 
 #### Paywall Close
+
 ```swift
 case paywallClose(triggerName: String, paywallTemplateName: String)
 ```
+
 Triggered when the paywall is closed programmatically.
+
 - `triggerName`: The name of the trigger that initiated the paywall.
 - `paywallTemplateName`: The name of the paywall template being used.
 
 #### Paywall Dismissed
+
 ```swift
 case paywallDismissed(triggerName: String, paywallTemplateName: String, dismissAll: Bool = false)
 ```
+
 Triggered when the user dismisses the paywall.
+
 - `triggerName`: The name of the trigger that initiated the paywall.
 - `paywallTemplateName`: The name of the paywall template being used.
 - `dismissAll`: Whether this dismiss action should dismiss ALL visible paywalls (i.e. secondary and primary paywalls). Typically after a successful purchase.
 
 #### Paywall WebView Rendered
+
 ```swift
 case paywallWebViewRendered(triggerName: String, paywallTemplateName: String, webviewRenderTimeTakenMS: UInt64? = nil)
 ```
+
 Triggered when a WebView-based paywall has been successfully rendered.
+
 - `triggerName`: The name of the trigger that initiated the paywall.
 - `paywallTemplateName`: The name of the paywall template being used.
 - `webviewRenderTimeTakenMS`: Optional time in milliseconds that it took to render the WebView.
@@ -162,10 +223,13 @@ Triggered when a WebView-based paywall has been successfully rendered.
 ### Configuration Events
 
 #### Paywalls Download Success
+
 ```swift
 case paywallsDownloadSuccess(configId: UUID, downloadTimeTakenMS: UInt64? = nil, imagesDownloadTimeTakenMS: UInt64? = nil, fontsDownloadTimeTakenMS: UInt64? = nil, bundleDownloadTimeMS: UInt64? = nil)
 ```
+
 Triggered when paywall configurations are successfully downloaded.
+
 - `configId`: The unique identifier of the downloaded configuration.
 - `downloadTimeTakenMS`: Optional time in milliseconds that it took to download the configuration.
 - `imagesDownloadTimeTakenMS`: Optional time in milliseconds that it took to download images.
@@ -173,10 +237,13 @@ Triggered when paywall configurations are successfully downloaded.
 - `bundleDownloadTimeMS`: Optional time in milliseconds that it took to download bundles.
 
 #### Paywalls Download Error
+
 ```swift
 case paywallsDownloadError(error: String)
 ```
+
 Triggered when there's an error downloading paywall configurations.
+
 - `error`: A string describing the error that occurred during download.
 
 ## Using Events for Analytics

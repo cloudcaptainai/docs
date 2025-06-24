@@ -118,6 +118,7 @@ function App() {
 - installed and configured RevenueCat's `Purchases` client - if not, follow [`https://www.revenuecat.com/docs/getting-started/configuring-sdk`](https://www.revenuecat.com/docs/getting-started/configuring-sdk) for more details.
 - have packages configured for each apple app store SKU
 - assigned one of your Offerings as "default"
+- initialize RevenueCat (`Purchases.configure()`) _before_ initializing Helium
 
 ```javascript
 import { createRevenueCatPurchaseConfig, HELIUM_CTA_NAMES } from '@tryheliumai/paywall-sdk-react-native';

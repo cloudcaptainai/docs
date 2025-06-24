@@ -10,9 +10,9 @@ Get set up with the Helium SDK for iOS in 5 minutes. Reach out over your Helium 
 
 ## **Installation**
 
-Install **@tryheliumai/paywall-sdk-react-native** using your preferred package manager:
-
 We use semantic versioning and recommend version 0.2.0\+
+
+Install **@tryheliumai/paywall-sdk-react-native** using your preferred package manager (if using Expo skip to next section):
 
 ```bash
 npm install @tryheliumai/paywall-sdk-react-native
@@ -34,16 +34,14 @@ If you're using Expo's managed workflow, you can install the package by adding i
 npx expo install @tryheliumai/paywall-sdk-react-native
 ```
 
-We recommend using Helium with Expo 49 and up. If you're an on older version and having trouble migrating, ping us - we've got experience
+We recommend using Helium with Expo 49 and up. If you're an on older version and having trouble migrating, ping us - we've got experience\
 with all kinds of versioning, upgrade, and custom build plugin work.
-
-3. Then, rerun `npx expo install @tryheliumai/paywall-sdk-react-native`, and you should see the pods correctly install.
 
 ## **Configuration**
 
 ### Wrap things in a `HeliumProvider`
 
-Wrap a suitably root-y component with `HeliumProvider`. We recommend placing wrapping your navigation provider, but placing HeliumProvider UNDER your sentry error boundary, to make sure
+Wrap a suitably root-y component with `HeliumProvider`. We recommend wrapping your navigation provider, but placing HeliumProvider UNDER your sentry error boundary, to make sure
 errors get logged.
 
 ```tsx
@@ -75,7 +73,7 @@ function App() {
       // Custom user id - e.g. your amplitude analytics user id. 
       customUserId: '<your-custom-user-id>',
 
-      // Purchase configuration
+      // Purchase configuration (see next section if using RevenueCat)
       purchaseConfig: createCustomPurchaseConfig({
         makePurchase: async (productId) => {
           // Your purchase logic here
@@ -107,22 +105,19 @@ function App() {
       customUserTraits: {
         "example_trait": "example_value",
       },
+
     });
   }, []);
 }
 ```
 
-### Purchase Configuration
-
-If you're using RevenueCat, you can wire up purchase configuration with `createRevenueCatPurchaseConfig`. If using custom logic, use `createCustomPurchaseConfig`.
-
 #### Use RevenueCat with Helium
 
-**Important** Make sure that you've already
+**Important** Make sure that you've already:
 
 - installed and configured RevenueCat's `Purchases` client - if not, follow [`https://www.revenuecat.com/docs/getting-started/configuring-sdk`](https://www.revenuecat.com/docs/getting-started/configuring-sdk) for more details.
 - have packages configured for each apple app store SKU
-- assigned on of your Offerings as "default"
+- assigned one of your Offerings as "default"
 
 ```javascript
 import { createRevenueCatPurchaseConfig, HELIUM_CTA_NAMES } from '@tryheliumai/paywall-sdk-react-native';
@@ -151,7 +146,7 @@ await initialize({
 ## **Presenting Paywalls**
 
 Use the `presentUpsell` method in any component under the `HeliumProvider` to present a paywall. `presentUpsell` takes in a dictionary
-specifying the `triggerName` as well as an optional `onFallback` parameter defining custom fallback behavior (in case the user didn't have network)
+specifying the `triggerName` as well as an optional `onFallback` parameter defining custom fallback behavior (in case the user didn't have a network connection)
 
 ```typescript
 import { presentUpsell } from '@tryheliumai/paywall-sdk-react-native';
@@ -197,5 +192,4 @@ const paymentDelegate: HeliumPaymentDelegate = {
 
 ## **Paywall Events**
 
-Helium emits various events during the lifecycle of a paywall. You can handle these events in your payment delegate. See the iOS docs
-for more details.
+Helium emits various events during the lifecycle of a paywall. You can handle these events in your payment delegate. See the iOS docs for more details.

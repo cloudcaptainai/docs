@@ -96,9 +96,10 @@ class DemoHeliumPaywallDelegate: HeliumPaywallDelegate {
     
     func makePurchase(productId: String) async -> HeliumPaywallTransactionStatus {
         do {
-            let result = try await self.subscriptions[1].purchase();
-            switch (result) {
-                case .success(let result):
+            let products = try await Product.products(for: [productId])
+            let purchaseReuslt = try await products[0].purchase();
+            switch (purchaseReuslt) {
+            case .success(_):
                     return .purchased;
                 case .userCancelled:
                     return .cancelled;

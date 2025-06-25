@@ -113,12 +113,12 @@ class DemoHeliumPaywallDelegate: HeliumPaywallDelegate {
     }
 
     func restorePurchases() async -> Bool {
-        do {
-            let result: () = try await AppStore.sync()
-            return true
-        } catch {
-            return false
+        for await result in Transaction.currentEntitlements {
+            if case .verified = result {
+                return true
+            }
         }
+        return false
     }
 }
 ```

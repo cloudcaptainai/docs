@@ -1,18 +1,18 @@
 ---
-title: 'SDK Quickstart (iOS)'
-description: 'Integrate Helium into your iOS App'
-icon: 'code'
+title: "SDK Quickstart (iOS)"
+description: "Integrate Helium into your iOS App"
+icon: "code"
 ---
 
 ## **Background**
 
-Get set up with the Helium SDK for iOS in 5 minutes. Reach out over your Helium slack channel, or email founders@tryhelium.com for any questions.
+Get set up with the Helium SDK for iOS in 5 minutes. Reach out over your Helium slack channel, or email [founders@tryhelium.com](mailto:founders@tryhelium.com) for any questions.
 
 ## **Installation**
 
 Install **helium-swift** via SPM. In Xcode, go to "Add Package Dependencies", and copy in [`https://github.com/cloudcaptainai/helium-swift`](https://github.com/cloudcaptainai/helium-swift)
 
-**2.0.8** is our latest stable major release. Set the `upToNextMajor` rule to be `2.0.8 < 3.0.0`:
+Set the `upToNextMajor` rule to be `2.0.8 < 3.0.0`:
 
 ![Dependency Example](/images/ios-dependency.png)
 
@@ -21,6 +21,7 @@ Install **helium-swift** via SPM. In Xcode, go to "Add Package Dependencies", an
 ### Set up your HeliumPaywallDelegate
 
 To integrate Helium paywalls, create a subclass of `HeliumPaywallDelegate`. This class is responsible for handling the purchase logic for your paywalls.
+
 ```swift
 public protocol HeliumPaywallDelegate: AnyObject {
 
@@ -76,6 +77,7 @@ Here's an example that uses StoreKit's basic Product.purchase() method.
 
 ```swift
 import Helium
+import StoreKit
 
 class DemoHeliumPaywallDelegate: HeliumPaywallDelegate {
     var subscriptions: [Product]
@@ -112,7 +114,7 @@ class DemoHeliumPaywallDelegate: HeliumPaywallDelegate {
 
     func restorePurchases() async -> Bool {
         do {
-            let result = try await AppStore.sync()
+            let result: () = try await AppStore.sync()
             return true
         } catch {
             return false
@@ -242,7 +244,7 @@ let customUserTraits = HeliumUserTraits(traits: [
 
 #### Passing in a Custom User ID
 
-By default, Helium generates a UUID per app session and identifies each user + interaction with this. You can pass override this value with a custom user id (e.g. from a 3rd party analytics service)
+By default, Helium generates a UUID per app session and identifies each user \+ interaction with this. You can pass override this value with a custom user id (e.g. from a 3rd party analytics service)
 by passing it in as a parameter in `Helium.shared.initializeAndFetchVariants`, or by explicitly calling `Helium.shared.overrideUserId`:
 
 ```swift
@@ -269,6 +271,7 @@ public enum HeliumFetchedConfigStatus: Codable {
 `downloadFailure`: Indicates that the download attempt failed.
 
 You can use this to handle different states in your app, for example:
+
 ```swift
 switch Helium.shared.downloadStatus() {
     case .notDownloadedYet:
@@ -282,10 +285,10 @@ switch Helium.shared.downloadStatus() {
 
 ## Presenting Paywalls
 
-Now, anywhere in your iOS app, you can use the `triggerUpsell` modifier to (conditionally) trigger a Helium paywall!
+Now, anywhere in your iOS app, you can use the `triggerUpsell` modifier to (conditionally) trigger a Helium paywall\!
 
 - You don't actually specify the paywall version name here - we load the paywall from the backend based on the trigger.
-- What *is* specified is a "trigger name". These trigger names should be **unique** across your app. User interactions with paywalls will be tracked and used to optimize the paywall for each trigger.
+- What _is_ specified is a "trigger name". These trigger names should be **unique** across your app. User interactions with paywalls will be tracked and used to optimize the paywall for each trigger.
 
 ### Via SwiftUI ViewModifier
 
@@ -320,7 +323,7 @@ Button("Try Premium") {
 ### Explicitly getting the Helium Paywall View
 
 You can also explicitly get the Helium paywall view via `Helium.shared.upsellViewForTrigger`. This method takes a trigger and returns the paywall
-as an `AnyView`. 
+as an `AnyView`.
 
 ```swift
 let heliumView: AnyView = Helium.shared.upsellViewForTrigger(trigger: "postOnboardingButtonPress")
@@ -328,8 +331,8 @@ let heliumView: AnyView = Helium.shared.upsellViewForTrigger(trigger: "postOnboa
 
 ### Custom dismissal/navigation actions
 
-By default, Helium uses a `DismissAction` to support dismissing the paywall. However, in cases where you want to control dismissal yourself (e.g. if you're using a custom ViewController, or a NavigationStack), 
-you can use `HeliumPaywallDelegate` to wire up dismissal (or any custom action!) events from a given paywall. 
+By default, Helium uses a `DismissAction` to support dismissing the paywall. However, in cases where you want to control dismissal yourself (e.g. if you're using a custom ViewController, or a NavigationStack),
+you can use `HeliumPaywallDelegate` to wire up dismissal (or any custom action\!) events from a given paywall.
 
 To wire up actions, implement the `onCTAPressed` method as follows:
 
@@ -358,35 +361,44 @@ components in the paywall to trigger those methods.
 
 ## Testing
 
-Docs here coming soon! After integration, please message us directly to get set up with a test app + in-app test support.
+Docs here coming soon\! After integration, please message us directly to get set up with a test app \+ in-app test support.
 
 ## Paywall Events
 
 ### User Interaction Events
 
 #### CTA Pressed
+
 ```swift
 case ctaPressed(ctaName: String, triggerName: String, paywallTemplateName: String)
 ```
+
 Triggered when a user presses a Call-To-Action (CTA) button on the paywall.
+
 - `ctaName`: The name or identifier of the CTA button pressed.
 - `triggerName`: The name of the trigger that initiated the paywall.
 - `paywallTemplateName`: The name of the paywall template being used.
 
 #### Offer Selected
+
 ```swift
 case offerSelected(productKey: String, triggerName: String, paywallTemplateName: String)
 ```
+
 Triggered when a user selects a specific offer or product.
+
 - `productKey`: The key or identifier of the selected product or offer.
 - `triggerName`: The name of the trigger that initiated the paywall.
 - `paywallTemplateName`: The name of the paywall template being used.
 
 #### Subscription Pressed
+
 ```swift
 case subscriptionPressed(productKey: String, triggerName: String, paywallTemplateName: String)
 ```
+
 Triggered when a user presses the subscribe button for a specific product.
+
 - `productKey`: The key or identifier of the product being subscribed to.
 - `triggerName`: The name of the trigger that initiated the paywall.
 - `paywallTemplateName`: The name of the paywall template being used.
@@ -394,81 +406,106 @@ Triggered when a user presses the subscribe button for a specific product.
 ### Subscription Status Events
 
 #### Subscription Cancelled
+
 ```swift
 case subscriptionCancelled(productKey: String, triggerName: String, paywallTemplateName: String)
 ```
+
 Triggered when a subscription process is cancelled by the user.
 
 #### Subscription Succeeded
+
 ```swift
 case subscriptionSucceeded(productKey: String, triggerName: String, paywallTemplateName: String)
 ```
+
 Triggered when a subscription is successfully completed.
 
 #### Subscription Failed
+
 ```swift
 case subscriptionFailed(productKey: String, triggerName: String, paywallTemplateName: String, error: String?)
 ```
-Triggered when the subscription process fails for any reason. `error` will be the localizedDescription of the underlying 
+
+Triggered when the subscription process fails for any reason. `error` will be the localizedDescription of the underlying
 error returned by HeliumPaywallDelegate.makePurchase().
 
 #### Subscription Restored
+
 ```swift
 case subscriptionRestored(productKey: String, triggerName: String, paywallTemplateName: String)
 ```
+
 Triggered when a previous subscription is successfully restored.
 
 #### Subscription Pending
+
 ```swift
 case subscriptionPending(productKey: String, triggerName: String, paywallTemplateName: String)
 ```
+
 Triggered when a subscription is in a pending state (e.g., waiting for approval).
 
 ### Paywall Lifecycle Events
 
 #### Paywall Open
+
 ```swift
 case paywallOpen(triggerName: String, paywallTemplateName: String)
 ```
+
 Triggered when a paywall is successfully opened and displayed to the user.
 
 #### Paywall Open Failed
+
 ```swift
 case paywallOpenFailed(triggerName: String, paywallTemplateName: String)
 ```
+
 Triggered when there's an error opening or displaying the paywall.
 
 #### Paywall Close
+
 ```swift
 case paywallClose(triggerName: String, paywallTemplateName: String)
 ```
+
 Triggered when the paywall is closed programmatically.
 
 #### Paywall Dismissed
+
 ```swift
 case paywallDismissed(triggerName: String, paywallTemplateName: String)
 ```
+
 Triggered when the user dismisses the paywall.
 
 ### Paywall Configuration Events
 
 #### Paywalls Download Success
+
 ```swift
 case paywallsDownloadSuccess(configId: UUID)
 ```
+
 Triggered when paywall configurations are successfully downloaded.
+
 - `configId`: The unique identifier of the downloaded configuration.
 
 #### Paywalls Download Error
+
 ```swift
 case paywallsDownloadError(error: String)
 ```
+
 Triggered when there's an error downloading paywall configurations.
+
 - `error`: A string describing the error that occurred during download.
 
 ---
 
 Note: For all events related to subscriptions and paywall interactions, the following parameters are consistently used:
+
 - `productKey`: Identifies the specific product or subscription tier.
 - `triggerName`: Indicates what caused the paywall to be displayed.
 - `paywallTemplateName`: Specifies which paywall design template is being used.

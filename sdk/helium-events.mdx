@@ -225,7 +225,7 @@ Triggered when a WebView-based paywall has been successfully rendered.
 #### Paywalls Download Success
 
 ```swift
-case paywallsDownloadSuccess(configId: UUID, downloadTimeTakenMS: UInt64? = nil, imagesDownloadTimeTakenMS: UInt64? = nil, fontsDownloadTimeTakenMS: UInt64? = nil, bundleDownloadTimeMS: UInt64? = nil)
+case paywallsDownloadSuccess(configId: UUID, downloadTimeTakenMS: UInt64? = nil, imagesDownloadTimeTakenMS: UInt64? = nil, fontsDownloadTimeTakenMS: UInt64? = nil, bundleDownloadTimeMS: UInt64? = nil, numAttempts: Int? = nil)
 ```
 
 Triggered when paywall configurations are successfully downloaded.
@@ -235,16 +235,18 @@ Triggered when paywall configurations are successfully downloaded.
 - `imagesDownloadTimeTakenMS`: Optional time in milliseconds that it took to download images.
 - `fontsDownloadTimeTakenMS`: Optional time in milliseconds that it took to download fonts.
 - `bundleDownloadTimeMS`: Optional time in milliseconds that it took to download bundles.
+- `numAttempts`: How many attempts it took to successfully download.
 
 #### Paywalls Download Error
 
 ```swift
-case paywallsDownloadError(error: String)
+case paywallsDownloadError(error: String, numAttempts: Int? = nil)
 ```
 
 Triggered when there's an error downloading paywall configurations.
 
 - `error`: A string describing the error that occurred during download.
+- `numAttempts`: How many attempts were made.
 
 ## Using Events for Analytics
 

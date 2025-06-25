@@ -73,7 +73,7 @@ public enum HeliumPaywallTransactionStatus {
 
 #### StoreKit 2
 
-Here's an example that uses StoreKit's basic Product.purchase() method.
+Here's an example that uses the `Product.heliumPurchase()` method, which essentially calls StoreKit's basic `Product.purchase()` method while adding an appAccountToken so that Helium can provide better revenue metrics.
 
 ```swift
 import Helium
@@ -97,7 +97,7 @@ class DemoHeliumPaywallDelegate: HeliumPaywallDelegate {
     func makePurchase(productId: String) async -> HeliumPaywallTransactionStatus {
         do {
             let products = try await Product.products(for: [productId])
-            let purchaseReuslt = try await products[0].purchase();
+            let purchaseReuslt = try await products[0].heliumPurchase();
             switch (purchaseReuslt) {
             case .success(_):
                     return .purchased;
@@ -210,7 +210,8 @@ class RevenueCatHeliumPaywallDelegate: HeliumPaywallDelegate {
 ### Initialize Helium and Download Paywall Configs
 
 Somewhere in your app's initialization code (e.g. your `main App` if using SwiftUI, or `AppDelegate` if using ViewController), add the following line to actually download paywall config/variants.
-We schedule it on a background thread, so you don't have to worry about it blocking your app's launch time.
+
+_We schedule it on a background thread, so you don't have to worry about it blocking your app's launch time. Helium will automatically retry downloads as needed for up to 90 seconds._
 
 ```swift
 Helium.shared.initialize(
@@ -228,6 +229,9 @@ Helium.shared.initialize(
 
     // Pass in custom user traits to be used for targeting, personalization, and dynamic content.
     customUserTraits: HeliumUserTraits? = nil,
+
+    // RevenueCat ONLY: supply RevenueCat appUserID here (and initialize RevenueCat before Helium initialize).
+    revenueCatAppUserId: String? = Purchases.shared.appUserID,
 )
 ```
 

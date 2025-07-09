@@ -59,10 +59,10 @@ function App() {
 ### Initialization
 
 Initialize Helium by calling `initialize()` early in your app's lifecycle, typically in your root component.
-`initialize` takes in a configuration object that includes your purchase config, event handlers, and other settings.
+`initialize` takes in a configuration object that includes your purchase config, event handlers, and other settings. (If you are using RevenueCat, skip to the next section.)
 
 ```tsx
-import { initialize, createRevenueCatPurchaseConfig, createCustomPurchaseConfig } from '@tryheliumai/paywall-sdk-react-native';
+import { initialize, createCustomPurchaseConfig } from '@tryheliumai/paywall-sdk-react-native';
 
 function App() {
   useEffect(() => {
@@ -124,11 +124,9 @@ function App() {
 - assigned one of your Offerings as "default"
 - initialize RevenueCat (`Purchases.configure()`) _before_ initializing Helium
 
-```javascript
+```tsx
 import { HELIUM_CTA_NAMES } from '@tryheliumai/paywall-sdk-react-native';
 import { createRevenueCatPurchaseConfig } from "@tryheliumai/paywall-sdk-react-native/src/revenuecat";
-
-import { Linking } from 'react-native';
 
 // Usage in your app:
 await initialize({

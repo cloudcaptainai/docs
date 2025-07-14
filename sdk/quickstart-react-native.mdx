@@ -202,6 +202,10 @@ const asyncHeliumInit = async () => {
     revenueCatAppUserId: await Purchases.getAppUserID()
   });
 };
+
+useEffect(() => {
+  void asyncHeliumInit();
+}, []);
 ```
 
 
@@ -227,6 +231,10 @@ const asyncHeliumInit = async () => {
     revenueCatAppUserId: await Purchases.getAppUserID()
   });
 };
+
+useEffect(() => {
+  void asyncHeliumInit();
+}, []);
 ```
 
 </CodeGroup>

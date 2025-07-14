@@ -1,14 +1,14 @@
 ---
 title: "SDK Quickstart (React Native)"
-description: "Integrate Helium into your React Native App"
+description: "Integrate Helium into your React Native App."
 icon: "code"
 ---
 
-## **Background**
+## Background
 
 Get set up with the Helium SDK for iOS in 5 minutes. Reach out over your Helium slack channel, or email [founders@tryhelium.com](mailto:founders@tryhelium.com) for any questions.
 
-## **Installation**
+## Installation
 
 Install the SDK using your preferred package manager:
 
@@ -30,14 +30,21 @@ npx react-native link @tryheliumai/paywall-sdk-react-native
 
 </CodeGroup>
 
-We recommend using Helium with Expo 53 and up. If you're an on older version and having trouble migrating, ping us - we've got experience\
-with all kinds of versioning, upgrade, and custom build plugin work.
+<Tip>
+  We recommend using Helium with **Expo 53 and up**. If you're on an older version and having issues, ping us - we've got experience with all kinds of versioning, upgrade, and custom build plugin work.
+</Tip>
 
-## **Configuration**
+## Configuration
 
 Follow these steps to integrate the SDK.
 
-### HeliumProvider (skip if Expo 52\+)
+### HeliumProvider
+
+<Warning>
+  **If on Expo 52\+, do not add HeliumProvider.**
+
+  HeliumProvider needed ONLY if using `@tryheliumai/paywall-sdk-react-native` (older Expo versions OR bare React Native).
+</Warning>
 
 <Accordion title="HeliumProvider">
   Wrap a suitably root-y component with `HeliumProvider`. We recommend wrapping your navigation provider, but placing HeliumProvider UNDER your sentry error boundary, to make sure
@@ -56,13 +63,13 @@ Follow these steps to integrate the SDK.
   ```
 </Accordion>
 
-HeliumProvider needed ONLY if using `@tryheliumai/paywall-sdk-react-native` (an older version of Expo or bare React Native).
-
 ### Initialization
 
 Initialize Helium by calling `initialize()` early in your app's lifecycle, typically in your root component.
 
-Note: If you are using **RevenueCat**, check out the example in the next section.
+<Note>
+  If you are using **RevenueCat**, check out the example in the next section.
+</Note>
 
 <CodeGroup>
 
@@ -224,7 +231,7 @@ const asyncHeliumInit = async () => {
 
 </CodeGroup>
 
-## **Presenting Paywalls**
+## Presenting Paywalls
 
 Use the `presentUpsell` method to present a paywall. `presentUpsell` takes in a dictionary
 specifying the `triggerName` as well as an optional `onFallback` parameter defining custom fallback behavior (in case the user didn't have a network connection)
@@ -274,6 +281,82 @@ function YourComponent() {
 
 </CodeGroup>
 
-## **Paywall Events**
+You should now be able to see Helium paywalls in your app\! Well done\! 🎉
 
-Helium emits various events during the lifecycle of a paywall. You can handle these events in the `onHeliumPaywallEvent` callback. See [Helium Events](/sdk/helium-events) for more details.
+## Additional Considerations
+
+### Expo Development Build
+
+Please note that the Helium SDK uses native code, so you must create a [development build](https://docs.expo.dev/develop/development-builds/introduction/). A common command to run for this is:
+
+```bash
+npx expo run:ios # or npx expo run:ios --device
+```
+
+### Paywall Events
+
+Helium emits various events during the lifecycle of a paywall. If desired, you can handle these events in the `onHeliumPaywallEvent` callback. See [Helium Events](/sdk/helium-events) for more details.
+
+## Troubleshooting
+
+### Check if the Helium SDK is installed
+
+<CodeGroup>
+
+```bash Expo 52+
+[ -d "node_modules/expo-helium" ] && echo "✅ expo-helium package found in node_modules" || echo "❌ expo-helium package NOT found in node_modules"
+```
+
+
+```bash Older Expo / Bare
+[ -d "node_modules/@tryheliumai/paywall-sdk-react-native" ] && echo "✅ paywall-sdk-react-native package found in node_modules" || echo "❌ paywall-sdk-react-native package NOT found in node_modules"
+```
+
+</CodeGroup>
+
+If the package is not found, install it again:
+
+<CodeGroup>
+
+```bash Expo 52+
+npx expo install expo-helium
+```
+
+
+```bash Older Expo / Bare
+npm install @tryheliumai/paywall-sdk-react-native
+# or
+yarn add @tryheliumai/paywall-sdk-react-native
+
+# then run the following to install the native dependencies
+npx react-native link @tryheliumai/paywall-sdk-react-native
+```
+
+</CodeGroup>
+
+### Check if Helium is properly installed
+
+To verify that the Helium pod is correctly installed in your project, run:
+
+<CodeGroup>
+
+```bash Expo 52+
+grep -E "Helium" ios/Podfile.lock > /dev/null && echo "✅ Helium found in ios/Podfile.lock" || echo "❌ Helium not found in ios/Podfile.lock" && grep -E "HeliumPaywallSdk" ios/Podfile.lock > /dev/null && echo "✅ HeliumPaywallSdk found in ios/Podfile.lock" || echo "❌ HeliumPaywallSdk not found in ios/Podfile.lock"
+```
+
+
+```bash Older Expo / Bare
+grep -E "Helium" ios/Podfile.lock > /dev/null && echo "✅ Helium found in ios/Podfile.lock" || echo "❌ Helium not found in ios/Podfile.lock"
+```
+
+</CodeGroup>
+
+If not found, try these commands:
+
+```bash
+# regenerate the ios (and android) directories
+npx expo prebuild --clean
+
+# run a development build
+npx expo run:ios # or npx expo run:ios --device
+```

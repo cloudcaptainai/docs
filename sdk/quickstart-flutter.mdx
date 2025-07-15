@@ -25,16 +25,20 @@ flutter pub get
 
 The minimum version of Flutter supported by this SDK is **3.24.0**.
 
-**Recommended -**  Make sure that Swift Package Manager support is enabled:
+<Tip>
+  **Recommended -**  Make sure that Swift Package Manager support is enabled:
+</Tip>
 
 ```bash
 flutter upgrade
 flutter config --enable-swift-package-manager
 ```
 
-See this [Flutter documentation](https://docs.flutter.dev/packages-and-plugins/swift-package-manager/for-app-developers) for more details.
+See this [Flutter documentation](https://docs.flutter.dev/packages-and-plugins/swift-package-manager/for-app-developers) for more details about Swift Package Manager.
 
-**Note -** You can still use Cocoapods for your dependencies if preferred. If you need to disable Swift Package Manager dependencies after having enabled it, refer to that same [Flutter documentation](https://docs.flutter.dev/packages-and-plugins/swift-package-manager/for-app-developers#how-to-turn-off-swift-package-manager).
+<Info>
+  You can still use Cocoapods for your dependencies if preferred. If you need to disable Swift Package Manager dependencies after having enabled it, refer to that same [Flutter documentation](https://docs.flutter.dev/packages-and-plugins/swift-package-manager/for-app-developers#how-to-turn-off-swift-package-manager).
+</Info>
 
 ### iOS Settings
 
@@ -376,7 +380,3 @@ To retrieve the Helium user ID:
 ```dart
 String userId = await heliumFlutter.getHeliumUserId() ?? 'Unknown';
 ```
-
-## Testing
-
-Documentation for testing will be provided separately. After integration, please message us directly to get set up with a test app \+ in-app test support.

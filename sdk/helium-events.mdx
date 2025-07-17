@@ -208,6 +208,16 @@ Triggered when the user dismisses the paywall.
 - `paywallTemplateName`: The name of the paywall template being used.
 - `dismissAll`: Whether this dismiss action should dismiss ALL visible paywalls (i.e. secondary and primary paywalls). Typically after a successful purchase.
 
+#### Paywall Skipped
+
+```swift
+case paywallSkipped(triggerName: String)
+```
+
+Triggered when the paywall was not shown. e.g. if "Don't Show Paywall" was set in the dashboard targeting.
+
+- `triggerName`: The name of the trigger that initiated the paywall.
+
 #### Paywall WebView Rendered
 
 ```swift

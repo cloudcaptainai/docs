@@ -12,7 +12,7 @@ Get set up with the Helium SDK for iOS in 5 minutes. Reach out over your Helium 
 
 ### Swift Package Manager
 
-Install **helium-swift** via SPM. In Xcode, go to **Add Package Dependencies**, and copy in `https://github.com/cloudcaptainai/helium-swift.git`
+In Xcode, go to **Add Package Dependencies**, and copy in `https://github.com/cloudcaptainai/helium-swift.git`
 
 Set the Dependency Rule to **Up to Next Major Version** (use the default range which should be between 2.x.x and 3.0.0):
 
@@ -27,7 +27,7 @@ Then select **Add Package**.
 ### Cocoapod
 
 <Note>
-  While highly recommend using SPM, but if your project is heavily reliant on Cocoapods, it might make sense to use our Cocoapod instead.
+  We highly recommend using SPM, but if your project is heavily reliant on Cocoapods, it might make sense to use our Cocoapod instead.
 </Note>
 
 ```
@@ -119,7 +119,7 @@ If you would like to implement `onHeliumPaywallEvent`, simply create a subclass 
 Somewhere in your app's initialization code (e.g. your `main App` if using SwiftUI, or `AppDelegate` if using ViewController), add the following line to actually download paywall config/variants.
 
 <Note>
-We schedule it on a background thread, so you don't have to worry about it blocking your app's launch time. Helium will automatically retry downloads as needed for up to 90 seconds.
+  We schedule it on a background thread, so you don't have to worry about it blocking your app's launch time. Helium will automatically retry downloads as needed for up to 90 seconds.
 </Note>
 
 ```swift

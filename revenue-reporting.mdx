@@ -3,9 +3,13 @@ title: "Revenue Setup"
 description: "Set up webhooks to track your app's revenue and subscription events. This is important if you want Helium to display subscription, revenue, and other metrics!"
 ---
 
-Go to https://app.tryhelium.com/revenue to configure webhooks. You have 3 options:
+Go to your dashboard's revenue settings to configure webhooks.
 
-## App Store Server Notifications
+![Rev Reporting Pn](/images/rev-reporting.png)
+
+You have 3 options (only do one of them):
+
+## 1) App Store Server Notifications
 
 <Tip>
   This option is recommended if you are using StoreKit to handle your purchases.
@@ -15,7 +19,7 @@ Send purchase events direct from Apple to Helium. Follow the instructions shown 
 
 In your SDK integration, be sure to use the `heliumPurchase` method for proper tracking of purchases.
 
-## RevenueCat Webhooks
+## 2) RevenueCat Webhooks
 
 <Tip>
   This option is recommended if you are using RevenueCat to handle your purchases.
@@ -25,7 +29,7 @@ Use RevenueCat webhooks to send purchase events to Helium. Follow the instructio
 
 In your SDK integration, make sure to provide a `revenueCatAppUserId` when you call the Helium `initialize` function.
 
-## Forward App Store Server Notifications
+## 3) Forward App Store Server Notifications
 
 <Tip>
   This option is recommended if you are using StoreKit to handle your purchases but want to consume .App Store Server Notifications on your own server and forward those events to Helium.

@@ -124,23 +124,28 @@ Somewhere in your app's initialization code (e.g. your `main App` if using Swift
 
 ```swift
 Helium.shared.initialize(
-    // you'll get this from Helium founders during setup!
+    // You can create or find your api key (a JWT key) by going to the dashboard and clicking on **Account Settings**.
     apiKey: "<your-helium-api-key>",
         
     // The delegate you created earlier.
     heliumPaywallDelegate: YourHeliumPaywallDelegate(),
 
-    // Defines a fallback paywall to show in case the user's device is not connected to the internet.
-    fallbackView: (any View)? = nil,
-
-    // If set, a custom user id to use instead of Helium's. (e.g. an amplitude user id, or a custom user id from your own analytics service)
-    customUserId: String? = nil
-
-    // Pass in custom user traits to be used for targeting, personalization, and dynamic content.
-    customUserTraits: HeliumUserTraits? = nil,
-
     // RevenueCat ONLY: supply RevenueCat appUserID here (and initialize RevenueCat before Helium initialize).
     revenueCatAppUserId: String? = Purchases.shared.appUserID,
+
+    // Defines a fallback paywall to show in case the user's device is not connected to the internet.
+    fallbackPaywall: (any View) = nil,
+
+    // [OPTIONAL] Mapping from trigger name to fallback paywall to show. If set, this value will override
+    // the view passed into "fallback".
+    fallbackPaywallPerTrigger: [String: any View]?,
+
+    // [OPTIONAL] If set, a custom user id to use instead of Helium's. We'll use this id when forwarding to 
+    // third party analytics services, so this can be used for attribution (e.g. an amplitude user id, or a custom user id from your own analytics service)
+    customUserId: String? = nil,
+
+    // [OPTIONAL] Pass in custom user traits to be used for targeting, personalization, and dynamic content.
+    customUserTraits: HeliumUserTraits? = nil,
 )
 ```
 

@@ -2,8 +2,8 @@
   "$schema": "https://mintlify.com/schema.json",
   "name": "Helium Docs",
   "logo": {
-    "dark": "/logo/Logo-Large-dark-background.svg",
-    "light": "/logo/Logo-Large.svg"
+    "dark": "/logo/LargeLogo.svg",
+    "light": "/logo/LargeLogo.svg"
   },
   "favicon": "/favicon.svg",
   "colors": {
@@ -19,7 +19,7 @@
   ],
   "topbarCtaButton": {
     "name": "Schedule Demo",
-    "url": "https://app.apollo.io/#/meet/managed-meetings/zach_witzel_10c/q2n-ntd-ivh/30-min"
+    "url": "https://cal.com/team/helium/45-min-working-session"
   },
   "anchors": [
     {
@@ -44,13 +44,14 @@
         "sdk/helium-events",
         "sdk/storekit-testing"
       ]
+    },
+    {
+      "group": "Guides",
+      "pages": [
+        "guides/revenue-reporting"
+      ]
     }, 
     {
-      "group": "Targeting",
-      "pages": [
-        "targeting/dynamic-variables"
-      ]
-    }, {
       "group": "Background",
       "pages": [
         "background/how-it-works"

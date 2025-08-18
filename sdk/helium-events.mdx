@@ -214,7 +214,7 @@ Triggered when the user dismisses the paywall.
 case paywallSkipped(triggerName: String)
 ```
 
-Triggered when the paywall was not shown. e.g. if "Don't Show Paywall" was set in the dashboard targeting.
+Paywall Skipped - This event will fire when a paywall open gets _skipped_ for a trigger, due to a targeting or workflow configuration. When this event fires, we won't trigger opening the paywall modal - so this is a good place to handle any custom logic that should fire.
 
 - `triggerName`: The name of the trigger that initiated the paywall.
 

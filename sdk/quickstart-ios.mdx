@@ -399,6 +399,16 @@ case paywallDismissed(triggerName: String, paywallTemplateName: String)
 
 Triggered when the user dismisses the paywall.
 
+#### Paywall Skipped
+
+```swift
+case paywallSkipped(triggerName: String)
+```
+
+Paywall Skipped - This event will fire when a paywall open gets _skipped_ for a trigger, due to a targeting or workflow configuration. When this event fires, we won't trigger opening the paywall modal - so this is a good place to handle any custom logic that should fire.
+
+ - `triggerName`: The name of the trigger that initiated the paywall.
+
 ### Paywall Configuration Events
 
 #### Paywalls Download Success

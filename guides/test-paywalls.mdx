@@ -1,0 +1,208 @@
+---
+title: "Testing Your Paywalls"
+description: "Follow this guide to configure a way to quickly preview your paywalls on device."
+---
+
+## Test Via Deep Links
+
+Once you get this set up, you'll be able to scan a QR code from the Helium dashboard and have that paywall show on your device\!
+
+<Tabs>
+  <Tab title="iOS">
+    ### Step 1: Add URL Scheme
+
+    Open your project in Xcode and add a URL scheme ([official Apple documentation here](https://developer.apple.com/documentation/xcode/defining-a-custom-url-scheme-for-your-app)):
+
+    1. Select your app target
+    2. Go to **Info** tab
+    3. Expand **URL Types** section
+    4. Click **\+** to add a new URL type
+    5. Set **URL Schemes** to: `helium-test`
+    6. Set **Identifier** to your bundle ID (e.g., `com.company.myapp`)
+
+    ![New Scheme Pn](/images/new-scheme.png)
+
+    ### Step 2: Handle Deep Links
+
+    Add the following to handle incoming test links:
+
+    <CodeGroup>
+
+    ```swift SwiftUI
+    import Helium
+
+    @main
+    struct MyApp: App {
+        var body: some Scene {
+            WindowGroup {
+                ContentView()
+                    .onOpenURL { url in
+                        Helium.shared.handleDeepLink(url)
+                    }
+            }
+        }
+    }
+    ```
+
+
+    ```swift SceneDelegate
+    import Helium
+
+    class SceneDelegate: UIResponder, UIWindowSceneDelegate {
+        func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+            Helium.shared.handleDeepLink(URLContexts.first?.url)
+        }
+    }
+    ```
+
+
+    ```swift AppDelegate
+    import Helium
+
+    class AppDelegate: UIResponder, UIApplicationDelegate {
+        func application(_ app: UIApplication,
+                         open url: URL,
+                         options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
+            return Helium.shared.handleDeepLink(url)
+        }
+    }
+    ```
+
+    </CodeGroup>
+
+    <Tip>
+      `handleDeepLink` will return true if the test paywall was successfully shown.
+    </Tip>
+    ### Step 3: Test
+
+    1. Run your app
+    2. Open Safari and navigate to: `helium-test://helium-test?trigger=YOUR_TRIGGER_NAME`
+    3. Tap "Open" when prompted to open in your app
+
+    The test paywall for the specified trigger will be displayed. TODO explain how to do this in dashboard.
+  </Tab>
+  <Tab title="React Native">
+    ### Step 1: Add URL Scheme
+
+    Add the following to your **app.json** or **app.config.js**:
+
+    ```json
+    {
+      "expo": {
+        "scheme": "helium-test"
+      }
+    }
+    ```
+
+    <Note>
+      If you already have a scheme set, you can switch to a list format: `"scheme": ["my-scheme", "helium-test"]`
+    </Note>
+    ### Step 2: Handle Deep Links
+
+    Add the following to your main App component
+
+    ```typescript
+    import { useEffect } from 'react';
+    import * as Linking from 'expo-linking';
+    import { handleDeepLink } from '@tryheliumai/paywall-sdk-react-native';
+
+    export default function App() {
+        useEffect(() => {
+            // Handle deep links when app is already open
+            const subscription = Linking.addEventListener('url', (event) => {
+                handleDeepLink(event.url);
+            });
+
+            // Handle deep link that opened the app
+            Linking.getInitialURL().then((url) => {
+                handleDeepLink(url);
+            });
+
+            return () => subscription.remove();
+        }, []);
+
+        // Rest of your app
+        return <YourApp />;
+    }
+    ```
+
+    <Tip>
+      `handleDeepLink` will return true if the test paywall was successfully shown.
+    </Tip>
+    ### Step 3: Test
+
+    1. Run your app
+    2. Open Safari and navigate to: `helium-test://helium-test?trigger=YOUR_TRIGGER_NAME`
+    3. Tap "Open" when prompted to open in your app
+
+    The test paywall for the specified trigger will be displayed. TODO explain how to do this in dashboard.
+  </Tab>
+  <Tab title="Flutter">
+    ### Step 1: Add URL Scheme
+
+    Add the following to `ios/Runner/Info.plist`:
+
+    ```html
+    <key>CFBundleURLTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>helium-test</string>
+            </array>
+            <key>CFBundleURLName</key>
+            <string>com.example.myapp</string>
+        </dict>
+    </array>
+    ```
+
+    <Note>
+      Replace `com.example.myapp` with your bundle ID.
+    </Note>
+    ### Step 2: Handle Deep Links
+
+    Add the **app_links** package to `pubspec.yaml`:
+
+    ```yaml
+    dependencies:
+      app_links: ^6.4.1
+    ```
+
+    Then in your main app widget:
+
+    ```dart
+    import 'package:app_links/app_links.dart';
+    import 'package:helium_flutter/helium_flutter.dart';
+
+    class MyApp extends StatefulWidget {
+      @override
+      _MyAppState createState() => _MyAppState();
+    }
+
+    class _MyAppState extends State<MyApp> {
+      @override
+      void initState() {
+        super.initState();
+
+        final appLinks = AppLinks();
+        appLinks.uriLinkStream.listen((uri) {
+          HeliumFlutter().handleDeepLink(uri.toString());
+        });
+      }
+
+      // Rest of your app
+    }
+    ```
+
+    <Tip>
+      `handleDeepLink` will return true if the test paywall was successfully shown.
+    </Tip>
+    ### Step 3: Test
+
+    1. Run your app
+    2. Open Safari and navigate to: `helium-test://helium-test?trigger=YOUR_TRIGGER_NAME`
+    3. Tap "Open" when prompted to open in your app
+
+    The test paywall for the specified trigger will be displayed. TODO explain how to do this in dashboard.
+  </Tab>
+</Tabs>

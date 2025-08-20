@@ -16,7 +16,7 @@ You have 3 options (only do one of them):
   This option is recommended if you are using StoreKit to handle your purchases.
 </Tip>
 
-Send purchase events direct from Apple to Helium. Follow the instructions shown in the web app under **App Store Connect Configuration**. If you already consume these events on your own server, then consider the **Forward** option below.
+Send purchase events direct from Apple to Helium. Follow the instructions shown under **App Store Connect Configuration**. If you already consume these events on your own server, then consider the **Forward** option below.
 
 In your SDK integration, be sure to use the `heliumPurchase` method for proper tracking of purchases.
 
@@ -36,7 +36,7 @@ In your SDK integration, make sure to provide a `revenueCatAppUserId` when you c
   This option is recommended if you are using StoreKit to handle your purchases but want to consume .App Store Server Notifications on your own server and forward those events to Helium.
 </Tip>
 
-In the web app under the section **App Store Connect Configuration** grab the **Webhook URL** and use that value in your forwarding code.
+In your dashboard's revenue settings under the section **App Store Connect Configuration** grab the **Webhook URL** and use that value in your forwarding code.
 
 Wherever you consume webhook events for App Store Server Notifications, you'll want to add a snippet of code that forwards the exact, unmodified ASSN payload to Helium.
 

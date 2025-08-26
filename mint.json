@@ -48,7 +48,8 @@
     {
       "group": "Guides",
       "pages": [
-        "guides/revenue-reporting"
+        "guides/revenue-reporting",
+        "guides/fallback-bundle"
       ]
     }, 
     {

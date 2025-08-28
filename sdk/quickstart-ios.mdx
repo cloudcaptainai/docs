@@ -22,6 +22,10 @@ When asked to **Choose Package Products for helium-swift**, find the **Helium** 
 
 If you are using RevenueCat to manage purchases, then we recommended you also add **HeliumRevenueCat** to your target so that you can use our RevenueCatDelegate referenced below. Otherwise use **None** for this row.
 
+<Warning>
+  The **HeliumRevenueCat** target includes [purchases-ios-spm](https://github.com/RevenueCat/purchases-ios-spm)  as a dependency, _not_ [purchases-ios](https://github.com/RevenueCat/purchases-ios) and you may encounter build issues if are using **purchases-ios** with SPM.
+</Warning>
+
 Then select **Add Package**.
 
 ### Cocoapod

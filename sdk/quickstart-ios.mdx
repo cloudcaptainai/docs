@@ -91,6 +91,47 @@ public enum HeliumPaywallTransactionStatus {
 }
 ```
 
+### Making StoreKit purchases
+
+<Note>
+  If you're using a custom delegate instead of the default StoreKit 2 delegate, please use `Product.heliumPurchase()` instead of Product.purchase(). This will automatically set attribution information for revenue tracking. Our default StoreKit delegate does this by default.
+</Note>
+
+Example:
+
+```swift
+open func makePurchase(productId: String) async -> HeliumPaywallTransactionStatus {
+    do {
+        guard let product: Product = productMappings[productId] else {
+            print("[Helium] StoreKitDelegate - makePurchase could not find product!")
+            return .failed(StoreKitDelegateError.cannotFindProduct)
+        }
+        
+        let result = try await product.heliumPurchase()
+            
+        switch result {
+        case .success(let verification):
+            switch verification {
+            case .verified(let transaction):
+                await transaction.finish()
+                return .purchased
+            case .unverified(_, let error):
+                return .failed(error)
+            }
+        case .userCancelled:
+            return .cancelled
+        case .pending:
+            return .pending
+        @unknown default:
+            return .failed(StoreKitDelegateError.unknownPurchaseResult)
+        }
+    } catch {
+        print("[Helium] StoreKitDelegate - Purchase failed with error: \(error.localizedDescription)")
+        return .failed(error)
+    }
+}
+```
+
 ### Pre-Built Delegates:
 
 #### StoreKit 2

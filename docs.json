@@ -64,6 +64,8 @@
   },
   "contextual": {
         "options": [
+            "mcp",
+            "cursor",
             "copy",
             "view",
             "chatgpt",

@@ -1,0 +1,74 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "Helium Docs",
+  "colors": {
+    "primary": "#0D9373",
+    "light": "#07C983",
+    "dark": "#0D9373"
+  },
+  "favicon": "/favicon.svg",
+  "navigation": {
+    "anchors": [
+      {
+        "anchor": "Documentation",
+        "icon": "book-open",
+        "groups": [
+          {
+            "group": "Home",
+            "pages": [
+              "welcome"
+            ]
+          },
+          {
+            "group": "SDK",
+            "pages": [
+              "sdk/quickstart-ios",
+              "sdk/quickstart-react-native",
+              "sdk/quickstart-flutter",
+              "sdk/helium-events",
+              "sdk/storekit-testing"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "guides/revenue-reporting",
+              "guides/fallback-bundle"
+            ]
+          }
+        ]
+      }
+    ],
+    "global": {
+      "anchors": [
+        {
+          "anchor": "More Info",
+          "href": "https://tryhelium.com",
+          "icon": "rocket"
+        }
+      ]
+    }
+  },
+  "logo": {
+    "light": "/logo/LargeLogo-cropped.svg",
+    "dark": "/logo/LargeLogo-cropped.svg"
+  },
+  "navbar": {
+    "links": [],
+    "primary": {
+      "type": "button",
+      "label": "Schedule Demo",
+      "href": "https://cal.com/team/helium/45-min-working-session"
+    }
+  },
+  "contextual": {
+        "options": [
+            "copy",
+            "view",
+            "chatgpt",
+            "claude",
+            "perplexity"
+        ]
+    }
+}

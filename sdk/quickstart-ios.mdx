@@ -1,6 +1,6 @@
 ---
 title: "SDK Quickstart (iOS)"
-description: "Integrate Helium into your iOS App"
+description: "Integrate Helium into your iOS app"
 icon: "code"
 ---
 
@@ -10,33 +10,49 @@ Get set up with the Helium SDK for iOS in 5 minutes. Reach out over your Helium 
 
 ## **Installation**
 
-### Swift Package Manager
+We recommend using Swift Package Manager (SPM), but if your project primarily uses Cocoapods it might make sense to install the Helium Cocoapod instead.
 
-In Xcode, go to **Add Package Dependencies**, and copy in `https://github.com/cloudcaptainai/helium-swift.git`
+<Tabs>
+  <Tab title="Swift Package Manager (SPM)">
+    1. In Xcode, navigate to your project's **Package Dependencies:**
 
-Set the Dependency Rule to **Up to Next Major Version** (use the default range which should be between 2.x.x and 3.0.0):
+       ![Spm Add Pn](/images/spm-add.png)
+    2. Click the **\+** button and search for the Helim package URL:
 
-![Dependency Example](/images/ios-dependency.png)
+       ```
+       https://github.com/cloudcaptainai/helium-swift.git
+       ```
+    3. Click **Add Package**.
+    4. In the dialog that appears, make sure to add the **Helium** product to your app’s main target:
 
-When asked to **Choose Package Products for helium-swift**, find the **Helium** row and set the **Add to Target** column value to your app’s main target.
+       ![Spm Target Pn](/images/spm_target.png)
+    5. _(Optional)_ If you are using RevenueCat to manage purchases, we recommended you also add **HeliumRevenueCat** to your target so that you can use our RevenueCatDelegate referenced below. Otherwise leave as **None** for the HeliumRevenueCat row.
 
-If you are using RevenueCat to manage purchases, then we recommended you also add **HeliumRevenueCat** to your target so that you can use our RevenueCatDelegate referenced below. Otherwise use **None** for this row.
+    <Warning>
+      The **HeliumRevenueCat** target includes [purchases-ios-spm](https://github.com/RevenueCat/purchases-ios-spm)  as a dependency, _not_ [purchases-ios](https://github.com/RevenueCat/purchases-ios) and you may encounter build issues if are using **purchases-ios** with SPM.
+    </Warning>
+    6. Select **Add Package** in the dialog and Helium should now be ready for import.
+  </Tab>
+  <Tab title="Cocoapod">
+    Add the Helium Cocoapod with:
 
-<Warning>
-  The **HeliumRevenueCat** target includes [purchases-ios-spm](https://github.com/RevenueCat/purchases-ios-spm)  as a dependency, _not_ [purchases-ios](https://github.com/RevenueCat/purchases-ios) and you may encounter build issues if are using **purchases-ios** with SPM.
-</Warning>
+    ```shellscript
+    pod install Helium
+    ```
 
-Then select **Add Package**.
+    Or by adding it to your Podfile:
 
-### Cocoapod
+    ```
+    pod 'Helium', '~> 2.0'
+    ```
 
-<Note>
-  We highly recommend using SPM, but if your project is heavily reliant on Cocoapods, it might make sense to use our Cocoapod instead.
-</Note>
+    and running
 
-```
-pod 'Helium', '~> 2.0'
-```
+    ```shellscript
+    pod install
+    ```
+  </Tab>
+</Tabs>
 
 ## Configuration
 

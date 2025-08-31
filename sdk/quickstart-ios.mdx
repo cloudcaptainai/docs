@@ -74,15 +74,6 @@ Initialize the Helium SDK as early as possible in your app's lifecycle. Choose t
         }
     }
     ```
-
-    ### Import Helium
-
-    ```swift
-    import Helium
-    import SwiftUI
-    ```
-
-    ### Call the `initialize` Method
   </Tab>
   <Tab title="SceneDelegate">
     ```swift
@@ -112,6 +103,15 @@ Initialize the Helium SDK as early as possible in your app's lifecycle. Choose t
   </Tab>
 </Tabs>
 
+Add necessary imports:
+
+```swift
+import Helium
+import SwiftUI
+```
+
+And initialize Helium in the location referenced above:
+
 ```swift
 Helium.shared.initialize(
     apiKey: "<your-helium-api-key>",
@@ -121,7 +121,7 @@ Helium.shared.initialize(
 )
 ```
 
-<ResponseField name="initialize" type="method">
+<ResponseField name="Helium.shared.initialize" type="method">
   <Expandable title="properties">
     <ResponseField name="apiKey" type="string" required>
       You can create or retrieve your api key from [Account Settings](https://app.tryhelium.com/profile).
@@ -139,7 +139,14 @@ Helium.shared.initialize(
       _(Optional)_ Custom API endpoint URL
     </ResponseField>
     <ResponseField name="customUserTraits" type="HeliumUserTraits?">
-      _(Optional)_ Pass in custom user traits to be used for targeting, personalization, and dynamic content.
+      _(Optional)_ Pass in custom user traits to be used for targeting, personalization, and dynamic content. It can be created with any dictionary, as long as the key is a string and the value is a `Codable` type.
+
+      ```swift
+      let customUserTraits = HeliumUserTraits(traits: [
+          "testTrait": 1,
+          "account_age_in_days": "20",
+      ])
+      ```
     </ResponseField>
     <ResponseField name="appAttributionToken" type="UUID?">
       _(Optional)_ Set this if you use a custom appAccountToken with your StoreKit purchases.
@@ -160,64 +167,47 @@ Helium.shared.initialize(
   Helium's initialization is ran on a background thread, so you don't have to worry about it blocking your app's launch time. Helium will automatically retry downloads as needed for up to 90 seconds.
 </Note>
 
-<Accordion title="Additional Configurations">
-  #### Passing in Custom User Traits
-
-  HeliumUserTraits is a struct that defines the possible user traits that can be passed in. It can be created with any dictionary, as long as the key is a string and the value is a `Codable` type.
+<Accordion title="Custom User ID and Custom User Traits">
+  You can provide a custom user ID and custom user traits in the `initialize` method or by using `Helium.shared.overrideUserId`. Ideally this will be called before `initialize` is called to ensure consistency in analytics events.
 
   ```swift
-  let customUserTraits = HeliumUserTraits(traits: [
-      "account_age": 100,
-      "subscription_status": "active",
-      "user_intent": "upgrade",
-  ])
+  Helium.shared.overrideUserId(
+      newUserId: "<your-custom-user-id>",
+      traits: HeliumUserTraits? = nil
+  );
   ```
+</Accordion>
 
-  #### Passing in a Custom User ID
-
-  By default, Helium generates a UUID per app session and identifies each user \+ interaction with this. You can pass override this value with a custom user id (e.g. from a 3rd party analytics service)
-  by passing it in as a parameter in `Helium.shared.initializeAndFetchVariants`, or by explicitly calling `Helium.shared.overrideUserId`:
-
-  ```swift
-  // Somewhere BEFORE initialize:
-  Helium.shared.overrideUserId(newUserId: '<your-custom-user-id>');
-  ```
-
-  #### Checking Download Status
-
-  After the initialization code above runs, you can check the status of the paywall configuration download using the `Helium.shared.downloadStatus()` method. This method returns a value of type `HeliumFetchedConfigStatus`, which is defined as follows:
+<Accordion title="Checking Download Status">
+  You can check the status of the paywall configuration download using the `Helium.shared.getDownloadStatus()` method. This method returns a value of type `HeliumFetchedConfigStatus`, which is defined as follows:
 
   ```swift
-  public enum HeliumFetchedConfigStatus: Codable {
+  public enum HeliumFetchedConfigStatus: String, Codable, Equatable {
       case notDownloadedYet
-      case downloadSuccess(fetchedConfigId: UUID)
+      case inProgress
+      case downloadSuccess
       case downloadFailure
   }
   ```
 
-  `notDownloadedYet`: Indicates that the download has not been initiated or is still in progress.
+  You can also simply check if paywalls have been successfully downloaded with `Helium.shared.paywallsLoaded()`.
+</Accordion>
 
-  `downloadSuccess(fetchedConfigId: UUID)`: Indicates a successful download. The returned `fetchedConfigID` provides the UUID of the fetched configuration.
-
-  `downloadFailure`: Indicates that the download attempt failed.
-
-  You can use this to handle different states in your app, for example:
+<Accordion title="Get Paywall Info By Trigger">
+  Retrieve basic information about the paywall ready to show for a specific trigger
+  with `Helium.shared.getPaywallInfo(trigger: String)` which returns:
 
   ```swift
-  switch Helium.shared.downloadStatus() {
-      case .notDownloadedYet:
-          print("Download not started or in progress")
-      case .downloadSuccess(let configId):
-          print("Download successful with config ID: \(configId)")
-      case .downloadFailure:
-          print("Download failed")
+  public struct PaywallInfo {
+      public let paywallTemplateName: String
+      public let shouldShow: Bool
   }
   ```
 </Accordion>
 
 ## HeliumPaywallDelegate
 
-Create a subclass of `HeliumPaywallDelegate` or use one of our pre-built delegates. This class is responsible for handling the purchase logic for your paywalls.
+Create a subclass of `HeliumPaywallDelegate` or use one of our pre-built delegates. This class is responsible for handling the purchase logic for your paywalls and handling [Helium Events](/sdk/helium-events).
 
 <Tabs>
   <Tab title="StoreKitDelegate">
@@ -232,117 +222,322 @@ Create a subclass of `HeliumPaywallDelegate` or use one of our pre-built delegat
     ])
     ```
 
-    If you would like to implement `onHeliumPaywallEvent`, simply create a subclass of StoreKitDelegate.
+    To handle [Helium Events](/sdk/helium-events), simply create a subclass of StoreKitDelegate and override `onHeliumPaywallEvent`:
+
+    ```swift
+    class MyStoreKitDelegate: StoreKitDelegate {
+        override func onHeliumPaywallEvent(event: HeliumPaywallEvent) {
+            switch event {
+            case .paywallOpen(let triggerName, let paywallTemplateName, let viewType):
+                break
+            case .paywallClose(let triggerName, let paywallTemplateName):
+                break
+            case .paywallDismissed:
+                break
+            default:
+                break
+            }
+        }
+    }
+    ```
   </Tab>
   <Tab title="RevenueCatDelegate">
     ```swift
     import HeliumRevenueCat
 
+    // You must have an offering set up with RevenueCat for this delegate:
     let delegate = RevenueCatDelegate(entitlementId: "<revenue-cat-entitlement-id>")
+
+    // Alternatively you can specify product IDs:
+    let delegate = RevenueCatDelegate(
+        entitlementId: "<revenue-cat-entitlement-id>",
+        productIds: ["<product-id-1>", "<product-id-2>"]
+    )
     ```
 
-    If you would like to implement `onHeliumPaywallEvent`, simply create a subclass of RevenueCatDelegate. Make sure to initialize RevenueCat before initializing Helium or alternatively you can supply your RevenueCat API key to RevenueCatDelegate() and have Helium initialize RevenueCat for you.
+    <Note>
+      Make sure to initialize RevenueCat _before_ initializing Helium\! Or alternatively you can supply your RevenueCat API key to RevenueCatDelegate() and have Helium initialize RevenueCat for you.
+    </Note>
+    To handle [Helium Events](/sdk/helium-events), simply create a subclass of RevenueCatDelegate and override `onHeliumPaywallEvent`:
+
+    ```swift
+    class MyRevenueCatDelegate: RevenueCatDelegate {
+        override func onHeliumPaywallEvent(event: HeliumPaywallEvent) {
+            switch event {
+            case .paywallOpen(let triggerName, let paywallTemplateName, let viewType):
+                break
+            case .paywallClose(let triggerName, let paywallTemplateName):
+                break
+            case .paywallDismissed:
+                break
+            default:
+                break
+            }
+        }
+    }
+    ```
   </Tab>
   <Tab title="Custom Delegate">
+    You can also create a custom delegate and implement your own purchase logic. You can look at our `StoreKitDelegate` and `RevenueCatDelegate` in the SDK for examples (these delegates are also visible below).
+
+    The `HeliumPaywallDelegate` is defined as follows:
+
     ```swift
     public protocol HeliumPaywallDelegate: AnyObject {
 
-    // [REQUIRED] - Trigger the purchase of a product with the following App Store Connect Product ID.
-    // This method should return a HeliumPaywallTransactionStatus enum, described below.
-    // Loading states/UI/UX here gets configured in the Helium dashboard, so this method should just trigger the purchase.
-    func makePurchase(productId: String) async -> HeliumPaywallTransactionStatus
+        // Execute the purchase of a product given the product ID.
+        func makePurchase(productId: String) async -> HeliumPaywallTransactionStatus
 
-    // [OPTIONAL] - Restore any existing subscriptions.
-    // This method should return a boolean indicating whether the restore was successful.
-    // This method gets called if you've configured a CTA in the editor to restore purchases, which is recommended.
-    func restorePurchases() async -> Bool
+        // (Optional) - Restore any existing subscriptions.
+        // Return a boolean indicating whether the restore was successful.
+        func restorePurchases() async -> Bool
 
-    // [OPTIONAL] Custom analytics/error logging for paywall/helium
-    // related events can be added here.
-    // By default, we log events to your analytics service (Amplitude, etc.), but you can override this method to add additional custom logging/handling.
-    // For example, you can log failure events to a Sentry instance, or add custom alerts/notifications on certain paywall events here.
-    func onHeliumPaywallEvent(event: HeliumPaywallEvent)
+        // (Optional) - Handle Helium Events
+        func onHeliumPaywallEvent(event: HeliumPaywallEvent)
     }
     ```
 
-    HeliumPaywallTransactionStatus is an enum that defines the possible states of a paywall transaction.
+    `HeliumPaywallTransactionStatus` is an enum that defines the possible states of a paywall transaction:
 
     ```swift
-    import Helium
-
     public enum HeliumPaywallTransactionStatus {
-        // if the subscription succeeded
         case purchased
-
-        // if the subscription was cancelled
         case cancelled
-
-        // if the subscription was abandoned
-        case abandoned
-
-        // if the subscription failed. Pass in the error as an argument for both logging and downstream handling.
         case failed(Error)
-
-        // if the user restored their subscription
         case restored
-
-        // if the subscription is 'pending' (requires action from developer)
         case pending
     }
     ```
 
+    Visit [Helium Events](/sdk/helium-events) for details on the different Helium paywall events.
+
     <Note>
-      If you're using a custom delegate instead of the default StoreKit 2 delegate, please use `Product.heliumPurchase()` instead of Product.purchase().
+      When executing the purchase via StoreKit 2 (recommended over StoreKit 1), please use `Product.heliumPurchase()` instead of `Product.purchase()`. For example:
 
-      This will automatically set attribution information for revenue tracking.
+      `let result = try await product.heliumPurchase()`
+
+      This will automatically set attribution information for [revenue tracking](/guides/revenue-reporting).
     </Note>
-    Example:
+    <Accordion title="StoreKitDelegate Example">
+      ```swift
+      /// A simple HeliumPaywallDelegate implementation that uses StoreKit 2 under the hood.
+      @available(iOS 15.0, *)
+      open class StoreKitDelegate: HeliumPaywallDelegate {
 
-    ```swift
-    open func makePurchase(productId: String) async -> HeliumPaywallTransactionStatus {
-        do {
-            guard let product: Product = productMappings[productId] else {
-                print("[Helium] StoreKitDelegate - makePurchase could not find product!")
-                return .failed(StoreKitDelegateError.cannotFindProduct)
-            }
+          private(set) var productMappings: [String: Product] = [:];
 
-            let result = try await product.heliumPurchase()
+          public init(productIds: [String]) {
+              Task {
+                  do {
+                      let fetchedProducts = try await Product.products(for: productIds)
+                      var mappings: [String: Product] = [:];
+                      // First create the direct mappings from test product IDs
+                      for fetchedProduct in fetchedProducts {
+                          mappings[fetchedProduct.id] = fetchedProduct;
+                      }
+                      productMappings = mappings
+                  } catch {
+                      print("[Helium] StoreKitDelegate - error fetching products. \(error)")
+                  }
+              }
+          }
 
-            switch result {
-            case .success(let verification):
-                switch verification {
-                case .verified(let transaction):
-                    await transaction.finish()
-                    return .purchased
-                case .unverified(_, let error):
-                    return .failed(error)
-                }
-            case .userCancelled:
-                return .cancelled
-            case .pending:
-                return .pending
-            @unknown default:
-                return .failed(StoreKitDelegateError.unknownPurchaseResult)
-            }
-        } catch {
-            print("[Helium] StoreKitDelegate - Purchase failed with error: \(error.localizedDescription)")
-            return .failed(error)
-        }
-    }
-    ```
+          open func makePurchase(productId: String) async -> HeliumPaywallTransactionStatus {
+              do {
+                  guard let product: Product = productMappings[productId] else {
+                      print("[Helium] StoreKitDelegate - makePurchase could not find product!")
+                      return .failed(StoreKitDelegateError.cannotFindProduct)
+                  }
+
+                  let result = try await product.heliumPurchase()
+
+                  switch result {
+                  case .success(let verification):
+                      switch verification {
+                      case .verified(let transaction):
+                          await transaction.finish()
+                          return .purchased
+                      case .unverified(_, let error):
+                          return .failed(error)
+                      }
+                  case .userCancelled:
+                      return .cancelled
+                  case .pending:
+                      return .pending
+                  @unknown default:
+                      return .failed(StoreKitDelegateError.unknownPurchaseResult)
+                  }
+              } catch {
+                  print("[Helium] StoreKitDelegate - Purchase failed with error: \(error.localizedDescription)")
+                  return .failed(error)
+              }
+          }
+
+          open func restorePurchases() async -> Bool {
+              for await result in Transaction.currentEntitlements {
+                  if case .verified = result {
+                      return true
+                  }
+              }
+              return false
+          }
+
+          open func onHeliumPaywallEvent(event: HeliumPaywallEvent) {
+              // Override in a subclass if desired
+          }
+      }
+      ```
+    </Accordion>
+    <Accordion title="RevenueCatDelegate Example">
+      ```swift
+      /// A HeliumPaywallDelegate implementation specifically intended for apps that use RevenueCat to handle
+      /// in-app purchases & subscriptions. Do not use if you don't plan on configuring your purchases with RevenueCat.
+      open class RevenueCatDelegate: HeliumPaywallDelegate {
+
+          public let entitlementId: String
+          private var offerings: Offerings?
+          private var products: [StoreProduct]?
+
+          private func configureRevenueCat(revenueCatApiKey: String) {
+              Purchases.configure(withAPIKey: revenueCatApiKey, appUserID: HeliumIdentityManager.shared.getHeliumPersistentId())
+          }
+
+          /// Initialize the delegate.
+          ///
+          /// - Parameter entitlementId: The id of the [entitlement](https://www.revenuecat.com/docs/getting-started/entitlements) that you have configured with RevenueCat.
+          /// - Parameter revenueCatApiKey: (Optional). Only set if you want Helium to handle RevenueCat initialization for you. Otherwise make sure to [initialize RevenueCat](https://www.revenuecat.com/docs/getting-started/quickstart#initialize-and-configure-the-sdk) before initializing Helium.
+          public init(
+              entitlementId: String,
+              revenueCatApiKey: String? = nil
+          ) {
+              self.entitlementId = entitlementId
+
+              if let revenueCatApiKey {
+                  configureRevenueCat(revenueCatApiKey: revenueCatApiKey)
+              }
+
+              Task {
+                  do {
+                      offerings = try await Purchases.shared.offerings()
+                  } catch {
+                      print("[Helium] RevenueCatDelegate - Failed to load RevenueCat offerings: \(error.localizedDescription)")
+                  }
+              }
+          }
+
+          /// Initialize the delegate.
+          ///
+          /// - Parameter entitlementId: The id of the [entitlement](https://www.revenuecat.com/docs/getting-started/entitlements) that you have configured with RevenueCat.
+          /// - Parameter productIds: A list of product IDs, configured in the App Store, that can be purchased via a Helium paywall.
+          /// - Parameter revenueCatApiKey: (Optional). Only set if you want Helium to handle RevenueCat initialization for you. Otherwise make sure to [initialize RevenueCat](https://www.revenuecat.com/docs/getting-started/quickstart#initialize-and-configure-the-sdk) before initializing Helium.
+          public init(
+              entitlementId: String,
+              productIds: [String],
+              revenueCatApiKey: String? = nil
+          ) {
+              self.entitlementId = entitlementId
+
+              if let revenueCatApiKey {
+                  configureRevenueCat(revenueCatApiKey: revenueCatApiKey)
+              }
+
+              Task {
+                  do {
+                      products = try await Purchases.shared.products(productIds)
+                  } catch {
+                      print("[Helium] RevenueCatDelegate - Failed to load RevenueCat products: \(error.localizedDescription)")
+                  }
+              }
+          }
+
+          open func makePurchase(productId: String) async -> HeliumPaywallTransactionStatus {
+              do {
+                  var result: PurchaseResultData? = nil
+
+                  if let offerings {
+                      var packageToPurchase: Package? = nil
+
+                      for (_, offering) in offerings.all {
+                          for package in offering.availablePackages {
+                              if package.storeProduct.productIdentifier == productId {
+                                  packageToPurchase = package
+                                  break
+                              }
+                          }
+                          if packageToPurchase != nil {
+                              break
+                          }
+                      }
+
+                      guard let package = packageToPurchase else {
+                          return .failed(RevenueCatDelegateError.cannotFindProductViaOffering)
+                      }
+
+                      result = try await Purchases.shared.purchase(package: package)
+                  }
+
+                  if let products, result == nil {
+                      let productToPurchase = products.first { $0.productIdentifier == productId }
+                      guard let product = productToPurchase else {
+                          return .failed(RevenueCatDelegateError.cannotFindProduct)
+                      }
+
+                      result = try await Purchases.shared.purchase(product: product)
+                  }
+
+                  guard let result else {
+                      return .failed(RevenueCatDelegateError.unexpected)
+                  }
+
+                  if result.userCancelled {
+                      return .cancelled
+                  }
+
+                  if result.customerInfo.entitlements[entitlementId]?.isActive == true {
+                      return .purchased
+                  } else {
+                      return .failed(RevenueCatDelegateError.purchaseNotVerified)
+                  }
+              } catch {
+                  return .failed(error)
+              }
+          }
+
+          open func restorePurchases() async -> Bool {
+              do {
+                  let customerInfo = try await Purchases.shared.restorePurchases()
+                  return customerInfo.entitlements[entitlementId]?.isActive == true
+              } catch {
+                  return false
+              }
+          }
+
+          open func onHeliumPaywallEvent(event: HeliumPaywallEvent) {
+              // Override in a subclass if desired
+          }
+      }
+      ```
+    </Accordion>
   </Tab>
 </Tabs>
 
 ## Presenting Paywalls
 
-Now, anywhere in your iOS app, you can use the `triggerUpsell` modifier to (conditionally) trigger a Helium paywall\!
+Now, anywhere in your iOS app, you can show a paywall and you have different options to do so.
 
-- You don't actually specify the paywall version name here - we load the paywall from the backend based on the trigger.
-- What _is_ specified is a "trigger name". These trigger names should be **unique** across your app. User interactions with paywalls will be tracked and used to optimize the paywall for each trigger.
+### Via Programmatic Invocation
+
+Call `Helium.shared.presentUpsell(trigger:)` when you want to show the paywall. For example:
+
+```swift
+Button("Try Premium") {
+    Helium.shared.presentUpsell(trigger: "post_onboarding")
+}
+```
 
 ### Via SwiftUI ViewModifier
 
-You can use the `.triggerUpsell` view modifier from any SwiftUI view. It can be provided with a boolean binding var parameter to control the visibility of the paywall.
+You can use the `.triggerUpsell` view modifier from any SwiftUI view:
 
 ```swift
 struct ContentView: View {
@@ -355,63 +550,22 @@ struct ContentView: View {
                 Text("Show paywall")
             }
 
-        }.triggerUpsell(isPresented: $isPresented, trigger: "showPaywallPress")
+        }.triggerUpsell(isPresented: $isPresented, trigger: "post_onboarding")
     }
-}
-```
-
-### Via Programmatic invokation (UIKit/ViewController)
-
-In addition to using the triggerUpsell modifier, you can also present upsells programmatically using the `presentUpsell(trigger:)` method. This is particularly useful when you need to show a paywall in response to a specific action or event in your app.
-
-```swift
-Button("Try Premium") {
-    Helium.shared.presentUpsell(trigger: "postOnboardingButtonPress")
 }
 ```
 
 ### Explicitly getting the Helium Paywall View
 
-You can also explicitly get the Helium paywall view via `Helium.shared.upsellViewForTrigger`. This method takes a trigger and returns the paywall
-as an `AnyView`.
+You can also explicitly get the Helium paywall view via `Helium.shared.upsellViewForTrigger`. This method takes a trigger and returns the paywall as an `AnyView`.
 
 ```swift
-let heliumView: AnyView = Helium.shared.upsellViewForTrigger(trigger: "postOnboardingButtonPress")
+let heliumView: AnyView = Helium.shared.upsellViewForTrigger(trigger: "post_onboarding")
 ```
 
-### Custom dismissal/navigation actions
-
-By default, Helium uses a `DismissAction` to support dismissing the paywall. However, in cases where you want to control dismissal yourself (e.g. if you're using a custom ViewController, or a NavigationStack),
-you can use `HeliumPaywallDelegate` to wire up dismissal (or any custom action\!) events from a given paywall.
-
-To wire up actions, implement the `onCTAPressed` method as follows:
-
-```swift
-
-class YourHeliumPaywallDelegate: HeliumPaywallDelegate {
-    
-    func onHeliumPaywallEvent(event: HeliumPaywallEvent) {
-        switch (event) {
-            case .ctaPressed(let ctaName, let triggerName, let paywallTemplateName): {
-                if (ctaName == 'dismiss') {
-                    // your custom dismissal action for this trigger
-                }
-            }
-            ... other cases
-        }
-    }    
-
-    // ...rest of your methods
-}
-```
-
-How it works is that any component (e.g. an X out icon, decline text, etc.) can be remotely configured to be a wrapped in a `Button` with a name. When this button component
-is tapped, we fire the delegate's `onCTAPressed` method with the button name. So, once you've implemented custom swift code from your delegate, you can remotely configure
-components in the paywall to trigger those methods.
-
-## Paywall Events
-
-View the different types of paywall events [here](/sdk/helium-events).
+<Note>
+  You'll need to handle presentation and dismissal yourself if you use this way of displaying paywalls. You can do so through [Helium Events](/sdk/helium-events).
+</Note>
 
 ## Testing
 

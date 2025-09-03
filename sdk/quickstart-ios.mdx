@@ -26,7 +26,7 @@ We recommend using Swift Package Manager (SPM), but if your project primarily us
     4. In the dialog that appears, make sure to add the **Helium** product to your app’s main target:
 
        ![Spm Target Pn](/images/spm_target.png)
-    5. _(Optional)_ If you are using RevenueCat to manage purchases, we recommended you also add **HeliumRevenueCat** to your target so that you can use our RevenueCatDelegate referenced below. Otherwise leave as **None** for the HeliumRevenueCat row.
+    5. _(Optional)_ If you are using RevenueCat to manage purchases, we recommended you also add **HeliumRevenueCat** to your target so that you can use our RevenueCatDelegate referenced in the HeliumPaywallDelegate section of this guide. Otherwise leave as **None** for the HeliumRevenueCat row.
 
     <Warning>
       The **HeliumRevenueCat** target includes [purchases-ios-spm](https://github.com/RevenueCat/purchases-ios-spm)  as a dependency, _not_ [purchases-ios](https://github.com/RevenueCat/purchases-ios) and you may encounter build issues if are using **purchases-ios** with SPM.
@@ -34,21 +34,34 @@ We recommend using Swift Package Manager (SPM), but if your project primarily us
     6. Select **Add Package** in the dialog and Helium should now be ready for import.
   </Tab>
   <Tab title="Cocoapod">
-    Add the Helium Cocoapod with:
+    ### Option 1: Core functionality only
 
-    ```shellscript
-    pod install Helium
-    ```
+    Add this to your Podfile:
 
-    Or by adding it to your Podfile:
-
-    ```
+    ```ruby
     pod 'Helium', '~> 2.0'
     ```
 
-    and running
+    Then run:
 
-    ```shellscript
+    ```bash
+    pod install
+    ```
+
+    ### Option 2: Core \+ RevenueCat
+
+    <Note>
+      Recommended if you are using RevenueCat to manage purchases. This way you can use our RevenueCatDelegate referenced in the HeliumPaywallDelegate section of this guide.
+    </Note>
+    Add this to your Podfile:
+
+    ```ruby
+    pod 'Helium/RevenueCat', '~> 2.0'
+    ```
+
+    Then run:
+
+    ```bash
     pod install
     ```
   </Tab>
@@ -64,7 +77,7 @@ Initialize the Helium SDK as early as possible in your app's lifecycle. Choose t
     @main
     struct MyApp: App {
         init() {
-            // ** Call Helium initialize here (see right below) **
+            // Call Helium Helium.shared.initialize here (see example below)
         }
 
         var body: some Scene {
@@ -82,7 +95,7 @@ Initialize the Helium SDK as early as possible in your app's lifecycle. Choose t
         var window: UIWindow?
 
         func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-            // ** Call Helium initialize here (see right below) **
+            // Call Helium Helium.shared.initialize here (see example below)
         }
     }
     ```
@@ -95,7 +108,7 @@ Initialize the Helium SDK as early as possible in your app's lifecycle. Choose t
         var window: UIWindow?
 
         func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-            // ** Call Helium initialize here (see right below) **
+            // Call Helium Helium.shared.initialize here (see example below)
             return true
         }
     }
@@ -243,6 +256,7 @@ Create a subclass of `HeliumPaywallDelegate` or use one of our pre-built delegat
   </Tab>
   <Tab title="RevenueCatDelegate">
     You can use the pre-built RevenueCatDelegate to handle purchases if your app is using RevenueCat:
+
     ```swift
     import HeliumRevenueCat
 

@@ -229,10 +229,7 @@ Create a subclass of `HeliumPaywallDelegate` or use one of our pre-built delegat
     ```swift
     import Helium
 
-    let delegate = StoreKitDelegate(productIds: [
-        "<product-id-1>",
-        "<product-id-2>",
-    ])
+    let delegate = StoreKitDelegate()
     ```
 
     To handle [Helium Events](/sdk/helium-events), simply create a subclass of StoreKitDelegate and override `onHeliumPaywallEvent`:
@@ -255,19 +252,15 @@ Create a subclass of `HeliumPaywallDelegate` or use one of our pre-built delegat
     ```
   </Tab>
   <Tab title="RevenueCatDelegate">
+    <Warning>
+      Make sure you included HeliumRevenueCat (for SPM) or Helium/RevenueCat (for Cocoapod) as noted in the Installation section.
+    </Warning>
     You can use the pre-built RevenueCatDelegate to handle purchases if your app is using RevenueCat:
 
     ```swift
-    import HeliumRevenueCat
+    import HeliumRevenueCat // unless using Cocoapod then can just import Helium
 
-    // You must have an offering set up with RevenueCat for this delegate:
     let delegate = RevenueCatDelegate(entitlementId: "<revenue-cat-entitlement-id>")
-
-    // Alternatively you can specify product IDs:
-    let delegate = RevenueCatDelegate(
-        entitlementId: "<revenue-cat-entitlement-id>",
-        productIds: ["<product-id-1>", "<product-id-2>"]
-    )
     ```
 
     <Note>
@@ -339,16 +332,20 @@ Create a subclass of `HeliumPaywallDelegate` or use one of our pre-built delegat
       @available(iOS 15.0, *)
       open class StoreKitDelegate: HeliumPaywallDelegate {
 
-          private(set) var productMappings: [String: Product] = [:];
+          private(set) var productMappings: [String: Product] = [:]
 
-          public init(productIds: [String]) {
+          /// @param productIds  (Optional). A list of product IDs, configured in the App Store, that can be purchased via a Helium paywall. This is not required but may provide a slight performance benefit.
+          public init(productIds: [String] = []) {
+              guard !productIds.isEmpty else {
+                  return
+              }
               Task {
                   do {
                       let fetchedProducts = try await Product.products(for: productIds)
-                      var mappings: [String: Product] = [:];
-                      // First create the direct mappings from test product IDs
+                      var mappings: [String: Product] = [:]
+                      // Create product mappings from product IDs
                       for fetchedProduct in fetchedProducts {
-                          mappings[fetchedProduct.id] = fetchedProduct;
+                          mappings[fetchedProduct.id] = fetchedProduct
                       }
                       productMappings = mappings
                   } catch {
@@ -359,7 +356,17 @@ Create a subclass of `HeliumPaywallDelegate` or use one of our pre-built delegat
 
           open func makePurchase(productId: String) async -> HeliumPaywallTransactionStatus {
               do {
-                  guard let product: Product = productMappings[productId] else {
+                  var product: Product? = productMappings[productId]
+
+                  if product == nil {
+                      let productsList = try await Product.products(for: [productId])
+                      if productsList.count > 0 {
+                          product = productsList[0]
+                          productMappings[productId] = product
+                      }
+                  }
+
+                  guard let product else {
                       print("[Helium] StoreKitDelegate - makePurchase could not find product!")
                       return .failed(StoreKitDelegateError.cannotFindProduct)
                   }
@@ -409,9 +416,9 @@ Create a subclass of `HeliumPaywallDelegate` or use one of our pre-built delegat
       /// in-app purchases & subscriptions. Do not use if you don't plan on configuring your purchases with RevenueCat.
       open class RevenueCatDelegate: HeliumPaywallDelegate {
 
-          public let entitlementId: String
+          public let entitlementId: String?
           private var offerings: Offerings?
-          private var products: [StoreProduct]?
+          private(set) var productMappings: [String: StoreProduct] = [:]
 
           private func configureRevenueCat(revenueCatApiKey: String) {
               Purchases.configure(withAPIKey: revenueCatApiKey, appUserID: HeliumIdentityManager.shared.getHeliumPersistentId())
@@ -419,48 +426,36 @@ Create a subclass of `HeliumPaywallDelegate` or use one of our pre-built delegat
 
           /// Initialize the delegate.
           ///
-          /// - Parameter entitlementId: The id of the [entitlement](https://www.revenuecat.com/docs/getting-started/entitlements) that you have configured with RevenueCat.
+          /// - Parameter entitlementId: (Optional). The id of the [entitlement](https://www.revenuecat.com/docs/getting-started/entitlements) that you have configured with RevenueCat. If provided, the "restore purchases" action will look for this entitlement otherwise it will look for any active entitlement.
+          /// - Parameter productIds: (Optional). A list of product IDs, configured in the App Store, that can be purchased via a Helium paywall. This is not required but may provide a slight performance benefit.
           /// - Parameter revenueCatApiKey: (Optional). Only set if you want Helium to handle RevenueCat initialization for you. Otherwise make sure to [initialize RevenueCat](https://www.revenuecat.com/docs/getting-started/quickstart#initialize-and-configure-the-sdk) before initializing Helium.
           public init(
-              entitlementId: String,
+              entitlementId: String? = nil,
+              productIds: [String]? = nil,
               revenueCatApiKey: String? = nil
           ) {
               self.entitlementId = entitlementId
 
               if let revenueCatApiKey {
                   configureRevenueCat(revenueCatApiKey: revenueCatApiKey)
+              } else if !Purchases.isConfigured {
+                  print("[Helium] RevenueCatDelegate - RevenueCat has not been configured. You must either configure it before initializing RevenueCatDelegate or pass in revenueCatApiKey to RevenueCatDelegate initializer.")
               }
 
               Task {
                   do {
                       offerings = try await Purchases.shared.offerings()
+                      if let productIds {
+                          let products = try await Purchases.shared.products(productIds)
+                          var mappings: [String: StoreProduct] = [:]
+                          // Create product mappings from product IDs
+                          for product in products {
+                              mappings[product.productIdentifier] = product
+                          }
+                          productMappings = mappings
+                      }
                   } catch {
-                      print("[Helium] RevenueCatDelegate - Failed to load RevenueCat offerings: \(error.localizedDescription)")
-                  }
-              }
-          }
-
-          /// Initialize the delegate.
-          ///
-          /// - Parameter entitlementId: The id of the [entitlement](https://www.revenuecat.com/docs/getting-started/entitlements) that you have configured with RevenueCat.
-          /// - Parameter productIds: A list of product IDs, configured in the App Store, that can be purchased via a Helium paywall.
-          /// - Parameter revenueCatApiKey: (Optional). Only set if you want Helium to handle RevenueCat initialization for you. Otherwise make sure to [initialize RevenueCat](https://www.revenuecat.com/docs/getting-started/quickstart#initialize-and-configure-the-sdk) before initializing Helium.
-          public init(
-              entitlementId: String,
-              productIds: [String],
-              revenueCatApiKey: String? = nil
-          ) {
-              self.entitlementId = entitlementId
-
-              if let revenueCatApiKey {
-                  configureRevenueCat(revenueCatApiKey: revenueCatApiKey)
-              }
-
-              Task {
-                  do {
-                      products = try await Purchases.shared.products(productIds)
-                  } catch {
-                      print("[Helium] RevenueCatDelegate - Failed to load RevenueCat products: \(error.localizedDescription)")
+                      print("[Helium] RevenueCatDelegate - Failed to load RevenueCat offerings/products: \(error.localizedDescription)")
                   }
               }
           }
@@ -484,31 +479,34 @@ Create a subclass of `HeliumPaywallDelegate` or use one of our pre-built delegat
                           }
                       }
 
-                      guard let package = packageToPurchase else {
-                          return .failed(RevenueCatDelegateError.cannotFindProductViaOffering)
+                      if let package = packageToPurchase {
+                          result = try await Purchases.shared.purchase(package: package)
                       }
-
-                      result = try await Purchases.shared.purchase(package: package)
                   }
 
-                  if let products, result == nil {
-                      let productToPurchase = products.first { $0.productIdentifier == productId }
-                      guard let product = productToPurchase else {
-                          return .failed(RevenueCatDelegateError.cannotFindProduct)
+                  if result == nil {
+                      if let product = productMappings[productId] {
+                          result = try await Purchases.shared.purchase(product: product)
                       }
+                  }
 
-                      result = try await Purchases.shared.purchase(product: product)
+                  if result == nil {
+                      let productToPurchase = try await Purchases.shared.products([productId])
+                      if let product = productToPurchase.first {
+                          productMappings[productId] = product
+                          result = try await Purchases.shared.purchase(product: product)
+                      }
                   }
 
                   guard let result else {
-                      return .failed(RevenueCatDelegateError.unexpected)
+                      return .failed(RevenueCatDelegateError.cannotFindProduct)
                   }
 
                   if result.userCancelled {
                       return .cancelled
                   }
 
-                  if result.customerInfo.entitlements[entitlementId]?.isActive == true {
+                  if isProductActive(customerInfo: result.customerInfo, productId: productId) {
                       return .purchased
                   } else {
                       return .failed(RevenueCatDelegateError.purchaseNotVerified)
@@ -521,7 +519,11 @@ Create a subclass of `HeliumPaywallDelegate` or use one of our pre-built delegat
           open func restorePurchases() async -> Bool {
               do {
                   let customerInfo = try await Purchases.shared.restorePurchases()
-                  return customerInfo.entitlements[entitlementId]?.isActive == true
+                  if let entitlementId {
+                      return customerInfo.entitlements[entitlementId]?.isActive == true
+                  }
+                  // Just see if any entitlement is active
+                  return !customerInfo.entitlements.activeInCurrentEnvironment.isEmpty
               } catch {
                   return false
               }
@@ -529,6 +531,23 @@ Create a subclass of `HeliumPaywallDelegate` or use one of our pre-built delegat
 
           open func onHeliumPaywallEvent(event: HeliumPaywallEvent) {
               // Override in a subclass if desired
+          }
+
+          private func isProductActive(customerInfo: CustomerInfo, productId: String) -> Bool {
+              if let entitlementId, customerInfo.entitlements[entitlementId]?.isActive == true {
+                  return true
+              }
+              if customerInfo.entitlements.activeInCurrentEnvironment.contains(where: { entitlementInfoEntry in
+                  entitlementInfoEntry.value.productIdentifier == productId
+              }) {
+                  return true
+              }
+              if customerInfo.activeSubscriptions.contains(where: { productIdentifier in
+                  productIdentifier == productId
+              }) {
+                  return true
+              }
+              return false
           }
       }
       ```

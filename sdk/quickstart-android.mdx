@@ -1,0 +1,171 @@
+---
+title: "SDK Quickstart (Android)"
+description: "Integrate Helium into your Android app"
+icon: "code"
+---
+
+## **Background**
+
+Thanks for getting started with Helium 🎈
+
+Helium is an upsell experimentation and optimization platform for mobile apps of all sizes. We take your app’s existing paywalls and turn them into remotely editable templates that you can experiment with and optimize without waiting for new app releases.
+
+Email founders@tryhelium.com for help/questions.
+
+## **Installation**
+
+Add the Helium SDK to your project using Gradle.
+
+**1. Add repositories to your `settings.gradle.kts` file:**
+
+Ensure you have `mavenCentral()` and `google()` in your repositories blocks.
+
+```kotlin
+// settings.gradle.kts
+
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+    }
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        // You might have other repositories here
+    }
+}
+```
+*Note: If you don't have a `dependencyResolutionManagement` block, ensure `google()` and `mavenCentral()` are present in your `pluginManagement { repositories { ... } }` block.*
+
+**2. Add the dependencies to your module-level `build.gradle.kts` file (e.g., `app/build.gradle.kts`):**
+
+<Tabs>
+  <Tab title="Core (Android View System)">
+    ```kotlin
+    // app/build.gradle.kts
+
+    dependencies {
+        implementation("com.helium.paywall:paywall-core:0.0.1")
+        // Other app dependencies
+    }
+    ```
+  </Tab>
+  <Tab title="Jetpack Compose UI">
+    ```kotlin
+    // app/build.gradle.kts
+
+    dependencies {
+        implementation("com.helium.paywall:paywall-compose-ui:0.0.1")
+        // Other app dependencies
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Initialize Helium
+
+You need to register Helium inside of your main application class.
+
+```kotlin
+// In your Application class's onCreate() method
+Helium.register(
+    this,
+    apiKey = YOUR_API_KEY
+)
+```
+
+After registering, you need to initialize Helium. This is typically done when a user logs in or when user-specific data is available.
+
+```kotlin
+// Example of Helium.initialize()
+// Typically in your Activity, ViewModel, or a relevant part of your app's logic
+
+val heliumPaywallDelegate = GooglePlayPaywallDelegate(this)
+
+Helium.initialize(
+    heliumPaywallDelegate = heliumPaywallDelegate,
+    customUserId = "YOUR_CUSTOM_USER_ID", // Can be null if the user is anonymous
+    customUserTraits = HeliumUserTraits(/* populate with relevant user properties */) // Optional
+)
+```
+
+## HeliumPaywallDelegate
+
+You can provide an implementation of the `HeliumPaywallDelegate` or use one of the default implementations that we have provided, such as `GooglePlayPaywallDelegate` or `RevenueCatPaywallDelegate`.
+
+<Tabs>
+  <Tab title="GooglePlayPaywallDelegate">
+    Use the `GooglePlayPaywallDelegate` to handle purchases using Google Play Billing.
+  </Tab>
+  <Tab title="RevenueCatPaywallDelegate">
+    Use the `RevenueCatPaywallDelegate` to handle purchases if your app is using RevenueCat.
+  </Tab>
+  <Tab title="Custom Delegate">
+    You can also create a custom delegate and implement your own purchase logic.
+
+    The `HeliumPaywallDelegate` is defined as follows:
+
+    ```kotlin
+    interface HeliumPaywallDelegate {
+        suspend fun makePurchase(productId: String): HeliumPaywallTransactionStatus
+        suspend fun restorePurchases(): Boolean
+        fun onHeliumPaywallEvent(event: HeliumPaywallEvent)
+    }
+    ```
+  </Tab>
+</Tabs>
+
+
+## Presenting Paywalls
+
+To present a Paywall, ensure you have registered and initialized the library. The SDK provides UI components that handle the underlying `PaywallWebViewManager`.
+
+We provide two different ways of presenting the Paywall:
+
+<Tabs>
+  <Tab title="Jetpack Compose">
+    Before you can present a paywall, you need to provide the `PaywallWebViewManager` to the composable tree. You can do this by wrapping your `NavHost` with the `WithLocalPaywallWebViewManager` composable:
+
+    ```kotlin
+    WithLocalPaywallWebViewManager(
+        webviewManager = Helium.shared.paywallManager
+    ) {
+        NavHost(
+            navController = navController,
+            startDestination = "landing",
+            modifier = Modifier.fillMaxSize()
+        ) {
+            composable("landing") {
+                LandingScreen(navController = navController)
+            }
+            buildHelium()
+        }
+    }
+    ```
+
+    The preferred way is to introduce the Helium screen to your NavigationGraph. Anywhere inside of your NavHost, you can introduce the `buildHelium()`.
+
+    To present a paywall, just perform the navigation. It's good practice to use constants for routes and arguments:
+    ```kotlin
+    // Navigate to the paywall
+    navController.navigate("${HeliumNavRoutes.PAYWALL_ROUTE}?${HeliumNavParams.TRIGGER}=sdk_test")
+    ```
+  </Tab>
+  <Tab title="Android View System">
+    Using the `HeliumPaywallActivity`:
+    ```kotlin
+    val intent = Intent(this, HeliumPaywallActivity::class.java)
+    intent.putExtra(HeliumPaywallActivity.EXTRA_PAYWALL_TRIGGER, "sdk_test")
+    startActivity(intent)
+    ```
+  </Tab>
+</Tabs>
+
+## Testing
+
+Docs here coming soon!

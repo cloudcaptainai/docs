@@ -69,17 +69,6 @@ Once you get this set up, you'll be able to scan a QR code from the Helium dashb
     ```
 
     </CodeGroup>
-
-    <Tip>
-      `handleDeepLink` will return true if the test paywall was successfully shown.
-    </Tip>
-    ### Step 3: Test
-
-    1. Run your app
-    2. Open Safari and navigate to: `helium-test://helium-test?trigger=YOUR_TRIGGER_NAME`
-    3. Tap "Open" when prompted to open in your app
-
-    The test paywall for the specified trigger will be displayed. TODO explain how to do this in dashboard.
   </Tab>
   <Tab title="React Native">
     ### Step 1: Add URL Scheme
@@ -125,17 +114,6 @@ Once you get this set up, you'll be able to scan a QR code from the Helium dashb
         return <YourApp />;
     }
     ```
-
-    <Tip>
-      `handleDeepLink` will return true if the test paywall was successfully shown.
-    </Tip>
-    ### Step 3: Test
-
-    1. Run your app
-    2. Open Safari and navigate to: `helium-test://helium-test?trigger=YOUR_TRIGGER_NAME`
-    3. Tap "Open" when prompted to open in your app
-
-    The test paywall for the specified trigger will be displayed. TODO explain how to do this in dashboard.
   </Tab>
   <Tab title="Flutter">
     ### Step 1: Add URL Scheme
@@ -161,18 +139,28 @@ Once you get this set up, you'll be able to scan a QR code from the Helium dashb
     </Note>
     ### Step 2: Handle Deep Links
 
-    Add the **app_links** package to `pubspec.yaml`:
+    Install the [**app_links**](https://github.com/llfbandit/app_links) package by running:
+
+    ```shellscript
+    flutter pub add app_links
+    ```
+
+    Or by running `flutter pub get` after adding directly to  `pubspec.yaml`:
 
     ```yaml
     dependencies:
       app_links: ^6.4.1
     ```
 
-    Then in your main app widget:
+    Then in your root app widget:
 
     ```dart
+    // for StreamSubscription
+    import 'dart:async';
+    // for app_links and Helium
     import 'package:app_links/app_links.dart';
     import 'package:helium_flutter/helium_flutter.dart';
+
 
     class MyApp extends StatefulWidget {
       @override
@@ -180,29 +168,55 @@ Once you get this set up, you'll be able to scan a QR code from the Helium dashb
     }
 
     class _MyAppState extends State<MyApp> {
+      StreamSubscription<Uri>? _linkSubscription;
+
       @override
       void initState() {
         super.initState();
 
-        final appLinks = AppLinks();
-        appLinks.uriLinkStream.listen((uri) {
+        // Add code to instantiate AppLinks
+        _linkSubscription = AppLinks().uriLinkStream.listen((uri) {
           HeliumFlutter().handleDeepLink(uri.toString());
         });
+      }
+
+      @override
+      void dispose() {
+        // Good practice, though not strictly necessary for root widget
+        _linkSubscription?.cancel();
+        super.dispose();
       }
 
       // Rest of your app
     }
     ```
-
-    <Tip>
-      `handleDeepLink` will return true if the test paywall was successfully shown.
-    </Tip>
-    ### Step 3: Test
-
-    1. Run your app
-    2. Open Safari and navigate to: `helium-test://helium-test?trigger=YOUR_TRIGGER_NAME`
-    3. Tap "Open" when prompted to open in your app
-
-    The test paywall for the specified trigger will be displayed. TODO explain how to do this in dashboard.
   </Tab>
 </Tabs>
+
+<Tip>
+  `handleDeepLink` will return true if the test paywall was successfully shown.
+</Tip>
+
+### Step 3: Test
+
+1. Run your app.
+2. Visit the desired paywall in the [dashboard](https://app.tryhelium.com/paywalls).
+3. Click the QR code button, this should open a dialog with a QR code.
+4. Scan it from your device camera.
+5. The paywall should display from your app.
+
+<Note>
+  To see the latest changes to the paywall, you may need to restart your app and scan again. (We are working on improving this.)
+</Note>
+
+<Note>
+  Only paywalls that are configured in an active workflow can be displayed via test link. Also, workflows with experiments may display any of the paywalls in the experiment. (We are working on improving this too.)
+</Note>
+
+### Explicit URL Testing
+
+Instead of scanning, you can also craft the test link manually:
+
+1. Open Safari and navigate to: `helium-test://helium-test?trigger=YOUR_TRIGGER_NAME` .
+2. Tap "Open" when prompted to open in your app.
+3. The paywall for the specified trigger will be opened.

@@ -12,7 +12,7 @@ icon: "/images/sdk/logos/apple-173-svgrepo-com.svg"
 
 ## **Background**
 
-Get set up with the Helium SDK for iOS in 5 minutes. Reach out over your Helium slack channel, or email [founders@tryhelium.com](mailto:founders@tryhelium.com) for any questions.
+Get set up with the Helium SDK for iOS. Reach out over your Helium slack channel or email [founders@tryhelium.com](mailto:founders@tryhelium.com) for any questions.
 
 ## **Installation**
 
@@ -29,16 +29,19 @@ We recommend using Swift Package Manager (SPM), but if your project primarily us
        https://github.com/cloudcaptainai/helium-swift.git
        ```
     3. Click **Add Package**.
-    4. Select version **3.0.0** or later in the version rules.
-    5. In the dialog that appears, make sure to add the **Helium** product to your app's main target:
+    4. In the dialog that appears, make sure to add the **Helium** product to your app's main target:
 
        ![Spm Target Pn](/images/spm_target.png)
-    6. _(Optional)_ If you are using RevenueCat to manage purchases, we recommended you also add **HeliumRevenueCat** to your target so that you can use our RevenueCatDelegate. Otherwise leave as **None** for the HeliumRevenueCat row.
+    5. _(Optional)_ If you are using RevenueCat to manage purchases, we recommended you also add **HeliumRevenueCat** to your target so that you can use our RevenueCatDelegate referenced in the HeliumPaywallDelegate section of this guide. Otherwise leave as **None** for the HeliumRevenueCat row.
 
     <Warning>
       The **HeliumRevenueCat** target includes [purchases-ios-spm](https://github.com/RevenueCat/purchases-ios-spm) as a dependency, _not_ [purchases-ios](https://github.com/RevenueCat/purchases-ios) and you may encounter build issues if are using **purchases-ios** with SPM.
     </Warning>
-    7. Select **Add Package** in the dialog and Helium should now be ready for import.
+    6. Select **Add Package** in the dialog and Helium should now be ready for import.
+    7. Version: We recommend using an upToNextMajor rule to make sure you get non-breaking bug fixes. The latest stable version of helium-swift is **3.0.0** :
+
+      ![Xcode 3 Dependency](/images/sdk/xcode_3_dependency.png)
+
   </Tab>
   <Tab title="Cocoapod">
     ### Option 1: Core functionality only
@@ -130,244 +133,171 @@ import Helium
 import SwiftUI
 ```
 
-### Basic Initialization (v3.x)
-
-The simplest initialization using the new `HeliumFallbackConfig`:
+And initialize Helium in the location referenced above:
 
 ```swift
-// Option 1: With fallback bundle (recommended)
-let fallbackBundleURL = Bundle.main.url(forResource: "fallback-bundle", withExtension: "json")!
-let fallbackConfig = HeliumFallbackConfig.withFallbackBundle(fallbackBundleURL)
+// Create fallback configuration (required)
+let fallbackConfig = HeliumFallbackConfig.withFallbackView(
+    Text("Fallback shown")
+)
 
-// Option 2: With fallback view
-let fallbackView = Text("Loading premium features...")
-let fallbackConfig = HeliumFallbackConfig.withFallbackView(fallbackView)
+// Or use a fallback bundle (recommended)
+let fallbackBundleURL = Bundle.main.url(forResource: "fallback-bundle", withExtension: "json")
+let fallbackConfig = HeliumFallbackConfig.withFallbackBundle(fallbackBundleURL)
 
 Helium.shared.initialize(
     apiKey: "<your-helium-api-key>",
-    heliumPaywallDelegate: nil, // Will use StoreKitDelegate by default
+    heliumPaywallDelegate: YourHeliumPaywallDelegate(), // see next section
     fallbackConfig: fallbackConfig,
     revenueCatAppUserId: Purchases.shared.appUserID // RevenueCat ONLY
 )
 ```
 
-### Advanced Initialization with Loading States
-
-v3.x introduces sophisticated loading state management:
-
-```swift
-// Configure loading behavior
-let fallbackConfig = HeliumFallbackConfig.withFallbackBundle(
-    fallbackBundleURL,
-    useLoadingState: true,           // Show loading state before paywall
-    loadingBudget: 2.0,              // Max 2 seconds loading time
-    loadingView: CustomLoadingView(), // Optional custom loading view
-    perTriggerLoadingConfig: [        // Per-trigger overrides
-        "premium_features": TriggerLoadingConfig(
-            useLoadingState: false    // No loading for this trigger
-        ),
-        "onboarding": TriggerLoadingConfig(
-            loadingBudget: 3.0        // Allow 3 seconds for onboarding
-        )
-    ]
-)
-
-Helium.shared.initialize(
-    apiKey: "<your-helium-api-key>",
-    heliumPaywallDelegate: YourHeliumPaywallDelegate(),
-    fallbackConfig: fallbackConfig,
-    customUserId: "user_123",
-    customUserTraits: HeliumUserTraits([
-        "subscription_tier": "pro",
-        "account_age_days": 30
-    ])
-)
-```
 
 <ResponseField name="Helium.shared.initialize" type="method">
-  <Expandable title="v3.x properties">
+  <Expandable title="properties">
     <ResponseField name="apiKey" type="string" required>
       You can create or retrieve your api key from [Account Settings](https://app.tryhelium.com/profile).
     </ResponseField>
-    <ResponseField name="heliumPaywallDelegate" type="HeliumPaywallDelegate?">
-      Delegate to handle paywall events and callbacks. **New in v3**: If nil, defaults to `StoreKitDelegate()`.
+    <ResponseField name="heliumPaywallDelegate" type="HeliumPaywallDelegate" required>
+      Delegate to handle paywall events and callbacks (see next section)
     </ResponseField>
     <ResponseField name="fallbackConfig" type="HeliumFallbackConfig" required>
-      **New in v3**: Comprehensive fallback and loading configuration. Required parameter.
+      Fallback configuration with either a view or bundle URL. Required parameter.
     </ResponseField>
     <ResponseField name="customUserId" type="String?">
-      _(Optional)_ Custom user id for analytics attribution
+      _(Optional)_ If set, a custom user id to use instead of Helium's. We'll use this id when forwarding to third party analytics services, so this can be used for attribution (e.g. an amplitude user id, or a custom user id from your own analytics service)
     </ResponseField>
     <ResponseField name="customUserTraits" type="HeliumUserTraits?">
-      _(Optional)_ Custom user traits for targeting and personalization
+      _(Optional)_ Pass in custom user traits to be used for targeting, personalization, and dynamic content. It can be created with any dictionary, as long as the key is a string and the value is a `Codable` type.
+
+      ```swift
+      let customUserTraits = HeliumUserTraits(traits: [
+          "testTrait": 1,
+          "account_age_in_days": "20",
+      ])
+      ```
     </ResponseField>
     <ResponseField name="appAttributionToken" type="UUID?">
-      _(Optional)_ Set this if you use a custom appAccountToken with StoreKit
+      _(Optional)_ Set this if you use a custom appAccountToken with your StoreKit purchases.
     </ResponseField>
     <ResponseField name="revenueCatAppUserId" type="String?">
-      _(Optional)_ RevenueCat ONLY. Supply RevenueCat appUserID here
+      _(Optional)_ RevenueCat ONLY. Supply RevenueCat appUserID here (and initialize RevenueCat before Helium initialize).
     </ResponseField>
   </Expandable>
 </ResponseField>
 
-## HeliumFallbackConfig (New in v3)
+## Add some paywall event handlers
 
-The new `HeliumFallbackConfig` provides fine-grained control over fallback and loading behavior:
+Helium emits various events related to paywall status, and paywall actions during the course of an app's session. You can handle these events using one of two methods:
 
-```swift
-public struct HeliumFallbackConfig {
-    // Factory methods
-    static func withFallbackBundle(_ bundleURL: URL, ...) -> HeliumFallbackConfig
-    static func withFallbackView(_ view: any View, ...) -> HeliumFallbackConfig
-    static func withFallbackHandler(_ handler: @escaping (String) -> (any View)?, ...) -> HeliumFallbackConfig
-    
-    // Loading configuration
-    public let useLoadingState: Bool          // Default: true
-    public let loadingBudget: TimeInterval    // Default: 2.0 seconds
-    public let loadingView: (any View)?       // Default: shimmer animation
-    
-    // Per-trigger overrides
-    public let perTriggerLoadingConfig: [String: TriggerLoadingConfig]?
-    public let fallbackPerTrigger: [String: any View]?
-}
-```
+<Tabs>
+  <Tab title="PaywallEventHandlers (trigger specific callbacks)">
+    Pass event handlers directly to `presentUpsell`, which in 3.0.0 now accepts an object of type `PaywallEventHandlers()`. You can chain a subset of handlers to this with builder syntax:
 
-## Event System v2 (New in v3)
+    ```swift
+    Helium.shared.presentUpsell(
+        trigger: "premium_features",
+        eventHandlers: PaywallEventHandlers()
+            .onOpen { event in
+                print("Paywall opened: \(event.paywallName)")
+            }
+            .onClose { event in
+                print("Paywall closed: \(event.paywallName)")
+            }
+            .onPurchaseSucceeded { event in
+                print("Purchase successful: \(event.productId)")
+            }
+    )
+    ```
 
-v3.x introduces a new protocol-based event system with typed events:
+    Only the `onOpen`, `onClose`, `onDismiss`, and `onPurchaseSucceeded` can be specified this way.
 
-### Using PaywallEventHandlers
+    <Note>
+      **Event Timing:**
+      - `onDismiss` is triggered only when a user manually dismisses a paywall (from an X button, "no thanks", etc.)
+      - `onClose` is triggered both when the paywall got manually dismissed OR when a successful purchase triggers closing the paywall
+      - `onPurchaseSucceeded` is triggered when a purchase completes successfully
+      
+      **Usage Guidelines:**
+      - Use `onDismiss` for post-paywall navigation when the paywall is dismissed but a user's entitlement hasn't changed
+      - Use `onPurchaseSucceeded` for your post purchase flow (e.g., a premium onboarding navigation)
+      - Use `onClose` when you need to handle logic when the paywall closed, regardless of reason
+    </Note>
+  </Tab>
+  <Tab title="HeliumPaywallDelegate (global handlers)">
+    Use the `HeliumPaywallDelegate`'s `onPaywallEvent` method. This will apply to _all_ triggers:
 
-```swift
-Helium.shared.presentUpsell(
-    trigger: "premium_features",
-    eventHandlers: PaywallEventHandlers()
-        .onOpen { event in
-            print("Paywall opened: \(event.paywallName)")
-        }
-        .onClose { event in
-            print("Paywall closed: \(event.paywallName)")
-        }
-        .onPurchaseSucceeded { event in
-            print("Purchase successful: \(event.productId)")
-        },
-    customPaywallTraits: ["source": "settings_menu"]
-)
-```
-
-### Delegate Event Handling
-
-For delegate-based event handling, implement the new `onPaywallEvent` method:
-
-```swift
-class MyDelegate: StoreKitDelegate {
-    override func onPaywallEvent(_ event: PaywallEvent) {
-        switch event {
-        case let openEvent as PaywallOpenEvent:
-            print("Opened: \(openEvent.paywallName)")
-        case let purchaseEvent as PurchaseSucceededEvent:
-            print("Purchased: \(purchaseEvent.productId)")
-        default:
-            break
+    ```swift
+    // Your delegate, that extends either StoreKitDelegate (if using SK 2), RevenueCatDelegate (if using RevenueCat), or HeliumPaywallDelegate (if you need custom purchase logic/need to override HeliumPaywallDelegate)
+    class MyDelegate: StoreKitDelegate {
+        override func onPaywallEvent(_ event: PaywallEvent) {
+            switch event {
+            case let openEvent as PaywallOpenEvent:
+                print("Opened: \(openEvent.paywallName)")
+            case let closeEvent as PaywallCloseEvent:
+                print("Closed: \(closeEvent.paywallName)")
+            case let purchaseEvent as PurchaseSucceededEvent:
+                print("Purchased: \(purchaseEvent.productId)")
+            case let dismissEvent as PaywallDismissedEvent:
+                print("Dismissed: \(dismissEvent.triggerName)")
+            default:
+                break
+            }
         }
     }
+    ```
+
+    This approach allows you to handle all paywall events in a centralized location and supports all event types available in the SDK.
+  </Tab>
+</Tabs>
+
+## Presenting Paywalls
+
+Now, anywhere in your iOS app, you can show a paywall in one of 3 ways
+
+### Show it as a full screen modal
+
+Call `Helium.shared.presentUpsell(trigger:)` when you want to show the paywall. For example:
+
+```swift
+Button("Try Premium") {
+    Helium.shared.presentUpsell(trigger: "post_onboarding")
 }
+```
+
+### Attach it to a SwiftUI view as a ViewModifier
+
+You can use the `.triggerUpsell` view modifier from any SwiftUI view:
+
+```swift
+struct ContentView: View {
+    @State var isPresented: Bool = false
+    var body: some View {
+        VStack {
+            Button {
+                isPresented = true;
+            } label: {
+                Text("Show paywall")
+            }
+
+        }.triggerUpsell(isPresented: $isPresented, trigger: "post_onboarding")
+    }
+}
+```
+
+### Explicitly embed the Helium Paywall View
+
+You can also explicitly get the Helium paywall view via `Helium.shared.upsellViewForTrigger`. This method takes a trigger and returns the paywall as an `AnyView`.
+
+```swift
+let heliumView: AnyView = Helium.shared.upsellViewForTrigger(trigger: "post_onboarding")
 ```
 
 <Note>
-  **Migration Note**: The old `onHeliumPaywallEvent(event:)` method is deprecated. Property names have changed:
-  - `paywallTemplateName` → `paywallName`
-  - `subscriptionKey` → `productId`
+  You'll need to handle presentation and dismissal yourself if you use this way of displaying paywalls. You can do so through [Helium Events](/sdk/helium-events).
 </Note>
-
-## Presenting Paywalls with Custom Traits
-
-v3.x adds support for custom paywall traits at presentation time:
-
-```swift
-// Programmatic presentation with custom traits
-Helium.shared.presentUpsell(
-    trigger: "post_onboarding",
-    customPaywallTraits: [
-        "user_segment": "power_user",
-        "referral_source": "organic"
-    ]
-)
-
-// SwiftUI ViewModifier with traits
-struct ContentView: View {
-    @State var isPresented = false
-    
-    var body: some View {
-        Button("Show Premium") {
-            isPresented = true
-        }
-        .triggerUpsell(
-            isPresented: $isPresented,
-            trigger: "premium_button",
-            customPaywallTraits: ["context": "main_screen"]
-        )
-    }
-}
-
-// Get view with event handlers
-let paywallView = Helium.shared.upsellViewForTrigger(
-    trigger: "settings",
-    eventHandlers: PaywallEventHandlers()
-        .onOpen { _ in analytics.track("paywall_viewed") }
-        .onPurchaseSucceeded { _ in analytics.track("purchase_completed") },
-    customPaywallTraits: ["ab_test": "variant_b"]
-)
-```
-
-## StoreKit 2 Integration
-
-v3.x requires iOS 15+ and fully embraces StoreKit 2:
-
-```swift
-// The default StoreKitDelegate handles everything
-Helium.shared.initialize(
-    apiKey: "<your-api-key>",
-    heliumPaywallDelegate: nil, // Uses StoreKitDelegate automatically
-    fallbackConfig: fallbackConfig
-)
-
-// Or provide product IDs explicitly
-let delegate = StoreKitDelegate(productIds: [
-    "com.app.monthly",
-    "com.app.yearly"
-])
-```
-
-## Migration from v2.x
-
-Key changes when upgrading from v2.x to v3.x:
-
-1. **Update minimum iOS version** to 15.0 in your project
-2. **Replace fallback parameters** with `HeliumFallbackConfig`:
-   ```swift
-   // Old (v2.x)
-   Helium.shared.initialize(
-       fallbackPaywall: Text("Fallback"),
-       fallbackBundleURL: bundleURL
-   )
-   
-   // New (v3.x)
-   let fallbackConfig = HeliumFallbackConfig.withFallbackBundle(bundleURL)
-   Helium.shared.initialize(
-       fallbackConfig: fallbackConfig
-   )
-   ```
-
-3. **Update event handling** to use new event types
-4. **Review delegate usage** - you may be able to remove custom delegates if using StoreKit
-
-## Example App
-
-<Card title="Complete Example App" icon="github" href="https://github.com/cloudcaptainai/example-helium-swift">
-  Full SwiftUI example with Helium SDK v3.0 implementation including StoreKit testing setup, fallback configuration, and custom user traits.
-</Card>
 
 ## Testing
 
-After integration, please message us directly to get set up with a test app + in-app test support. The v3 SDK includes improved testing capabilities with better fallback simulation.
+Docs here coming soon\! After integration, please message us directly to get set up with a test app \+ in-app test support.

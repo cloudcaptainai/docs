@@ -1,0 +1,125 @@
+---
+title: "Quickstart"
+description: "Get set up with a Helium paywall and incorporate it into your app"
+icon: "rocket"
+---
+
+This quickstart shows you how to set up, preview, and go live with an AI-editable Helium paywall in your app.
+
+## Create your account on Helium
+
+Create your Helium account at [app.tryhelium.com](https://app.tryhelium.com). 
+
+This will take you to the *Dashboard*, where you can create paywalls, manage api keys and integrations, run a/b tests, view analytics, and more.
+
+We'll start off in the **paywall editor**
+
+## Connect your products from app store
+
+Lets start by importing products from the app store. 
+
+1. Go to [app.tryhelium.com/products](**Products**)
+2. Click **Connect App Store** 
+3. Enter your App Store Connect credentials to continue. Check out
+
+Your products will now be available to use in any paywall you create.
+
+<Note>
+  Do this step even if you're using RevenueCat, your products will still be in Apple app store. Direct RevenueCat and Google Play import coming soon!
+</Note>
+
+## Create a new paywall
+
+Time to create your first paywall with Helium!
+
+1. Navigate to **Paywalls** in your dashboard
+
+2. Click **Create New Paywall**. You can create a paywall
+1) From a screenshot (recommended) 
+2) From a template
+
+3. Choose from a template or start from scratch
+4. Use the visual editor to customize:
+   
+5. Save your paywall with a descriptive name
+
+<Note>
+  Helium's AI can help generate and optimize your paywall copy. Just describe what you want and let the AI assist you.
+</Note>
+
+## Install and set up the SDK
+
+Choose your platform and follow the integration guide:
+
+<CardGroup cols={3}>
+  <Card title="iOS" icon="apple" href="/sdk/quickstart-ios">
+    Swift/SwiftUI integration
+  </Card>
+  <Card title="React Native" icon="react" href="/sdk/quickstart-react-native">
+    Cross-platform React Native
+  </Card>
+  <Card title="Flutter" icon="mobile" href="/sdk/quickstart-flutter">
+    Flutter integration
+  </Card>
+</CardGroup>
+
+Basic setup involves:
+1. Installing the Helium SDK package
+2. Initializing with your API key
+3. Setting up your payment delegate
+4. Adding paywall triggers to your app
+
+Example for iOS:
+```swift
+import Helium
+
+// Initialize Helium
+Helium.shared.initialize(
+    apiKey: "your-api-key",
+    heliumPaywallDelegate: YourPaywallDelegate()
+)
+
+// Show a paywall
+Helium.shared.presentUpsell(trigger: "onboarding")
+```
+
+## Set up revenue reporting so Helium can automatically optimize your revenue
+
+Configure revenue tracking to enable Helium's automatic optimization:
+
+1. Go to **Revenue Settings** in your dashboard
+2. Choose your integration method:
+   - **App Store Server Notifications** (recommended for StoreKit)
+   - **RevenueCat Webhooks** (if using RevenueCat)
+   - **Forward ASSN** (if you already consume webhooks)
+3. Follow the setup instructions for your chosen method
+4. Verify webhook delivery in the testing section
+
+<Info>
+  Revenue reporting enables Helium to track conversion rates, optimize paywalls, and provide detailed analytics about your subscription performance.
+</Info>
+
+For detailed setup instructions, see our [Revenue Reporting Guide](/guides/revenue-reporting).
+
+## Pre-launch and go live!
+
+Before going live, make sure everything is working:
+
+### Testing Checklist
+- [ ] Test paywall display on different triggers
+- [ ] Verify purchase flow works correctly
+- [ ] Check fallback paywalls for offline scenarios
+- [ ] Test on different device sizes
+- [ ] Verify analytics events are firing
+
+### Going Live
+1. Enable your paywall in the Helium dashboard
+2. Set up your experiment parameters (if running A/B tests)
+3. Deploy your app update
+4. Monitor performance in real-time through the dashboard
+
+<Tip>
+  Start with a small percentage of users if you want to test carefully, then ramp up as you gain confidence.
+</Tip>
+
+🎉 **Congratulations!** You now have a live, AI-optimized paywall in your app. Monitor your dashboard for insights and let Helium's AI continuously optimize for better conversion.

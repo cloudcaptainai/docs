@@ -1,0 +1,93 @@
+---
+title: "Connecting your products"
+description: "Connect to your app store to import products into Helium"
+icon: "scan-barcode"
+---
+
+## What are products?
+
+Products represent different possible purchases within your app. App 
+
+## Connect your app store
+
+Go to the **Products** page in your dashboard and click the **Connect App Store** button:
+
+![Download Fallbacks 1 Pn](/images/download_fallbacks_1.png)
+
+Click that to open a dialog and select which control paywalls you would like to include as fallback for their corresponding trigger.
+
+<Tip>
+  If you update these paywalls (or add new ones) then you might consider doing this process again to get a newer fallback bundle.
+</Tip>
+
+Download the file. It should be named something like **fallback-bundle-xxxx-xx-xx.json** where the **x** 's are replaced with today's date.
+
+## Pass Fallback Bundle to Helium SDK
+
+<Tabs>
+  <Tab title="iOS">
+    1. Integrate the SDK with the [iOS Quickstart](/sdk/quickstart-ios) if you haven't done so already.
+    2. Drag your downloaded bundle into the Project navigator of your Xcode project.
+    3. You should see a dialog with **Action** and \*\*Targets \*\*fields. For **Action**, either option (copy or move) is fine. For \*\*Targets \*\*ensure that your app's main target is selected.
+    4. Then pass the bundle URL to `Helium.initialize`
+
+    ```swift
+    let fallbackBundleURL = Bundle.main.url(forResource: "fallback-bundle-xxxx-xx-xx", withExtension: "json")
+
+    Helium.shared.initialize(
+       apiKey: apiKey,
+       heliumPaywallDelegate: delegate,
+       // ... other parameters ...
+       fallbackBundleURL: fallbackBundleURL
+    )
+    ```
+
+    <Note>
+      Make sure to replace **fallback-bundle-xxxx-xx-xx** with the correct name\!
+    </Note>
+  </Tab>
+  <Tab title="React Native">
+    1. Integrate the SDK with the [React Native Quickstart](/sdk/quickstart-react-native) if you haven't done so already.
+    2. Drag your downloaded bundle into your React Native project where desired.
+    3. Pass in to `Helium.initialize`
+
+    ```typescript
+    const fallbackBundle = require('./assets/fallback-bundle-xxxx-xx-xx.json');
+
+    initialize(
+      apiKey: apiKey,
+      // ... other parameters ...
+      fallbackBundle: fallbackBundle,
+    )
+    ```
+
+    <Note>
+      Make sure to use the correct path and filename in your `require` call\!
+    </Note>
+  </Tab>
+  <Tab title="Flutter">
+    1. Integrate the SDK with the [Flutter Quickstart](/sdk/quickstart-flutter) if you haven't done so already.
+    2. Drag your downloaded bundle into your Flutter project where desired.
+    3. In your `pubspec.yaml` add the new asset:
+
+    ```yaml
+    assets:
+      - .env
+      - fallback-bundle-xxxx-xx-xx.json # add this line
+    ```
+
+    4. Pass in to `Helium.initialize`
+
+    ```dart
+    heliumFlutter.initialize(
+      // ... other parameters ...
+      fallbackBundleAssetPath: "fallback-bundle-xxxx-xx-xx.json"
+    ```
+
+    <Note>
+      Make sure to use the correct filename in both `pubspec.yaml` and the call to `initialize`\!
+    </Note>
+  </Tab>
+</Tabs>
+
+All done\! If you want to test the fallback bundle, you can run your app with device in airplane mode and attempt to show a paywall. The corresponding fallback paywall should display\!

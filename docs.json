@@ -9,34 +9,40 @@
   },
   "favicon": "/favicon.svg",
   "navigation": {
-    "anchors": [
+    "groups": [
       {
-        "anchor": "Documentation",
+        "group": "Getting Started",
+        "icon": "flag",
+        "pages": [
+          "getting-started/introduction",
+          "getting-started/quickstart",
+          "getting-started/concepts"
+        ]
+      },
+      {
+        "group": "SDK Quickstarts",
+        "icon": "code",
+        "pages": [
+          "sdk/quickstart-ios",
+          "sdk/quickstart-react-native",
+          "sdk/quickstart-flutter",
+          "sdk/helium-events",
+          "sdk/storekit-testing"
+        ]
+      },
+      {
+        "group": "Guides",
+        "icon": "compass",
+        "pages": [
+          "guides/revenue-reporting",
+          "guides/fallback-bundle"
+        ]
+      },
+      {
+        "group": "SDK Reference",
         "icon": "book-open",
-        "groups": [
-          {
-            "group": "Home",
-            "pages": [
-              "welcome"
-            ]
-          },
-          {
-            "group": "SDK",
-            "pages": [
-              "sdk/quickstart-ios",
-              "sdk/quickstart-react-native",
-              "sdk/quickstart-flutter",
-              "sdk/helium-events",
-              "sdk/storekit-testing"
-            ]
-          },
-          {
-            "group": "Guides",
-            "pages": [
-              "guides/revenue-reporting",
-              "guides/fallback-bundle"
-            ]
-          }
+        "pages": [
+          "sdk-reference/migration-2-to-3"
         ]
       }
     ],
@@ -45,7 +51,7 @@
         {
           "anchor": "More Info",
           "href": "https://tryhelium.com",
-          "icon": "rocket"
+          "icon": "lightbulb"
         }
       ]
     }
@@ -67,10 +73,8 @@
             "mcp",
             "cursor",
             "copy",
-            "view",
             "chatgpt",
-            "claude",
-            "perplexity"
+            "claude"
         ]
     }
 }

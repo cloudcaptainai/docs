@@ -187,6 +187,52 @@ Helium.shared.initialize(
   </Expandable>
 </ResponseField>
 
+## Presenting Paywalls
+
+Now, anywhere in your iOS app, you can show a paywall in one of 3 ways
+
+### Show it as a full screen modal
+
+Call `Helium.shared.presentUpsell(trigger:)` when you want to show the paywall. For example:
+
+```swift
+Button("Try Premium") {
+    Helium.shared.presentUpsell(trigger: "post_onboarding")
+}
+```
+
+### Attach it to a SwiftUI view as a ViewModifier
+
+You can use the `.triggerUpsell` view modifier from any SwiftUI view:
+
+```swift
+struct ContentView: View {
+    @State var isPresented: Bool = false
+    var body: some View {
+        VStack {
+            Button {
+                isPresented = true;
+            } label: {
+                Text("Show paywall")
+            }
+
+        }.triggerUpsell(isPresented: $isPresented, trigger: "post_onboarding")
+    }
+}
+```
+
+### Explicitly embed the Helium Paywall View
+
+You can also explicitly get the Helium paywall view via `Helium.shared.upsellViewForTrigger`. This method takes a trigger and returns the paywall as an `AnyView`.
+
+```swift
+let heliumView: AnyView = Helium.shared.upsellViewForTrigger(trigger: "post_onboarding")
+```
+
+<Note>
+  You'll need to handle presentation and dismissal yourself if you use this way of displaying paywalls. You can do so through [Helium Events](/sdk/helium-events).
+</Note>
+
 ## Add some paywall event handlers
 
 Helium emits various events related to paywall status, and paywall actions during the course of an app's session. You can handle these events using one of two methods:
@@ -251,52 +297,6 @@ Helium emits various events related to paywall status, and paywall actions durin
     This approach allows you to handle all paywall events in a centralized location and supports all event types available in the SDK.
   </Tab>
 </Tabs>
-
-## Presenting Paywalls
-
-Now, anywhere in your iOS app, you can show a paywall in one of 3 ways
-
-### Show it as a full screen modal
-
-Call `Helium.shared.presentUpsell(trigger:)` when you want to show the paywall. For example:
-
-```swift
-Button("Try Premium") {
-    Helium.shared.presentUpsell(trigger: "post_onboarding")
-}
-```
-
-### Attach it to a SwiftUI view as a ViewModifier
-
-You can use the `.triggerUpsell` view modifier from any SwiftUI view:
-
-```swift
-struct ContentView: View {
-    @State var isPresented: Bool = false
-    var body: some View {
-        VStack {
-            Button {
-                isPresented = true;
-            } label: {
-                Text("Show paywall")
-            }
-
-        }.triggerUpsell(isPresented: $isPresented, trigger: "post_onboarding")
-    }
-}
-```
-
-### Explicitly embed the Helium Paywall View
-
-You can also explicitly get the Helium paywall view via `Helium.shared.upsellViewForTrigger`. This method takes a trigger and returns the paywall as an `AnyView`.
-
-```swift
-let heliumView: AnyView = Helium.shared.upsellViewForTrigger(trigger: "post_onboarding")
-```
-
-<Note>
-  You'll need to handle presentation and dismissal yourself if you use this way of displaying paywalls. You can do so through [Helium Events](/sdk/helium-events).
-</Note>
 
 ## Testing
 

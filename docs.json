@@ -15,6 +15,7 @@
         "icon": "flag",
         "pages": [
           "getting-started/introduction",
+          "getting-started/quickstart"
         ]
       },
       {

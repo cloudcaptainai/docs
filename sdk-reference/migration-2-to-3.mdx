@@ -167,42 +167,76 @@ let fallbackConfig = HeliumFallbackConfig(
 )
 ```
 
-## Event System (Optional Migration)
+## Event System Changes
 
-The event system now supports protocol-based events, but your existing enum-based delegates will continue to work.
+The event system now uses protocol-based events with better type safety and IDE support.
 
-### Existing Code (Still Works)
+### Key Event Changes from v2.x
+
+#### Property Name Changes
+- `paywallTemplateName` → `paywallName`
+- `productKey` → `productId`
+- All `subscription*` events → `purchase*` events (e.g., `subscriptionSucceeded` → `PurchaseSucceededEvent`)
+- `error` is now `Error` type instead of `String`
+
+#### Removed Events
+- `ctaPressed` event has been removed
+- `configId` removed from download success events
+
+#### New Delegate Method
+- **Old**: `onHeliumPaywallEvent(event:)` (deprecated but still works)
+- **New**: `onPaywallEvent(_:)` (recommended)
+
+### Migration Example
+
+#### Before (v2.x Enum-Based)
 ```swift
-// Your v2.x delegate code continues to work unchanged
 func onHeliumPaywallEvent(event: HeliumPaywallEvent) {
     switch event {
-    case .paywallOpen(let trigger, let template, _):
+    case .paywallOpen(let trigger, let paywallTemplateName, _):
         analytics.track("paywall_open", trigger: trigger)
-    case .purchaseCompleted(let productId):
-        analytics.track("purchase", product: productId)
+    case .subscriptionSucceeded(let productKey, let trigger, _):
+        analytics.track("purchase", product: productKey)
+    case .subscriptionFailed(let productKey, _, _, let errorString):
+        print("Purchase failed: \(errorString ?? "unknown")")
     default:
         break
     }
 }
 ```
 
-### New Option (Protocol-Based)
+#### After (v3.0 Protocol-Based)
 ```swift
-// Optionally migrate to new protocol-based events for additional data
-func onHeliumPaywallEvent(event: any HeliumEvent) {
-    if let openEvent = event as? PaywallOpenEvent {
+func onPaywallEvent(_ event: PaywallEvent) {
+    switch event {
+    case let openEvent as PaywallOpenEvent:
         analytics.track("paywall_open", 
-            trigger: openEvent.trigger,
-            template: openEvent.templateName
+            trigger: openEvent.triggerName,
+            paywall: openEvent.paywallName
         )
-    } else if let purchaseEvent = event as? PurchaseCompletedEvent {
+    case let purchaseEvent as PurchaseSucceededEvent:
         analytics.track("purchase",
-            product: purchaseEvent.productId,
-            revenue: purchaseEvent.revenue
+            product: purchaseEvent.productId
         )
+    case let failedEvent as PurchaseFailedEvent:
+        if let error = failedEvent.error {
+            print("Purchase failed: \(error.localizedDescription)")
+        }
+    default:
+        break
     }
 }
 ```
+
+### Gradual Migration
+
+Both event systems work simultaneously during migration:
+
+1. **Phase 1**: Implement the new `onPaywallEvent(_:)` method alongside your existing code
+2. **Phase 2**: Test and verify the new implementation
+3. **Phase 3**: Remove the old `onHeliumPaywallEvent(event:)` method
+
+**Note**: During migration, both methods may be called. Implement your logic in only one method to avoid duplicate handling.
 
 ## StoreKit Delegate by Default
 

@@ -10,8 +10,6 @@ icon: "arrow-up-right-from-square"
   **Breaking Changes in v3.0:**
   - **Minimum iOS version**: Now requires iOS 15.0+ (up from iOS 14.0)
   - **Fallback configuration**: Now **required** - you must provide either a fallback bundle or fallback view
-  - **New fallback system**: Uses `HeliumFallbackConfig` for configuration
-  - **Default delegate**: Uses `StoreKitDelegate` by default if no delegate provided
 </Warning>
 
 <Info>
@@ -20,6 +18,8 @@ icon: "arrow-up-right-from-square"
   - Loading budgets during config downloads
   - Custom user traits can be passed per trigger
   - Protocol-based events available (enum-based still work)
+  - StoreKitDelegate by default
+
 </Info>
 
 ## Event Handlers in presentUpsell
@@ -273,21 +273,9 @@ Update your app's minimum deployment target to iOS 15.0 or later.
 ])
 ```
 
-## Quick Migration Checklist
-
-- [ ] Update to Helium SDK 3.0.0 or later
-- [ ] Set minimum iOS version to 15.0
-- [ ] Add required fallback configuration
-- [ ] Update event handling to new protocol-based system
-- [ ] Test loading budgets for your triggers
-- [ ] Verify fallback bundles are included
-- [ ] Update any custom delegates
-- [ ] Test purchase flows
-
 
 ## Need Help?
 
 - Review the [iOS SDK Quickstart](/sdk/quickstart-ios)
-- Check our [Example Apps](/sdk-reference/example-apps)
 - See the [Complete Example App](https://github.com/cloudcaptainai/example-helium-swift) on GitHub
 - Contact support via Slack or [founders@tryhelium.com](mailto:founders@tryhelium.com)

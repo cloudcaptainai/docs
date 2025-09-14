@@ -1,0 +1,335 @@
+---
+title: "Example Apps"
+description: "Sample implementations and reference applications for Helium SDK"
+icon: "code-branch"
+---
+
+## Overview
+
+Explore our collection of example apps to see Helium SDK implementations in action. These examples demonstrate best practices, common integration patterns, and advanced features.
+
+## iOS Examples
+
+### Complete Example App
+
+A full-featured example app demonstrating Helium SDK v3.0 with proper fallback configuration and StoreKit testing.
+
+<Card title="Example Helium App" icon="github" href="https://github.com/cloudcaptainai/example-helium-swift">
+  Complete SwiftUI app with Helium SDK v3.0
+  - Proper v3.0 initialization with fallback
+  - StoreKit testing configuration
+  - Custom user traits examples
+  - Multiple trigger points
+</Card>
+
+### Basic Integration Example
+
+A minimal SwiftUI app demonstrating the essential Helium SDK setup.
+
+<Card title="Basic SwiftUI App" icon="mobile" href="https://github.com/cloudcaptainai/helium-swift/tree/main/Examples/BasicIntegration">
+  Simple SwiftUI app with Helium paywall integration
+  - Basic initialization
+  - Single trigger implementation
+  - StoreKit 2 integration
+</Card>
+
+**Key Features:**
+- Minimal setup with StoreKitDelegate
+- Single paywall trigger
+- Fallback handling
+- Basic event tracking
+
+<CodeGroup>
+```swift ContentView.swift
+import SwiftUI
+import Helium
+
+struct ContentView: View {
+    var body: some View {
+        VStack {
+            Text("Welcome to Premium Features")
+            
+            Button("Upgrade to Pro") {
+                Helium.shared.presentUpsell(trigger: "main_upgrade")
+            }
+            .buttonStyle(.borderedProminent)
+        }
+    }
+}
+```
+
+```swift App.swift
+import SwiftUI
+import Helium
+
+@main
+struct ExampleApp: App {
+    init() {
+        let fallbackConfig = HeliumFallbackConfig(
+            fallbackPaywall: Text("Loading paywalls...")
+        )
+        
+        Helium.shared.initialize(
+            apiKey: "your-api-key",
+            heliumPaywallDelegate: StoreKitDelegate(),
+            fallbackConfig: fallbackConfig
+        )
+    }
+    
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+        }
+    }
+}
+```
+</CodeGroup>
+
+### RevenueCat Integration Example
+
+Complete example showing Helium SDK integration with RevenueCat for subscription management.
+
+<Card title="RevenueCat Integration" icon="receipt" href="https://github.com/cloudcaptainai/helium-swift/tree/main/Examples/RevenueCatIntegration">
+  Full-featured app with RevenueCat subscription handling
+  - RevenueCat delegate setup
+  - Multiple paywall triggers
+  - Subscription status checking
+</Card>
+
+**Key Features:**
+- RevenueCatDelegate implementation
+- Entitlement checking
+- Multiple trigger points
+- Custom event handling
+
+### Advanced Features Example
+
+Demonstrates advanced Helium SDK features including custom traits, A/B testing, and analytics.
+
+<Card title="Advanced Features" icon="rocket" href="https://github.com/cloudcaptainai/helium-swift/tree/main/Examples/AdvancedFeatures">
+  Showcases advanced SDK capabilities
+  - Custom user traits
+  - A/B test integration
+  - Advanced analytics
+  - Multiple fallback strategies
+</Card>
+
+## React Native Examples
+
+### Expo Integration
+
+Example Expo app with Helium SDK integration.
+
+<Card title="Expo Example" icon="atom" href="https://github.com/cloudcaptainai/helium-expo-sdk/tree/main/example">
+  Complete Expo app with Helium paywalls
+  - Expo SDK setup
+  - React hooks integration
+  - TypeScript support
+</Card>
+
+<CodeGroup>
+```typescript App.tsx
+import React, { useEffect } from 'react';
+import { Button, View } from 'react-native';
+import * as Helium from '@tryhelium/expo-helium';
+
+export default function App() {
+  useEffect(() => {
+    Helium.initialize({
+      apiKey: 'your-api-key',
+      fallbackPaywall: () => <Text>Loading...</Text>
+    });
+  }, []);
+
+  const showPaywall = () => {
+    Helium.presentPaywall('upgrade_prompt');
+  };
+
+  return (
+    <View>
+      <Button title="Show Premium Features" onPress={showPaywall} />
+    </View>
+  );
+}
+```
+</CodeGroup>
+
+### React Native CLI
+
+Standard React Native CLI app example.
+
+<Card title="React Native CLI" icon="react" href="https://github.com/cloudcaptainai/paywall-sdk-react-native/tree/main/example">
+  React Native CLI app with native modules
+  - Native module integration
+  - iOS and Android support
+  - Custom delegate implementation
+</Card>
+
+## Flutter Examples
+
+### Basic Flutter Integration
+
+Simple Flutter app demonstrating Helium SDK setup.
+
+<Card title="Flutter Example" icon="flutter" href="https://github.com/cloudcaptainai/helium-flutter/tree/main/example">
+  Flutter app with cross-platform paywall support
+  - Platform-specific setup
+  - Method channel integration
+  - State management examples
+</Card>
+
+<CodeGroup>
+```dart main.dart
+import 'package:flutter/material.dart';
+import 'package:helium_flutter/helium_flutter.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    super.initState();
+    initializeHelium();
+  }
+
+  Future<void> initializeHelium() async {
+    await HeliumFlutter.initialize(
+      apiKey: 'your-api-key',
+      fallbackWidget: Container(
+        child: Text('Loading paywalls...'),
+      ),
+    );
+  }
+
+  void showPaywall() {
+    HeliumFlutter.presentPaywall('main_upgrade');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        body: Center(
+          child: ElevatedButton(
+            onPressed: showPaywall,
+            child: Text('Show Premium Features'),
+          ),
+        ),
+      ),
+    );
+  }
+}
+```
+</CodeGroup>
+
+## Common Implementation Patterns
+
+### Onboarding Flow
+
+Example of integrating Helium paywalls into an onboarding flow:
+
+```swift
+class OnboardingCoordinator {
+    func showPaywallAfterOnboarding() {
+        // Check if user completed onboarding
+        if UserDefaults.standard.bool(forKey: "onboarding_completed") {
+            // Show paywall with onboarding-specific trigger
+            Helium.shared.presentUpsell(trigger: "post_onboarding")
+        }
+    }
+}
+```
+
+### Feature Gating
+
+Pattern for gating features behind paywalls:
+
+```swift
+class FeatureManager {
+    func accessPremiumFeature() {
+        if isPremiumUser() {
+            // Allow access
+            showPremiumContent()
+        } else {
+            // Show paywall
+            Helium.shared.presentUpsell(trigger: "feature_gate")
+        }
+    }
+}
+```
+
+### Trial Expiration
+
+Handling trial expiration with paywalls:
+
+```swift
+class TrialManager {
+    func checkTrialStatus() {
+        let trialEndDate = UserDefaults.standard.object(forKey: "trial_end") as? Date
+        
+        if let endDate = trialEndDate, Date() > endDate {
+            // Trial expired, show paywall
+            Helium.shared.presentUpsell(trigger: "trial_expired")
+        }
+    }
+}
+```
+
+## Testing Your Integration
+
+### StoreKit Testing
+
+For iOS apps, use StoreKit Configuration files for testing:
+
+1. Create a StoreKit Configuration file in Xcode
+2. Add your test products
+3. Run your app with the configuration
+4. Test purchase flows without charging real money
+
+See our [StoreKit Testing Guide](/sdk/storekit-testing) for detailed instructions.
+
+### Debug Mode
+
+Enable debug logging to troubleshoot integration issues:
+
+```swift
+// Enable debug mode
+Helium.shared.enableDebugLogging = true
+```
+
+## Resources
+
+### Documentation
+- [iOS SDK Quickstart](/sdk/quickstart-ios-v3)
+- [React Native SDK Quickstart](/sdk/quickstart-react-native)
+- [Flutter SDK Quickstart](/sdk/quickstart-flutter)
+- [Migration Guide](/sdk-reference/migration-2-to-3)
+
+### GitHub Repositories
+- [example-helium-swift](https://github.com/cloudcaptainai/example-helium-swift) - iOS Example App (v3.0)
+- [helium-swift](https://github.com/cloudcaptainai/helium-swift) - iOS SDK
+- [helium-expo-sdk](https://github.com/cloudcaptainai/helium-expo-sdk) - Expo SDK
+- [paywall-sdk-react-native](https://github.com/cloudcaptainai/paywall-sdk-react-native) - React Native SDK
+
+### Support
+- Slack: Contact us through your dedicated Helium Slack channel
+- Email: [founders@tryhelium.com](mailto:founders@tryhelium.com)
+- Dashboard: [app.tryhelium.com](https://app.tryhelium.com)
+
+## Contributing
+
+Have an example app you'd like to share? We welcome contributions! Please:
+
+1. Fork the relevant SDK repository
+2. Add your example to the Examples folder
+3. Include a README with setup instructions
+4. Submit a pull request
+
+We'll review and potentially feature your example in our documentation.

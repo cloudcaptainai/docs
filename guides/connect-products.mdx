@@ -1,18 +1,16 @@
 ---
-title: "Setting Up Fallbacks"
-description: "How to download a fallback bundle from the dashboard and include it in your app."
-icon: "helmet-safety"
+title: "Connecting your products"
+description: "Connect to your app store to import products into Helium"
+icon: "scan-barcode"
 ---
 
-## What is a "fallback bundle"?
+## What are products?
 
-The Helium SDK does its best to fetch the latest paywalls to display in your app. But if for some reason a paywall is not available — perhaps if an app user temporarily did not have a data connection — Helium will attempt to show a "fallback".
+Products represent different possible purchases within your app. App 
 
-By using a fallback bundle you can download copies of your actual Helium paywalls and include that in your app to use in the rare case that a Helium paywall is not ready for display.
+## Connect your app store
 
-## Download Fallback Bundle
-
-Go to the **Workflows** page in your dashboard and find the **Download Fallbacks** button:
+Go to the **Products** page in your dashboard and click the **Connect App Store** button:
 
 ![Download Fallbacks 1 Pn](/images/download_fallbacks_1.png)
 
@@ -35,7 +33,7 @@ Download the file. It should be named something like **fallback-bundle-xxxx-xx-x
 
     ```swift
     let fallbackBundleURL = Bundle.main.url(forResource: "fallback-bundle-xxxx-xx-xx", withExtension: "json")
-    
+
     Helium.shared.initialize(
        apiKey: apiKey,
        heliumPaywallDelegate: delegate,
@@ -55,7 +53,7 @@ Download the file. It should be named something like **fallback-bundle-xxxx-xx-x
 
     ```typescript
     const fallbackBundle = require('./assets/fallback-bundle-xxxx-xx-xx.json');
-    
+
     initialize(
       apiKey: apiKey,
       // ... other parameters ...

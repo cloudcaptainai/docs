@@ -94,6 +94,41 @@ Helium.initialize(
 )
 ```
 
+## Observing Paywall Configuration Download Status
+
+The Helium SDK provides a `downloadStatus` flow that you can observe to get updates on the status of the paywall configuration download. This is useful for showing loading indicators or handling download failures.
+
+The `downloadStatus` is a Kotlin `Flow` that emits `HeliumConfigStatus` states. The possible states are:
+
+-   `HeliumConfigStatus.NotYetDownloaded`: The initial state before the download has started.
+-   `HeliumConfigStatus.Downloading`: Indicates that the paywall configuration is currently being downloaded.
+-   `HeliumConfigStatus.DownloadFailure`: Indicates that the paywall configuration download has failed.
+-   `HeliumConfigStatus.DownloadSuccess`: Indicates that the paywall configuration has been successfully downloaded.
+
+Here's how you can observe the `downloadStatus` flow in your Activity or Fragment:
+
+```kotlin
+// In your Activity or Fragment
+lifecycleScope.launch {
+    Helium.shared.downloadStatus.collect { status ->
+        when (status) {
+            is HeliumConfigStatus.NotYetDownloaded -> {
+                // Handle not yet downloaded state
+            }
+            is HeliumConfigStatus.Downloading -> {
+                // Handle downloading state
+            }
+            is HeliumConfigStatus.DownloadFailure -> {
+                // Handle download failure
+            }
+            is HeliumConfigStatus.DownloadSuccess -> {
+                // Handle download success
+            }
+        }
+    }
+}
+```
+
 ## HeliumPaywallDelegate
 
 You can provide an implementation of the `HeliumPaywallDelegate` or use one of the default implementations that we have provided, such as `GooglePlayPaywallDelegate` or `RevenueCatPaywallDelegate`.

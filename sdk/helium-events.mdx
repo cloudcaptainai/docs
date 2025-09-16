@@ -6,7 +6,7 @@ icon: "bolt"
 
 ## Overview
 
-The Helium SDK provides a typed event system with type-safe, protocol-based events for better IDE support and cleaner code. The system offers strongly-typed event structs, better autocomplete, and comprehensive event tracking.
+The Helium SDK fires various events related to paywall display and purchase actions. Visit the SDK docs to see how to listen for and handle these events.
 
 ## Event Types
 
@@ -170,7 +170,8 @@ func showPaywall() {
 ### Lifecycle Events
 
 #### PaywallOpenEvent
-Paywall displayed to user.
+
+Fires when a paywall displayed.
 
 ```swift
 let event: PaywallOpenEvent
@@ -182,7 +183,8 @@ event.timestamp       // When event occurred
 ```
 
 #### PaywallCloseEvent
-Paywall closed (any reason).
+
+Fires when a paywall is closed (removed from view hierarchy). This might be due to a user dismissal, successful purchase, or programmatic hide.
 
 ```swift
 let event: PaywallCloseEvent
@@ -192,7 +194,8 @@ event.timestamp       // When closed
 ```
 
 #### PaywallDismissedEvent
-User explicitly dismissed.
+
+Fires when paywall is explicitly dismissed by user.
 
 ```swift
 let event: PaywallDismissedEvent
@@ -203,7 +206,8 @@ event.timestamp       // Dismissal time
 ```
 
 #### PaywallOpenFailedEvent
-Failed to open paywall.
+
+Fires if a paywall fails to open and fallback fails to show. (This should be extremely rare.)
 
 ```swift
 let event: PaywallOpenFailedEvent
@@ -213,7 +217,8 @@ event.timestamp       // Failure time
 ```
 
 #### PaywallSkippedEvent
-Paywall skipped (shouldShow=false).
+
+Fires if a paywall display is skipped due to a targeting or workflow configuration.
 
 ```swift
 let event: PaywallSkippedEvent
@@ -222,7 +227,8 @@ event.timestamp       // When skipped
 ```
 
 #### PaywallButtonPressedEvent
-Non-purchase button pressed.
+
+Fires when a non-purchase button is pressed.
 
 ```swift
 let event: PaywallButtonPressedEvent
@@ -233,7 +239,8 @@ event.timestamp       // Press time
 ```
 
 #### PaywallWebViewRenderedEvent
-WebView finished rendering.
+
+Fires when the paywall content has finished rendering.
 
 ```swift
 let event: PaywallWebViewRenderedEvent
@@ -246,7 +253,8 @@ event.timestamp       // Completion time
 ### Purchase Events
 
 #### ProductSelectedEvent
-User selected a product.
+
+Fires when a user selects a product on the paywall.
 
 ```swift
 let event: ProductSelectedEvent
@@ -257,7 +265,8 @@ event.timestamp       // Selection time
 ```
 
 #### PurchasePressedEvent
-Purchase initiated.
+
+Fires when a purchase is initiated.
 
 ```swift
 let event: PurchasePressedEvent
@@ -268,7 +277,8 @@ event.timestamp       // Press time
 ```
 
 #### PurchaseSucceededEvent
-Purchase completed.
+
+Fires when a purchase is successfully completed.
 
 ```swift
 let event: PurchaseSucceededEvent
@@ -279,7 +289,8 @@ event.timestamp       // Completion time
 ```
 
 #### PurchaseCancelledEvent
-User cancelled purchase.
+
+Fires when the purchase process is cancelled by the user.
 
 ```swift
 let event: PurchaseCancelledEvent
@@ -290,7 +301,8 @@ event.timestamp       // Cancellation time
 ```
 
 #### PurchaseFailedEvent
-Purchase failed with error.
+
+Fires when the process fails for any reason.
 
 ```swift
 let event: PurchaseFailedEvent
@@ -302,7 +314,8 @@ event.timestamp       // Failure time
 ```
 
 #### PurchaseRestoredEvent
-Previous purchase restored.
+
+Fires when a previous purchase is successfully restored.
 
 ```swift
 let event: PurchaseRestoredEvent
@@ -313,7 +326,8 @@ event.timestamp       // Restoration time
 ```
 
 #### PurchaseRestoreFailedEvent
-Restore failed.
+
+Fires when an attempt to restore purchases is not successful.
 
 ```swift
 let event: PurchaseRestoreFailedEvent
@@ -323,7 +337,8 @@ event.timestamp       // Failure time
 ```
 
 #### PurchasePendingEvent
-Purchase pending (e.g., parental approval).
+
+Fires when when purchase is in a pending state (e.g. waiting for parental approval).
 
 ```swift
 let event: PurchasePendingEvent
@@ -336,7 +351,8 @@ event.timestamp       // When became pending
 ### System Events
 
 #### InitializeStartEvent
-SDK initialization started.
+
+Fires when SDK initialization is started.
 
 ```swift
 let event: InitializeStartEvent
@@ -344,7 +360,8 @@ event.timestamp       // Start time
 ```
 
 #### PaywallsDownloadSuccessEvent
-Helium paywalls downloaded and initialized successfully.
+
+Fires when Helium paywalls downloaded and initialized successfully.
 
 ```swift
 let event: PaywallsDownloadSuccessEvent
@@ -354,7 +371,8 @@ event.timestamp       // Success time
 ```
 
 #### PaywallsDownloadErrorEvent
-Config download failed.
+
+Fires when paywalls download failed.
 
 ```swift
 let event: PaywallsDownloadErrorEvent
@@ -431,7 +449,7 @@ Use this data to identify bottlenecks and optimize user experience.
 ## Legacy 2.x Events
 
 <Note>
-The following section documents the legacy event system from SDK version 2.x. For new implementations, use the current event system described above.
+  The following section documents the legacy event system from SDK version 2.x. For new implementations, use the current event system described above.
 </Note>
 
 ### Legacy Event Handling

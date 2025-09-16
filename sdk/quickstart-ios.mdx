@@ -373,42 +373,6 @@ Button("Try Premium") {
 }
 ```
 
-<Accordion title="PaywallEventHandlers">
-  Handle [Helium Events](/sdk/helium-events) directly with `presentUpsell`. You can chain a subset of handlers with builder syntax:
-
-  ```swift
-  Helium.shared.presentUpsell(
-      trigger: "premium_features",
-      eventHandlers: PaywallEventHandlers()
-          .onOpen { event in
-              print("Paywall opened: \(event.paywallName)")
-          }
-          .onClose { event in
-              print("Paywall closed: \(event.paywallName)")
-          }
-          .onPurchaseSucceeded { event in
-              print("Purchase successful: \(event.productId)")
-          }
-  )
-  ```
-
-  Only the `onOpen`, `onClose`, `onDismiss`, and `onPurchaseSucceeded` can be specified this way.
-
-  <Note>
-    **Event Timing:**
-
-    - `onDismiss` is triggered only when a user manually dismisses a paywall (from an X button, "no thanks", etc.)
-    - `onClose` is triggered both when the paywall got manually dismissed OR when a successful purchase triggers closing the paywall
-    - `onPurchaseSucceeded` is triggered when a purchase completes successfully
-
-    **Usage Guidelines:**
-
-    - Use `onDismiss` for post-paywall navigation when the paywall is dismissed but a user's entitlement hasn't changed
-    - Use `onPurchaseSucceeded` for your post purchase flow (e.g., a premium onboarding navigation)
-    - Use `onClose` when you need to handle logic when the paywall closed, regardless of reason
-  </Note>
-</Accordion>
-
 ### Attach it to a SwiftUI view as a ViewModifier
 
 You can use the `.triggerUpsell` view modifier from any SwiftUI view:
@@ -440,6 +404,42 @@ let heliumView: AnyView? = Helium.shared.upsellViewForTrigger(trigger: "post_onb
 <Note>
   You'll need to handle presentation and dismissal yourself if you use this way of displaying paywalls. You can do so through [Helium Events](/sdk/helium-events).
 </Note>
+
+### PaywallEventHandlers
+
+When displaying a paywall you can pass in event handlers to listen for relevant [Helium Events](/sdk/helium-events). You can chain a subset of handlers with builder syntax:
+
+  ```swift
+  Helium.shared.presentUpsell(
+      trigger: "premium_features",
+      eventHandlers: PaywallEventHandlers()
+          .onOpen { event in
+              print("Paywall opened: \(event.paywallName)")
+          }
+          .onClose { event in
+              print("Paywall closed: \(event.paywallName)")
+          }
+          .onPurchaseSucceeded { event in
+              print("Purchase successful: \(event.productId)")
+          }
+  )
+  ```
+
+  Only the `onOpen`, `onClose`, `onDismiss`, and `onPurchaseSucceeded` can be specified this way.
+
+  <Note>
+    **Event Timing:**
+
+    - `onDismiss` is triggered only when a user manually dismisses a paywall (from an X button, "no thanks", etc.)
+    - `onClose` is triggered both when the paywall is manually dismissed OR when a successful purchase triggers closing the paywall. (So any time the paywall is removed.)
+    - `onPurchaseSucceeded` is triggered when a purchase completes successfully
+
+    **Usage Guidelines:**
+
+    - Use `onDismiss` for post-paywall navigation when the paywall is dismissed but a user's entitlement hasn't changed
+    - Use `onPurchaseSucceeded` for your post purchase flow (e.g., a premium onboarding navigation)
+    - Use `onClose` when you need to handle logic when the paywall closed, regardless of reason
+  </Note>
 
 ## Testing
 

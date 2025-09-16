@@ -24,12 +24,21 @@ protocol PaywallEvent {
 protocol PaywallContextEvent: PaywallEvent {
     var triggerName: String { get }
     var paywallName: String { get }
+    var isSecondTry: Bool { get }
 }
+// Example usage:
+// if let contextEvent = event as? PaywallContextEvent {
+//     print("\(event.eventName) with trigger \(event.triggerName)")
+// }
 
 // Product-related events
 protocol ProductEvent: PaywallContextEvent {
     var productId: String { get }
 }
+// Example usage:
+// if let productEvent = event as? ProductEvent {
+//     print("\(event.eventName) for \(event.productId)")
+// }
 ```
 
 ## Listening to Events
@@ -171,13 +180,13 @@ func showPaywall() {
 
 #### PaywallOpenEvent
 
-Fires when a paywall displayed.
+Fires when a paywall is displayed.
 
 ```swift
 let event: PaywallOpenEvent
-// Properties:
-event.triggerName     // Trigger identifier from dashboard
+event.triggerName     // Associated trigger
 event.paywallName     // Template name
+event.isSecondTry     // True if paywall is "second try" flow
 event.viewType        // .presented, .triggered, or .embedded
 event.timestamp       // When event occurred
 ```
@@ -189,8 +198,9 @@ Fires when a paywall is closed (removed from view hierarchy). This might be due 
 ```swift
 let event: PaywallCloseEvent
 event.triggerName     // Associated trigger
-event.paywallName     // Template that was closed
-event.timestamp       // When closed
+event.paywallName     // Template name
+event.isSecondTry     // True if paywall is "second try" flow
+event.timestamp       // When event occurred
 ```
 
 #### PaywallDismissedEvent
@@ -199,10 +209,11 @@ Fires when paywall is explicitly dismissed by user.
 
 ```swift
 let event: PaywallDismissedEvent
-event.triggerName     // Dismissed paywall trigger
-event.paywallName     // Dismissed template
-event.dismissAll      // Whether entire stack dismissed
-event.timestamp       // Dismissal time
+event.triggerName     // Associated trigger
+event.paywallName     // Template name
+event.isSecondTry     // True if paywall is "second try" flow
+event.dismissAll      // Whether entire paywall stack dismissed (i.e. second try)
+event.timestamp       // When event occurred
 ```
 
 #### PaywallOpenFailedEvent
@@ -211,9 +222,11 @@ Fires if a paywall fails to open and fallback fails to show. (This should be ext
 
 ```swift
 let event: PaywallOpenFailedEvent
-event.triggerName     // Trigger that failed
-event.paywallName     // Template that failed to open
-event.timestamp       // Failure time
+event.triggerName     // Associated trigger
+event.paywallName     // Template name
+event.isSecondTry     // True if paywall is "second try" flow
+event.error           // Error message describing why paywall failed to open
+event.timestamp       // When event occurred
 ```
 
 #### PaywallSkippedEvent
@@ -222,8 +235,8 @@ Fires if a paywall display is skipped due to a targeting or workflow configurati
 
 ```swift
 let event: PaywallSkippedEvent
-event.triggerName     // Trigger that was skipped
-event.timestamp       // When skipped
+event.triggerName     // Associated trigger
+event.timestamp       // When event occurred
 ```
 
 #### PaywallButtonPressedEvent
@@ -234,8 +247,9 @@ Fires when a non-purchase button is pressed.
 let event: PaywallButtonPressedEvent
 event.buttonName      // Button identifier
 event.triggerName     // Associated trigger
-event.paywallName     // Template containing button
-event.timestamp       // Press time
+event.paywallName     // Template name
+event.isSecondTry     // True if paywall is "second try" flow
+event.timestamp       // When event occurred
 ```
 
 #### PaywallWebViewRenderedEvent
@@ -245,9 +259,10 @@ Fires when the paywall content has finished rendering.
 ```swift
 let event: PaywallWebViewRenderedEvent
 event.triggerName     // Associated trigger
-event.paywallName     // Template rendered
+event.paywallName     // Template name
+event.isSecondTry     // True if paywall is "second try" flow
 event.renderTime      // Time to render (ms)
-event.timestamp       // Completion time
+event.timestamp       // When event occurred
 ```
 
 ### Purchase Events
@@ -260,8 +275,8 @@ Fires when a user selects a product on the paywall.
 let event: ProductSelectedEvent
 event.productId       // StoreKit product ID
 event.triggerName     // Associated trigger
-event.paywallName     // Template where selected
-event.timestamp       // Selection time
+event.paywallName     // Template name
+event.timestamp       // When event occurred
 ```
 
 #### PurchasePressedEvent
@@ -272,8 +287,8 @@ Fires when a purchase is initiated.
 let event: PurchasePressedEvent
 event.productId       // Product being purchased
 event.triggerName     // Associated trigger
-event.paywallName     // Template where pressed
-event.timestamp       // Press time
+event.paywallName     // Template name
+event.timestamp       // When event occurred
 ```
 
 #### PurchaseSucceededEvent
@@ -284,8 +299,8 @@ Fires when a purchase is successfully completed.
 let event: PurchaseSucceededEvent
 event.productId       // StoreKit product ID
 event.triggerName     // Associated trigger
-event.paywallName     // Template where purchased
-event.timestamp       // Completion time
+event.paywallName     // Template name
+event.timestamp       // When event occurred
 ```
 
 #### PurchaseCancelledEvent
@@ -296,8 +311,8 @@ Fires when the purchase process is cancelled by the user.
 let event: PurchaseCancelledEvent
 event.productId       // Product that was cancelled
 event.triggerName     // Associated trigger
-event.paywallName     // Template where cancelled
-event.timestamp       // Cancellation time
+event.paywallName     // Template name
+event.timestamp       // When event occurred
 ```
 
 #### PurchaseFailedEvent
@@ -308,9 +323,9 @@ Fires when the process fails for any reason.
 let event: PurchaseFailedEvent
 event.productId       // Product that failed
 event.triggerName     // Associated trigger
-event.paywallName     // Template where failed
+event.paywallName     // Template name
 event.error           // StoreKit error object
-event.timestamp       // Failure time
+event.timestamp       // When event occurred
 ```
 
 #### PurchaseRestoredEvent
@@ -321,8 +336,8 @@ Fires when a previous purchase is successfully restored.
 let event: PurchaseRestoredEvent
 event.productId       // Restored product ID
 event.triggerName     // Associated trigger
-event.paywallName     // Template where restored
-event.timestamp       // Restoration time
+event.paywallName     // Template name
+event.timestamp       // When event occurred
 ```
 
 #### PurchaseRestoreFailedEvent
@@ -332,8 +347,8 @@ Fires when an attempt to restore purchases is not successful.
 ```swift
 let event: PurchaseRestoreFailedEvent
 event.triggerName     // Associated trigger
-event.paywallName     // Template where failed
-event.timestamp       // Failure time
+event.paywallName     // Template name
+event.timestamp       // When event occurred
 ```
 
 #### PurchasePendingEvent
@@ -344,8 +359,8 @@ Fires when when purchase is in a pending state (e.g. waiting for parental approv
 let event: PurchasePendingEvent
 event.productId       // Pending product
 event.triggerName     // Associated trigger
-event.paywallName     // Template where pending
-event.timestamp       // When became pending
+event.paywallName     // Template name
+event.timestamp       // When event occurred
 ```
 
 ### System Events
@@ -356,7 +371,7 @@ Fires when SDK initialization is started.
 
 ```swift
 let event: InitializeStartEvent
-event.timestamp       // Start time
+event.timestamp       // When event occurred
 ```
 
 #### PaywallsDownloadSuccessEvent
@@ -367,7 +382,7 @@ Fires when Helium paywalls downloaded and initialized successfully.
 let event: PaywallsDownloadSuccessEvent
 event.downloadTime    // Total download time (ms)
 event.numAttempts     // Number of attempts made
-event.timestamp       // Success time
+event.timestamp       // When event occurred
 ```
 
 #### PaywallsDownloadErrorEvent
@@ -378,7 +393,7 @@ Fires when paywalls download failed.
 let event: PaywallsDownloadErrorEvent
 event.error           // Error description
 event.numAttempts     // Attempts made
-event.timestamp       // Failure time
+event.timestamp       // When event occurred
 ```
 
 ## Custom Paywall Traits
@@ -411,42 +426,9 @@ const level = window.heliumContext.level;
 - Custom traits are cleared automatically when paywall closes
 - Protocol conformance enables handling groups of related events
 
-## Using Events for Analytics
-
-Leverage protocol conformance for efficient analytics:
-
-```swift
-func onPaywallEvent(_ event: PaywallEvent) {
-    // Log all events
-    analytics.track(event.eventName, properties: event.toDictionary())
-    
-    // Handle all events with paywall context
-    if let contextEvent = event as? PaywallContextEvent {
-        trackPaywallMetrics(
-            trigger: contextEvent.triggerName,
-            paywall: contextEvent.paywallName
-        )
-    }
-    
-    // Handle all product-related events
-    if let productEvent = event as? ProductEvent {
-        validateProduct(productId: productEvent.productId)
-    }
-}
-```
-
-## Performance Monitoring
-
-Several events include timing information for performance monitoring:
-
-- `PaywallsDownloadSuccessEvent` - Configuration download times
-- `PaywallWebViewRenderedEvent` - WebView render times
-
-Use this data to identify bottlenecks and optimize user experience.
-
 ---
 
-## Legacy 2.x Events
+# Legacy 2.x Events
 
 <Note>
   The following section documents the legacy event system from SDK version 2.x. For new implementations, use the current event system described above.

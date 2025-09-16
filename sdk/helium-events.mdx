@@ -8,6 +8,10 @@ icon: "bolt"
 
 The Helium SDK fires various events related to paywall display and purchase actions. Visit the SDK docs to see how to listen for and handle these events.
 
+<Note>
+  The following definitions are all provided in Swift, but the same events and values are available for every SDK.
+</Note>
+
 ## Event Types
 
 ### Core Event Protocols
@@ -39,139 +43,6 @@ protocol ProductEvent: PaywallContextEvent {
 // if let productEvent = event as? ProductEvent {
 //     print("\(event.eventName) for \(event.productId)")
 // }
-```
-
-## Listening to Events
-
-### Method 1: Via Delegate (Recommended)
-
-Implement the `HeliumPaywallDelegate` protocol with the `onPaywallEvent(_:)` method:
-
-```swift
-class MyPaywallDelegate: HeliumPaywallDelegate {
-    
-    func makePurchase(productId: String) async -> HeliumPaywallTransactionStatus {
-        // Your purchase implementation
-        return .purchased
-    }
-    
-    func restorePurchases() async -> Bool {
-        // Your restore implementation
-        return false
-    }
-    
-    func onPaywallEvent(_ event: PaywallEvent) {
-        // Type-safe event handling with pattern matching
-        switch event {
-        case let openEvent as PaywallOpenEvent:
-            print("Paywall opened: \(openEvent.paywallName)")
-            print("Trigger: \(openEvent.triggerName)")
-            print("View type: \(openEvent.viewType)")
-            analytics.track("paywall_open", properties: openEvent.toDictionary())
-            
-        case let purchaseSuccess as PurchaseSucceededEvent:
-            print("Purchase successful: \(purchaseSuccess.productId)")
-            updateUserSubscription(purchaseSuccess.productId)
-            
-        case let purchaseFailed as PurchaseFailedEvent:
-            if let error = purchaseFailed.error {
-                print("Purchase failed: \(error.localizedDescription)")
-                showErrorAlert(error)
-            }
-            
-        case let dismissed as PaywallDismissedEvent:
-            print("User dismissed paywall")
-            if dismissed.dismissAll {
-                print("All paywalls dismissed")
-            }
-            
-        case let closeEvent as PaywallCloseEvent:
-            print("Paywall closed")
-            // Cleanup code here
-            
-        default:
-            print("Event: \(event.eventName)")
-        }
-    }
-}
-```
-
-### Method 2: Via PaywallEventService (for triggerUpsell)
-
-Use the `PaywallEventService` with a builder pattern for inline event handling:
-
-```swift
-struct ContentView: View {
-    @State private var showPaywall = false
-    
-    var body: some View {
-        Button("Show Premium Features") {
-            showPaywall = true
-        }
-        .triggerUpsell(
-            isPresented: $showPaywall,
-            trigger: "premium_upgrade",
-            eventService: PaywallEventService()
-                .onOpen { event in
-                    print("Paywall opened at \(event.timestamp)")
-                    analytics.track("paywall_impression", [
-                        "trigger": event.triggerName,
-                        "paywall": event.paywallName,
-                        "viewType": event.viewType.rawValue
-                    ])
-                }
-                .onDismissed { event in
-                    print("User dismissed without purchasing")
-                    analytics.track("paywall_dismissed", [
-                        "trigger": event.triggerName
-                    ])
-                }
-                .onPurchaseSucceeded { event in
-                    print("Purchase successful: \(event.productId)")
-                    userDefaults.set(true, forKey: "isPremium")
-                    showSuccessMessage()
-                }
-                .onClose { event in
-                    print("Paywall closed, cleanup resources")
-                    resetPaywallState()
-                },
-            customPaywallTraits: [
-                "user_level": getCurrentUserLevel(),
-                "session_duration": getSessionDuration(),
-                "feature_attempted": "advanced_filters"
-            ]
-        )
-    }
-}
-```
-
-### Method 3: Programmatic Presentation with Events
-
-```swift
-// UIKit example with event service
-func showPaywall() {
-    let eventService = PaywallEventService()
-        .onOpen { event in
-            logEvent("paywall_shown", event.toDictionary())
-        }
-        .onPurchaseSucceeded { event in
-            handleSuccessfulPurchase(event.productId)
-        }
-        .onClose { event in
-            cleanupPaywallResources()
-        }
-    
-    Helium.shared.presentUpsell(
-        trigger: "premium_feature",
-        from: self,
-        eventService: eventService,
-        customPaywallTraits: [
-            "source": "settings_menu",
-            "user_tier": "free",
-            "days_since_install": 7
-        ]
-    )
-}
 ```
 
 ## Available Events

@@ -253,6 +253,7 @@ Use one of our pre-built delegates or create a custom subclass of `HeliumPaywall
         override func onPaywallEvent(_ event: PaywallEvent) {
             switch event {
             case let openEvent as PaywallOpenEvent:
+                // handle open event here
                 break
             case let closeEvent as PaywallCloseEvent:
                 break
@@ -295,6 +296,7 @@ Use one of our pre-built delegates or create a custom subclass of `HeliumPaywall
         override func onPaywallEvent(_ event: PaywallEvent) {
             switch event {
             case let openEvent as PaywallOpenEvent:
+                // handle open event here
                 break
             case let closeEvent as PaywallCloseEvent:
                 break
@@ -398,32 +400,88 @@ struct ContentView: View {
 You can also explicitly get the Helium paywall view via `Helium.shared.upsellViewForTrigger`. This method takes a trigger and returns the paywall as an `AnyView`.
 
 ```swift
-let heliumView: AnyView? = Helium.shared.upsellViewForTrigger(trigger: "post_onboarding")
+let heliumView: AnyView? = Helium.shared.upsellViewForTrigger(
+    trigger: "post_onboarding"
+)
 ```
 
 <Note>
-  You'll need to handle presentation and dismissal yourself if you use this way of displaying paywalls. You can do so through [Helium Events](/sdk/helium-events).
+  You'll need to handle presentation and dismissal yourself if you use this way of displaying paywalls. You can handle dismissal with PaywallEventHandlers.
 </Note>
 
 ### PaywallEventHandlers
 
 When displaying a paywall you can pass in event handlers to listen for relevant [Helium Events](/sdk/helium-events). You can chain a subset of handlers with builder syntax:
-
-  ```swift
+<CodeGroup>
+  ```swift presentUpsell
   Helium.shared.presentUpsell(
-      trigger: "premium_features",
+      trigger: "post_onboarding",
       eventHandlers: PaywallEventHandlers()
           .onOpen { event in
-              print("Paywall opened: \(event.paywallName)")
+              print("\(event.paywallName) via trigger \(event.triggerName)")
           }
           .onClose { event in
-              print("Paywall closed: \(event.paywallName)")
+              print("\(event.paywallName) for trigger \(event.triggerName)")
+          }
+          .onDismissed { event in
+              print("\(event.paywallName) for trigger \(event.triggerName)")
           }
           .onPurchaseSucceeded { event in
-              print("Purchase successful: \(event.productId)")
+              print("\(event.paywallName) for trigger \(event.triggerName)")
           }
   )
   ```
+  ```swift triggerUpsell
+    struct ContentView: View {
+        @State var isPresented: Bool = false
+        var body: some View {
+            VStack {
+                Button {
+                    isPresented = true;
+                } label: {
+                    Text("Show paywall")
+                }
+
+            }.triggerUpsell(
+                isPresented: $isPresented,
+                trigger: "post_onboarding",
+                eventHandlers: PaywallEventHandlers()
+                  .onOpen { event in
+                     print("\(event.paywallName) via trigger \(event.triggerName)")
+                  }
+                  .onClose { event in
+                     print("\(event.paywallName) for trigger \(event.triggerName)")
+                  }
+                  .onDismissed { event in
+                     print("\(event.paywallName) for trigger \(event.triggerName)")
+                  }
+                  .onPurchaseSucceeded { event in
+                     print("\(event.paywallName) for trigger \(event.triggerName)")
+                  }
+            )
+        }
+    }
+    ```
+    ```swift upsellViewForTrigger
+      Helium.shared.upsellViewForTrigger(
+          trigger: "post_onboarding",
+          eventHandlers: PaywallEventHandlers()
+              .onOpen { event in
+                  print("\(event.paywallName) via trigger \(event.triggerName)")
+              }
+              .onClose { event in
+                  print("\(event.paywallName) for trigger \(event.triggerName)")
+              }
+              .onDismissed { event in
+                  // handle user dismissal here (i.e. hide the upsell view)
+                  print("\(event.paywallName) for trigger \(event.triggerName)")
+              }
+              .onPurchaseSucceeded { event in
+                  print("\(event.paywallName) for trigger \(event.triggerName)")
+              }
+      )
+      ```
+</CodeGroup>
 
   Only the `onOpen`, `onClose`, `onDismiss`, and `onPurchaseSucceeded` can be specified this way.
 

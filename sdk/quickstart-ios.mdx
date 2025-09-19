@@ -40,8 +40,7 @@ We recommend using Swift Package Manager (SPM), but if your project primarily us
     6. Select **Add Package** in the dialog and Helium should now be ready for import.
     7. Version: We recommend using an upToNextMajor rule to make sure you get non-breaking bug fixes. The latest stable version of helium-swift is **3.0.3** :
 
-      ![Xcode 3 Dependency](/images/sdk/xcode_3_dependency.png)
-
+    ![Xcode 3 Dependency](/images/sdk/xcode_3_dependency.png)
   </Tab>
   <Tab title="Cocoapod">
     ### Option 1: Core functionality only
@@ -311,6 +310,7 @@ Use one of our pre-built delegates or create a custom subclass of `HeliumPaywall
         }
     }
     ```
+
     <Note>
       Make sure to pass your delegate in to `Helium.shared.initialize`!
     </Note>
@@ -365,7 +365,7 @@ Use one of our pre-built delegates or create a custom subclass of `HeliumPaywall
 ## Presenting Paywalls
 
 <Note>
- You must have a trigger and workflow configured in the dashboard in order to show a paywall.
+  You must have a trigger and workflow configured in the dashboard in order to show a paywall.
 </Note>
 
 Now, anywhere in your iOS app, you can show a paywall in one of 3 ways.
@@ -488,21 +488,63 @@ When displaying a paywall you can pass in event handlers to listen for relevant 
       ```
 </CodeGroup>
 
-  Only the `onOpen`, `onClose`, `onDismiss`, and `onPurchaseSucceeded events can be specified this way. For others, see the section on **HeliumPaywallDelegate**.
+Only the `onOpen`, `onClose`, `onDismiss`, and \`onPurchaseSucceeded events can be specified this way. For others, see the section on **HeliumPaywallDelegate**.
 
-  <Note>
-    **Event Timing:**
+<Note>
+  **Event Timing:**
 
-    - `onDismiss` is triggered only when a user manually dismisses a paywall (from an X button, "no thanks", etc.)
-    - `onClose` is triggered both when the paywall is manually dismissed OR when a successful purchase triggers closing the paywall. (So any time the paywall is removed.)
-    - `onPurchaseSucceeded` is triggered when a purchase completes successfully
+  - `onDismiss` is triggered only when a user manually dismisses a paywall (from an X button, "no thanks", etc.)
+  - `onClose` is triggered both when the paywall is manually dismissed OR when a successful purchase triggers closing the paywall. (So any time the paywall is removed.)
+  - `onPurchaseSucceeded` is triggered when a purchase completes successfully
 
-    **Usage Guidelines:**
+  **Usage Guidelines:**
 
-    - Use `onDismiss` for post-paywall navigation when the paywall is dismissed but a user's entitlement hasn't changed
-    - Use `onPurchaseSucceeded` for your post purchase flow (e.g., a premium onboarding navigation)
-    - Use `onClose` when you need to handle logic when the paywall closed, regardless of reason
-  </Note>
+  - Use `onDismiss` for post-paywall navigation when the paywall is dismissed but a user's entitlement hasn't changed
+  - Use `onPurchaseSucceeded` for your post purchase flow (e.g., a premium onboarding navigation)
+  - Use `onClose` when you need to handle logic when the paywall closed, regardless of reason
+</Note>
+
+## Fallbacks and Loading Budgets
+
+If a paywall has not completed downloading when you attempt to present it, a loading state can show.
+
+By default, Helium will show this loading state as needed (a shimmer view for up to 2 seconds). You can configure, turn off, or set trigger-specific loading budgets.
+
+If the budget expires before the paywall is ready, a fallback paywall will show if available otherwise the loading state will hide and a [PaywallOpenFailed](/sdk/helium-events) event will be dispatched.
+
+The iOS sdk has 3 options for fallbacks:
+
+1. [Fallback bundles](/guides/fallback-bundle)
+2. Default fallback view
+3. Fallback view per trigger
+
+All of this is configured via the `HeliumFallbackConfig`  object passed in to `initialize`. Here are some examples:
+
+```swift
+// Just provde a fallback bundle
+let fallbackBundleURL = Bundle.main.url(
+    forResource: "fallback-bundle-xxxx-xx-xx",
+    withExtension: "json"
+)
+let fallbackConfig = HeliumFallbackConfig.withFallbackBundle(fallbackBundleURL)
+
+// Provide fallback view and configure loading budgets
+let fallbackConfig = HeliumFallbackConfig(
+    fallbackView: YourFallbackView(),
+    // Global loading budget (in seconds)
+    loadingBudget: 2.0,
+    // Per-trigger loading budgets
+    perTriggerLoadingConfig: [
+        "onboarding": TriggerLoadingConfig(loadingBudget: 4),
+        "quick_upgrade": TriggerLoadingConfig(useLoadingState: false),
+    ]
+)
+
+Helium.shared.initialize(
+    apiKey: "your-api-key",
+    fallbackConfig: fallbackConfig
+)
+```
 
 ## Testing
 

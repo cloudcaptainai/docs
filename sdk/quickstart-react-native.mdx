@@ -169,7 +169,7 @@ function App() {
 ```tsx Expo 52+
 import { createRevenueCatPurchaseConfig } from "expo-helium/src/revenuecat";
 
-useEffect(() => {
+const asyncHeliumInit = async () => {
   initialize({
     apiKey: '<your-helium-api-key>',
     customUserId: '<your-custom-user-id>', // (optional)
@@ -191,6 +191,10 @@ useEffect(() => {
     },
     revenueCatAppUserId: await Purchases.getAppUserID()
   });
+};
+
+useEffect(() => {
+  void asyncHeliumInit();
 }, []);
 ```
 
@@ -312,6 +316,41 @@ Provide a fallback bundle as described in [this guide](/guides/fallback-bundle).
 <Tip>
   Update your fallback bundle whenever you make changes to your paywall for maximum reliability.
 </Tip>
+
+## Loading Budgets
+
+If a paywall has not completed downloading when you attempt to present it, a loading state can show.
+
+By default, Helium will show this loading state as needed (a shimmer view for up to 2 seconds). You can configure, turn off, or set trigger-specific loading budgets.
+
+If the budget expires before the paywall is ready, a fallback paywall will show if available otherwise the loading state will hide and `onFallback` will be called.
+
+```tsx
+const paywallLoadingConfig: HeliumPaywallLoadingConfig = {
+  useLoadingState: true,
+  loadingBudget: 4,
+  perTriggerLoadingConfig: {
+    "onboarding": {
+      loadingBudget: 5,
+    },
+    "trial": {
+      useLoadingState: false,
+    }
+  },
+};
+
+initialize({
+  apiKey: "helium-api-key",
+  purchaseConfig: createRevenueCatPurchaseConfig(
+    {apiKey: 'rc-api-key'}
+  ),
+  onHeliumPaywallEvent: (event: HeliumPaywallEvent) => {
+    console.log('Helium Paywall Event:', event);
+  },
+  fallbackBundle: require('./assets/fetched.json'),
+  paywallLoadingConfig: paywallLoadingConfig, // << pass to initialize
+});
+```
 
 ## Additional Considerations
 

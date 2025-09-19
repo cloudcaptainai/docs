@@ -135,14 +135,15 @@ import Helium
 And initialize Helium in the location referenced above:
 
 ```swift
-// Create fallback configuration (required)
+// Create fallback configuration
+//   with a fallback bundle (recommended)
+let fallbackBundleURL = Bundle.main.url(forResource: "fallback-bundle", withExtension: "json")
+let fallbackConfig = HeliumFallbackConfig.withFallbackBundle(fallbackBundleURL)
+
+//   or by providing a SwiftUI View
 let fallbackConfig = HeliumFallbackConfig.withFallbackView(
     Text("Fallback shown")
 )
-
-// Or use a fallback bundle (recommended)
-let fallbackBundleURL = Bundle.main.url(forResource: "fallback-bundle", withExtension: "json")
-let fallbackConfig = HeliumFallbackConfig.withFallbackBundle(fallbackBundleURL)
 
 Helium.shared.initialize(
     apiKey: "<your-helium-api-key>",
@@ -250,7 +251,7 @@ Use one of our pre-built delegates or create a custom subclass of `HeliumPaywall
 
     ```swift
     class MyStoreKitDelegate: StoreKitDelegate {
-        override func onPaywallEvent(_ event: PaywallEvent) {
+        override func onPaywallEvent(_ event: HeliumEvent) {
             switch event {
             case let openEvent as PaywallOpenEvent:
                 // handle open event here
@@ -293,7 +294,7 @@ Use one of our pre-built delegates or create a custom subclass of `HeliumPaywall
 
     ```swift
     class MyRevenueCatDelegate: RevenueCatDelegate {
-        override func onPaywallEvent(_ event: PaywallEvent) {
+        override func onPaywallEvent(_ event: HeliumEvent) {
             switch event {
             case let openEvent as PaywallOpenEvent:
                 // handle open event here
@@ -330,7 +331,7 @@ Use one of our pre-built delegates or create a custom subclass of `HeliumPaywall
         func restorePurchases() async -> Bool
 
         // (Optional) - Handle Helium Events
-        func onPaywallEvent(_ event: PaywallEvent)
+        func onPaywallEvent(_ event: HeliumEvent)
     }
     ```
 
@@ -365,7 +366,7 @@ Use one of our pre-built delegates or create a custom subclass of `HeliumPaywall
 
 Now, anywhere in your iOS app, you can show a paywall in one of 3 ways.
 
-### Show it as a full screen modal
+### Show it as a full screen modal (recommended)
 
 Call `Helium.shared.presentUpsell(trigger:)` when you want to show the paywall. For example:
 

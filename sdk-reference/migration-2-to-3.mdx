@@ -90,10 +90,9 @@ let fallbackConfig = HeliumFallbackConfig(
     // Global loading budget (in seconds)
     loadingBudget: 2.0,
     // Per-trigger loading budgets
-    loadingBudgetPerTrigger: [
-        "onboarding": 3.0,      // More time for onboarding
-        "quick_upgrade": 1.0,   // Less time for quick actions
-        "trial_expiry": 2.5     // Balanced approach
+    perTriggerLoadingConfig: [
+        "onboarding": TriggerLoadingConfig(loadingBudget: 4),
+        "quick_upgrade": TriggerLoadingConfig(useLoadingState: false),
     ]
 )
 

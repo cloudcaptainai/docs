@@ -7,34 +7,36 @@ icon: "arrow-up-right-from-square"
 ## Summary
 
 <Note>
-  React Native and Flutter did not have major version 1 or 2. This guide applies for anyone upgrading React Native / Flutter from 0.x.x to 3.0.3.
+  React Native & Flutter: This guide applies for anyone upgrading React Native / Flutter from 0.x.x to 3.0.x. React Native and Flutter did not have a major version 1 or 2.
 </Note>
 
 <Warning>
   **Breaking Changes in v3.0:**
+
   - **Minimum iOS version**: Now requires iOS 15.0+ (up from iOS 14.0)
 </Warning>
 
 <Info>
   **What's new:**
-  - Event handlers can be passed directly in `presentUpsell`
-  - Loading budgets during config downloads
+
+  - Event handlers can be passed directly to `presentUpsell`
+  - Loading budgets for paywall downloads
+  - [Improved event system](/sdk/helium-events)
+  - StoreKitDelegate used by default (iOS only)
   - `customPaywallTraits` can be set when showing a paywall
-  - [Protocol-based events](/sdk/helium-events) available (enum-based still work)
-  - StoreKitDelegate used by default
 </Info>
 
 ## Event Handlers in presentUpsell
 
 You can now pass completion handlers directly when presenting paywalls.
 
-### Before (v2.x)
+### Before v3
 
 ```swift
 Helium.shared.presentUpsell(trigger: "premium_upgrade")
 ```
 
-### After (v3.0)
+### v3
 
 ```swift
 Helium.shared.presentUpsell(
@@ -57,9 +59,9 @@ Helium.shared.presentUpsell(
 
 ## Loading Budget for Paywalls
 
-In v2.x, if a Helium download was in progress but you wanted to show a paywall immediately (e.g., on app open), the Helium SDK would just show you a fallback paywall.
+Before v3, if a Helium download was in progress but you wanted to show a paywall immediately (e.g., on app open), the Helium SDK would just show you a fallback paywall.
 
-In v3.0, it'll now show a loading state (by default, a shimmer view for 2 seconds) and wait for the download to complete. You can configure, turn off, or set trigger-specific loading budgets (e.g., on app open you might want this behavior, but not in other parts of the app).
+In v3.0, it'll now show a loading state (by default, a shimmer view for 2 seconds) and wait for the download to complete. You can configure, turn off, or set trigger-specific loading budgets.
 
 ### How It Works
 
@@ -80,7 +82,9 @@ graph LR
 
 Set different loading budgets per trigger or globally:
 
-```swift
+<CodeGroup>
+
+```swift iOS
 let fallbackConfig = HeliumFallbackConfig(
     fallbackView: YourFallbackView(),
     // Global loading budget (in seconds)
@@ -99,7 +103,42 @@ Helium.shared.initialize(
 )
 ```
 
-### Custom Loading Views
+
+```tsx React Native
+const paywallLoadingConfig: HeliumPaywallLoadingConfig = {
+  useLoadingState: true,
+  loadingBudget: 4,
+  perTriggerLoadingConfig: {
+    "onboarding": {
+      loadingBudget: 5,
+    },
+    "trial": {
+      useLoadingState: false,
+    }
+  },
+};
+
+initialize({
+  apiKey: "helium-api-key",
+  purchaseConfig: createRevenueCatPurchaseConfig(
+    {apiKey: 'rc-api-key'}
+  ),
+  onHeliumPaywallEvent: (event: HeliumPaywallEvent) => {
+    console.log('Helium Paywall Event:', event);
+  },
+  fallbackBundle: require('./assets/fetched.json'),
+  paywallLoadingConfig: paywallLoadingConfig, // << pass to initialize
+});
+```
+
+
+```dart Flutter
+// Flutter v3 support coming soon!
+```
+
+</CodeGroup>
+
+### Custom Loading Views (iOS only)
 
 Provide custom loading views during the budget period:
 
@@ -126,7 +165,7 @@ let fallbackConfig = HeliumFallbackConfig(
 )
 ```
 
-## Required Fallbacks
+## Required Fallbacks (iOS only)
 
 Fallbacks are mandatory. You must either provide a `fallbackConfig`  (v3.0 way) or a `fallbackPaywall` (old way). The SDK will fail to initialize without some type of fallback configuration.
 
@@ -179,7 +218,7 @@ let fallbackConfig = HeliumFallbackConfig(
 
 The event system now uses protocol-based events with better type safety and IDE support.
 
-### Key Event Changes from v2.x
+### Key Event Changes From Before v3
 
 #### Name Changes
 
@@ -189,18 +228,29 @@ The event system now uses protocol-based events with better type safety and IDE 
 - `ctaPressed` event → `PaywallButtonPressedEvent`
 - `error` is now `Error` type instead of `String` on `PurchaseFailedEvent`
 
+<Note>
+  React Native had several changes to event `type`:
+
+  - ctaPressed → paywallButtonPressed
+  - offerSelected → productSelected
+  - subscriptionPressed →  purchasePressed
+  - subscriptionCancelled →  purchaseCancelled
+  - subscriptionSucceeded →  purchaseSucceeded
+  - subscriptionFailed →  purchaseFailed
+  - subscriptionRestored →  purchaseRestored
+  - subscriptionRestoreFailed →  purchaseRestoreFailed
+  - subscriptionPending →  purchasePending
+</Note>
+
 #### Removed
 
 - `configId` removed from download success events
 
-#### New Delegate Method
+### New Delegate Method (iOS only)
 
-- **Old**: `onHeliumPaywallEvent(event:)` (deprecated but still works)
-- **New**: `onPaywallEvent(_:)` (recommended)
+#### Before v3
 
-### Migration Example
-
-#### Before (v2.x Enum-Based)
+`onHeliumPaywallEvent(event:)` (deprecated but still works)
 
 ```swift
 func onHeliumPaywallEvent(event: HeliumPaywallEvent) {
@@ -217,7 +267,9 @@ func onHeliumPaywallEvent(event: HeliumPaywallEvent) {
 }
 ```
 
-#### After (v3.0 Protocol-Based)
+#### v3
+
+`onPaywallEvent(_:)` (recommended)
 
 ```swift
 func onPaywallEvent(_ event: PaywallEvent) {
@@ -241,7 +293,7 @@ func onPaywallEvent(_ event: PaywallEvent) {
 }
 ```
 
-## StoreKit Delegate by Default
+## StoreKit Delegate by Default (iOS only)
 
 If no delegate is provided, v3.0 uses StoreKitDelegate automatically.
 
@@ -284,11 +336,35 @@ Helium.shared.presentUpsell(
 
 Update your app's minimum deployment target to iOS 15.0 or later.
 
-### Xcode Project
+<Tabs>
+  <Tab title="iOS">
+    1. Select your project in Xcode
+    2. Go to your app target
+    3. Set "Minimum Deployments" to iOS 15.0
+  </Tab>
+  <Tab title="React Native">
+    If using Expo:
 
-1. Select your project in Xcode
-2. Go to your app target
-3. Set "Minimum Deployments" to iOS 15.0
+    1. Make sure the `expo-build-properties` package is installed (should be installed by default)
+    2. Update your app config (app.json, app.config.js, app.config.ts):
+
+    ```json
+    [
+      "expo-build-properties",
+      {
+        ios: {
+          deploymentTarget: "15.0", // or higher
+        },
+      },
+    ],
+    ```
+
+    If not using Expo, adjust in your Xcode project directly.
+  </Tab>
+  <Tab title="Flutter">
+    Flutter v3 support coming soon!
+  </Tab>
+</Tabs>
 
 ## Need Help?
 

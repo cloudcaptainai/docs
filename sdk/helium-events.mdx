@@ -18,14 +18,14 @@ The Helium SDK fires various events related to paywall display and purchase acti
 
 ```swift
 // Base protocol for all events
-protocol PaywallEvent {
+protocol HeliumEvent {
     var eventName: String { get }
     var timestamp: Date { get }
     func toDictionary() -> [String: Any]
 }
 
 // Events with paywall context
-protocol PaywallContextEvent: PaywallEvent {
+protocol PaywallContextEvent: HeliumEvent {
     var triggerName: String { get }
     var paywallName: String { get }
     var isSecondTry: Bool { get }

@@ -8,44 +8,71 @@ icon: "bolt"
 
 The Helium SDK fires various events related to paywall display and purchase actions. Visit the SDK docs to see how to listen for and handle these events.
 
+## Event Types
+
+<Tabs>
+  <Tab title="iOS">
+    ```swift
+    // Base protocol for all events
+    protocol PaywallEvent {
+        var eventName: String { get }
+        var timestamp: Date { get }
+        func toDictionary() -> [String: Any]
+    }
+
+    // Events with paywall context
+    protocol PaywallContextEvent: PaywallEvent {
+        var triggerName: String { get }
+        var paywallName: String { get }
+    }
+
+    // Product-related events
+    protocol ProductEvent: PaywallContextEvent {
+        var productId: String { get }
+    }
+    ```
+  </Tab>
+  <Tab title="React Native">
+    ```typescript
+    export type HeliumPaywallEvent = {
+      type: 'paywallOpen' | 'paywallClose' | 'paywallDismissed' |
+        'paywallOpenFailed' | 'paywallSkipped' | 'paywallButtonPressed' |
+        'productSelected' | 'purchasePressed' | 'purchaseSucceeded' |
+        'purchaseCancelled' | 'purchaseFailed' | 'purchaseRestored' |
+        'purchaseRestoreFailed' | 'purchasePending' | 'initializeStart' |
+        'paywallsDownloadSuccess' | 'paywallsDownloadError' | 'paywallWebViewRendered';
+      triggerName?: string;
+      paywallName?: string;
+      productId?: string;
+      buttonName?: string;
+      configId?: string;
+      numAttempts?: number;
+      downloadTimeTakenMS?: number;
+      webviewRenderTimeTakenMS?: number;
+      imagesDownloadTimeTakenMS?: number;
+      fontsDownloadTimeTakenMS?: number;
+      bundleDownloadTimeMS?: number;
+      dismissAll?: boolean;
+      isSecondTry?: boolean;
+      error?: string;
+      timestamp?: number; // Unix timestamp in seconds (using device clock)
+    }
+    ```
+  </Tab>
+  <Tab title="Flutter">
+    New events coming soon! For now look at the Legacy Events section.
+  </Tab>
+</Tabs>
+
+## Listening to Events
+
+See the SDK quickstarts for examples on how to listen for events, either through a Helium delegate or by passing in handlers during paywall presentation.
+
+## Available Events
+
 <Note>
   The following definitions are all provided in Swift, but the same events and values are available for every SDK.
 </Note>
-
-## Event Types
-
-### Core Event Protocols
-
-```swift
-// Base protocol for all events
-protocol HeliumEvent {
-    var eventName: String { get }
-    var timestamp: Date { get }
-    func toDictionary() -> [String: Any]
-}
-
-// Events with paywall context
-protocol PaywallContextEvent: HeliumEvent {
-    var triggerName: String { get }
-    var paywallName: String { get }
-    var isSecondTry: Bool { get }
-}
-// Example usage:
-// if let contextEvent = event as? PaywallContextEvent {
-//     print("\(event.eventName) with trigger \(event.triggerName)")
-// }
-
-// Product-related events
-protocol ProductEvent: PaywallContextEvent {
-    var productId: String { get }
-}
-// Example usage:
-// if let productEvent = event as? ProductEvent {
-//     print("\(event.eventName) for \(event.productId)")
-// }
-```
-
-## Available Events
 
 ### Lifecycle Events
 
@@ -267,47 +294,17 @@ event.numAttempts     // Attempts made
 event.timestamp       // When event occurred
 ```
 
-## Custom Paywall Traits
-
-You can pass pass dynamic context to paywalls at presentation time:
-
-```swift
-// Set during presentation
-.triggerUpsell(
-    isPresented: $showPaywall,
-    trigger: "game_over",
-    customPaywallTraits: [
-        "final_score": gameState.score,
-        "level": gameState.currentLevel,
-        "lives_remaining": gameState.lives,
-        "high_score": userStats.bestScore,
-        "session_length": Date().timeIntervalSince(sessionStart)
-    ]
-)
-
-// Access in JavaScript within paywall template
-const score = window.heliumContext.final_score;
-const level = window.heliumContext.level;
-```
-
-## Event Handling Notes
-
-- `onDismissed` fires when user explicitly closes without purchasing
-- `onClose` fires after both dismissal and successful purchase for cleanup
-- Custom traits are cleared automatically when paywall closes
-- Protocol conformance enables handling groups of related events
-
 ---
 
-# Legacy 2.x Events
+# Legacy Events
 
 <Note>
-  The following section documents the legacy event system from SDK version 2.x. For new implementations, use the current event system described above.
+  The following section documents the legacy event system from SDK versions lower than 3.x. For new implementations, use the event system described above.
 </Note>
 
 ### Legacy Event Handling
 
-The 2.x system uses the `onHeliumPaywallEvent` method with an enum-based approach:
+The legacy system uses the `onHeliumPaywallEvent` method with an enum-based approach:
 
 ```swift
 func onHeliumPaywallEvent(event: HeliumPaywallEvent) {

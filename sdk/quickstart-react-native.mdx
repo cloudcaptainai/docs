@@ -4,6 +4,12 @@ description: "Integrate Helium into your React Native App."
 icon: "/images/sdk/logos/react-svgrepo-com.svg"
 ---
 
+<Info>
+  **Using an older SDK version?**
+
+  If you're upgrading from SDK v0.x, check our [Migration Guide](/sdk-reference/migration-2-to-3) for breaking changes and upgrade instructions.
+</Info>
+
 ## Background
 
 Get set up with the Helium SDK for React Native. Reach out over your Helium slack channel or email [founders@tryhelium.com](mailto:founders@tryhelium.com) for any questions.
@@ -41,27 +47,8 @@ Follow these steps to integrate the SDK.
 ### HeliumProvider
 
 <Warning>
-  **If on Expo 52\+, do not add HeliumProvider.**
-
-  HeliumProvider needed ONLY if using `@tryheliumai/paywall-sdk-react-native` (older Expo versions OR bare React Native).
+  HeliumProvider is no longer needed in v3.0+. See our [Migration Guide](/sdk-reference/migration-2-to-3).
 </Warning>
-
-<Accordion title="HeliumProvider">
-  Wrap a suitably root-y component with `HeliumProvider`. We recommend wrapping your navigation provider, but placing HeliumProvider UNDER your sentry error boundary, to make sure
-  errors get logged.
-
-  ```tsx
-  import { HeliumProvider } from '@tryheliumai/paywall-sdk-react-native';
-  
-  function App() {
-    return (
-      <HeliumProvider>
-        <YourAppComponent />
-      </HeliumProvider>
-    );
-  }
-  ```
-</Accordion>
 
 ### Initialization
 
@@ -94,18 +81,18 @@ function App() {
         }
       }),
 
-      // Event handler for paywall events
-      onHeliumPaywallEvent: (event) => {
+      // Example event handler for paywall events
+      onHeliumPaywallEvent: (event: HeliumPaywallEvent) => {
         switch (event.type) {
           case 'paywallOpen':
             break;
-          case 'ctaPressed':
-            if (event.ctaName === HELIUM_CTA_NAMES.SCHEDULE_CALL) {
+          case 'paywallButtonPressed':
+            if (event.buttonName === HELIUM_CTA_NAMES.SCHEDULE_CALL) {
               // Handle schedule call
             }
             break;
-          case 'subscriptionSucceeded':
-            // Handle successful subscription
+          case 'purchaseSucceeded':
+            // Handle successful purchase
             break;
         }
       },
@@ -147,13 +134,13 @@ function App() {
         switch (event.type) {
           case 'paywallOpen':
             break;
-          case 'ctaPressed':
-            if (event.ctaName === HELIUM_CTA_NAMES.SCHEDULE_CALL) {
+          case 'paywallButtonPressed':
+            if (event.buttonName === HELIUM_CTA_NAMES.SCHEDULE_CALL) {
               // Handle schedule call
             }
             break;
-          case 'subscriptionSucceeded':
-            // Handle successful subscription
+          case 'purchaseSucceeded':
+            // Handle successful purchase
             break;
         }
       },
@@ -175,8 +162,7 @@ function App() {
 **Important** Make sure that you've already:
 
 - [Installed](https://www.revenuecat.com/docs/getting-started/installation/expo) RevenueCat (if non-Expo go [here](https://www.revenuecat.com/docs/getting-started/installation/reactnative))
-- Configured an [Entitlement](https://www.revenuecat.com/docs/getting-started/entitlements) and [Offering](https://www.revenuecat.com/docs/offerings/overview)
-- [Initialize](https://www.revenuecat.com/docs/getting-started/configuring-sdk) RevenueCat (`Purchases.configure()`) _before_ initializing Helium
+- (Recommended) Configured an [Entitlement](https://www.revenuecat.com/docs/getting-started/entitlements)
 
 <CodeGroup>
 
@@ -187,14 +173,18 @@ const asyncHeliumInit = async () => {
   initialize({
     apiKey: '<your-helium-api-key>',
     customUserId: '<your-custom-user-id>', // (optional)
-    purchaseConfig: createRevenueCatPurchaseConfig(),
-    onHeliumPaywallEvent: (event) => {
+    purchaseConfig: createRevenueCatPurchaseConfig(
+      // (optional) Set if you want Helium to initialize RevenueCat for you.
+      // Otherwise initialize RevenueCat (`Purchases.configure()`) _before_ initializing Helium
+      { apiKey: 'revenue_cat_api_key' }
+    ),
+    onHeliumPaywallEvent: (event: HeliumPaywallEvent) => {
       switch (event.type) {
-        case 'subscriptionFailed':
+        case 'purchaseFailed':
           // Custom logic
           break;
-        case 'subscriptionSucceeded':
-          // Handle a subscription success event
+        case 'purchaseSucceeded':
+          // Handle a purchase success event
           // e.g. navigate to a premium page
           break;
       }
@@ -216,14 +206,18 @@ const asyncHeliumInit = async () => {
   initialize({
     apiKey: '<your-helium-api-key>',
     customUserId: '<your-custom-user-id>', // (optional)
-    purchaseConfig: createRevenueCatPurchaseConfig(),
-    onHeliumPaywallEvent: (event) => {
+    purchaseConfig: createRevenueCatPurchaseConfig(
+      // (optional) Set if you want Helium to initialize RevenueCat for you.
+      // Otherwise initialize RevenueCat (`Purchases.configure()`) _before_ initializing Helium
+      { apiKey: 'revenue_cat_api_key' }
+    ),
+    onHeliumPaywallEvent: (event: HeliumPaywallEvent) => {
       switch (event.type) {
-        case 'subscriptionFailed':
+        case 'purchaseFailed':
           // Custom logic
           break;
-        case 'subscriptionSucceeded':
-          // Handle a subscription success event
+        case 'purchaseSucceeded':
+          // Handle a purchase success event
           // e.g. navigate to a premium page
           break;
       }
@@ -241,8 +235,17 @@ useEffect(() => {
 
 ## Presenting Paywalls
 
-Use the `presentUpsell` method to present a paywall. `presentUpsell` takes in a dictionary
-specifying the `triggerName` as well as an optional `onFallback` parameter defining custom fallback behavior (in case the user didn't have a network connection)
+Use the `presentUpsell` method to present a paywall. `presentUpsell` takes in `PresentUpsellParams`:
+
+```ts
+  export type PresentUpsellParams = {
+    triggerName: string;
+    /** Optional. This will be called when paywall fails to show due to an unsuccessful paywall download or if an invalid trigger is provided. */
+    onFallback?: () => void;
+    eventHandlers?: PaywallEventHandlers;
+    customPaywallTraits?: Record<string, any>;
+  };
+```
 
 <CodeGroup>
 

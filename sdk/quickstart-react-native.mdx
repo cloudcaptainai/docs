@@ -37,7 +37,7 @@ npx react-native link @tryheliumai/paywall-sdk-react-native
 </CodeGroup>
 
 <Tip>
-  We support Expo 49\+ but do recommend using Helium with **Expo 53 and up**. If you're on an older version and having issues, ping us - we've got experience with all kinds of versioning, upgrade, and custom build plugin work.
+  We support Expo 49+ but do recommend using Helium with **Expo 53 and up**. If you're on an older version and having issues, ping us - we've got experience with all kinds of versioning, upgrade, and custom build plugin work.
 </Tip>
 
 ## Configuration
@@ -64,11 +64,10 @@ Initialize Helium by calling `initialize()` early in your app's lifecycle, typic
 import { initialize, createCustomPurchaseConfig, HELIUM_CTA_NAMES } from 'expo-helium';
 
 function App() {
-
   useEffect(() => {
     initialize({
       apiKey: '<your-helium-api-key>',
-      // (Optional) Custom user id, e.g. your amplitude analytics user id. 
+      // (Optional) Custom user id, e.g. your amplitude analytics user id.
       customUserId: '<your-custom-user-id>',
       purchaseConfig: createCustomPurchaseConfig({
         makePurchase: async (productId) => {
@@ -103,7 +102,6 @@ function App() {
       },
     });
   }, []);
-
 }
 ```
 
@@ -112,11 +110,10 @@ function App() {
 import { initialize, createCustomPurchaseConfig, HELIUM_CTA_NAMES } from '@tryheliumai/paywall-sdk-react-native';
 
 function App() {
-
-  useEffect(() => {
+  const asyncHeliumInit = async () => {
     initialize({
       apiKey: '<your-helium-api-key>',
-      // (Optional) Custom user id, e.g. your amplitude analytics user id. 
+      // (Optional) Custom user id, e.g. your amplitude analytics user id.
       customUserId: '<your-custom-user-id>',
       purchaseConfig: createCustomPurchaseConfig({
         makePurchase: async (productId) => {
@@ -150,8 +147,11 @@ function App() {
         "example_trait": "example_value",
       },
     });
-  }, []);
+  };
 
+  useEffect(() => {
+    void asyncHeliumInit();
+  }, []);
 }
 ```
 
@@ -169,13 +169,13 @@ function App() {
 ```tsx Expo 52+
 import { createRevenueCatPurchaseConfig } from "expo-helium/src/revenuecat";
 
-const asyncHeliumInit = async () => {
+useEffect(() => {
   initialize({
     apiKey: '<your-helium-api-key>',
     customUserId: '<your-custom-user-id>', // (optional)
     purchaseConfig: createRevenueCatPurchaseConfig(
       // (optional) Set if you want Helium to initialize RevenueCat for you.
-      // Otherwise initialize RevenueCat (`Purchases.configure()`) _before_ initializing Helium
+      // Otherwise initialize RevenueCat (`Purchases.configure()`) before initializing Helium
       { apiKey: 'revenue_cat_api_key' }
     ),
     onHeliumPaywallEvent: (event: HeliumPaywallEvent) => {
@@ -191,10 +191,6 @@ const asyncHeliumInit = async () => {
     },
     revenueCatAppUserId: await Purchases.getAppUserID()
   });
-};
-
-useEffect(() => {
-  void asyncHeliumInit();
 }, []);
 ```
 
@@ -208,7 +204,7 @@ const asyncHeliumInit = async () => {
     customUserId: '<your-custom-user-id>', // (optional)
     purchaseConfig: createRevenueCatPurchaseConfig(
       // (optional) Set if you want Helium to initialize RevenueCat for you.
-      // Otherwise initialize RevenueCat (`Purchases.configure()`) _before_ initializing Helium
+      // Otherwise initialize RevenueCat (`Purchases.configure()`) before initializing Helium
       { apiKey: 'revenue_cat_api_key' }
     ),
     onHeliumPaywallEvent: (event: HeliumPaywallEvent) => {
@@ -237,15 +233,22 @@ useEffect(() => {
 
 Use the `presentUpsell` method to present a paywall. `presentUpsell` takes in `PresentUpsellParams`:
 
-```ts
-  export type PresentUpsellParams = {
-    triggerName: string;
-    /** Optional. This will be called when paywall fails to show due to an unsuccessful paywall download or if an invalid trigger is provided. */
-    onFallback?: () => void;
-    eventHandlers?: PaywallEventHandlers;
-    customPaywallTraits?: Record<string, any>;
-  };
-```
+<ResponseField name="PresentUpsellParams" type="method">
+  <Expandable title="properties">
+    <ResponseField name="triggerName" type="string" required>
+      Pass in the trigger for the workflow you configured in the dashboard.
+    </ResponseField>
+    <ResponseField name="onFallback" type="() => void">
+      This will be called when paywall fails to show due to an unsuccessful paywall download or if an invalid trigger is provided. (See Fallbacks section for more details.)
+    </ResponseField>
+    <ResponseField name="eventHandlers" type="PaywallEventHandlers">
+      Handlers that allow you to respond to open, close, dismiss, and purchase [events](/sdk/helium-events).
+    </ResponseField>
+    <ResponseField name="customPaywallTraits" type="Record<string, any>">
+      (Advanced) Custom key/value pairs that you want available to the paywall.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
 
 <CodeGroup>
 
@@ -292,7 +295,23 @@ function YourComponent() {
 
 </CodeGroup>
 
-You should now be able to see Helium paywalls in your app\! Well done\! 🎉
+You should now be able to see Helium paywalls in your app! Well done! 🎉
+
+## Fallbacks
+
+There are currently two ways you can handle a "fallback" situation in the rare case that a paywall fails to download or an invalid trigger is provided. You can also do both. Better to be prepared!
+
+### 1. Use the `onFallback` function
+
+You can pass this in when you call `presentUpsell` and handle however you want.
+
+### 2. Provide a fallback bundle (recommended)
+
+Provide a fallback bundle as described in [this guide](/guides/fallback-bundle).
+
+<Tip>
+  Update your fallback bundle whenever you make changes to your paywall for maximum reliability.
+</Tip>
 
 ## Additional Considerations
 

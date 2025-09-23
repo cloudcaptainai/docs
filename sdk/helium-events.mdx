@@ -198,8 +198,14 @@ let event: PurchaseSucceededEvent
 event.productId       // StoreKit product ID
 event.triggerName     // Associated trigger
 event.paywallName     // Template name
+event.transactionId         // StoreKit transaction ID (optional)
+event.originalTransactionId // StoreKit original transaction ID (optional)
 event.timestamp       // When event occurred
 ```
+
+<Note>
+  The `transactionId` and `originalTransactionId` fields provide StoreKit transaction identifiers for enhanced tracking and analytics. These fields are optional and may be `nil` in some scenarios depending on the delegate implementation and timing constraints.
+</Note>
 
 #### PurchaseCancelledEvent
 
@@ -311,8 +317,14 @@ func onHeliumPaywallEvent(event: HeliumPaywallEvent) {
     switch (event) {
     case .paywallOpen(let triggerName, let paywallTemplateName, let viewType):
         print("Paywall opened: \(triggerName), template: \(paywallTemplateName), viewType: \(viewType)")
-    case .subscriptionSucceeded(let productKey, let triggerName, let paywallTemplateName):
+    case .subscriptionSucceeded(let productKey, let triggerName, let paywallTemplateName, let transactionId, let originalTransactionId):
         print("Subscription succeeded for product: \(productKey)")
+        if let txnId = transactionId {
+            print("Transaction ID: \(txnId)")
+        }
+        if let originalTxnId = originalTransactionId {
+            print("Original Transaction ID: \(originalTxnId)")
+        }
     // Handle other events as needed
     default:
         break
@@ -358,9 +370,13 @@ Triggered when a subscription process is cancelled by the user.
 
 #### Subscription Succeeded
 ```swift
-case subscriptionSucceeded(productKey: String, triggerName: String, paywallTemplateName: String)
+case subscriptionSucceeded(productKey: String, triggerName: String, paywallTemplateName: String, transactionId: String?, originalTransactionId: String?)
 ```
 Triggered when a subscription is successfully completed.
+
+<Note>
+  Starting with SDK version 3.0.4, this event now includes optional `transactionId` and `originalTransactionId` parameters that provide StoreKit transaction identifiers for enhanced tracking and analytics.
+</Note>
 
 #### Subscription Failed
 ```swift

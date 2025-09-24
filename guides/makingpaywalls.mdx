@@ -1,0 +1,128 @@
+---
+title: "Using the Helium Paywall Editor"
+description: "A guide on creating paywalls in Helium "
+---
+
+A fast, visual way to design, test, and ship mobile paywalls—without waiting on app releases. This guide covers how to get into the editor, what each panel and tool does, and how to use the prompt bar + AI to go from idea to live experiment in minutes.
+
+---
+
+## Video walkthrough
+
+<iframe className="w-full aspect-video rounded-xl" src="https://www.loom.com/embed/ebc6d71e51514722bce2f4352a3a4059?sid=22f325a5-c603-40d3-afc3-16d0b7866c25" title="Editor Loom" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+
+## 1) Entry points: creating your first paywall
+
+You have three ways to begin after clicking "New Paywall":
+
+### A) Start from a template (recommended)
+
+1. Click **New Paywall** → **Template**
+2. Pick a template (single screen, comparison table, trial-first, hero img)
+3. Connect the **Products** you want to offer
+4. Click **Create**. You’ll land directly in the editor with editable text, images, and pricing placeholders
+
+**Best for:** getting something on-brand and testable in under 5 minutes.
+
+---
+
+### B) Start from a screenshot (AI Agent)
+
+1. Click **New Paywall** → **From Screenshot**.
+2. Upload 1 (or more!) screenshots from your app (or a paywall you love)
+3. (optional but recommended): Link a public Figma file of the paywall so the agent can get fonts, colors and spacing
+4. Add any additional instructions for the agent into the description field, such as brand guidelines, colors to use, and interactive behavior
+5. Connect your **Products**
+6. The AI reconstructs the design into a ready-to-use paywall
+7. Use the **Prompt Bar** or **Element Editor** to tweak copy, styles, and structure
+
+**Best for:** cloning your current paywall or riffing on inspiration from other apps.
+
+---
+
+### C) Start from scratch (advanced)
+
+1. Click **New Paywall** → **From Scratch**
+2. Connect your **Products**
+3. Build the paywall from the ground up from a prompt
+4. Use the **Prompt Bar** to accelerate copy and layout
+
+**Best for:** bespoke designs. Most teams move faster starting from a template or screenshot.
+
+---
+
+## 2) Editor layout and tools
+
+The editor is split into three areas:
+
+### Left: AI Paywall Editor
+
+- **Prompt Bar:** Natural-language commands to change copy, layout, colors, spacing, CTAs, and more.
+- \*\*Chat History: \*\*View your chat History from the current session
+- \*\*Undo/Redo: \*\*Toggle between old and new versions to view changes live — whichever version you are currently looking at is the one that the AI editor will make changes to!
+- **Paywall Settings:** Toggle between AI models, we recommend Claude Sonnet for general use, and GPT 5 for very large changes
+
+### Middle: Canvas & Toolbar (live preview)
+
+- **Canvas:** Pixel-accurate rendering of your paywall as it will appear in-app (pulled OTA via the SDK).
+- **Toolbar (bottom):**
+  - **Viewports:** Preview common device sizes to ensure your paywall is optimized and working on all phone sizes.
+  - **Zoom:** Inspect fine details or zoom-to-fit.
+  - **Dark Mode:** View light/dark. **No configuration needed—Helium auto-generates dark styles!**
+  - **Reset Preview State:** Returns any multi-step/onboarding flow to the start. Essential when building complex onboarding experiences.
+  - **Action Logging:** View tap and navigation events made in the preview. Actions, like Restore, Dismiss, Subscribe are **preconfigured** for you—but great for QA.
+  - \*\*Localization Preview: \*\*Price localization, including discount calculations and other math are **preconfigured** for you! But you can view various locales to verify copy, currency formats, etc.
+  - **Safe Areas:** Overlay device safe areas (notches, home indicator). Use this to ensure sticky CTAs and headers aren’t clipped.
+  - **Element Editor:** Precise, last-mile visual edits—colors, fonts, sizes, weights, spacing, radii, shadows, alignment, and visibility by breakpoint.
+
+> **Note**\
+> All changes are delivered over-the-air via the SDK—no app release required. Use **Targeting** + **Experiments** to safely ship and measure impact.
+
+### Top: quick actions
+
+The top bar gives you fast access to the most common actions for configuring your paywall/onboarding flow.
+
+1. **QR code preview**\
+   Once you’ve initialized Helium and enabled deep links, click the **QR** button to generate a scannable code. Scan on any device to open this exact paywall (and step) in your app for true on-device QA. Great for checking typography, animations, purchase sheet handoff, and safe-area behavior on real hardware.
+2. **Products & Paywall config**\
+   Attach or change the products associated with this paywall, set the **default product selection** (e.g., annual vs monthly), and edit the **title/description** that appear next to prices. This is the fastest way to wire pricing without leaving the editor. (You can still use **Offers** on the right panel for deeper setup.)
+3. **Configure “Second Try” flow**\
+   Show a different paywall if the user:
+   - **Dismisses** the paywall (closes it), or
+   - **Cancels** at the system purchase sheet (closes it after initiating).
+
+   Use this to present a lighter variant, alternate framing, or a different offer on the second attempt. Pick the trigger(s), choose the follow-up paywall, and save.
+4. **Save / Save as copy**
+   - **Save** updates the server version and pushes the changes OTA via the SDK.
+   - **Save as copy** creates a new **Variant** (ideal for experiments).
+5. **Reset (to last saved)**\
+   Discards any unsaved edits and reloads the server state from your **last Save**.\
+   _Note:_ This is different from **Reset Preview State** in the canvas toolbar, which only resets the internal paywall state back to its initial state.
+
+now for the fun part...
+
+## Prompting:
+
+In Helium, you don't have to manually change colors or adjust margins. Describe the outcome in plain English; the editor generates code diffs and updates your paywall instantly. From idea → preview → **Save** (or **Save as copy**) in a single prompt.
+
+**What a single prompt can do:**
+
+- **Reshape the entire flow:** Switch single → two-step, insert/remove sections (hero, social proof, FAQs, benefits), reorder blocks, or convert to an onboarding experience—no manual wiring.
+- **Update visual identity:** Apply brand colors, update typography scale, tighten/loosen spacing rhythm, adjust radii/shadows/gradients, and swap imagery or icons across the layout in one prompt.
+- **Add more screens:** Create entire new screens for the user, like an onboarding survey, a multi-step product intro with Lottie files, all with custom transitions.
+- **Structure pricing UI:** Set the default plan (e.g., annual), show/hide monthly, add badges like “Save 42%” and “Most popular,” or add contextual notes beneath plans—all generated in one pass.
+- **Product-aware edits:** Create copy or visuals that directly refer to the selected product price, period, or discount.
+- **Offer-specific variants:** Create variants that only apply to users with introductory offers, highlighting reduced pricing, or trial length, while leaving the standard paywall the same.
+- \*\*Add new components: \*\*Customer testimonials, feature comparisons,
+- \*\*Incorporate Uploaded Images/Icons: \*\*The editor will be able to see and incorporate any assets you upload such as icons, logos, hero images, or even Lottie animations.
+- **Match a Visual Reference:** Upload an image example of a component or paywall you like, and the editor will build based on the image.
+- \*\*Animations: \*\*Simply describe the behavior you want, and voila!
+
+**Examples you can paste**
+
+- “Animate the testimonial carousel, have it automatically scroll to the next state if the user hasn't touched it for 5 seconds”
+- "Add a 5 question \*\*onboarding survey \*\*with the same visual styles, and customize the final paywall based on if the user is high or low intent, offering our annual plan for high-intent users and weekly for low-intent users."
+- “Apply brand colors (primary #0A84FF), make headings semibold, tighten vertical spacing ~12%, and keep the CTA sticky.”
+- “Reference the user's timezone and display a countdown timer to the end of the day when the offer expires"
+
+We’re excited to see what you build—have fun with it! We’d love your feedback at [**founders@tryhelium.com**](mailto:founders@tryhelium.com).

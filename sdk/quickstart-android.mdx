@@ -16,6 +16,11 @@ Email founders@tryhelium.com for help/questions.
 
 Add the Helium SDK to your project using Gradle.
 
+### Requirements
+
+- **Kotlin Version**: 2.0.0 or higher
+- **Java Version**: 11 or higher
+
 **1. Add repositories to your `settings.gradle.kts` file:**
 
 Ensure you have `mavenCentral()` and `google()` in your repositories blocks.
@@ -51,7 +56,7 @@ dependencyResolutionManagement {
 
     dependencies {
         // Choose one of the UI modules:
-        implementation("com.tryhelium.paywall:core:0.0.1")
+        implementation("com.tryhelium.paywall:core:0.0.3")
         // Other app dependencies
     }
     ```
@@ -62,7 +67,7 @@ dependencyResolutionManagement {
 
     dependencies {
         // Choose one of the UI modules:
-        implementation("com.tryhelium.paywall:compose-ui:0.0.1")
+        implementation("com.tryhelium.paywall:compose-ui:0.0.3")
         // Other app dependencies
     }
     ```

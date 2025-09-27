@@ -112,88 +112,73 @@ Future<void> main() async {
   </Expandable>
 </ResponseField>
 
-#### Passing in a Custom User ID
+<Accordion title="Custom User ID and Custom User Traits">
+  You can set a custom user ID and custom user traits with the `initialize` method or by calling:
 
-By default, Helium generates a UUID per app session to identify users. You can override this with your own custom user ID (e.g., from a 3rd party analytics service) by passing it in the `initialize` method or by explicitly calling `overrideUserId`:
+  ```dart
+  await heliumFlutter.overrideUserId(
+    newUserId: "your-custom-user-id",
+    traits: {
+      "exampleTrait": "value",
+      "userType": "premium"
+    }
+  );
+  ```
+</Accordion>
 
-```dart
-// Set a custom user ID
-await heliumFlutter.overrideUserId(
-  newUserId: "your-custom-user-id",
-  traits: {
-    "exampleTrait": "value",
-    "userType": "premium"
-  }
-);
-```
+<Accordion title="Checking Download Status">
+  After initialization, you can check the status of the paywalls download:
 
-#### Checking Download Status
+  ```dart
+  String downloadStatus = await heliumFlutter.getDownloadStatus() ?? 'Unknown';
+  ```
 
-After initialization, you can check the status of the paywall configuration download:
+  The download status will be one of the following:
 
-```dart
-String downloadStatus = await heliumFlutter.getDownloadStatus() ?? 'Unknown';
-```
+  - `notDownloadedYet`: The download has not been initiated.
+  - `inProgress`: The download has not been initiated.
+  - `downloadSuccess`: The download was successful.
+  - `downloadFailure`: The download failed.
 
-The download status will be one of the following:
+  You can also check if paywalls have been downloaded with `await heliumFlutter.paywallsLoaded()`
+</Accordion>
 
-- `"notDownloadedYet"`: The download has not been initiated or is still in progress.
-- `"downloadSuccess"`: The download was successful.
-- `"downloadFailure"`: The download failed.
+## Helium Events
 
-You can use this to handle different states in your app.
-
-#### Checking if Paywalls are Loaded
-
-You can also check if paywalls have been loaded successfully:
-
-```dart
-bool paywallsLoaded = await heliumFlutter.paywallsLoaded() ?? false;
-```
-
-### Set up your HeliumCallbacks
-
-To integrate Helium paywalls, create a class that implements the `HeliumCallbacks` interface. This class is responsible for handling the purchase logic for your paywalls.
+To handle various [paywall-related events](/sdk/helium-events), implement `HeliumCallbacks` and pass it to initialize:
 
 ```dart
 abstract class HeliumCallbacks {
-  // Trigger the purchase of a product with the provided product ID.
-  // This method should return a HeliumPurchaseResult.
-  Future<HeliumPurchaseResult> makePurchase(String productId);
-
-  // Restore any existing subscriptions.
-  // This method should return a boolean indicating whether the restore was successful.
-  Future<bool> restorePurchases();
-
-  // Custom analytics/error logging for paywall/helium related events.
-  // By default, events are logged to your analytics service, but you can override
-  // this method to add additional custom logging/handling.
-  Future<void> onPaywallEvent(Map<String, dynamic> heliumPaywallEvent);
-}
-
-class HeliumPurchaseResult {
-  final HeliumTransactionStatus status;
-  final String? error;
+  Future<void> onPaywallEvent(HeliumPaywallEvent heliumPaywallEvent);
 }
 ```
 
-The `HeliumTransactionStatus` enum defines the possible states of a paywall transaction:
+For example:
 
 ```dart
-enum HeliumTransactionStatus {
-  purchased,
-  failed,
-  cancelled,
-  restored,
-  pending
+class LogCallbacks implements HeliumCallbacks {
+  @override
+  Future<void> onPaywallEvent(HeliumPaywallEvent heliumPaywallEvent) async {
+    log('onPaywallEvent: ${heliumPaywallEvent.type} - trigger: ${heliumPaywallEvent.triggerName}');
+  }
 }
 ```
 
-### Example Callbacks Implementation:
+## Handling Purchases
+
+By default, Helium will handle purchase logic for you. If you want a custom implementation, you'll want to implement `HeliumPurchaseDelegate` and pass that into `initialize`.
+
+```dart
+abstract class HeliumPurchaseDelegate {
+  Future<HeliumPurchaseResult> makePurchase(String productId);
+
+  Future<bool> restorePurchases();
+}
+```
 
 #### Basic Implementation
 
-Here's a basic implementation of the `HeliumCallbacks` interface:
+Here's a basic implementation of `HeliumPurchaseDelegate`:
 
 ```dart
 import 'package:helium_flutter/helium_flutter.dart';
@@ -213,16 +198,10 @@ class PaymentCallbacks implements HeliumCallbacks {
     // Implement your restore logic here
     return true;
   }
-
-  @override
-  Future<void> onPaywallEvent(Map<String, dynamic> heliumPaywallEvent) async {
-    log('onPaywallEvent: $heliumPaywallEvent');
-    // Handle paywall events here
-  }
 }
 ```
 
-#### RevenueCat Implementation
+#### RevenueCat Implementation Example
 
 ```dart
 import 'package:helium_flutter/helium_flutter.dart';
@@ -238,27 +217,15 @@ class RevenueCatCallbacks implements HeliumCallbacks {
 
       Package? packageToPurchase;
 
-      // Find the package in current offering
-      if (offerings.current != null) {
-        for (var package in offerings.current!.availablePackages) {
+      // Search all offerings for package
+      for (var offering in offerings.all.values) {
+        for (var package in offering.availablePackages) {
           if (package.storeProduct.identifier == productId) {
             packageToPurchase = package;
             break;
           }
         }
-      }
-
-      // If not found in current, search all offerings
-      if (packageToPurchase == null) {
-        for (var offering in offerings.all.values) {
-          for (var package in offering.availablePackages) {
-            if (package.storeProduct.identifier == productId) {
-              packageToPurchase = package;
-              break;
-            }
-          }
-          if (packageToPurchase != null) break;
-        }
+        if (packageToPurchase != null) break;
       }
 
       if (packageToPurchase == null) {
@@ -303,21 +270,6 @@ class RevenueCatCallbacks implements HeliumCallbacks {
       return false;
     }
   }
-
-  @override
-  Future<void> onPaywallEvent(Map<String, dynamic> heliumPaywallEvent) async {
-    log('Helium paywall event: $heliumPaywallEvent');
-    // Handle specific events as needed
-    final eventType = heliumPaywallEvent['type'];
-
-    if (eventType == 'subscriptionSucceeded') {
-      // Handle successful subscription if needed
-      final productId = heliumPaywallEvent['productKey'];
-      log('Subscription succeeded for product: $productId');
-
-      // Add your custom analytics tracking here
-    }
-  }
 }
 ```
 
@@ -325,7 +277,7 @@ class RevenueCatCallbacks implements HeliumCallbacks {
 
 There are two ways to show a Helium paywall in your Flutter app:
 
-### Via Direct Method Call
+### Via Direct Method Call (Recommended)
 
 You can present a paywall programmatically using the `presentUpsell` method:
 
@@ -339,7 +291,31 @@ ElevatedButton(
 ),
 ```
 
-The `trigger` parameter is a unique identifier for the paywall trigger point in your app. Helium uses this to track and optimize the paywall for each trigger point.
+Configure triggers in the dashboard. You can also pass in custom paywall traits and event handlers directly to `presentUpsell`:
+
+```dart
+HeliumFlutter().presentUpsell(
+  trigger: 'my_paywall',
+  context: context,
+  eventHandlers: PaywallEventHandlers(
+    onOpen: (event) {
+      log('${event.type} - trigger: ${event.triggerName}');
+    },
+    onClose: (event) {
+      log('${event.type} - trigger: ${event.triggerName}');
+    },
+    onDismissed: (event) {
+      log('${event.type} - trigger: ${event.triggerName}');
+    },
+    onPurchaseSucceeded: (event) {
+      log('${event.type} - trigger: ${event.triggerName}');
+    },
+  ),
+  customPaywallTraits: {
+    "has_seen_intro_video": true,
+  }
+);
+```
 
 ### Via Widget Integration
 
@@ -370,34 +346,6 @@ To programmatically hide a paywall that was shown with the `presentUpsell` metho
 bool hideResult = await heliumFlutter.hideUpsell() ?? false;
 ```
 
-### Handling Custom Dismissal Actions
+## Fallbacks
 
-You can implement custom dismissal logic by handling paywall events in your `HeliumCallbacks` implementation:
-
-```dart
-@override
-Future<void> onPaywallEvent(Map<String, dynamic> heliumPaywallEvent) async {
-  final eventType = heliumPaywallEvent['type'];
-
-  if (eventType == 'ctaPressed') {
-    final ctaName = heliumPaywallEvent['ctaName'];
-    final triggerName = heliumPaywallEvent['triggerName'];
-
-    if (ctaName == 'dismiss') {
-      // Handle custom dismissal logic here
-      // For example, navigate back or show a different screen
-    }
-  } else if (eventType == 'paywallDismissed') {
-    final triggerName = heliumPaywallEvent['triggerName'];
-    // Manually handle dismissal if paywall was shown via widget integration
-  }
-}
-```
-
-## Getting User ID
-
-To retrieve the Helium user ID:
-
-```dart
-String userId = await heliumFlutter.getHeliumUserId() ?? 'Unknown';
-```
+The Flutter SDK currently has two fallback options - 1) [Fallback bundle](/guides/fallback-bundle) and 2) a fallback view. Fallback situations should be quite rare, but to be safe, it is recommended you implement a fallback bundle or custom fallback view.

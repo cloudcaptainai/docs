@@ -30,7 +30,7 @@ icon: "arrow-up-right-from-square"
 
 You can now pass completion handlers directly when presenting paywalls.
 
-### Before v3
+### Before v3 (iOS example)
 
 ```swift
 Helium.shared.presentUpsell(trigger: "premium_upgrade")
@@ -132,7 +132,19 @@ initialize({
 
 
 ```dart Flutter
-// Flutter v3 support coming soon!
+final paywallLoadingConfig = HeliumPaywallLoadingConfig(
+  loadingBudget: 5,
+  perTriggerLoadingConfig: {
+    "onboarding": TriggerLoadingConfig(useLoadingState: false),
+    "from_menu": TriggerLoadingConfig(useLoadingState: true, loadingBudget: 2),
+  }
+);
+
+HeliumFlutter().initialize(
+  // [Required] You'll get this from Helium founders during setup!
+  apiKey: "<your-helium-api-key>",
+  paywallLoadingConfig: paywallLoadingConfig,
+);
 ```
 
 </CodeGroup>
@@ -228,7 +240,7 @@ The event system now uses protocol-based events with better type safety and IDE 
 - `error` is now `Error` type instead of `String` on `PurchaseFailedEvent`
 
 <Note>
-  React Native had several changes to event `type`:
+  React Native & Flutter had several changes to event `type`:
 
   - ctaPressed → paywallButtonPressed
   - offerSelected → productSelected
@@ -361,7 +373,7 @@ Update your app's minimum deployment target to iOS 15.0 or later.
     If not using Expo, adjust in your Xcode project directly.
   </Tab>
   <Tab title="Flutter">
-    Flutter v3 support coming soon!
+    [Flutter minimum](https://docs.tryhelium.com/sdk/quickstart-flutter#ios-settings) was already iOS 15.
   </Tab>
 </Tabs>
 

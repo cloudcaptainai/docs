@@ -19,7 +19,9 @@ Add the Helium SDK to your project using Gradle.
 ### Requirements
 
 - **Kotlin Version**: 2.0.0 or higher
-- **Java Version**: 11 or higher
+- **Java Version**: 8 or higher
+- **Minimum Android SDK**: 24 or higher
+- **Compile Android SDK**: 35 or higher
 
 **1. Add repositories to your `settings.gradle.kts` file:**
 
@@ -56,7 +58,7 @@ dependencyResolutionManagement {
 
     dependencies {
         // Choose one of the UI modules:
-        implementation("com.tryhelium.paywall:core:0.0.3")
+        implementation("com.tryhelium.paywall:core:0.0.5")
         // Other app dependencies
     }
     ```
@@ -67,7 +69,18 @@ dependencyResolutionManagement {
 
     dependencies {
         // Choose one of the UI modules:
-        implementation("com.tryhelium.paywall:compose-ui:0.0.3")
+        implementation("com.tryhelium.paywall:compose-ui:0.0.5")
+        // Other app dependencies
+    }
+    ```
+  </Tab>
+  <Tab title="RevenueCat">
+    ```kotlin
+    // app/build.gradle.kts
+
+    dependencies {
+        // If you're using RevenueCat, add this dependency:
+        implementation("com.tryhelium.paywall:revenue-cat:0.0.5")
         // Other app dependencies
     }
     ```
@@ -76,29 +89,25 @@ dependencyResolutionManagement {
 
 ## Initialize Helium
 
-You need to register Helium inside of your main application class.
+You need to initialize Helium before you can present a paywall. The best place to do this is in your `MainActivity`'s `onCreate()` method.
 
 ```kotlin
-// In your Application class's onCreate() method
-Helium.register(
-    this,
-    apiKey = YOUR_API_KEY
-)
-```
+// In your MainActivity class's onCreate() method
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
 
-After registering, you need to initialize Helium. This is typically done when a user logs in or when user-specific data is available.
+        val heliumPaywallDelegate = PlayStorePaywallDelegate(this) // Or your custom delegate
 
-```kotlin
-// Example of Helium.initialize()
-// Typically in your Activity, ViewModel, or a relevant part of your app's logic
-
-val heliumPaywallDelegate = PlayStorePaywallDelegate(this)
-
-Helium.initialize(
-    heliumPaywallDelegate = heliumPaywallDelegate,
-    customUserId = "YOUR_CUSTOM_USER_ID", // Can be null if the user is anonymous
-    customUserTraits = HeliumUserTraits(/* populate with relevant user properties */) // Optional
-)
+        Helium.initialize(
+            context = this,
+            apiKey = "YOUR_API_KEY",
+            heliumPaywallDelegate = heliumPaywallDelegate,
+            customUserId = "YOUR_CUSTOM_USER_ID", // Can be null if the user is anonymous
+            customUserTraits = HeliumUserTraits(/* populate with relevant user properties */) // Optional
+        )
+    }
+}
 ```
 
 ## Observing Paywall Configuration Download Status
@@ -145,7 +154,7 @@ You can provide an implementation of the `HeliumPaywallDelegate` or use one of t
     Use the `PlayStorePaywallDelegate` to handle purchases using Google Play Billing.
   </Tab>
   <Tab title="RevenueCatPaywallDelegate">
-    Use the `RevenueCatPaywallDelegate` to handle purchases if your app is using RevenueCat.
+    Use the `RevenueCatPaywallDelegate` to handle purchases if your app is using RevenueCat. Make sure you add the `revenue-cat` dependency as shown in the installation section.
   </Tab>
   <Tab title="Custom Delegate">
     You can also create a custom delegate and implement your own purchase logic.
@@ -165,7 +174,7 @@ You can provide an implementation of the `HeliumPaywallDelegate` or use one of t
 
 ## Presenting Paywalls
 
-To present a Paywall, ensure you have registered and initialized the library. The SDK provides UI components that handle the underlying `PaywallWebViewManager`.
+To present a Paywall, ensure you have initialized the library. The SDK provides UI components that handle the underlying `PaywallWebViewManager`.
 
 We provide two different ways of presenting the Paywall:
 
@@ -205,13 +214,11 @@ We provide two different ways of presenting the Paywall:
     ```
   </Tab>
   <Tab title="Android View System">
-    You can present paywalls using either an `Activity` or a `Fragment`.
+    You can present paywalls using either an `Activity` or a `Fragment`. Make sure you have initialized the Helium SDK as described in the "Initialize Helium" section before presenting the paywall.
 
     ##### Using HeliumPaywallActivity
 
-    Using the `HeliumPaywallActivity` requires you to create a subclass and implement the `HeliumNavigationDispatcher` interface. Before you present the paywall, you must initialize the `Helium` SDK.
-
-    Here is an example of how to set it up:
+    Using the `HeliumPaywallActivity` requires you to create a subclass and implement the `HeliumNavigationDispatcher` interface.
 
     **1. Create your Paywall Activity:**
 
@@ -231,21 +238,10 @@ We provide two different ways of presenting the Paywall:
 
     *Note: Don't forget to add `MyPaywallActivity` to your `AndroidManifest.xml`.*
 
-    **2. Initialize Helium and Launch your Paywall Activity:**
-
-    Before launching your paywall, make sure you have initialized the Helium SDK, as described in the "Initialize Helium" section.
+    **2. Launch your Paywall Activity:**
 
     ```kotlin
     // To launch your paywall from another Activity or Fragment
-
-    // 1. Initialize Helium
-    Helium.shared.initialize(
-        heliumPaywallDelegate = SamplePaywallDelegate(), // Your implementation of HeliumPaywallDelegate
-        customUserId = "YOUR_CUSTOM_USER_ID",
-        customUserTraits = null
-    )
-
-    // 2. Launch your Paywall Activity
     val intent = Intent(this, MyPaywallActivity::class.java).apply {
         putExtra(HeliumPaywallActivity.EXTRA_TRIGGER, "sdk_test")
     }
@@ -254,7 +250,7 @@ We provide two different ways of presenting the Paywall:
 
     ##### Using HeliumPaywallFragment
 
-    Using the `HeliumPaywallFragment` requires you to create a subclass and implement the `HeliumNavigationDispatcher` interface. Before you present the paywall, you must initialize the `Helium` SDK.
+    Using the `HeliumPaywallFragment` requires you to create a subclass and implement the `HeliumNavigationDispatcher` interface.
 
     **1. Create your Paywall Fragment:**
 
@@ -282,21 +278,10 @@ We provide two different ways of presenting the Paywall:
     }
     ```
 
-    **2. Initialize Helium and Launch your Paywall Fragment:**
-
-    Before launching your paywall, make sure you have initialized the Helium SDK, as described in the "Initialize Helium" section.
+    **2. Launch your Paywall Fragment:**
 
     ```kotlin
     // To launch your paywall from an Activity or another Fragment
-
-    // 1. Initialize Helium
-    Helium.shared.initialize(
-        heliumPaywallDelegate = SamplePaywallDelegate(), // Your implementation of HeliumPaywallDelegate
-        customUserId = "YOUR_CUSTOM_USER_ID",
-        customUserTraits = null
-    )
-
-    // 2. Launch your Paywall Fragment
     val fragment = MyPaywallFragment.newInstance("sdk_test")
     supportFragmentManager.beginTransaction()
         .replace(R.id.fragment_container, fragment)

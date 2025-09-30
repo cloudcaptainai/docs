@@ -384,6 +384,37 @@ Button("Try Premium") {
 }
 ```
 
+You can also prevent the paywall from showing if the user already has entitlements for products in that paywall:
+
+```swift
+Button("Try Premium") {
+    Helium.shared.presentUpsell(
+        trigger: "post_onboarding",
+        dontShowIfAlreadyEntitled: true
+    )
+}
+```
+
+<ResponseField name="Helium.shared.presentUpsell" type="method">
+  <Expandable title="parameters">
+    <ResponseField name="trigger" type="String" required>
+      The trigger name configured in your Helium dashboard
+    </ResponseField>
+    <ResponseField name="from" type="UIViewController?">
+      _(Optional)_ The view controller to present from. If nil, uses the current top view controller
+    </ResponseField>
+    <ResponseField name="eventHandlers" type="PaywallEventHandlers?">
+      _(Optional)_ Event handlers for paywall lifecycle events
+    </ResponseField>
+    <ResponseField name="customPaywallTraits" type="[String: Any]?">
+      _(Optional)_ Custom traits to pass to the paywall for personalization
+    </ResponseField>
+    <ResponseField name="dontShowIfAlreadyEntitled" type="Bool" default="false">
+      _(Optional)_ If `true`, the paywall will not show if the user already has entitlements for any products in the paywall. Use this to avoid showing upgrade prompts to users who already have premium access.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
 ### Attach it to a SwiftUI view as a ViewModifier
 
 You can use the `.triggerUpsell` view modifier from any SwiftUI view:
@@ -507,6 +538,50 @@ Only the `onOpen`, `onClose`, `onDismiss`, and \`onPurchaseSucceeded events can 
   - Use `onPurchaseSucceeded` for your post purchase flow (e.g., a premium onboarding navigation)
   - Use `onClose` when you need to handle logic when the paywall closed, regardless of reason
 </Note>
+
+## Checking Subscription Status & Entitlements
+
+The Helium SDK provides methods to check user entitlements and subscription status. All entitlement checking methods are `async` and should be called from within an async context.
+
+<Note>
+The SDK automatically caches entitlement data and listens for transaction updates to keep information current.
+</Note>
+
+### Available Methods
+
+**`hasAnyEntitlement()`**  
+Determines if the user has purchased any non-consumable products or subscriptions.
+
+**`hasAnyActiveSubscription(includeNonRenewing: Bool = true)`**  
+Checks if the user has any active subscriptions. Set `includeNonRenewing` to `false` to check only auto-renewing subscriptions.
+
+**`hasEntitlementForPaywall(trigger: String, considerAssociatedSubscriptions: Bool = false)`**  
+Checks if the user already has entitlements for products shown in a specific paywall trigger. Returns `nil` if paywall configuration hasn't been downloaded yet.
+
+**`hasActiveEntitlementFor(productId: String)`**  
+Checks if the user has entitlement to a specific product.
+
+**`hasActiveSubscriptionFor(productId: String)`**  
+Checks if the user has an active subscription for a specific product.
+
+**`hasActiveSubscriptionFor(subscriptionGroupID: String)`**  
+Checks if the user has an active subscription in a specific subscription group.
+
+**`purchasedProductIds()`**  
+Retrieves a list of all product IDs the user currently has access to.
+
+**`activeSubscriptions()`**  
+Returns detailed information about all active auto-renewing subscriptions.
+
+**`subscriptionStatusFor(productId: String)`**  
+Gets detailed subscription status for a specific product, including state information like subscribed, expired, or in grace period.
+
+**`subscriptionStatusFor(subscriptionGroupID: String)`**  
+Gets detailed subscription status for a specific subscription group.
+
+<Tip>
+Check entitlements before showing paywalls to avoid presenting upgrade prompts to users who already have premium access.
+</Tip>
 
 ## Fallbacks and Loading Budgets
 

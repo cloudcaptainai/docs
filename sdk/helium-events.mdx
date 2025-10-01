@@ -333,6 +333,127 @@ event.paywallName     // Template where pending
 event.timestamp       // When became pending
 ```
 
+### Experiment Events
+
+#### UserAllocatedEvent
+Fired once per trigger when a user is allocated to an experiment variant and the paywall is first shown.
+
+**Properties:**
+```swift
+let event: UserAllocatedEvent
+event.experimentInfo  // Complete experiment allocation data (ExperimentInfo)
+event.timestamp       // When allocation occurred (Date)
+event.eventName       // "userAllocated"
+```
+
+**ExperimentInfo Structure:**
+
+The `experimentInfo` object contains complete allocation data organized into several categories:
+
+##### Core Experiment Data
+```swift
+event.experimentInfo.trigger          // String - Trigger name that was allocated
+event.experimentInfo.experimentName   // String? - Human-readable experiment name
+event.experimentInfo.experimentId     // String? - Unique experiment identifier
+event.experimentInfo.experimentType   // String? - Type (e.g., "A/B/n test", "MAB")
+```
+
+##### Targeting Information
+```swift
+event.experimentInfo.audienceId              // String? - Audience ID that user matched
+event.experimentInfo.audienceDataDictionary  // [String: Any]? - Parsed audience rules/criteria
+```
+
+The `audienceDataDictionary` contains targeting logic:
+- `operator` - How rules are combined ("AND", "OR")
+- `isAllUsers` - Whether this targets all users
+- `rules` - Array of targeting rules that matched
+
+##### Allocation Metadata
+```swift
+event.experimentInfo.allocationMetadataDictionary  // [String: Any]? - Custom metadata from dashboard
+```
+
+Use this field to store custom experiment notes, tags, or configuration that you want available at runtime.
+
+##### Variant Details
+```swift
+event.experimentInfo.chosenVariantDetails?.allocationName   // String? - Variant/paywall name
+event.experimentInfo.chosenVariantDetails?.allocationId     // String? - Variant UUID
+event.experimentInfo.chosenVariantDetails?.allocationIndex  // Int? - Variant number (1-indexed)
+event.experimentInfo.chosenVariantDetails?.allocationTime   // Date - When allocated
+```
+
+The `allocationIndex` is 1-indexed (1, 2, 3, ...) corresponding to the variant number shown to the user.
+
+##### Hash Details
+```swift
+event.experimentInfo.hashDetails?.hashedUserIdBucket1To100  // Int? - User's hash bucket (1-100)
+event.experimentInfo.hashDetails?.hashedUserId              // String? - ID that was hashed
+event.experimentInfo.hashDetails?.hashMethod                // String? - Hash method used
+```
+
+**Hash Methods:**
+- `"HASH_USER_ID"` - Standard user ID hashing
+- `"HASH_HELIUM_PERSISTENT_ID"` - Persistent device ID hashing (more stable across reinstalls)
+
+The `hashedUserIdBucket1To100` is a deterministic value (1-100) used for consistent variant assignment.
+
+**Complete Example:**
+```swift
+case let allocated as UserAllocatedEvent:
+    let info = allocated.experimentInfo
+    
+    // Basic info
+    print("Trigger: \(info.trigger)")
+    print("Experiment: \(info.experimentName ?? "unknown")")
+    print("Variant #\(info.chosenVariantDetails?.allocationIndex ?? 0)")
+    
+    // Bucketing info
+    if let hash = info.hashDetails {
+        print("Hash bucket: \(hash.hashedUserIdBucket1To100 ?? 0)/100")
+        print("Hash method: \(hash.hashMethod ?? "default")")
+    }
+    
+    // Targeting info
+    if let audienceId = info.audienceId {
+        print("Matched audience: \(audienceId)")
+        if let rules = info.audienceDataDictionary {
+            print("Targeting rules: \(rules)")
+        }
+    }
+    
+    // Custom metadata
+    if let metadata = info.allocationMetadataDictionary {
+        print("Metadata: \(metadata)")
+    }
+    
+    // Send to custom analytics with full context
+    analytics.track("experiment_allocated", properties: [
+        "experiment_id": info.experimentId ?? "",
+        "experiment_name": info.experimentName ?? "",
+        "variant_index": info.chosenVariantDetails?.allocationIndex ?? 0,
+        "variant_name": info.chosenVariantDetails?.allocationName ?? "",
+        "hash_bucket": info.hashDetails?.hashedUserIdBucket1To100 ?? 0,
+        "hash_method": info.hashDetails?.hashMethod ?? "default",
+        "audience_id": info.audienceId ?? ""
+    ])
+```
+
+**When This Event Fires:**
+- Only fires once per trigger per session (idempotent)
+- Fires when a non-fallback paywall is first shown
+- Does NOT fire for fallback paywalls
+- Does NOT fire for triggers without experiments
+- Tracked by `ExperimentAllocationTracker` to ensure one-time firing
+
+**Use Cases:**
+- Track experiment exposure for analysis
+- Log variant assignments to your data warehouse
+- Implement custom experiment tracking
+- Debug allocation issues
+- Monitor experiment distribution
+
 ### System Events
 
 #### InitializeStartEvent
@@ -578,3 +699,32 @@ Triggered when paywall configurations are successfully downloaded.
 case paywallsDownloadError(error: String, numAttempts: Int? = nil)
 ```
 Triggered when there's an error downloading paywall configurations.
+
+#### User Allocated
+```swift
+case userAllocated(triggerName: String, experimentInfo: ExperimentInfo)
+```
+Triggered when a user is allocated to an experiment variant (fires once per trigger per session).
+
+**Associated Values:**
+- `triggerName` - The trigger that was allocated
+- `experimentInfo` - Complete `ExperimentInfo` object with:
+  - `experimentName`, `experimentId`, `experimentType` - Experiment metadata
+  - `audienceId`, `audienceData` - Targeting criteria
+  - `allocationMetadata` - Custom metadata
+  - `chosenVariantDetails` - Variant allocation details (name, index, UUID)
+  - `hashDetails` - User bucketing (bucket 1-100, hash method)
+
+**Usage:**
+```swift
+func onHeliumPaywallEvent(event: HeliumPaywallEvent) {
+    switch event {
+    case .userAllocated(let triggerName, let experimentInfo):
+        print("Allocated to experiment: \(experimentInfo.experimentName ?? "unknown")")
+        print("Variant: \(experimentInfo.chosenVariantDetails?.allocationIndex ?? 0)")
+        print("Hash bucket: \(experimentInfo.hashDetails?.hashedUserIdBucket1To100 ?? 0)")
+    default:
+        break
+    }
+}
+```

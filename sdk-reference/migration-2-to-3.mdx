@@ -6,54 +6,62 @@ icon: "arrow-up-right-from-square"
 
 ## Summary
 
+<Note>
+  React Native & Flutter: This guide applies for anyone upgrading React Native / Flutter from 0.x.x to 3.0.x. React Native and Flutter did not have a major version 1 or 2.
+</Note>
+
 <Warning>
   **Breaking Changes in v3.0:**
+
   - **Minimum iOS version**: Now requires iOS 15.0+ (up from iOS 14.0)
-  - **Fallback configuration**: Now **required** - you must provide either a fallback bundle or fallback view
 </Warning>
 
 <Info>
   **What's new:**
-  - Event handlers can be passed directly in `presentUpsell`
-  - Loading budgets during config downloads
-  - Custom user traits can be passed per trigger
-  - Protocol-based events available (enum-based still work)
-  - StoreKitDelegate by default
 
+  - Event handlers can be passed directly to `presentUpsell`
+  - Loading budgets for paywall downloads
+  - [Improved event system](/sdk/helium-events)
+  - StoreKitDelegate used by default (iOS only)
+  - `customPaywallTraits` can be set when showing a paywall
 </Info>
 
 ## Event Handlers in presentUpsell
 
 You can now pass completion handlers directly when presenting paywalls.
 
-### Before (v2.x)
+### Before v3 (iOS example)
+
 ```swift
 Helium.shared.presentUpsell(trigger: "premium_upgrade")
 ```
 
-### After (v3.0)
+### v3
+
 ```swift
 Helium.shared.presentUpsell(
     trigger: "premium_upgrade",
-    onPresent: { paywallInfo in
-        print("Showing paywall: \(paywallInfo.templateName)")
-    },
-    onDismiss: { result in
-        switch result {
-        case .purchased:
-            unlockPremiumFeatures()
-        case .dismissed:
-            showAlternativeOptions()
+    eventHandlers: PaywallEventHandlers()
+        .onOpen { event in
+            print("\(event.paywallName) via trigger \(event.triggerName)")
         }
-    }
+        .onClose { event in
+            print("\(event.paywallName) for trigger \(event.triggerName)")
+        }
+        .onDismissed { event in
+            print("\(event.paywallName) for trigger \(event.triggerName)")
+        }
+        .onPurchaseSucceeded { event in
+            print("\(event.paywallName) for trigger \(event.triggerName)")
+        }
 )
 ```
 
 ## Loading Budget for Paywalls
 
-In v2.x, if a Helium download was in progress but you wanted to show a paywall immediately (e.g., on app open), the Helium SDK would just show you a fallback paywall.
+Before v3, if a Helium download was in progress but you wanted to show a paywall immediately (e.g., on app open), the Helium SDK would just show you a fallback paywall.
 
-In v3.0, it'll now show a loading state (by default, a shimmer view for 2 seconds) and wait for the download to complete. You can configure, turn off, or set trigger-specific loading budgets (e.g., on app open you might want this behavior, but not in other parts of the app).
+In v3.0, it'll now show a loading state (by default, a shimmer view for 2 seconds) and wait for the download to complete. You can configure, turn off, or set trigger-specific loading budgets.
 
 ### How It Works
 
@@ -74,16 +82,17 @@ graph LR
 
 Set different loading budgets per trigger or globally:
 
-```swift
+<CodeGroup>
+
+```swift iOS
 let fallbackConfig = HeliumFallbackConfig(
-    fallbackPaywall: YourFallbackView(),
+    fallbackView: YourFallbackView(),
     // Global loading budget (in seconds)
     loadingBudget: 2.0,
     // Per-trigger loading budgets
-    loadingBudgetPerTrigger: [
-        "onboarding": 3.0,      // More time for onboarding
-        "quick_upgrade": 1.0,   // Less time for quick actions
-        "trial_expiry": 2.5     // Balanced approach
+    perTriggerLoadingConfig: [
+        "onboarding": TriggerLoadingConfig(loadingBudget: 4),
+        "quick_upgrade": TriggerLoadingConfig(useLoadingState: false),
     ]
 )
 
@@ -93,13 +102,60 @@ Helium.shared.initialize(
 )
 ```
 
-### Custom Loading Views
+
+```tsx React Native
+const paywallLoadingConfig: HeliumPaywallLoadingConfig = {
+  useLoadingState: true,
+  loadingBudget: 4,
+  perTriggerLoadingConfig: {
+    "onboarding": {
+      loadingBudget: 5,
+    },
+    "trial": {
+      useLoadingState: false,
+    }
+  },
+};
+
+initialize({
+  apiKey: "helium-api-key",
+  purchaseConfig: createRevenueCatPurchaseConfig(
+    {apiKey: 'rc-api-key'}
+  ),
+  onHeliumPaywallEvent: (event: HeliumPaywallEvent) => {
+    console.log('Helium Paywall Event:', event);
+  },
+  fallbackBundle: require('./assets/fetched.json'),
+  paywallLoadingConfig: paywallLoadingConfig, // << pass to initialize
+});
+```
+
+
+```dart Flutter
+final paywallLoadingConfig = HeliumPaywallLoadingConfig(
+  loadingBudget: 5,
+  perTriggerLoadingConfig: {
+    "onboarding": TriggerLoadingConfig(useLoadingState: false),
+    "from_menu": TriggerLoadingConfig(useLoadingState: true, loadingBudget: 2),
+  }
+);
+
+HeliumFlutter().initialize(
+  // [Required] You'll get this from Helium founders during setup!
+  apiKey: "<your-helium-api-key>",
+  paywallLoadingConfig: paywallLoadingConfig,
+);
+```
+
+</CodeGroup>
+
+### Custom Loading Views (iOS only)
 
 Provide custom loading views during the budget period:
 
 ```swift
 let fallbackConfig = HeliumFallbackConfig(
-    fallbackPaywall: YourFallbackView(),
+    fallbackView: YourFallbackView(),
     loadingView: { progress in
         VStack {
             ProgressView("Loading premium options...")
@@ -115,34 +171,36 @@ To show fallback immediately without waiting:
 
 ```swift
 let fallbackConfig = HeliumFallbackConfig(
-    fallbackPaywall: YourFallbackView(),
-    loadingBudget: 0 // Immediate fallback
+    fallbackView: YourFallbackView(),
+    useLoadingState: false // Immediate fallback
 )
 ```
 
-## Required Fallbacks
+## Required Fallbacks (iOS only)
 
-Fallbacks are now mandatory. The SDK will fail to initialize without a fallback configuration.
+Fallbacks are mandatory. You must either provide a `fallbackConfig`  (v3.0 way) or a `fallbackPaywall` (old way). The SDK will fail to initialize without some type of fallback configuration.
 
 ### Before (v2.x)
+
 ```swift
 Helium.shared.initialize(
     apiKey: "your-api-key",
     heliumPaywallDelegate: delegate,
-    fallbackPaywall: nil // Could be nil
+    fallbackPaywall: YourFallbackView()
 )
 ```
 
 ### After (v3.0)
+
 ```swift
 let fallbackConfig = HeliumFallbackConfig(
     // Required: Basic fallback view
-    fallbackPaywall: Text("Premium Features Available"),
-    
+    fallbackView: Text("Premium Features Available"),
+
     // Recommended: Fallback bundle
-    fallbackBundleURL: Bundle.main.url(
-        forResource: "HeliumFallback",
-        withExtension: "bundle"
+    fallbackBundle: Bundle.main.url(
+        forResource: "fallback-bundle",
+        withExtension: "json"
     )
 )
 
@@ -158,8 +216,8 @@ Configure different fallbacks for different triggers:
 
 ```swift
 let fallbackConfig = HeliumFallbackConfig(
-    fallbackPaywall: DefaultFallbackView(),
-    fallbackPaywallPerTrigger: [
+    fallbackView: DefaultFallbackView(),
+    fallbackPerTrigger: [
         "onboarding": OnboardingFallbackView(),
         "premium_feature": PremiumFeatureFallbackView(),
         "trial_expiry": TrialExpiryFallbackView()
@@ -171,25 +229,40 @@ let fallbackConfig = HeliumFallbackConfig(
 
 The event system now uses protocol-based events with better type safety and IDE support.
 
-### Key Event Changes from v2.x
+### Key Event Changes From Before v3
 
-#### Property Name Changes
+#### Name Changes
+
 - `paywallTemplateName` → `paywallName`
 - `productKey` → `productId`
 - All `subscription*` events → `purchase*` events (e.g., `subscriptionSucceeded` → `PurchaseSucceededEvent`)
-- `error` is now `Error` type instead of `String`
+- `ctaPressed` event → `PaywallButtonPressedEvent`
+- `error` is now `Error` type instead of `String` on `PurchaseFailedEvent`
 
-#### Removed Events
-- `ctaPressed` event has been removed
+<Note>
+  React Native & Flutter had several changes to event `type`:
+
+  - ctaPressed → paywallButtonPressed
+  - offerSelected → productSelected
+  - subscriptionPressed →  purchasePressed
+  - subscriptionCancelled →  purchaseCancelled
+  - subscriptionSucceeded →  purchaseSucceeded
+  - subscriptionFailed →  purchaseFailed
+  - subscriptionRestored →  purchaseRestored
+  - subscriptionRestoreFailed →  purchaseRestoreFailed
+  - subscriptionPending →  purchasePending
+</Note>
+
+#### Removed
+
 - `configId` removed from download success events
 
-#### New Delegate Method
-- **Old**: `onHeliumPaywallEvent(event:)` (deprecated but still works)
-- **New**: `onPaywallEvent(_:)` (recommended)
+### New Delegate Method (iOS only)
 
-### Migration Example
+#### Before v3
 
-#### Before (v2.x Enum-Based)
+`onHeliumPaywallEvent(event:)` (deprecated but still works)
+
 ```swift
 func onHeliumPaywallEvent(event: HeliumPaywallEvent) {
     switch event {
@@ -205,12 +278,15 @@ func onHeliumPaywallEvent(event: HeliumPaywallEvent) {
 }
 ```
 
-#### After (v3.0 Protocol-Based)
+#### v3
+
+`onPaywallEvent(_:)` (recommended)
+
 ```swift
 func onPaywallEvent(_ event: PaywallEvent) {
     switch event {
     case let openEvent as PaywallOpenEvent:
-        analytics.track("paywall_open", 
+        analytics.track("paywall_open",
             trigger: openEvent.triggerName,
             paywall: openEvent.paywallName
         )
@@ -228,21 +304,12 @@ func onPaywallEvent(_ event: PaywallEvent) {
 }
 ```
 
-### Gradual Migration
-
-Both event systems work simultaneously during migration:
-
-1. **Phase 1**: Implement the new `onPaywallEvent(_:)` method alongside your existing code
-2. **Phase 2**: Test and verify the new implementation
-3. **Phase 3**: Remove the old `onHeliumPaywallEvent(event:)` method
-
-**Note**: During migration, both methods may be called. Implement your logic in only one method to avoid duplicate handling.
-
-## StoreKit Delegate by Default
+## StoreKit Delegate by Default (iOS only)
 
 If no delegate is provided, v3.0 uses StoreKitDelegate automatically.
 
 ### Before (v2.x)
+
 ```swift
 Helium.shared.initialize(
     apiKey: "your-api-key",
@@ -252,6 +319,7 @@ Helium.shared.initialize(
 ```
 
 ### After (v3.0)
+
 ```swift
 Helium.shared.initialize(
     apiKey: "your-api-key",
@@ -260,34 +328,18 @@ Helium.shared.initialize(
 )
 ```
 
-## Custom User Traits in Triggers
+## Custom Paywall Traits
 
-You can now pass custom user traits when triggering a paywall, in addition to setting them during initialization.
+You can now pass custom paywall traits when displaying a paywall, replacing the deprecated `HeliumPaywallDelegate.getCustomVariableValues` method.
 
-### Before (v2.x)
 ```swift
-// Traits could only be set during initialization
-Helium.shared.initialize(
-    apiKey: "your-api-key",
-    customUserTraits: globalTraits
-)
-
-// No way to pass traits when showing paywall
-Helium.shared.presentUpsell(trigger: "premium_upgrade")
-```
-
-### After (v3.0)
-```swift
-// Pass traits specific to this paywall trigger
-let contextualTraits = HeliumUserTraits(traits: [
-    "feature_attempted": "export_pdf",
-    "usage_this_session": 15,
-    "current_screen": "document_editor"
-])
-
 Helium.shared.presentUpsell(
     trigger: "premium_upgrade",
-    customUserTraits: contextualTraits
+    customPaywallTraits: [
+        "feature_attempted": "export_pdf",
+        "usage_this_session": 15,
+        "current_screen": "document_editor"
+    ]
 )
 ```
 
@@ -295,18 +347,35 @@ Helium.shared.presentUpsell(
 
 Update your app's minimum deployment target to iOS 15.0 or later.
 
-### Xcode Project
-1. Select your project in Xcode
-2. Go to your app target
-3. Set "Minimum Deployments" to iOS 15.0
+<Tabs>
+  <Tab title="iOS">
+    1. Select your project in Xcode
+    2. Go to your app target
+    3. Set "Minimum Deployments" to iOS 15.0
+  </Tab>
+  <Tab title="React Native">
+    If using Expo:
 
-### Package.swift
-```swift
-.platforms([
-    .iOS(.v15) // Updated from .v14
-])
-```
+    1. Make sure the `expo-build-properties` package is installed (should be installed by default)
+    2. Update your app config (app.json, app.config.js, app.config.ts):
 
+    ```json
+    [
+      "expo-build-properties",
+      {
+        ios: {
+          deploymentTarget: "15.0", // or higher
+        },
+      },
+    ],
+    ```
+
+    If not using Expo, adjust in your Xcode project directly.
+  </Tab>
+  <Tab title="Flutter">
+    [Flutter minimum](https://docs.tryhelium.com/sdk/quickstart-flutter#ios-settings) was already iOS 15.
+  </Tab>
+</Tabs>
 
 ## Need Help?
 

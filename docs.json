@@ -25,7 +25,14 @@
           "sdk/quickstart-ios",
           "sdk/quickstart-react-native",
           "sdk/quickstart-flutter",
-          "sdk/helium-events",
+          {
+            "group": "Events",
+            "pages": [
+              "sdk/helium-events",
+              "sdk/helium-events-ios",
+              "sdk/helium-events-android"
+            ]
+          },
           "sdk/storekit-testing"
         ]
       },

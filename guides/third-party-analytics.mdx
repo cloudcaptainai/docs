@@ -10,14 +10,14 @@ You can configure Helium to automatically send events to your analytics provider
 
 ## About Helium Events
 
-Visit [Helium Events](/sdk/helium-events) to see the full list of events available. We're adding new events often - want support for a new event? Just ask us at support@tryhelium.com
+Visit [Helium Events](/sdk/helium-events) to see the full list of events available. We're adding new events often — want support for a new event? Just ask us at support@tryhelium.com
 
 ## Automatic event forwarding (recommended)
 
 ### Configuration
 
 <Note>
-Don't see your analytics provider here, or have a custom setup you want us to send events to? Reach out to founders@tryhelium.com - we might support it under the hood.
+Don't see your analytics provider here, or have a custom setup you want us to send events to? Reach out to founders@tryhelium.com — we might support it under the hood.
 </Note>
 
 <Tabs>
@@ -25,7 +25,7 @@ Don't see your analytics provider here, or have a custom setup you want us to se
     ![](/images/analytics/guide-configure-mixpanel.png)
     
     1. Go to [app.tryhelium.com/integrations](https://app.tryhelium.com/integrations). Click **Mixpanel**.
-    2. Give your integration a name. There's a few fields to enter due to what Mixpanel's API needs for event ingestion - we're always reducing on simplifying this integration, but the modal will indicate what's needed.
+    2. Give your integration a name. There are a few fields to enter due to what Mixpanel's API needs for event ingestion — we're always working on simplifying this integration, but the modal will indicate what's needed.
     3. That's it! Paywall events (from local testing or production) will now come into Mixpanel, prefixed with `helium_`. You can view live events by going to the **Events** tab in Mixpanel
 
     ![](/images/analytics/viewing_events/mixpanel_events.png)
@@ -33,7 +33,7 @@ Don't see your analytics provider here, or have a custom setup you want us to se
     ### User attribution between Helium and Mixpanel
 
     #### Simplified Identity Merge
-    - Mixpanel has a way to do post/pre-login identity stitching via a few methods - with Simplified Identity Merge being the most 
+    - Mixpanel has a way to do post/pre-login identity stitching via a few methods — with Simplified Identity Merge being the most 
     popular. You can read more about it by visiting [Mixpanel's docs](https://docs.mixpanel.com/docs/tracking-methods/id-management/identifying-users-simplified)
 
     - If you'd like to use simplified identity merge, remember to set the Simplified Identity Merge method to true in the Mixpanel configuration modal.

@@ -142,12 +142,6 @@ This page acts as a reference to what events are available in Helium, and when e
 
 ## Available Events
 
-### Experiment Events
-
-| Event Name        | Description                                                              | Parameters                                                                                                                       |
-| ----------------- | ------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
-| **userAllocated** | Fires once per trigger when a user is allocated to an experiment variant | `experimentInfo` (Object) - Complete experiment allocation data (see below)<br />`timestamp` (Number) - When allocation occurred |
-
 ### Paywall and Purchase Events
 
 | Event Name                 | Description                                                                    | Parameters                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
@@ -176,57 +170,79 @@ This page acts as a reference to what events are available in Helium, and when e
 | **paywallsDownloadError**   | Fires when paywalls download failed                                | `error` (String) - Error description<br />`numAttempts` (Number, optional) - Number of attempts made<br />`timestamp` (Number) - When event occurred                                                                                                                                                                                                                                                                                                                      |
 | **paywallOpenFailed**       | Fires if a paywall fails to open and fallback fails to show        | `triggerName` (String) - Associated trigger<br />`paywallName` (String) - Paywall name<br />`isSecondTry` (Boolean) - True if paywall is "second try" flow<br />`error` (String) - Error message describing failure<br />`timestamp` (Number) - When event occurred                                                                                                                                                                                                       |
 
-## ExperimentInfo Structure
+### Experiment Events
 
-The `experimentInfo` object in the `userAllocated` event contains complete experiment allocation data. This event fires once per trigger per session when a user is assigned to an experiment variant.
+| Event Name | Description | Parameters |
+|------------|-------------|------------|
+| **userAllocated** | Fires once per trigger when a user is allocated to an experiment variant | `experimentInfo` (Object) - Complete experiment allocation data (see below)<br/>`timestamp` (Number) - When allocation occurred |
 
-### Core Fields
 
-| Field     | Type   | Description                                      |
-| --------- | ------ | ------------------------------------------------ |
-| `trigger` | String | Name of the trigger where the user was allocated |
+### ExperimentInfo Structure
 
-### Experiment Details
+The `experimentInfo` object in the `userAllocated` event contains experiment allocation data. This event fires once per session when a user is assigned to an experiment variant, which happens on the **first** trigger the user sees.
 
-| Field            | Type                | Description                                            |
-| ---------------- | ------------------- | ------------------------------------------------------ |
-| `experimentName` | String (optional)   | Human-readable name of the experiment                  |
-| `experimentId`   | String (optional)   | Unique identifier for the experiment                   |
-| `experimentType` | String (optional)   | Type of experiment (e.g., "A/B/n test", "MAB", "CMAB") |
-| `startDate`      | DateTime (optional) | When the experiment started                            |
-| `endDate`        | DateTime (optional) | When the experiment ends                               |
+#### Core Fields
 
-### Targeting Details
+| Field | Type | Description |
+|-------|------|-------------|
+| `trigger` | String | Name of the first trigger the user sees |
 
-| Field                    | Type              | Description                                                                                                                                                                                      |
-| ------------------------ | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `audienceId`             | String (optional) | Audience ID that user matched (for lookup in Helium)                                                                                                                                             |
-| `audienceDataDictionary` | Object (optional) | Parsed audience rules/criteria<br />- `operator`: How rules are combined ("AND", "OR")<br />- `isAllUsers`: Whether this targets all users<br />- `rules`: Array of targeting rules that matched |
+#### Experiment Details
 
-### Variant Details
+| Field | Type | Description |
+|-------|------|-------------|
+| `experimentName` | String | Human-readable name of the experiment |
+| `experimentId` | String | Unique identifier for the experiment. You can look this experiment id up in the helium dashboard |
+| `experimentType` | String | Type of experiment (e.g., "A/B/n test", "MAB", "CMAB") |
+| `startDate` | DateTime | When the experiment started |
+| `endDate` | DateTime | When the experiment ends |
 
-| Field                                 | Type               | Description                                 |
-| ------------------------------------- | ------------------ | ------------------------------------------- |
-| `chosenVariantIndex`                  | Integer (optional) | Variant number (1-indexed)                  |
-| `chosenVariantDetails`                | Object (optional)  | Details about the assigned variant          |
-| `chosenVariantDetails.allocationName` | String (optional)  | Variant/paywall name                        |
-| `chosenVariantDetails.allocationId`   | String (optional)  | Variant UUID                                |
-| `chosenVariantDetails.allocationTime` | DateTime           | When the user was allocated to this variant |
+#### Targeting Details
 
-### Hash Details
+| Field | Type | Description |
+|-------|------|-------------|
+| `audienceId` | String | Audience ID that user matched (for lookup in Helium) |
+| `audienceDataDictionary` | Object | Parsed audience rules/criteria<br/>- `operator`: How rules are combined ("AND", "OR")<br/>- `isAllUsers`: Whether this targets all users<br/>- `rules`: Array of targeting rules that matched |
+
+#### Variant Details
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `chosenVariantIndex` | Integer | Variant number (1-indexed) |
+| `chosenVariantDetails` | Object | Details about the assigned variant |
+| `chosenVariantDetails.allocationName` | String | Variant/paywall name |
+| `chosenVariantDetails.allocationId` | String | Variant UUID |
+| `chosenVariantDetails.allocationTime` | DateTime | When the user was allocated to this variant |
+
+#### Hash Details
 
 These fields provide information about how the user was deterministically assigned to a variant.
 
-| Field                      | Type               | Description                                                                                                                                                            |
-| -------------------------- | ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `hashedUserIdBucket1To100` | Integer (optional) | User's hash bucket (1-100) - deterministic value for consistent variant assignment                                                                                     |
-| `hashedUserId`             | String (optional)  | The user ID that was hashed                                                                                                                                            |
-| `hashMethod`               | String (optional)  | Hash method used:<br />- `"HASH_USER_ID"`: Standard user ID hashing<br />- `"HASH_HELIUM_PERSISTENT_ID"`: Persistent device ID hashing (more stable across reinstalls) |
+| Field | Type | Description |
+|-------|------|-------------|
+| `hashedUserIdBucket1To100` | Integer | User's hash bucket (1-100) - deterministic value for consistent variant assignment |
+| `hashedUserId` | String | The user ID that was hashed |
+| `hashMethod` | String | Hash method used:<br/>- `"HASH_USER_ID"`: Standard user ID hashing<br/>- `"HASH_HELIUM_PERSISTENT_ID"`: Persistent device ID hashing (more stable across reinstalls) |
 
-### Additional Context
+## Logged Events
 
-All Helium events, including `userAllocated`, automatically include:
+All Helium events (see the full list [above](#available-events)) get logged to your analytics backend automatically with automatic event forwarding, along with the parameters listed there. Each event's parameters will usually show up as event properties.
 
-- `heliumSessionID` - Current session identifier
-- `heliumPersistentID` - Persistent device identifier
-- User traits and custom properties set via the SDK
+<Note>
+Event names and properties might show up as underscored/camelcase/JSON, depending on the platform.
+</Note>
+
+In addition, all lifecycle, paywall, downloadSuccess, and experimental events will include **contextual** and **custom** traits as event parameters:
+
+### Contextual Traits
+
+Helium automatically and securely collects device and software attributes:
+
+- **Locale**: country, currency, currency symbol, language, preferred languages, time zone, decimal separator, uses metric system
+- **Screen**: brightness, bounds, native bounds, scale, native scale, dark mode enabled
+- **Device**: device identifier, orientation, system name, system version, device model, interface idiom, storage capacity
+- **Application**: version, build number, app name, Helium SDK version, environment
+
+### Custom Traits
+
+Custom user traits included in the `Helium.initialize()` call also get sent as part of all events. If you pass custom user traits as part of a paywall presentation method call, these will **override** any custom traits of the same name passed in during `initialize()`.

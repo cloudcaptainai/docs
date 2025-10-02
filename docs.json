@@ -25,14 +25,7 @@
           "sdk/quickstart-ios",
           "sdk/quickstart-react-native",
           "sdk/quickstart-flutter",
-          {
-            "group": "Events",
-            "pages": [
-              "sdk/helium-events",
-              "sdk/helium-events-ios",
-              "sdk/helium-events-android"
-            ]
-          },
+          "sdk/helium-events",
           "sdk/storekit-testing"
         ]
       },
@@ -41,7 +34,6 @@
         "icon": "compass",
         "pages": [
           "guides/revenue-reporting",
-          "guides/analytics-providers",
           "guides/fallback-bundle",
           "guides/third-party-analytics"
         ]

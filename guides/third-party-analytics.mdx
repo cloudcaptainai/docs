@@ -6,260 +6,148 @@ icon: "chart-mixed"
 
 ## Overview
 
-Helium automatically forwards all paywall events to your configured analytics provider. This guide explains what data is sent, how the event system works, and which fields are available for your analysis.
+You can configure Helium to automatically send events to your analytics provider or webhook destination of choice.
 
-## How Helium Sends Events
+## About Helium Events
 
-Helium uses a dual-system approach for maximum flexibility:
+Visit [Helium Events](/sdk/helium-events) to see the full list of events available. We're adding new events often - want support for a new event? Just ask us at support@tryhelium.com
 
-### 1. Automatic Analytics Integration
+## Automatic event forwarding (recommended)
 
-When you configure an analytics provider (Amplitude, Mixpanel, etc.) in the [Helium dashboard](https://app.tryhelium.com/integrations), Helium automatically:
+### Configuration
 
-- Sends all paywall lifecycle events with the `helium_` prefix
-- Includes comprehensive context about the user, device, and session
-- Adds experiment allocation data for A/B tests
-- Forwards purchase and subscription events
+<Note>
+Don't see your analytics provider here, or have a custom setup you want us to send events to? Reach out to founders@tryhelium.com - we might support it under the hood.
+</Note>
 
-Helium uses Segment's CDP infrastructure for reliability and compatibility. It may take several minutes for events you see on device to populate in your analytics backend.
+<Tabs>
+  <Tab title="Mixpanel">
+    ![](/images/analytics/guide-configure-mixpanel.png)
+    
+    1. Go to [app.tryhelium.com/integrations](https://app.tryhelium.com/integrations). Click **Mixpanel**.
+    2. Give your integration a name. There's a few fields to enter due to what Mixpanel's API needs for event ingestion - we're always reducing on simplifying this integration, but the modal will indicate what's needed.
+    3. That's it! Paywall events (from local testing or production) will now come into Mixpanel, prefixed with `helium_`. You can view live events by going to the **Events** tab in Mixpanel
 
-### 2. SDK Event Delegates
+    ![](/images/analytics/viewing_events/mixpanel_events.png)
 
-Your app can also listen to events directly through the SDK delegate:
+    ### User attribution between Helium and Mixpanel
 
-```swift
-class MyPaywallDelegate: HeliumPaywallDelegate {
-    func onPaywallEvent(_ event: PaywallEvent) {
-        // Forward to your own analytics
-        yourAnalytics.track(event.eventName, properties: event.toDictionary())
-        
-        switch event {
-        case let purchase as PurchaseSucceededEvent:
-            // Custom logic for purchases
-            updateUserProfile(productId: purchase.productId)
-        default:
-            break
+    #### Simplified Identity Merge
+    - Mixpanel has a way to do post/pre-login identity stitching via a few methods - with Simplified Identity Merge being the most 
+    popular. You can read more about it by visiting [Mixpanel's docs](https://docs.mixpanel.com/docs/tracking-methods/id-management/identifying-users-simplified)
+
+    - If you'd like to use simplified identity merge, remember to set the Simplified Identity Merge method to true in the Mixpanel configuration modal.
+
+    #### Overriding the custom user id post login
+
+    - If you're using an anonymous ID pre login, and want to override it to work _post_ login, you can use the `overrideUserId` method (available on all SDKs). View the relevant SDK quickstart for moe info!
+
+    - In Mixpanel, Helium events will be prefixed with `helium_`.
+  </Tab>
+
+  <Tab title="Amplitude">
+    1. Go to [app.tryhelium.com/integrations](https://app.tryhelium.com/integrations). Click **Amplitude**.
+    2. Give your integration a name. Enter your API key (you can find it under Settings > Projects > [Your Project Name] and grab an API key from there).
+    3. That's it! Paywall events will now come into Amplitude, prefixed with `helium_`.
+  </Tab>
+
+  <Tab title="PostHog">
+    1. Go to [app.tryhelium.com/integrations](https://app.tryhelium.com/integrations). Click **PostHog**.
+    2. Give your integration a name. Enter your API key (you can find it under Settings > Projects > [Your Project Name] and grab an API key from there).
+    3. That's it! Paywall events will now come into PostHog, prefixed with `helium_`.
+  </Tab>
+
+  <Tab title="Statsig">
+    1. Go to [app.tryhelium.com/integrations](https://app.tryhelium.com/integrations). Click **Statsig**.
+    2. Give your integration a name. Enter your API key (you can find it under Settings > Projects > [Your Project Name] and grab an API key from there).
+    3. That's it! Paywall events will now come into Statsig, prefixed with `helium_`.
+    4. Watch events arrive and enjoy analytics in the Statsig UI.
+  </Tab>
+</Tabs>
+
+
+
+<Info>
+Helium uses a CDP under the hood to route events. It may take several minutes for events you see on device to populate in your analytics backend.
+</Info>
+
+## Custom forwarding from the SDK
+
+You can also track events from the SDK via the PaywallDelegate or lifecycle methods in each framework. View our SDK quickstarts for more information.
+
+<Tabs>
+  <Tab title="iOS" icon="/images/sdk/logos/swift-svgrepo-com.svg">
+    ```swift
+    // ... rest of your delegate setup ...
+    
+    func onHeliumPaywallEvent(_ event: any HeliumEvent) {
+        if let paywallOpen = event as? PaywallOpenEvent {
+            // e.g., forwarding to mixpanel
+            Mixpanel.mainInstance().track(
+                event: "paywall_open",
+                properties: [
+                    "trigger": paywallOpen.triggerName,
+                    "paywall": paywallOpen.paywallName
+                ]
+            )
+        }
+        // ... other event handling ...
+    }
+    ```
+  </Tab>
+
+  <Tab title="React Native" icon="/images/sdk/logos/react-svgrepo-com.svg">
+    ```typescript
+    // ... rest of your initialize call ...
+    
+    onHeliumPaywallEvent: (event: HeliumPaywallEvent) => {
+      if (event.type === 'paywallOpen') {
+        // Forward to Mixpanel
+        mixpanel.track('paywall_open', {
+          trigger: event.triggerName,
+          paywall: event.paywallName
+        });
+      }
+      // ... other event handling ...
+    }
+    ```
+  </Tab>
+
+  <Tab title="Flutter" icon="/images/sdk/logos/flutter-svgrepo-com.svg">
+    ```dart
+    // ... rest of your delegate setup ...
+    
+    @override
+    Future<void> onPaywallEvent(Map<String, dynamic> event) async {
+      if (event['type'] == 'paywallOpen') {
+        // Forward to Mixpanel
+        mixpanel.track('paywall_open', properties: {
+          'trigger': event['triggerName'],
+          'paywall': event['paywallName'],
+        });
+      }
+      // ... other event handling ...
+    }
+    ```
+  </Tab>
+
+  <Tab title="Android">
+    ```kotlin
+    // ... rest of your delegate setup ...
+    
+    override fun onHeliumPaywallEvent(event: HeliumEvent) {
+        when (event) {
+            is PaywallOpen -> {
+                // Forward to Mixpanel
+                mixpanel.track("paywall_open", JSONObject().apply {
+                    put("trigger", event.triggerName)
+                    put("paywall", event.paywallName)
+                })
+            }
+            // ... other event handling ...
         }
     }
-}
-```
-
-## Event Lifecycle
-
-Here's the typical paywall event flow:
-
-```
-User triggers paywall
-  ↓
-userAllocated (if part of experiment)
-  ↓
-paywallOpen
-  ↓
-[User interacts]
-  ↓
-productSelected (optional)
-  ↓
-purchasePressed (optional)
-  ↓
-purchaseSucceeded/Failed/Cancelled
-  ↓
-paywallClose/Dismissed
-```
-
-## Forwarded Fields Reference
-
-Helium forwards comprehensive context with every event. Here's what's included:
-
-### Core Event Fields
-
-| Field | Forwarded | Description |
-|-------|-----------|-------------|
-| `event` | ✅ | Event name (e.g., `helium_paywallOpen`) |
-| `timestamp` | ✅ | ISO 8601 timestamp of event |
-| `user_id` | ✅ | User identifier |
-| `type` | ✅ | Event type |
-
-### Paywall Context
-
-| Field | Forwarded | Description |
-|-------|-----------|-------------|
-| `helium_event_trigger_name` | ✅ | Trigger that showed the paywall |
-| `helium_event_paywall_template_name` | ✅ | Paywall variant name |
-| `helium_event_view_type` | ✅ | How paywall was presented (modal, embedded, etc.) |
-| `helium_event_product_key` | ✅ | Product selected/purchased |
-| `helium_event_cta_name` | ✅ | Button/CTA clicked |
-| `helium_event_error_description` | ✅ | Error details (if applicable) |
-
-### Experiment Allocation Data
-
-When a paywall is part of an A/B test or experiment, the following fields are included:
-
-| Field | Forwarded | Description |
-|-------|-----------|-------------|
-| `experimentInfo` | ✅ | Complete experiment allocation object (see below) |
-| `experiment_i_d` | ✅ | Experiment identifier |
-
-#### ExperimentInfo Object Structure
-
-```json
-{
-  "experimentInfo": {
-    "trigger": "onboarding",
-    "experimentId": "exp-123",
-    "experimentName": "Onboarding Price Test",
-    "experimentType": "A/B/n test",
-    "audienceId": "aud-456",
-    "audienceData": "{\"operator\":\"AND\",\"isAllUsers\":false,\"rules\":[...]}",
-    "allocationMetadata": { "notes": "High-value users" },
-    "chosenVariantDetails": {
-      "allocationName": "Premium Variant",
-      "allocationId": "uuid-...",
-      "allocationIndex": 2,
-      "allocationTime": 1234567890
-    },
-    "hashDetails": {
-      "hashedUserIdBucket1To100": 77,
-      "hashMethod": "HASH_HELIUM_PERSISTENT_ID"
-    }
-  }
-}
-```
-
-**Key Experiment Fields:**
-- `experimentId`, `experimentName`, `experimentType` - Experiment metadata
-- `audienceId`, `audienceData` - Targeting criteria that matched this user
-- `chosenVariantDetails.allocationIndex` - Which variant (1-indexed)
-- `hashDetails.hashedUserIdBucket1To100` - Consistent hash bucket for this user
-- `hashDetails.hashMethod` - How the user was hashed for allocation
-
-### User & Device Context
-
-#### Application Info
-
-| Field | Forwarded | Description |
-|-------|-----------|-------------|
-| `context_traits_application_info_complete_app_version` | ✅ | Full version string |
-| `context_traits_application_info_build` | ✅ | Build number |
-| `context_traits_application_info_version` | ✅ | App version |
-| `context_traits_application_info_app_display_name` | ✅ | App display name |
-| `context_traits_application_info_helium_sdk_version` | ✅ | Helium SDK version |
-| `context_traits_application_info_environment` | ✅ | Development/Production |
-| `context_app_build` | ✅ | Build number |
-| `context_app_version` | ✅ | App version |
-| `context_app_namespace` | ✅ | Bundle identifier |
-| `context_app_name` | ✅ | App name |
-
-#### Device Info
-
-| Field | Forwarded | Description |
-|-------|-----------|-------------|
-| `context_traits_device_info_system_version` | ✅ | iOS version |
-| `context_traits_device_info_system_name` | ✅ | Operating system name |
-| `context_traits_device_info_orientation` | ✅ | Device orientation |
-| `context_traits_device_info_device_model` | ✅ | iPhone model |
-| `context_traits_device_info_user_interface_idiom` | ✅ | iPad/iPhone |
-| `context_traits_device_info_available_capacity` | ✅ | Storage available |
-| `context_traits_device_info_total_capacity` | ✅ | Total storage |
-| `context_traits_device_info_environment` | ✅ | Device environment |
-| `context_device_model` | ✅ | Device model |
-| `context_device_name` | ✅ | Device name |
-| `context_device_type` | ✅ | Device type |
-| `context_device_manufacturer` | ✅ | Apple |
-
-#### Screen Info
-
-| Field | Forwarded | Description |
-|-------|-----------|-------------|
-| `context_traits_screen_info_native_scale` | ✅ | Screen scale factor |
-| `context_traits_screen_info_bounds` | ✅ | Screen bounds |
-| `context_traits_screen_info_scale` | ✅ | UI scale |
-| `context_traits_screen_info_brightness` | ✅ | Screen brightness |
-| `context_traits_screen_info_native_bounds` | ✅ | Native screen bounds |
-| `context_traits_screen_info_is_dark_mode` | ✅ | Dark mode enabled |
-| `context_screen_width` | ✅ | Screen width |
-| `context_screen_height` | ✅ | Screen height |
-
-#### Locale & Region
-
-| Field | Forwarded | Description |
-|-------|-----------|-------------|
-| `context_traits_locale_uses_metric_system` | ✅ | Metric/Imperial |
-| `context_traits_locale_current_time_zone_identifier` | ✅ | Timezone ID |
-| `context_traits_locale_decimal_separator` | ✅ | Decimal separator |
-| `context_traits_locale_current_currency_symbol` | ✅ | Currency symbol |
-| `context_traits_locale_current_currency` | ✅ | Currency code |
-| `context_traits_locale_current_time_zone_name` | ✅ | Timezone name |
-| `context_traits_locale_current_language` | ✅ | Language code |
-| `context_traits_locale_current_country` | ✅ | Country code |
-| `context_traits_locale_preferred_languages` | ✅ | Preferred languages |
-| `context_locale` | ✅ | Locale string |
-| `context_timezone` | ✅ | Timezone |
-
-#### Network Info
-
-| Field | Forwarded | Description |
-|-------|-----------|-------------|
-| `context_network_wifi` | ✅ | WiFi connected |
-| `context_network_bluetooth` | ✅ | Bluetooth enabled |
-| `context_network_cellular` | ✅ | Cellular connected |
-| `context_network_carrier` | ✅ | Carrier name |
-
-#### Geo Location
-
-| Field | Forwarded | Description |
-|-------|-----------|-------------|
-| `context_geo_continent_code` | ✅ | Continent code |
-| `context_geo_continent_name` | ✅ | Continent name |
-| `context_geo_country_code` | ✅ | Country code |
-| `context_geo_country_name` | ✅ | Country name |
-| `context_geo_country_is_e_u` | ✅ | EU member state |
-| `context_geo_region_code` | ✅ | Region/state code |
-| `context_geo_region_name` | ✅ | Region/state name |
-| `context_geo_city_name` | ✅ | City name |
-| `context_geo_postal_code_code` | ✅ | Postal code |
-| `context_geo_location_latitude` | ✅ | Latitude |
-| `context_geo_location_longitude` | ✅ | Longitude |
-| `context_geo_location_timezone` | ✅ | Location timezone |
-| `context_geo_location_accuracy_radius` | ✅ | Accuracy (km) |
-| `context_geo_location_usa_data_metro_code` | ✅ | US metro code |
-| `context_geo_provider_as_num` | ✅ | ASN |
-| `context_geo_provider_as_name` | ✅ | ISP name |
-| `context_geo_provider_isp` | ✅ | ISP |
-| `context_geo_provider_domain` | ✅ | Provider domain |
-
-### Session & Identity
-
-| Field | Forwarded | Description |
-|-------|-----------|-------------|
-| `helium_session_i_d` | ✅ | Helium session identifier |
-| `helium_persistent_i_d` | ✅ | Persistent device identifier |
-| `helium_paywall_session_id` | ✅ | Current paywall session |
-| `app_attribution_token` | ✅ | Attribution token |
-| `revenue_cat_app_user_i_d` | ✅ | RevenueCat user ID (if configured) |
-| `request_ip` | ✅ | Request IP address |
-
-### Performance Metrics
-
-| Field | Forwarded | Description |
-|-------|-----------|-------------|
-| `helium_event_num_attempts` | ✅ | Number of retry attempts |
-| `helium_event_dismiss_all` | ✅ | Whether all paywalls dismissed |
-
-### Library Metadata
-
-| Field | Forwarded | Description |
-|-------|-----------|-------------|
-| `context_library_name` | ✅ | "helium-ios" |
-| `context_library_version` | ✅ | SDK version |
-| `context_os_version` | ✅ | OS version |
-| `context_os_name` | ✅ | OS name |
-| `is_helium_event` | ✅ | Always true |
-
-### Organization Context
-
-| Field | Forwarded | Description |
-|-------|-----------|-------------|
-| `organization_i_d` | ✅ | Your organization ID |
-| `paywall_u_u_i_d` | ✅ | Paywall UUID |
-
+    ```
+  </Tab>
+</Tabs>
 

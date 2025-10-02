@@ -14,22 +14,66 @@ The Helium SDK fires various events related to paywall display and purchase acti
   <Tab title="iOS">
     ```swift
     // Base protocol for all events
-    protocol PaywallEvent {
+    protocol HeliumEvent {
         var eventName: String { get }
         var timestamp: Date { get }
         func toDictionary() -> [String: Any]
     }
     
     // Events with paywall context
-    protocol PaywallContextEvent: PaywallEvent {
+    protocol PaywallContextEvent: HeliumEvent {
         var triggerName: String { get }
         var paywallName: String { get }
+        var isSecondTry: Bool { get }
     }
     
     // Product-related events
     protocol ProductEvent: PaywallContextEvent {
         var productId: String { get }
     }
+    
+    // All Event Types:
+    // Lifecycle: PaywallOpenEvent, PaywallCloseEvent, PaywallDismissedEvent,
+    //            PaywallSkippedEvent, PaywallButtonPressedEvent
+    // Purchase:  ProductSelectedEvent, PurchasePressedEvent, PurchaseSucceededEvent,
+    //            PurchaseCancelledEvent, PurchaseFailedEvent, PurchaseRestoredEvent,
+    //            PurchaseRestoreFailedEvent, PurchasePendingEvent
+    // System:    InitializeStartEvent, PaywallsDownloadSuccessEvent,
+    //            PaywallsDownloadErrorEvent, PaywallWebViewRenderedEvent
+    // Experiment: UserAllocatedEvent
+    ```
+  </Tab>
+  <Tab title="Android">
+    ```kotlin
+    // Base sealed class for all events
+    sealed class HeliumEvent(
+        open val timestamp: Long
+    )
+    
+    // Events with paywall context
+    sealed class PaywallContextEvent(
+        override val timestamp: Long,
+        open val triggerName: String,
+        open val paywallName: String,
+        open val isSecondTry: Boolean,
+    ) : HeliumEvent(timestamp)
+    
+    // Product-related events
+    sealed class ProductEvent(
+        override val timestamp: Long,
+        override val triggerName: String,
+        override val paywallName: String,
+        override val isSecondTry: Boolean,
+        open val productId: String,
+    ) : PaywallContextEvent(timestamp, triggerName, paywallName, isSecondTry)
+    
+    // All Event Classes:
+    // Lifecycle: PaywallOpen, PaywallClose, PaywallDismissed, PaywallOpenFailed,
+    //            PaywallSkipped, PaywallButtonPressed
+    // Purchase:  ProductSelected, PurchasedPressed, PurchaseSucceeded, PurchaseCancelled,
+    //            PurchaseFailed, PurchaseRestored, PurchaseRestoreFailed, PurchasePending
+    // System:    InitializeStart, InitializeCalled, PaywallsDownloadSuccess,
+    //            PaywallsDownloadError, PaywallWebViewRendered
     ```
   </Tab>
   <Tab title="React Native">
@@ -40,7 +84,8 @@ The Helium SDK fires various events related to paywall display and purchase acti
         'productSelected' | 'purchasePressed' | 'purchaseSucceeded' |
         'purchaseCancelled' | 'purchaseFailed' | 'purchaseRestored' |
         'purchaseRestoreFailed' | 'purchasePending' | 'initializeStart' |
-        'paywallsDownloadSuccess' | 'paywallsDownloadError' | 'paywallWebViewRendered';
+        'paywallsDownloadSuccess' | 'paywallsDownloadError' | 
+        'paywallWebViewRendered' | 'userAllocated';
       triggerName?: string;
       paywallName?: string;
       productId?: string;
@@ -55,241 +100,136 @@ The Helium SDK fires various events related to paywall display and purchase acti
       dismissAll?: boolean;
       isSecondTry?: boolean;
       error?: string;
-      timestamp?: number; // Unix timestamp in seconds (using device clock)
+      experimentInfo?: ExperimentInfo;
+      timestamp?: number;
     }
     ```
   </Tab>
   <Tab title="Flutter">
-    New events coming soon! For now look at the Legacy Events section.
+    ```dart
+    // Base event structure
+    abstract class HeliumEvent {
+      String get eventName;
+      DateTime get timestamp;
+      Map<String, dynamic> toMap();
+    }
+    
+    // Events with paywall context
+    abstract class PaywallContextEvent extends HeliumEvent {
+      String get triggerName;
+      String get paywallName;
+      bool get isSecondTry;
+    }
+    
+    // Product-related events
+    abstract class ProductEvent extends PaywallContextEvent {
+      String get productId;
+    }
+    
+    // All Event Types:
+    // Lifecycle: PaywallOpenEvent, PaywallCloseEvent, PaywallDismissedEvent,
+    //            PaywallOpenFailedEvent, PaywallSkippedEvent, PaywallButtonPressedEvent
+    // Purchase:  ProductSelectedEvent, PurchasePressedEvent, PurchaseSucceededEvent,
+    //            PurchaseCancelledEvent, PurchaseFailedEvent, PurchaseRestoredEvent,
+    //            PurchaseRestoreFailedEvent, PurchasePendingEvent
+    // System:    InitializeStartEvent, PaywallsDownloadSuccessEvent,
+    //            PaywallsDownloadErrorEvent, PaywallWebViewRenderedEvent
+    ```
   </Tab>
 </Tabs>
 
-## Listening to Events
-
-See the SDK quickstarts for examples on how to listen for events, either through a Helium delegate or by passing in handlers during paywall presentation.
-
 ## Available Events
 
-<Note>
-  The following definitions are all provided in Swift, but the same events and values are available for every SDK.
-</Note>
+### Experiment Events
 
-### Lifecycle Events
+| Event Name | Description | Parameters |
+|------------|-------------|------------|
+| **userAllocated** | Fires once per trigger when a user is allocated to an experiment variant | `experimentInfo` (Object) - Complete experiment allocation data (see below)<br/>`timestamp` (Number) - When allocation occurred |
 
-#### PaywallOpenEvent
+### Paywall and Purchase Events
 
-Fires when a paywall is displayed.
-
-```swift
-let event: PaywallOpenEvent
-event.triggerName     // Associated trigger
-event.paywallName     // Template name
-event.isSecondTry     // True if paywall is "second try" flow
-event.viewType        // .presented, .triggered, or .embedded
-event.timestamp       // When event occurred
-```
-
-#### PaywallCloseEvent
-
-Fires when a paywall is closed (removed from view hierarchy). This might be due to a user dismissal, successful purchase, or programmatic hide.
-
-```swift
-let event: PaywallCloseEvent
-event.triggerName     // Associated trigger
-event.paywallName     // Template name
-event.isSecondTry     // True if paywall is "second try" flow
-event.timestamp       // When event occurred
-```
-
-#### PaywallDismissedEvent
-
-Fires when paywall is explicitly dismissed by user.
-
-```swift
-let event: PaywallDismissedEvent
-event.triggerName     // Associated trigger
-event.paywallName     // Template name
-event.isSecondTry     // True if paywall is "second try" flow
-event.dismissAll      // Whether entire paywall stack dismissed (i.e. second try)
-event.timestamp       // When event occurred
-```
-
-#### PaywallOpenFailedEvent
-
-Fires if a paywall fails to open and fallback fails to show. (This should be extremely rare.)
-
-```swift
-let event: PaywallOpenFailedEvent
-event.triggerName     // Associated trigger
-event.paywallName     // Template name
-event.isSecondTry     // True if paywall is "second try" flow
-event.error           // Error message describing why paywall failed to open
-event.timestamp       // When event occurred
-```
-
-#### PaywallSkippedEvent
-
-Fires if a paywall display is skipped due to a targeting or workflow configuration.
-
-```swift
-let event: PaywallSkippedEvent
-event.triggerName     // Associated trigger
-event.timestamp       // When event occurred
-```
-
-#### PaywallButtonPressedEvent
-
-Fires when a non-purchase button is pressed.
-
-```swift
-let event: PaywallButtonPressedEvent
-event.buttonName      // Button identifier
-event.triggerName     // Associated trigger
-event.paywallName     // Template name
-event.isSecondTry     // True if paywall is "second try" flow
-event.timestamp       // When event occurred
-```
-
-#### PaywallWebViewRenderedEvent
-
-Fires when the paywall content has finished rendering.
-
-```swift
-let event: PaywallWebViewRenderedEvent
-event.triggerName     // Associated trigger
-event.paywallName     // Template name
-event.isSecondTry     // True if paywall is "second try" flow
-event.renderTime      // Time to render (ms)
-event.timestamp       // When event occurred
-```
-
-### Purchase Events
-
-#### ProductSelectedEvent
-
-Fires when a user selects a product on the paywall.
-
-```swift
-let event: ProductSelectedEvent
-event.productId       // StoreKit product ID
-event.triggerName     // Associated trigger
-event.paywallName     // Template name
-event.timestamp       // When event occurred
-```
-
-#### PurchasePressedEvent
-
-Fires when a purchase is initiated.
-
-```swift
-let event: PurchasePressedEvent
-event.productId       // Product being purchased
-event.triggerName     // Associated trigger
-event.paywallName     // Template name
-event.timestamp       // When event occurred
-```
-
-#### PurchaseSucceededEvent
-
-Fires when a purchase is successfully completed.
-
-```swift
-let event: PurchaseSucceededEvent
-event.productId       // StoreKit product ID
-event.triggerName     // Associated trigger
-event.paywallName     // Template name
-event.timestamp       // When event occurred
-```
-
-#### PurchaseCancelledEvent
-
-Fires when the purchase process is cancelled by the user.
-
-```swift
-let event: PurchaseCancelledEvent
-event.productId       // Product that was cancelled
-event.triggerName     // Associated trigger
-event.paywallName     // Template name
-event.timestamp       // When event occurred
-```
-
-#### PurchaseFailedEvent
-
-Fires when the process fails for any reason.
-
-```swift
-let event: PurchaseFailedEvent
-event.productId       // Product that failed
-event.triggerName     // Associated trigger
-event.paywallName     // Template name
-event.error           // StoreKit error object
-event.timestamp       // When event occurred
-```
-
-#### PurchaseRestoredEvent
-
-Fires when a previous purchase is successfully restored.
-
-```swift
-let event: PurchaseRestoredEvent
-event.productId       // Restored product ID
-event.triggerName     // Associated trigger
-event.paywallName     // Template name
-event.timestamp       // When event occurred
-```
-
-#### PurchaseRestoreFailedEvent
-
-Fires when an attempt to restore purchases is not successful.
-
-```swift
-let event: PurchaseRestoreFailedEvent
-event.triggerName     // Associated trigger
-event.paywallName     // Template name
-event.timestamp       // When event occurred
-```
-
-#### PurchasePendingEvent
-
-Fires when when purchase is in a pending state (e.g. waiting for parental approval).
-
-```swift
-let event: PurchasePendingEvent
-event.productId       // Pending product
-event.triggerName     // Associated trigger
-event.paywallName     // Template name
-event.timestamp       // When event occurred
-```
+| Event Name | Description | Parameters |
+|------------|-------------|------------|
+| **paywallOpen** | Fires when a paywall is displayed | `triggerName` (String) - Associated trigger<br/>`paywallName` (String) - Paywall name<br/>`isSecondTry` (Boolean) - True if paywall is "second try" flow<br/>`viewType` (String) - presented, triggered, or embedded<br/>`loadTimeTakenMS` (Number, optional) - Loading time in milliseconds<br/>`loadingBudgetMS` (Number, optional) - Loading budget in milliseconds<br/>`timestamp` (Number) - When event occurred |
+| **paywallClose** | Fires when a paywall is closed (removed from view hierarchy) | `triggerName` (String) - Associated trigger<br/>`paywallName` (String) - Paywall name<br/>`isSecondTry` (Boolean) - True if paywall is "second try" flow<br/>`timestamp` (Number) - When event occurred |
+| **paywallDismissed** | Fires when paywall is explicitly dismissed by user | `triggerName` (String) - Associated trigger<br/>`paywallName` (String) - Paywall name<br/>`isSecondTry` (Boolean) - True if paywall is "second try" flow<br/>`dismissAll` (Boolean) - Whether entire paywall stack dismissed<br/>`timestamp` (Number) - When event occurred |
+| **paywallSkipped** | Fires if paywall display is skipped due to targeting or workflow configuration | `triggerName` (String) - Associated trigger<br/>`timestamp` (Number) - When event occurred |
+| **paywallButtonPressed** | Fires when a non-purchase button is pressed | `buttonName` (String) - Button identifier<br/>`triggerName` (String) - Associated trigger<br/>`paywallName` (String) - Paywall name<br/>`isSecondTry` (Boolean) - True if paywall is "second try" flow<br/>`timestamp` (Number) - When event occurred |
+| **paywallWebViewRendered** | Fires when the paywall content has finished rendering | `triggerName` (String) - Associated trigger<br/>`paywallName` (String) - Paywall name<br/>`isSecondTry` (Boolean) - True if paywall is "second try" flow<br/>`webviewRenderTimeTakenMS` (Number, optional) - Time to render in milliseconds<br/>`timestamp` (Number) - When event occurred |
+| **productSelected** | Fires when a user selects a product on the paywall | `productId` (String) - Product identifier<br/>`triggerName` (String) - Associated trigger<br/>`paywallName` (String) - Paywall name<br/>`isSecondTry` (Boolean) - True if paywall is "second try" flow<br/>`timestamp` (Number) - When event occurred |
+| **purchasePressed** | Fires when a purchase button is pressed in the paywall | `productId` (String) - Product being purchased<br/>`triggerName` (String) - Associated trigger<br/>`paywallName` (String) - Paywall name<br/>`isSecondTry` (Boolean) - True if paywall is "second try" flow<br/>`timestamp` (Number) - When event occurred |
+| **purchaseSucceeded** | Fires when a purchase is successfully completed | `productId` (String) - Product identifier<br/>`triggerName` (String) - Associated trigger<br/>`paywallName` (String) - Paywall name<br/>`isSecondTry` (Boolean) - True if paywall is "second try" flow<br/>`storeKitTransactionId` (String, optional) - Transaction ID<br/>`storeKitOriginalTransactionId` (String, optional) - Original transaction ID<br/>`skPostPurchaseTxnTimeMS` (Number, optional) - Post-purchase transaction time<br/>`timestamp` (Number) - When event occurred |
+| **purchaseCancelled** | Fires when the purchase process is cancelled by the user | `productId` (String) - Product that was cancelled<br/>`triggerName` (String) - Associated trigger<br/>`paywallName` (String) - Paywall name<br/>`isSecondTry` (Boolean) - True if paywall is "second try" flow<br/>`timestamp` (Number) - When event occurred |
+| **purchaseFailed** | Fires when the purchase fails for any reason | `productId` (String) - Product that failed<br/>`triggerName` (String) - Associated trigger<br/>`paywallName` (String) - Paywall name<br/>`isSecondTry` (Boolean) - True if paywall is "second try" flow<br/>`error` (String, optional) - Error message<br/>`timestamp` (Number) - When event occurred |
+| **purchaseRestored** | Fires when a previous purchase is successfully restored | `productId` (String) - Restored product ID<br/>`triggerName` (String) - Associated trigger<br/>`paywallName` (String) - Paywall name<br/>`isSecondTry` (Boolean) - True if paywall is "second try" flow<br/>`timestamp` (Number) - When event occurred |
+| **purchaseRestoreFailed** | Fires when an attempt to restore purchases fails | `triggerName` (String) - Associated trigger<br/>`paywallName` (String) - Paywall name<br/>`isSecondTry` (Boolean) - True if paywall is "second try" flow<br/>`timestamp` (Number) - When event occurred |
+| **purchasePending** | Fires when purchase is in a pending state (e.g. waiting for parental approval) | `productId` (String) - Pending product<br/>`triggerName` (String) - Associated trigger<br/>`paywallName` (String) - Paywall name<br/>`isSecondTry` (Boolean) - True if paywall is "second try" flow<br/>`timestamp` (Number) - When event occurred |
 
 ### System Events
 
-#### InitializeStartEvent
+| Event Name | Description | Parameters |
+|------------|-------------|------------|
+| **initializeStart** | Fires when SDK initialization is started | `timestamp` (Number) - When event occurred |
+| **paywallsDownloadSuccess** | Fires when Helium paywalls downloaded and initialized successfully | `downloadTimeTakenMS` (Number, optional) - Config download time in milliseconds<br/>`imagesDownloadTimeTakenMS` (Number, optional) - Images download time in milliseconds<br/>`fontsDownloadTimeTakenMS` (Number, optional) - Fonts download time in milliseconds<br/>`bundleDownloadTimeMS` (Number, optional) - Bundle download time in milliseconds<br/>`numAttempts` (Number, optional) - Number of attempts made<br/>`timestamp` (Number) - When event occurred |
+| **paywallsDownloadError** | Fires when paywalls download failed | `error` (String) - Error description<br/>`numAttempts` (Number, optional) - Number of attempts made<br/>`timestamp` (Number) - When event occurred |
+| **paywallOpenFailed** | Fires if a paywall fails to open and fallback fails to show | `triggerName` (String) - Associated trigger<br/>`paywallName` (String) - Paywall name<br/>`isSecondTry` (Boolean) - True if paywall is "second try" flow<br/>`error` (String) - Error message describing failure<br/>`timestamp` (Number) - When event occurred |
 
-Fires when SDK initialization is started.
+## ExperimentInfo Structure
 
-```swift
-let event: InitializeStartEvent
-event.timestamp       // When event occurred
-```
+The `experimentInfo` object in the `userAllocated` event contains complete experiment allocation data. This event fires once per trigger per session when a user is assigned to an experiment variant.
 
-#### PaywallsDownloadSuccessEvent
+### Core Fields
 
-Fires when Helium paywalls downloaded and initialized successfully.
+| Field | Type | Description |
+|-------|------|-------------|
+| `trigger` | String | Name of the trigger where the user was allocated |
 
-```swift
-let event: PaywallsDownloadSuccessEvent
-event.downloadTime    // Total download time (ms)
-event.numAttempts     // Number of attempts made
-event.timestamp       // When event occurred
-```
+### Experiment Details
 
-#### PaywallsDownloadErrorEvent
+| Field | Type | Description |
+|-------|------|-------------|
+| `experimentName` | String (optional) | Human-readable name of the experiment |
+| `experimentId` | String (optional) | Unique identifier for the experiment |
+| `experimentType` | String (optional) | Type of experiment (e.g., "A/B/n test", "MAB", "CMAB") |
+| `startDate` | DateTime (optional) | When the experiment started |
+| `endDate` | DateTime (optional) | When the experiment ends |
 
-Fires when paywalls download failed.
+### Targeting Details
 
-```swift
-let event: PaywallsDownloadErrorEvent
-event.error           // Error description
-event.numAttempts     // Attempts made
-event.timestamp       // When event occurred
-```
+| Field | Type | Description |
+|-------|------|-------------|
+| `audienceId` | String (optional) | Audience ID that user matched (for lookup in Helium) |
+| `audienceDataDictionary` | Object (optional) | Parsed audience rules/criteria<br/>- `operator`: How rules are combined ("AND", "OR")<br/>- `isAllUsers`: Whether this targets all users<br/>- `rules`: Array of targeting rules that matched |
+
+### Allocation Metadata
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `allocationMetadataDictionary` | Object (optional) | Custom metadata from dashboard (e.g., notes, tags, configuration) |
+
+### Variant Details
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `chosenVariantIndex` | Integer (optional) | Variant number (1-indexed) |
+| `chosenVariantDetails` | Object (optional) | Details about the assigned variant |
+| `chosenVariantDetails.allocationName` | String (optional) | Variant/paywall name |
+| `chosenVariantDetails.allocationId` | String (optional) | Variant UUID |
+| `chosenVariantDetails.allocationTime` | DateTime | When the user was allocated to this variant |
+
+### Hash Details
+
+These fields provide information about how the user was deterministically assigned to a variant.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `hashedUserIdBucket1To100` | Integer (optional) | User's hash bucket (1-100) - deterministic value for consistent variant assignment |
+| `hashedUserId` | String (optional) | The user ID that was hashed |
+| `hashMethod` | String (optional) | Hash method used:<br/>- `"HASH_USER_ID"`: Standard user ID hashing<br/>- `"HASH_HELIUM_PERSISTENT_ID"`: Persistent device ID hashing (more stable across reinstalls) |
+
+### Additional Context
+
+All Helium events, including `userAllocated`, automatically include:
+- `heliumSessionID` - Current session identifier
+- `heliumPersistentID` - Persistent device identifier
+- User traits and custom properties set via the SDK

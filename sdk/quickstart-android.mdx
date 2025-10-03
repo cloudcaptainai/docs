@@ -20,7 +20,7 @@ Add the Helium SDK to your project using Gradle.
 
 - **Kotlin Version**: 2.0.0 or higher
 - **Java Version**: 8 or higher
-- **Minimum Android SDK**: 24 or higher
+- **Minimum Android SDK**: 23 or higher
 - **Compile Android SDK**: 35 or higher
 
 **1. Add repositories to your `settings.gradle.kts` file:**
@@ -58,7 +58,7 @@ dependencyResolutionManagement {
 
     dependencies {
         // Choose one of the UI modules:
-        implementation("com.tryhelium.paywall:core:0.0.5")
+        implementation("com.tryhelium.paywall:core:0.0.7")
         // Other app dependencies
     }
     ```
@@ -69,7 +69,7 @@ dependencyResolutionManagement {
 
     dependencies {
         // Choose one of the UI modules:
-        implementation("com.tryhelium.paywall:compose-ui:0.0.5")
+        implementation("com.tryhelium.paywall:compose-ui:0.0.7")
         // Other app dependencies
     }
     ```
@@ -80,7 +80,7 @@ dependencyResolutionManagement {
 
     dependencies {
         // If you're using RevenueCat, add this dependency:
-        implementation("com.tryhelium.paywall:revenue-cat:0.0.5")
+        implementation("com.tryhelium.paywall:revenue-cat:0.0.7")
         // Other app dependencies
     }
     ```
@@ -290,6 +290,58 @@ We provide two different ways of presenting the Paywall:
     ```
   </Tab>
 </Tabs>
+
+## Fallbacks and Loading Budgets
+
+If a paywall has not completed downloading when you attempt to present it, a loading state can be displayed. By default, Helium will show this loading state (a shimmer view) for up to 2 seconds (`2000ms`). You can configure this behavior, turn it off, or set trigger-specific loading budgets using the `HeliumFallbackConfig` object during initialization.
+
+If the loading budget expires before the paywall is ready, a fallback paywall will be shown if one is provided. Otherwise, the loading state will hide, and a `PaywallOpenFailed` event will be dispatched.
+
+There are three options for fallbacks in the Android SDK:
+
+*   **Fallback bundles**: A pre-packaged paywall bundle stored in your app's `assets` directory.
+*   **Default fallback view**: A custom Android `View` to be used for all triggers.
+*   **Fallback view per trigger**: A map of trigger names to specific Android `View`s.
+
+All of this is configured via the `HeliumFallbackConfig` object passed into `Helium.initialize()`.
+
+Here are some examples:
+
+**1. Providing a fallback bundle:**
+
+Place your fallback JSON file in the `src/main/assets` directory of your module. Then, initialize Helium with the `fallbackBundleName`.
+
+```kotlin
+// In your Activity's or Application's onCreate() method
+Helium.initialize(
+    // ... other parameters
+    fallbackConfig = HeliumFallbackConfig.withFallbackBundle(
+        fallbackBundleName = "fallback-bundle-name.json"
+    )
+)
+```
+
+**2. Providing a fallback view and configuring loading budgets:**
+
+You can also provide a custom `View` and fine-tune the loading behavior.
+
+```kotlin
+// In your Activity's or Application's onCreate() method
+val fallbackView = YourFallbackView(this) // Your custom fallback view
+
+Helium.initialize(
+    // ... other parameters
+    fallbackConfig = HeliumFallbackConfig(
+        fallbackView = fallbackView,
+        useLoadingState = true, // Show a loading state before fallback
+        loadingBudgetInMs = 3000, // Global loading budget (in milliseconds)
+        perTriggerLoadingConfig = mapOf(
+            "onboarding" to HeliumFallbackConfig(loadingBudgetInMs = 4000),
+            "quick_upgrade" to HeliumFallbackConfig(useLoadingState = false)
+        )
+    )
+)
+```
 
 ## Testing
 

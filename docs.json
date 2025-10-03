@@ -35,7 +35,8 @@
         "icon": "compass",
         "pages": [
           "guides/revenue-reporting",
-          "guides/fallback-bundle"
+          "guides/fallback-bundle",
+          "guides/third-party-analytics"
         ]
       },
       {

@@ -1,0 +1,66 @@
+---
+title: "How to view experimental traits in Amplitude"
+description: "Configure Helium to send paywall events and experimental data to your analytics provider"
+icon: "chart-line"
+---
+
+You can configure Helium to automatically send paywall events to your analytics provider of choice. Here are the steps:
+
+## Amplitude
+
+1. Go to [app.tryhelium.com/integrations](https://app.tryhelium.com/integrations). Click **Amplitude**
+2. Give your integration a name. Enter your API key (you can find it under **Settings** > **Projects** > **[Your Project Name]** and grab an API key from there)
+
+That's it! Paywall events (see [Helium Events](/sdk/helium-events)) will now come into Amplitude, prefixed with `helium_`
+
+![Events in Amplitude](/images/analytics/guide-events.png)
+
+## Viewing Experimental Properties
+
+Besides a boatload of other event properties, if a Helium paywall was seen as part of an experiment, it will come with a number of experimentation-focused properties that may be useful for analysis in Amplitude.
+
+Helium experiments work by separating out paywalls into _allocations_. These are numbers that sum to 100, and represent the percentage of users who will see each paywall. For example, in an A/B test between 2 paywalls with 90% of people in control and 10% in test, then the allocations will be [90, 10]. To determine which group a user falls into, we hash a uniformly random id associated with the user, and use that to randomly place them into one of the two groups. For example:
+
+- Let's say the allocations are [90, 10] as above (90% control paywall, 10% test)
+- Helium will assign my user a random **userPercentage** between 1 and 100 inclusive
+- If this value is between [1, 90] inclusive, then the user will be placed in the control group. If the user percentage is in [91, 100], then the user will fall in the test group
+
+Helium then uses this data to compute experimental metrics like revenue lift, conversion lift, and more.
+
+We log these experimentation properties to help you with your analysis. These are currently prefixed with `additionalPaywallFields`:
+
+![Analytics Fields](/images/analytics/guide-analytics-fields.png)
+
+<Note>
+We'll avoid deprecating these properties, but we might continue to evolve Helium's logging to provide cleaner groups of event names in the future. Reach out to us if you have any specific requirements in your experimentation monitoring!
+</Note>
+
+### Experimental Properties Reference
+
+<Note>
+As of SDK v3.0+, experiment data is sent in a structured `experimentInfo` object. See the [3rd Party Analytics Integration Guide](/guides/third-party-analytics) for complete field reference.
+</Note>
+
+**Current Structure (v3.0+):**
+
+The `experimentInfo` object contains:
+- `experimentId`, `experimentName`, `experimentType` - Experiment metadata
+- `chosenVariantDetails` - Which variant the user saw
+- `hashDetails` - User bucketing information
+- `audienceId`, `audienceData` - Targeting criteria
+- `allocationMetadata` - Custom metadata from dashboard
+
+See [complete field reference](/guides/third-party-analytics#experiment-allocation-data) for details.
+
+**Legacy Fields (v2.x, deprecated):**
+
+| Field Name | Description | Type |
+|------------|-------------|------|
+| `allocations` | Array of allocation percentages | array[int] |
+| `chosen_allocation` | Bucket index (0-based) | int |
+| `experimentName` | Experiment name | string |
+| `userPercentage` | User hash bucket (1-100) | int |
+
+<Info>
+Mixpanel + PostHog coming soon!
+</Info>

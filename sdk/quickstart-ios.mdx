@@ -16,6 +16,10 @@ Get set up with the Helium SDK for iOS. Reach out over your Helium slack channel
 
 ## Installation
 
+<Note>
+  Helium requires a minimum deployment target of iOS 15 and Xcode 14+. (Latest Xcode is recommended.)
+</Note>
+
 We recommend using Swift Package Manager (SPM), but if your project primarily uses Cocoapods it might make sense to install the Helium Cocoapod instead.
 
 <Tabs>
@@ -204,6 +208,9 @@ Helium.shared.initialize(
 </Accordion>
 
 <Accordion title="Checking Download Status">
+  <Note>
+    In most cases there is no need to check download status. Helium will display a loading indication if a paywall is presented before download has completed.
+  </Note>
   You can check the status of the paywall configuration download using the `Helium.shared.getDownloadStatus()` method. This method returns a value of type `HeliumFetchedConfigStatus`, which is defined as follows:
 
   ```swift
@@ -380,6 +387,26 @@ Button("Try Premium") {
 }
 ```
 
+<ResponseField name="Helium.shared.presentUpsell" type="method">
+  <Expandable title="parameters">
+    <ResponseField name="trigger" type="String" required>
+      The trigger name configured in your Helium dashboard
+    </ResponseField>
+    <ResponseField name="from" type="UIViewController?">
+      _(Optional)_ The view controller to present from. If nil, uses the current top view controller
+    </ResponseField>
+    <ResponseField name="eventHandlers" type="PaywallEventHandlers?">
+      _(Optional)_ Event handlers for paywall lifecycle events
+    </ResponseField>
+    <ResponseField name="customPaywallTraits" type="[String: Any]?">
+      _(Optional)_ Custom traits to pass to the paywall
+    </ResponseField>
+    <ResponseField name="dontShowIfAlreadyEntitled" type="Bool" default="false">
+      _(Optional)_ If `true`, the paywall will not show if the user already has entitlements for any product in the paywall
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
 ### Attach it to a SwiftUI view as a ViewModifier
 
 You can use the `.triggerUpsell` view modifier from any SwiftUI view:
@@ -503,6 +530,34 @@ Only the `onOpen`, `onClose`, `onDismiss`, and \`onPurchaseSucceeded events can 
   - Use `onPurchaseSucceeded` for your post purchase flow (e.g., a premium onboarding navigation)
   - Use `onClose` when you need to handle logic when the paywall closed, regardless of reason
 </Note>
+
+## Checking Subscription Status & Entitlements
+
+<Tip>
+  Check entitlements before showing paywalls to avoid showing a paywall to a user who should not see it.
+</Tip>
+
+The Helium SDK provides several ways to check user entitlements and subscription status.
+
+`hasAnyEntitlement()` Checks if the user has purchased any subscription or non-consumable product.
+
+`hasAnyActiveSubscription(includeNonRenewing: Bool = true)` Checks if the user has any active subscription. Set `includeNonRenewing` to `false` to check only auto-renewing subscriptions.
+
+`hasEntitlementForPaywall(trigger: String, considerAssociatedSubscriptions: Bool = false)` Checks if the user has entitlements for any product in a specific paywall. Returns `nil` if paywall configuration hasn't been downloaded yet.
+
+**`hasActiveEntitlementFor(productId: String)`** Checks if the user has entitlement to a specific product.
+
+**`hasActiveSubscriptionFor(productId: String)`** Checks if the user has an active subscription for a specific product.
+
+**`hasActiveSubscriptionFor(subscriptionGroupID: String)`** Checks if the user has an active subscription in a specific subscription group.
+
+**`purchasedProductIds()`** Retrieves a list of all product IDs the user currently has access to.
+
+**`activeSubscriptions()`** Returns detailed information about all active auto-renewing subscriptions.
+
+**`subscriptionStatusFor(productId: String)`** Gets detailed subscription status for a specific product, including state information like subscribed, expired, or in grace period.
+
+**`subscriptionStatusFor(subscriptionGroupID: String)`** Gets detailed subscription status for a specific subscription group.
 
 ## Fallbacks and Loading Budgets
 

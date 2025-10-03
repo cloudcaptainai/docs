@@ -2,3 +2,24 @@
     height: 32px;
     width: auto;
 }
+
+/* Make table columns more balanced - wider description column */
+table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+table th:nth-child(1),
+table td:nth-child(1) {
+    width: 20%;
+}
+
+table th:nth-child(2),
+table td:nth-child(2) {
+    width: 35%;
+}
+
+table th:nth-child(3),
+table td:nth-child(3) {
+    width: 45%;
+}

@@ -127,6 +127,9 @@ Future<void> main() async {
 </Accordion>
 
 <Accordion title="Checking Download Status">
+  <Note>
+    In most cases there is no need to check download status. Helium will display a loading indication if a paywall is presented before download has completed.
+  </Note>
   After initialization, you can check the status of the paywalls download:
 
   ```dart
@@ -344,6 +347,18 @@ To programmatically hide a paywall that was shown with the `presentUpsell` metho
 
 ```dart
 bool hideResult = await heliumFlutter.hideUpsell() ?? false;
+```
+
+## Checking Subscription Status & Entitlements
+
+Use these methods to check current user subscription status.
+
+```dart
+/// Checks if the user has any active subscription (including non-renewable)
+Future<bool> hasAnyActiveSubscription();
+
+/// Checks if the user has any entitlement
+Future<bool> hasAnyEntitlement();
 ```
 
 ## Fallbacks

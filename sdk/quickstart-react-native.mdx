@@ -301,6 +301,22 @@ function YourComponent() {
 
 You should now be able to see Helium paywalls in your app! Well done! 🎉
 
+## Checking Subscription Status & Entitlements
+
+Use these methods to check current user subscription status.
+
+```typescript
+/**
+ * Checks if the user has any active subscription (including non-renewable)
+ */
+export const hasAnyActiveSubscription = async (): Promise<boolean>;
+
+/**
+ * Checks if the user has any entitlement
+ */
+export const hasAnyEntitlement = async (): Promise<boolean>;
+```
+
 ## Fallbacks
 
 There are currently two ways you can handle a "fallback" situation in the rare case that a paywall fails to download or an invalid trigger is provided. You can also do both. Better to be prepared!

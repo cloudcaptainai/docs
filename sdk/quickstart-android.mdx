@@ -58,7 +58,7 @@ dependencyResolutionManagement {
 
     dependencies {
         // Choose one of the UI modules:
-        implementation("com.tryhelium.paywall:core:0.0.8")
+        implementation("com.tryhelium.paywall:core:0.1.1")
         // Other app dependencies
     }
     ```
@@ -69,7 +69,7 @@ dependencyResolutionManagement {
 
     dependencies {
         // Choose one of the UI modules:
-        implementation("com.tryhelium.paywall:compose-ui:0.0.8")
+        implementation("com.tryhelium.paywall:compose-ui:0.1.1")
         // Other app dependencies
     }
     ```
@@ -80,7 +80,7 @@ dependencyResolutionManagement {
 
     dependencies {
         // If you're using RevenueCat, add this dependency:
-        implementation("com.tryhelium.paywall:revenue-cat:0.0.8")
+        implementation("com.tryhelium.paywall:revenue-cat:0.1.1")
         // Other app dependencies
     }
     ```
@@ -163,11 +163,21 @@ You can provide an implementation of the `HeliumPaywallDelegate` or use one of t
 
     ```kotlin
     interface HeliumPaywallDelegate {
-        suspend fun makePurchase(productId: String): HeliumPaywallTransactionStatus
+        suspend fun makePurchase(
+            productDetails: ProductDetails,
+            basePlanId: String?,
+            offerId: String?,
+        ): HeliumPaywallTransactionStatus
         suspend fun restorePurchases(): Boolean
-        fun onHeliumPaywallEvent(event: HeliumPaywallEvent)
+        fun onHeliumPaywallEvent(event: HeliumEvent)
     }
     ```
+
+    The `makePurchase` function is called by the Helium SDK when a user initiates a purchase. It provides you with the following parameters:
+
+    - `productDetails`: The `ProductDetails` object from the billing library for the selected product.
+    - `basePlanId`: The identifier of the base plan, if applicable (for subscriptions).
+    - `offerId`: The identifier of the offer, if applicable (for subscriptions with special offers).
   </Tab>
 </Tabs>
 
@@ -180,12 +190,36 @@ We provide two different ways of presenting the Paywall:
 
 <Tabs>
   <Tab title="Jetpack Compose">
-    The preferred way to integrate the Helium paywall is to add it to your Navigation Graph. Inside your `NavHost`, you can use the `buildHelium()` destination builder. This function now requires a `HeliumNavigationDispatcher` to handle navigation events originating from the paywall, such as closing the screen or navigating to a different paywall.
+    The recommended way to present a paywall in Jetpack Compose is by launching the `HeliumPaywallActivity` using `rememberLauncherForActivityResult`. This approach allows you to receive a result back from the paywall, such as whether a purchase was successful.
 
-    While the `navigationDispatcher` parameter is optional, failing to provide an implementation will result in navigation-related issues when the user interacts with the paywall.
+    Here is an example of how to set it up in your Composable function:
+
+    ```kotlin
+    val context = LocalContext.current
+    val paywallLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            // Handle successful purchase
+        } else {
+            // Handle cancellation
+        }
+    }
+
+    Button(onClick = {
+        paywallLauncher.launch(
+            createPaywallIntent(
+                context = context,
+                trigger = "sdk_test"
+            )
+        )
+    }) {
+        Text("Show Paywall")
+    }
+    ```
+
+    Alternatively, if you are using `NavController`, you can add the paywall to your navigation graph using `buildHelium()`:
     
-    Here is an example of how to set it up:
-
     ```kotlin
     NavHost(
         navController = navController,
@@ -218,34 +252,28 @@ We provide two different ways of presenting the Paywall:
 
     ##### Using HeliumPaywallActivity
 
-    Using the `HeliumPaywallActivity` requires you to create a subclass and implement the `HeliumNavigationDispatcher` interface.
+    You can use `HeliumPaywallActivity` to display a paywall.
 
-    **1. Create your Paywall Activity:**
+    To launch the paywall and handle the result, it is recommended to use `registerForActivityResult`.
 
     ```kotlin
-    // In your app, for example, MyPaywallActivity.kt
-    class MyPaywallActivity : HeliumPaywallActivity() {
-        override fun navigate(command: HeliumNavigationCommand) {
-            when (command) {
-                HeliumNavigationCommand.GoBack -> finish()
-                is HeliumNavigationCommand.Paywall -> {
-                    // Handle navigation to another paywall if needed
-                }
-            }
+    // In your Activity or Fragment
+
+    // Set up the ActivityResultLauncher
+    val paywallLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            // User has successfully interacted with the paywall.
+            // For example, you might want to refresh the user's subscription status.
         }
     }
-    ```
 
-    *Note: Don't forget to add `MyPaywallActivity` to your `AndroidManifest.xml`.*
-
-    **2. Launch your Paywall Activity:**
-
-    ```kotlin
-    // To launch your paywall from another Activity or Fragment
-    val intent = Intent(this, MyPaywallActivity::class.java).apply {
-        putExtra(HeliumPaywallActivity.EXTRA_TRIGGER, "sdk_test")
-    }
-    startActivity(intent)
+    // Launch your Paywall Activity
+    val intent = createPaywallIntent(
+        context = this,
+        trigger = "sdk_test",
+        fullscreen = true, // optional
+    )
+    paywallLauncher.launch(intent)
     ```
 
     ##### Using HeliumPaywallFragment
@@ -323,7 +351,7 @@ Helium.initialize(
 
 **2. Providing a fallback view and configuring loading budgets:**
 
-You can also provide a custom `View` and fine-tune the loading behavior.
+You can also provide a custom `View` and fine-tune the.
 
 ```kotlin
 // In your Activity's or Application's onCreate() method

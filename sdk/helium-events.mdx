@@ -174,7 +174,7 @@ This page acts as a reference to what events are available in Helium, and when e
 
 | Event Name | Description | Parameters |
 |------------|-------------|------------|
-| **userAllocated** | Fires once per trigger when a user is allocated to an experiment variant | `experimentInfo` (Object) - Complete experiment allocation data (see below)<br/>`timestamp` (Number) - When allocation occurred |
+| **userAllocated** | Fires once per trigger when a user is allocated to an experiment variant | `type` (String) - "userAllocated"<br/>`experimentInfo` (Object) - Complete experiment allocation data (see below)<br/>`timestamp` (Number) - When allocation occurred |
 
 
 ### ExperimentInfo Structure
@@ -185,34 +185,33 @@ The `experimentInfo` object in the `userAllocated` event contains experiment all
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `trigger` | String | Name of the first trigger the user sees |
+| `trigger` | String | The trigger the user first sees that's in this epxeriment. |
 
 #### Experiment Details
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `experimentName` | String | Human-readable name of the experiment |
-| `experimentId` | String | Unique identifier for the experiment. You can look this experiment id up in the helium dashboard |
-| `experimentType` | String | Type of experiment (e.g., "A/B/n test", "MAB", "CMAB") |
-| `startDate` | DateTime | When the experiment started |
-| `endDate` | DateTime | When the experiment ends |
+| `experimentName` | String | Name of the experiment |
+| `experimentId` | String | Unique identifier for the experiment. You can look this experiment id up in the Helium dashboard |
+| `experimentType` | String | Type of experiment ("A/B/n test") |
+| `startDate` | String | When the experiment started (ISO8601 string) |
+| `endDate` | String | When the experiment is scheduled to end (ISO8601 string) |
 
 #### Targeting Details
 
 | Field | Type | Description |
 |-------|------|-------------|
 | `audienceId` | String | Audience ID that user matched (for lookup in Helium) |
-| `audienceDataDictionary` | Object | Parsed audience rules/criteria<br/>- `operator`: How rules are combined ("AND", "OR")<br/>- `isAllUsers`: Whether this targets all users<br/>- `rules`: Array of targeting rules that matched |
+| `audienceData` | String | Stringified JSON of the logged targeting logic. Useful for reference, though we recommend using the audience defined in the Helium dashboard. |
 
 #### Variant Details
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `chosenVariantIndex` | Integer | Variant number (1-indexed) |
 | `chosenVariantDetails` | Object | Details about the assigned variant |
-| `chosenVariantDetails.allocationName` | String | Variant/paywall name |
+| `chosenVariantDetails.allocationName` | String | Variant name. This will be the paywall name for paywall A/B/n tests. More names to come soon! |
 | `chosenVariantDetails.allocationId` | String | Variant UUID |
-| `chosenVariantDetails.allocationTime` | DateTime | When the user was allocated to this variant |
+| `chosenVariantDetails.allocationIndex` | Integer | Variant number (1-indexed) |
 
 #### Hash Details
 
@@ -220,9 +219,10 @@ These fields provide information about how the user was deterministically assign
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `hashedUserIdBucket1To100` | Integer | User's hash bucket (1-100) - deterministic value for consistent variant assignment |
-| `hashedUserId` | String | The user ID that was hashed |
-| `hashMethod` | String | Hash method used:<br/>- `"HASH_USER_ID"`: Standard user ID hashing<br/>- `"HASH_HELIUM_PERSISTENT_ID"`: Persistent device ID hashing (more stable across reinstalls) |
+| `hashDetails` | Object | Hash bucketing information |
+| `hashDetails.hashedUserIdBucket1To100` | Integer | User's hash bucket (1-100) - deterministic value for consistent variant assignment |
+| `hashDetails.hashedUserId` | String | The actual user ID that was hashed (either the userId or heliumPersistentId depending on hashMethod) |
+| `hashDetails.hashMethod` | String | Hash method used:<br/>- `"HASH_USER_ID"`: we're hashing the user id passed into Helium.initialize() <br/>- `"HASH_HELIUM_PERSISTENT_ID"`: We're hashing a persistent device ID (does NOT persist across re-installs) |
 
 ## Logged Events
 

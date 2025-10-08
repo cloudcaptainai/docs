@@ -176,6 +176,37 @@ This page acts as a reference to what events are available in Helium, and when e
 |------------|-------------|------------|
 | **userAllocated** | Fires once per trigger when a user is allocated to an experiment variant | `type` (String) - "userAllocated"<br/>`experimentInfo` (Object) - Complete experiment allocation data (see below)<br/>`timestamp` (Number) - When allocation occurred |
 
+### Accessing ExperimentInfo from Events
+
+<Tabs>
+  <Tab title="iOS">
+All paywall events (any event that implements `PaywallContextEvent`) provide a `getExperimentInfo()` method to access experiment allocation data on-demand:
+
+```swift
+func onPaywallEvent(_ event: HeliumEvent) {
+    // Access experiment info from any paywall event
+    if let openEvent = event as? PaywallOpenEvent,
+       let experimentInfo = openEvent.getExperimentInfo() {
+        print("Variant: \(experimentInfo.chosenVariantDetails?.allocationIndex ?? 0)")
+        print("Experiment: \(experimentInfo.experimentName ?? "none")")
+    }
+    
+    // Track which variant led to purchase
+    if let purchaseEvent = event as? PurchaseSucceededEvent,
+       let experimentInfo = purchaseEvent.getExperimentInfo() {
+        analytics.track("conversion", variant: experimentInfo.chosenVariantDetails?.allocationIndex)
+    }
+}
+```
+
+You can also access experiment info directly by trigger:
+```swift
+if let experimentInfo = Helium.shared.getExperimentInfoForTrigger("onboarding") {
+    print("Variant: \(experimentInfo.chosenVariantDetails?.allocationIndex ?? 0)")
+}
+```
+  </Tab>
+</Tabs>
 
 ### ExperimentInfo Structure
 

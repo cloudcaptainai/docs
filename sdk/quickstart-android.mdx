@@ -1,0 +1,376 @@
+---
+title: "SDK Quickstart (Android)"
+description: "Integrate Helium into your Android app"
+icon: "code"
+---
+
+## **Background**
+
+Thanks for getting started with Helium 🎈
+
+Helium is an upsell experimentation and optimization platform for mobile apps of all sizes. We take your app’s existing paywalls and turn them into remotely editable templates that you can experiment with and optimize without waiting for new app releases.
+
+Email founders@tryhelium.com for help/questions.
+
+## **Installation**
+
+Add the Helium SDK to your project using Gradle.
+
+### Requirements
+
+- **Kotlin Version**: 2.0.0 or higher
+- **Java Version**: 8 or higher
+- **Minimum Android SDK**: 23 or higher
+- **Compile Android SDK**: 35 or higher
+
+**1. Add repositories to your `settings.gradle.kts` file:**
+
+Ensure you have `mavenCentral()` and `google()` in your repositories blocks.
+
+```kotlin
+// settings.gradle.kts
+
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+    }
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        // You might have other repositories here
+    }
+}
+```
+*Note: If you don't have a `dependencyResolutionManagement` block, ensure `google()` and `mavenCentral()` are present in your `pluginManagement { repositories { ... } }` block.*
+
+**2. Add the dependencies to your module-level `build.gradle.kts` file (e.g., `app/build.gradle.kts`):**
+
+<Tabs>
+  <Tab title="Core (Android View System)">
+    ```kotlin
+    // app/build.gradle.kts
+
+    dependencies {
+        // Choose one of the UI modules:
+        implementation("com.tryhelium.paywall:core:0.1.1")
+        // Other app dependencies
+    }
+    ```
+  </Tab>
+  <Tab title="Jetpack Compose UI">
+    ```kotlin
+    // app/build.gradle.kts
+
+    dependencies {
+        // Choose one of the UI modules:
+        implementation("com.tryhelium.paywall:compose-ui:0.1.1")
+        // Other app dependencies
+    }
+    ```
+  </Tab>
+  <Tab title="RevenueCat">
+    ```kotlin
+    // app/build.gradle.kts
+
+    dependencies {
+        // If you're using RevenueCat, add this dependency:
+        implementation("com.tryhelium.paywall:revenue-cat:0.1.1")
+        // Other app dependencies
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Initialize Helium
+
+You need to initialize Helium before you can present a paywall. The best place to do this is in your `MainActivity`'s `onCreate()` method.
+
+```kotlin
+// In your MainActivity class's onCreate() method
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        val heliumPaywallDelegate = PlayStorePaywallDelegate(this) // Or your custom delegate
+
+        Helium.initialize(
+            context = this,
+            apiKey = "YOUR_API_KEY",
+            heliumPaywallDelegate = heliumPaywallDelegate,
+            customUserId = "YOUR_CUSTOM_USER_ID", // Can be null if the user is anonymous
+            customUserTraits = HeliumUserTraits(/* populate with relevant user properties */) // Optional
+        )
+    }
+}
+```
+
+## Observing Paywall Configuration Download Status
+
+The Helium SDK provides a `downloadStatus` flow that you can observe to get updates on the status of the paywall configuration download. This is useful for showing loading indicators or handling download failures.
+
+The `downloadStatus` is a Kotlin `Flow` that emits `HeliumConfigStatus` states. The possible states are:
+
+-   `HeliumConfigStatus.NotYetDownloaded`: The initial state before the download has started.
+-   `HeliumConfigStatus.Downloading`: Indicates that the paywall configuration is currently being downloaded.
+-   `HeliumConfigStatus.DownloadFailure`: Indicates that the paywall configuration download has failed.
+-   `HeliumConfigStatus.DownloadSuccess`: Indicates that the paywall configuration has been successfully downloaded.
+
+Here's how you can observe the `downloadStatus` flow in your Activity or Fragment:
+
+```kotlin
+// In your Activity or Fragment
+lifecycleScope.launch {
+    Helium.shared.downloadStatus.collect { status ->
+        when (status) {
+            is HeliumConfigStatus.NotYetDownloaded -> {
+                // Handle not yet downloaded state
+            }
+            is HeliumConfigStatus.Downloading -> {
+                // Handle downloading state
+            }
+            is HeliumConfigStatus.DownloadFailure -> {
+                // Handle download failure
+            }
+            is HeliumConfigStatus.DownloadSuccess -> {
+                // Handle download success
+            }
+        }
+    }
+}
+```
+
+## HeliumPaywallDelegate
+
+You can provide an implementation of the `HeliumPaywallDelegate` or use one of the default implementations that we have provided, such as `PlayStorePaywallDelegate` or `RevenueCatPaywallDelegate`.
+
+<Tabs>
+  <Tab title="PlayStorePaywallDelegate">
+    Use the `PlayStorePaywallDelegate` to handle purchases using Google Play Billing.
+  </Tab>
+  <Tab title="RevenueCatPaywallDelegate">
+    Use the `RevenueCatPaywallDelegate` to handle purchases if your app is using RevenueCat. Make sure you add the `revenue-cat` dependency as shown in the installation section.
+  </Tab>
+  <Tab title="Custom Delegate">
+    You can also create a custom delegate and implement your own purchase logic.
+
+    The `HeliumPaywallDelegate` is defined as follows:
+
+    ```kotlin
+    interface HeliumPaywallDelegate {
+        suspend fun makePurchase(
+            productDetails: ProductDetails,
+            basePlanId: String?,
+            offerId: String?,
+        ): HeliumPaywallTransactionStatus
+        suspend fun restorePurchases(): Boolean
+        fun onHeliumPaywallEvent(event: HeliumEvent)
+    }
+    ```
+
+    The `makePurchase` function is called by the Helium SDK when a user initiates a purchase. It provides you with the following parameters:
+
+    - `productDetails`: The `ProductDetails` object from the billing library for the selected product.
+    - `basePlanId`: The identifier of the base plan, if applicable (for subscriptions).
+    - `offerId`: The identifier of the offer, if applicable (for subscriptions with special offers).
+  </Tab>
+</Tabs>
+
+
+## Presenting Paywalls
+
+To present a Paywall, ensure you have initialized the library. The SDK provides UI components that handle the underlying `PaywallWebViewManager`.
+
+We provide two different ways of presenting the Paywall:
+
+<Tabs>
+  <Tab title="Jetpack Compose">
+    The recommended way to present a paywall in Jetpack Compose is by launching the `HeliumPaywallActivity` using `rememberLauncherForActivityResult`. This approach allows you to receive a result back from the paywall, such as whether a purchase was successful.
+
+    Here is an example of how to set it up in your Composable function:
+
+    ```kotlin
+    val context = LocalContext.current
+    val paywallLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            // Handle successful purchase
+        } else {
+            // Handle cancellation
+        }
+    }
+
+    Button(onClick = {
+        paywallLauncher.launch(
+            createPaywallIntent(
+                context = context,
+                trigger = "sdk_test"
+            )
+        )
+    }) {
+        Text("Show Paywall")
+    }
+    ```
+
+    Alternatively, if you are using `NavController`, you can add the paywall to your navigation graph using `buildHelium()`:
+    
+    ```kotlin
+    NavHost(
+        navController = navController,
+        startDestination = "landing",
+        modifier = Modifier.fillMaxSize()
+    ) {
+        composable("landing") {
+            LandingScreen(navController = navController)
+        }
+        buildHelium(
+            navigationDispatcher = { command ->
+                when (command) {
+                    HeliumNavigationCommand.GoBack -> navController.popBackStack()
+                    is HeliumNavigationCommand.Paywall -> navController.navigate("helium?trigger=${command.trigger}")
+                }
+            }
+        )
+    }
+    ```
+
+    To present a paywall, you can then navigate to the Helium route with a specific trigger:
+
+    ```kotlin
+    // Navigate to the paywall
+    navController.navigate("helium?trigger=sdk_test")
+    ```
+  </Tab>
+  <Tab title="Android View System">
+    You can present paywalls using either an `Activity` or a `Fragment`. Make sure you have initialized the Helium SDK as described in the "Initialize Helium" section before presenting the paywall.
+
+    ##### Using HeliumPaywallActivity
+
+    You can use `HeliumPaywallActivity` to display a paywall.
+
+    To launch the paywall and handle the result, it is recommended to use `registerForActivityResult`.
+
+    ```kotlin
+    // In your Activity or Fragment
+
+    // Set up the ActivityResultLauncher
+    val paywallLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            // User has successfully interacted with the paywall.
+            // For example, you might want to refresh the user's subscription status.
+        }
+    }
+
+    // Launch your Paywall Activity
+    val intent = createPaywallIntent(
+        context = this,
+        trigger = "sdk_test",
+        fullscreen = true, // optional
+    )
+    paywallLauncher.launch(intent)
+    ```
+
+    ##### Using HeliumPaywallFragment
+
+    Using the `HeliumPaywallFragment` requires you to create a subclass and implement the `HeliumNavigationDispatcher` interface.
+
+    **1. Create your Paywall Fragment:**
+
+    ```kotlin
+    // In your app, for example, MyPaywallFragment.kt
+    class MyPaywallFragment : HeliumPaywallFragment() {
+        override fun navigate(command: HeliumNavigationCommand) {
+            when (command) {
+                HeliumNavigationCommand.GoBack -> requireActivity().supportFragmentManager.popBackStack()
+                is HeliumNavigationCommand.Paywall -> {
+                    // Handle navigation to another paywall if needed
+                }
+            }
+        }
+
+        companion object {
+            fun newInstance(trigger: String): MyPaywallFragment {
+                return MyPaywallFragment().apply {
+                    arguments = Bundle().apply {
+                        putString(ARG_TRIGGER, trigger)
+                    }
+                }
+            }
+        }
+    }
+    ```
+
+    **2. Launch your Paywall Fragment:**
+
+    ```kotlin
+    // To launch your paywall from an Activity or another Fragment
+    val fragment = MyPaywallFragment.newInstance("sdk_test")
+    supportFragmentManager.beginTransaction()
+        .replace(R.id.fragment_container, fragment)
+        .addToBackStack(null)
+        .commit()
+    ```
+  </Tab>
+</Tabs>
+
+## Fallbacks and Loading Budgets
+
+If a paywall has not completed downloading when you attempt to present it, a loading state can be displayed. By default, Helium will show this loading state (a shimmer view) for up to 2 seconds (`2000ms`). You can configure this behavior, turn it off, or set trigger-specific loading budgets using the `HeliumFallbackConfig` object during initialization.
+
+If the loading budget expires before the paywall is ready, a fallback paywall will be shown if one is provided. Otherwise, the loading state will hide, and a `PaywallOpenFailed` event will be dispatched.
+
+There are three options for fallbacks in the Android SDK:
+
+*   **Fallback bundles**: A pre-packaged paywall bundle stored in your app's `assets` directory.
+*   **Default fallback view**: A custom Android `View` to be used for all triggers.
+*   **Fallback view per trigger**: A map of trigger names to specific Android `View`s.
+
+All of this is configured via the `HeliumFallbackConfig` object passed into `Helium.initialize()`.
+
+Here are some examples:
+
+**1. Providing a fallback bundle:**
+
+Place your fallback JSON file in the `src/main/assets` directory of your module. Then, initialize Helium with the `fallbackBundleName`.
+
+```kotlin
+// In your Activity's or Application's onCreate() method
+Helium.initialize(
+    // ... other parameters
+    fallbackConfig = HeliumFallbackConfig.withFallbackBundle(
+        fallbackBundleName = "fallback-bundle-name.json"
+    )
+)
+```
+
+**2. Providing a fallback view and configuring loading budgets:**
+
+You can also provide a custom `View` and fine-tune the.
+
+```kotlin
+// In your Activity's or Application's onCreate() method
+val fallbackView = YourFallbackView(this) // Your custom fallback view
+
+Helium.initialize(
+    // ... other parameters
+    fallbackConfig = HeliumFallbackConfig(
+        fallbackView = fallbackView,
+        useLoadingState = true, // Show a loading state before fallback
+        loadingBudgetInMs = 3000, // Global loading budget (in milliseconds)
+        perTriggerLoadingConfig = mapOf(
+            "onboarding" to HeliumFallbackConfig(loadingBudgetInMs = 4000),
+            "quick_upgrade" to HeliumFallbackConfig(useLoadingState = false)
+        )
+    )
+)
+```
+
+## Testing
+
+Docs here coming soon!

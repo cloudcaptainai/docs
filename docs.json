@@ -23,6 +23,7 @@
         "icon": "code",
         "pages": [
           "sdk/quickstart-ios",
+          "sdk/quickstart-android",
           "sdk/quickstart-react-native",
           "sdk/quickstart-flutter",
           "sdk/helium-events",

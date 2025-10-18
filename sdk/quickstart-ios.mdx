@@ -461,6 +461,9 @@ When displaying a paywall you can pass in event handlers to listen for relevant 
           .onPurchaseSucceeded { event in
               print("\(event.paywallName) for trigger \(event.triggerName)")
           }
+          .onCustomPaywallAction { event in
+              print("Custom action: \(event.actionName) with params: \(event.params)")
+          }
   )
   ```
   ```swift triggerUpsell
@@ -490,6 +493,9 @@ When displaying a paywall you can pass in event handlers to listen for relevant 
                   .onPurchaseSucceeded { event in
                      print("\(event.paywallName) for trigger \(event.triggerName)")
                   }
+                  .onCustomPaywallAction { event in
+                     print("Custom action: \(event.actionName) with params: \(event.params)")
+                  }
             )
         }
     }
@@ -511,11 +517,14 @@ When displaying a paywall you can pass in event handlers to listen for relevant 
               .onPurchaseSucceeded { event in
                   print("\(event.paywallName) for trigger \(event.triggerName)")
               }
+              .onCustomPaywallAction { event in
+                  print("Custom action: \(event.actionName) with params: \(event.params)")
+              }
       )
       ```
 </CodeGroup>
 
-Only the `onOpen`, `onClose`, `onDismiss`, and \`onPurchaseSucceeded events can be specified this way. For others, see the section on **HeliumPaywallDelegate**.
+Only the `onOpen`, `onClose`, `onDismiss`, `onPurchaseSucceeded`, and `onCustomPaywallAction` events can be specified this way. For others, see the section on **HeliumPaywallDelegate**.
 
 <Note>
   **Event Timing:**

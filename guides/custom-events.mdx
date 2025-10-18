@@ -1,0 +1,133 @@
+---
+title: "Handling custom paywall events"
+description: "Send custom events from your paywall to your app to trigger actions beyond purchases."
+---
+## Overview
+Helium's event handling system has native handlers for most common paywall events (purchases, navigation, etc), but in some cases you might want to have custom interactions on your paywall that aren't handled by default. For example, you might want to have a toggle that when selected sends a trial notification reminder using your own notification system. Helium lets you do this with **Custom Events**. 
+
+A custom event has two properties:
+**Action Name** - (String) The name of the event. For example, "did_switch_trial_toggle"
+**Params** - (Dictionary of keys/values) Other params associated with the action. For example, { "is_toggle_selected": False }
+
+There are two steps to setting up custom event handling with Helium:
+
+## Editor: Add a button that emits a custom action to your paywall
+
+In the Helium paywall editor, you can add a button or interaction that sends a custom action by just asking the chat. For example,
+
+"Add a trial reminder toggle using custom actions"
+"Add a button that triggers an alert saying "Wait, there's more!" using custom actions"
+"Make it so that if the user selects the Watch Ads button, the editor sends a custom action to handle so that the SDK can handle that case on purchase pressed "
+
+
+Some tips:
+- You can verify the editor is using a custom action using the **Actions Panel**. 
+- Feel free to tell the editor the specific action name and params you want it to use!
+- Reach out to support with your use case - happy to set this up for you and tell you what the corresponding SDK code should look like to handle the new event!
+
+
+## SDK: Add an onCustomPaywallAction handler
+
+Then, within your SDK you can use Paywall Event Handlers with the `onCustomPaywallAction` event. Visit our SDK's quickstart pages for more info on getting set up with the SDK.
+
+<Tabs>
+  <Tab title="iOS">
+    ```swift
+    Helium.shared.presentUpsell(
+        trigger: "your_trigger",
+        eventHandlers: PaywallEventHandlers()
+            .onCustomPaywallAction { event in
+                if event.actionName == "your_action_name",
+                   let value = event.params["key1"] as? String {
+                    // Handle your custom action
+                    // E.g., mark that we should send a notification on purchase
+                    print("Received: \(value)")
+                }
+            }
+    )
+    ```
+
+    The `CustomPaywallActionEvent` contains:
+    - `actionName`: The action identifier from JavaScript
+    - `params`: Dictionary of parameters from JavaScript
+    - `triggerName`: The trigger that opened this paywall
+    - `paywallName`: The paywall template name
+    - `timestamp`: When the event occurred
+  </Tab>
+  
+  {/* <Tab title="Android">
+    ```kotlin
+    Helium.presentUpsell(
+        trigger = "your_trigger",
+        eventHandlers = PaywallEventHandlers(
+            onCustomPaywallAction = { event ->
+                if (event.actionName == "your_action_name") {
+                    val value = event.params["key1"] as? String
+                    // Handle your custom action
+                    println("Received: $value")
+                }
+            }
+        )
+    )
+    ```
+
+    The `CustomPaywallActionEvent` contains:
+    - `actionName`: The action identifier from JavaScript
+    - `params`: Map of parameters from JavaScript
+    - `triggerName`: The trigger that opened this paywall
+    - `paywallName`: The paywall template name
+    - `timestamp`: When the event occurred
+  </Tab>
+
+  <Tab title="React Native">
+    ```typescript
+    import { presentUpsell } from '@tryheliumai/paywall-sdk-react-native';
+
+    presentUpsell('your_trigger', {
+      onCustomPaywallAction: (event) => {
+        if (event.actionName === 'your_action_name') {
+          const value = event.params.key1;
+          // Handle your custom action
+          console.log('Received:', value);
+        }
+      }
+    });
+    ```
+
+    The `CustomPaywallActionEvent` contains:
+    - `actionName`: The action identifier from JavaScript
+    - `params`: Object of parameters from JavaScript
+    - `triggerName`: The trigger that opened this paywall
+    - `paywallName`: The paywall template name
+    - `timestamp`: When the event occurred
+  </Tab>
+
+  <Tab title="Flutter">
+    ```dart
+    HeliumFlutter().presentUpsell(
+      trigger: 'your_trigger',
+      eventHandlers: PaywallEventHandlers(
+        onCustomPaywallAction: (event) {
+          if (event.actionName == 'your_action_name') {
+            final value = event.params['key1'];
+            // Handle your custom action
+            print('Received: $value');
+          }
+        },
+      ),
+    );
+    ```
+
+    The `CustomPaywallActionEvent` contains:
+    - `actionName`: The action identifier from JavaScript
+    - `params`: Map of parameters from JavaScript
+    - `triggerName`: The trigger that opened this paywall
+    - `paywallName`: The paywall template name
+    - `timestamp`: When the event occurred
+  </Tab> */}
+</Tabs>
+
+<Tip>
+  Custom actions do not dismiss the paywall automatically. The paywall stays open unless you explicitly call `dismiss()` from JavaScript.
+</Tip>
+

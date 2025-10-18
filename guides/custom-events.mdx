@@ -1,13 +1,14 @@
 ---
 title: "Handling custom paywall events"
 description: "Send custom events from your paywall to your app to trigger actions beyond purchases."
+icon: "calendar-clock"
 ---
 ## Overview
 Helium's event handling system has native handlers for most common paywall events (purchases, navigation, etc), but in some cases you might want to have custom interactions on your paywall that aren't handled by default. For example, you might want to have a toggle that when selected sends a trial notification reminder using your own notification system. Helium lets you do this with **Custom Events**. 
 
 A custom event has two properties:
 **Action Name** - (String) The name of the event. For example, "did_switch_trial_toggle"
-**Params** - (Dictionary of keys/values) Other params associated with the action. For example, { "is_toggle_selected": False }
+**Params** - (Dictionary of keys/values) Other params associated with the action. For example, "is_toggle_selected": False
 
 There are two steps to setting up custom event handling with Helium:
 
@@ -54,8 +55,7 @@ Then, within your SDK you can use Paywall Event Handlers with the `onCustomPaywa
     - `paywallName`: The paywall template name
     - `timestamp`: When the event occurred
   </Tab>
-  
-  {/* <Tab title="Android">
+    {/* <Tab title="Android">
     ```kotlin
     Helium.presentUpsell(
         trigger = "your_trigger",
@@ -126,8 +126,4 @@ Then, within your SDK you can use Paywall Event Handlers with the `onCustomPaywa
     - `timestamp`: When the event occurred
   </Tab> */}
 </Tabs>
-
-<Tip>
-  Custom actions do not dismiss the paywall automatically. The paywall stays open unless you explicitly call `dismiss()` from JavaScript.
-</Tip>
 

@@ -6,9 +6,28 @@ icon: "calendar-clock"
 ## Overview
 Helium's event handling system has native handlers for most common paywall events (purchases, navigation, etc), but in some cases you might want to have custom interactions on your paywall that aren't handled by default. For example, you might want to have a toggle that when selected sends a trial notification reminder using your own notification system. Helium lets you do this with **Custom Events**. 
 
-A custom event has two properties:
+
+## Custom Events
+
+A custom event is fired from the paywall and handled from the SDK. You can have as many different types of custom events as you want within a single paywall. Custom events have a few properties:
+
 **Action Name** - (String) The name of the event. For example, "did_switch_trial_toggle"
-**Params** - (Dictionary of keys/values) Other params associated with the action. For example, "is_toggle_selected": False
+
+**Params** - (Dictionary of string keys -> any type of value) Dictionary of arbitrary parameters associated with the action. The keys have to be strings, the values can be numbers, boolean, strings, arrays, or dictionaries themselves. For example, 
+
+```
+{
+  "is_toggle_selected": False,
+  "iso_timestamp": 13041241255
+}
+```
+
+We recommend asking the editor to separate out different interactions into different actions. For example, if you have
+- a trial notification toggle
+- a little survey that you ask the user within the paywall
+- a custom dismiss button
+
+Separating these out into different actions with their own parameters will make it easier to handle from the SDK side.
 
 There are two steps to setting up custom event handling with Helium:
 

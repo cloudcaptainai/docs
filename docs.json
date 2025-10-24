@@ -44,7 +44,8 @@
         "group": "SDK Reference",
         "icon": "book-open",
         "pages": [
-          "sdk-reference/migration-2-to-3"
+          "sdk-reference/migration-2-to-3",
+          "sdk-reference/sdk-features"
         ]
       }
     ],

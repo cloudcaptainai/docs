@@ -3,26 +3,31 @@ title: "SDK Features Availability"
 description: "See what is currently available for each SDK."
 ---
 
-| Feature                                                 | iOS | Android | React Native | Flutter |
-| ------------------------------------------------------- | --- | ------- | ------------ | ------- |
+_Last updated on: 10/23/25_
+
+| Feature                                                 | iOS | Android | React-Native | Flutter |
+| :----------------------------------------------------- | :-: | :-----: | :----------: | :-----: |
 | **Purchase Handling**                                   |     |         |              |         |
 | Default purchase delegate                               | ✅   | ✅       | ✅            | ✅       |
 | Custom purchase delegate                                | ✅   | ✅       | ✅            | ✅       |
-| RevenueCat delegate                                     | ✅   | 🚫      | ✅            | 🚫       |
-| **Event Listening**                                     |     |         |              |         |
+| RevenueCat delegate                                     | ✅   | ✅       | ✅            | 🚫      |
+| **Helium Events**                                       |     |         |              |         |
 | Listen for events via delegate                          | ✅   | ✅       | ✅            | ✅       |
+| Add global event listener                               | 🚫  | 🚫      | 🚫           | 🚫      |
+| Paywall event handlers                                  | ✅   | ✅       | ✅            | ✅       |
+| Custom paywall actions                                  | ✅   | ✅       | ✅            | ✅       |
 | **Paywall Options**                                     |     |         |              |         |
 | Second try flow                                         | ✅   | 🚫      | ✅            | ✅       |
-| "Should Show"                                           | ✅   | ✅      | ✅            | ✅       |
-| Dark mode support                                       | ✅   | ✅      | ✅            | ✅       |
+| "Should Show" for presented paywall                     | ✅   | ✅       | ✅            | ✅       |
+| Dark mode support                                       | ✅   | ✅       | ✅            | ✅       |
 | Disable scroll                                          | ✅   | 🚫      | ✅            | ✅       |
 | Automatic safe area support                             | ✅   | 🚫      | ✅            | ✅       |
 | Intro offers                                            | ✅   | ✅       | ✅            | ✅       |
 | **Presentation Options**                                |     |         |              |         |
 | Modal presentation                                      | ✅   | ✅       | ✅            | ✅       |
-| Modal presentation callbacks                            | ✅   | ✅      | ✅            | ✅       |
+| Modal presentation callbacks                            | ✅   | ✅       | ✅            | ✅       |
 | Embedded view                                           | ✅   | ✅       | 🚫           | ✅       |
-| Embedded view callbacks                                 | ✅   | ✅      | 🚫           | 🚫      |
+| Embedded view callbacks                                 | ✅   | ✅       | 🚫           | 🚫      |
 | **Loading State**                                       |     |         |              |         |
 | For modal presentation                                  | ✅   | ✅       | ✅            | ✅       |
 | For embedded view                                       | 🚫  | ✅       | 🚫           | 🚫      |
@@ -33,7 +38,7 @@ description: "See what is currently available for each SDK."
 | Fallback view                                           | ✅   | 🚫      | 🚫           | ✅       |
 | Fallback view per trigger                               | ✅   | 🚫      | 🚫           | 🚫      |
 | onFallback callback with present                        | 🚫  | 🚫      | ✅            | 🚫      |
-| forceShowFallback                                       | ✅   | 🚫      | ✅            | ✅       |
+| forceShowFallback flag                                  | ✅   | 🚫      | ✅            | ✅       |
 | **Entitlements**                                        |     |         |              |         |
 | Option to check entitlements for paywall before showing | ✅   | 🚫      | 🚫           | 🚫      |
 | hasAnySubscription/hasAnyEntitlement helpers            | ✅   | 🚫      | ✅            | ✅       |
@@ -47,4 +52,4 @@ description: "See what is currently available for each SDK."
 | Custom paywall traits                                   | ✅   | 🚫      | ✅            | ✅       |
 | Revenue tracking                                        | ✅   | 🚫      | ✅            | ✅       |
 | **Experimentation**                                     |     |         |              |         |
-| Allocations                                             | ✅   | 🚫      | 🚫           | 🚫      |
+| Allocations                                             | ✅   | 🚫      | ✅            | ✅       |

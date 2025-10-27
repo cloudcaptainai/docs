@@ -32,19 +32,20 @@ We recommend using Swift Package Manager (SPM), but if your project primarily us
        ```
        https://github.com/cloudcaptainai/helium-swift.git
        ```
+
+       <Tip>
+         For **Dependency Rule** we recommend the default **Up to Next Major Version** to make sure you get non-breaking bug fixes. View the [list of releases](https://github.com/cloudcaptainai/helium-swift/releases) here.
+       </Tip>
     3. Click **Add Package**.
     4. In the dialog that appears, make sure to add the **Helium** product to your app's main target:
 
        ![Spm Target Pn](/images/spm_target.png)
-    5. _(Optional)_ If you are using RevenueCat to manage purchases, we recommended you also add **HeliumRevenueCat** to your target so that you can use our RevenueCatDelegate referenced in the HeliumPaywallDelegate section of this guide. Otherwise leave as **None** for the HeliumRevenueCat row.
+    5. _(Optional)_ If you are using RevenueCat to manage purchases, we recommended you also add **HeliumRevenueCat** to your target so that you can use our RevenueCatDelegate referenced in the **Purchase Handling** section of this guide. Otherwise leave as **None** for the HeliumRevenueCat row.
 
     <Warning>
       The **HeliumRevenueCat** target includes [purchases-ios-spm](https://github.com/RevenueCat/purchases-ios-spm) as a dependency, _not_ [purchases-ios](https://github.com/RevenueCat/purchases-ios) and you may encounter build issues if are using **purchases-ios** with SPM.
     </Warning>
     6. Select **Add Package** in the dialog and Helium should now be ready for import.
-    7. Version: We recommend using an upToNextMajor rule to make sure you get non-breaking bug fixes. The latest stable version of helium-swift is **3.0.5** :
-
-    ![Xcode 3 Dependency](/images/sdk/xcode_3_dependency.png)
   </Tab>
   <Tab title="Cocoapod">
     ### Option 1: Core functionality only
@@ -61,7 +62,7 @@ We recommend using Swift Package Manager (SPM), but if your project primarily us
     pod install
     ```
 
-    ### Option 2: Core \+ RevenueCat
+    ### Option 2: Core + RevenueCat
 
     <Note>
       Recommended if you are using RevenueCat to manage purchases.
@@ -139,7 +140,7 @@ And initialize Helium in the location referenced above:
 
 ```swift
 // Create fallback configuration
-//   with a fallback bundle (recommended)
+//   with a fallback bundle (recommended - see Fallbacks and Loading Budgets section)
 let fallbackBundleURL = Bundle.main.url(forResource: "fallback-bundle", withExtension: "json")
 let fallbackConfig = HeliumFallbackConfig.withFallbackBundle(fallbackBundleURL)
 
@@ -151,7 +152,7 @@ let fallbackConfig = HeliumFallbackConfig.withFallbackView(
 Helium.shared.initialize(
     apiKey: "<your-helium-api-key>",
     fallbackConfig: fallbackConfig,
-    revenueCatAppUserId: Purchases.shared.appUserID // RevenueCat ONLY
+    revenueCatAppUserId: Purchases.shared.appUserID // ONLY if using RevenueCat
 )
 ```
 
@@ -183,8 +184,8 @@ Helium.shared.initialize(
       _(Optional)_ Set this if you use a custom appAccountToken with your StoreKit purchases.
     </ResponseField>
     <ResponseField name="revenueCatAppUserId" type="String?">
-      _(Optional)_ RevenueCat ONLY. Supply RevenueCat appUserID here (and initialize RevenueCat before Helium initialize).
-      You can also set this value outside of initialize: `Helium.shared.setRevenueCatAppUserId(Purchases.shared.appUserID)`
+      _(Optional)_ RevenueCat ONLY. Supply RevenueCat appUserID here (and initialize RevenueCat before Helium initialize). You can also set this value outside of initialize: `Helium.shared.setRevenueCatAppUserId(Purchases.shared.appUserID)`
+
       <Tip>
         No need to set this if you use RevenueCatDelegate (see next section).
       </Tip>
@@ -193,7 +194,7 @@ Helium.shared.initialize(
 </ResponseField>
 
 <Note>
-  Helium's initialization is ran on a background thread, so you don't have to worry about it blocking your app's launch time. Helium will automatically retry downloads as needed for up to 90 seconds.
+  Helium's initialization is ran on a background thread, so you don't have to worry about it blocking your app's launch time. Helium will automatically retry downloads as needed for up to ~90 seconds.
 </Note>
 
 <Accordion title="Custom User ID and Custom User Traits">
@@ -225,64 +226,29 @@ Helium.shared.initialize(
   You can also simply check if paywalls have been successfully downloaded with `Helium.shared.paywallsLoaded()`.
 </Accordion>
 
-<Accordion title="Get Paywall Info By Trigger">
-  Retrieve basic information about the paywall ready to show for a specific trigger
-  with `Helium.shared.getPaywallInfo(trigger: String)` which returns:
+## Purchase Handling
 
-  ```swift
-  public struct PaywallInfo {
-      public let paywallTemplateName: String
-      public let shouldShow: Bool
-  }
-  ```
-</Accordion>
+<Tip>
+  By default, Helium will handle purchases for you! This section is for those who want to delegate purchases to RevenueCat or implement custom purchase logic.
+</Tip>
 
-## HeliumPaywallDelegate
-
-The `HeliumPaywallDelegate` can be passed in to `Helium.shared.initialize` otherwise the default `StoreKitDelegate` will be used. This delegate is responsible for handling the purchase logic for your paywalls and handling [Helium Events](/sdk/helium-events).
-
-Use one of our pre-built delegates or create a custom subclass of `HeliumPaywallDelegate`.
+Use (or subclass) one of our pre-built `HeliumPaywallDelegate` implementations or create a custom delegate. Pass the delegate in to your  `Helium.shared.initialize`  call.
 
 <Tabs>
   <Tab title="StoreKitDelegate">
-    Use the StoreKitDelegate to handle purchases using native StoreKit 2:
+    The StoreKitDelegate (default delegate) handles purchases using native StoreKit 2:
 
     ```swift
     import Helium
 
     let delegate = StoreKitDelegate()
     ```
-
-    To handle [Helium Events](/sdk/helium-events), simply create a subclass of StoreKitDelegate and override `onPaywallEvent`:
-
-    ```swift
-    class MyStoreKitDelegate: StoreKitDelegate {
-        override func onPaywallEvent(_ event: HeliumEvent) {
-            switch event {
-            case let openEvent as PaywallOpenEvent:
-                // handle open event here
-                break
-            case let closeEvent as PaywallCloseEvent:
-                break
-            case let dismissEvent as PaywallDismissedEvent:
-                break
-            case let purchaseEvent as PurchaseSucceededEvent:
-                break
-            default:
-                break
-            }
-        }
-    }
-    ```
-    <Note>
-      If you subclass `StoreKitDelegate`, make sure to pass in to `Helium.shared.initialize`!
-    </Note>
   </Tab>
   <Tab title="RevenueCatDelegate">
     <Warning>
       Make sure you included HeliumRevenueCat (for SPM) or Helium/RevenueCat (for Cocoapod) as noted in the Installation section.
     </Warning>
-    You can use the pre-built RevenueCatDelegate to handle purchases if your app is using RevenueCat:
+    RevenueCatDelegate handle purchases through RevenueCat:
 
     ```swift
     import HeliumRevenueCat // unless using Cocoapod then can just import Helium
@@ -294,32 +260,7 @@ Use one of our pre-built delegates or create a custom subclass of `HeliumPaywall
     ```
 
     <Note>
-      If you do not supply `revenueCatApiKey`, make sure to initialize RevenueCat _before_ initializing Helium\!
-    </Note>
-    To handle [Helium Events](/sdk/helium-events), simply create a subclass of RevenueCatDelegate and override `onPaywallEvent`:
-
-    ```swift
-    class MyRevenueCatDelegate: RevenueCatDelegate {
-        override func onPaywallEvent(_ event: HeliumEvent) {
-            switch event {
-            case let openEvent as PaywallOpenEvent:
-                // handle open event here
-                break
-            case let closeEvent as PaywallCloseEvent:
-                break
-            case let dismissEvent as PaywallDismissedEvent:
-                break
-            case let purchaseEvent as PurchaseSucceededEvent:
-                break
-            default:
-                break
-            }
-        }
-    }
-    ```
-
-    <Note>
-      Make sure to pass your delegate in to `Helium.shared.initialize`!
+      If you do not supply `revenueCatApiKey`, make sure to initialize RevenueCat _before_ initializing Helium!
     </Note>
   </Tab>
   <Tab title="Custom Delegate">
@@ -369,15 +310,65 @@ Use one of our pre-built delegates or create a custom subclass of `HeliumPaywall
   </Tab>
 </Tabs>
 
+## Listen for Helium Events
+
+[Helium Events](/sdk/helium-events) are emitted by Helium for various paywall actions, purchase completions, and more. Options to listen for these events include:
+
+### 1. onPaywallEvent of HeliumPaywallDelegate
+
+Subclass one of the provided `HeliumPaywallDelegate` (see **Purchase Handling** section above) and override `onPaywallEvent`:
+
+```swift
+class MyStoreKitDelegate: StoreKitDelegate {
+    override func onPaywallEvent(_ event: HeliumEvent) {
+        switch event {
+        case let openEvent as PaywallOpenEvent:
+            // handle open event here
+            break
+        case let closeEvent as PaywallCloseEvent:
+            break
+        case let dismissEvent as PaywallDismissedEvent:
+            break
+        case let purchaseEvent as PurchaseSucceededEvent:
+            break
+        default:
+            break
+        }
+    }
+}
+```
+
+<Note>
+  Make sure to pass your delegate in to `Helium.shared.initialize`!
+</Note>
+
+### 2. Add a HeliumEventListener (coming soon!)
+
+```swift
+/// Add a listener for all Helium events. Listeners are stored weakly, so if you create a listener inline it may not be retained.
+public func addHeliumEventListener(_ listener: HeliumEventListener) {
+    HeliumEventListeners.shared.addListener(listener)
+}
+
+/// Remove a specific Helium event listener.
+public func removeHeliumEventListener(_ listener: HeliumEventListener) {
+    HeliumEventListeners.shared.removeListener(listener)
+}
+```
+
+### 3. Use PaywallEventHandlers for paywall-specific events
+
+See the next section for details on PaywallEventHandlers.
+
 ## Presenting Paywalls
 
 <Note>
-  You must have a trigger and workflow configured in the dashboard in order to show a paywall.
+  You must have a trigger and workflow configured in the [dashboard](https://app.tryhelium.com/workflows) in order to show a paywall.
 </Note>
 
-Now, anywhere in your iOS app, you can show a paywall in one of 3 ways.
+You can show a paywall in one of 3 ways:
 
-### Show it as a full screen modal (recommended)
+### 1. Show it as a full screen modal (recommended)
 
 Call `Helium.shared.presentUpsell(trigger:)` when you want to show the paywall. For example:
 
@@ -407,7 +398,7 @@ Button("Try Premium") {
   </Expandable>
 </ResponseField>
 
-### Attach it to a SwiftUI view as a ViewModifier
+### 2. Attach it to a SwiftUI view as a ViewModifier
 
 You can use the `.triggerUpsell` view modifier from any SwiftUI view:
 
@@ -427,7 +418,7 @@ struct ContentView: View {
 }
 ```
 
-### Explicitly embed the Helium Paywall View
+### 3. Explicitly embed the Helium Paywall View
 
 You can also explicitly get the Helium paywall view via `Helium.shared.upsellViewForTrigger`. This method takes a trigger and returns the paywall as an `AnyView`.
 
@@ -444,100 +435,102 @@ let heliumView: AnyView? = Helium.shared.upsellViewForTrigger(
 ### PaywallEventHandlers
 
 When displaying a paywall you can pass in event handlers to listen for relevant [Helium Events](/sdk/helium-events). You can chain a subset of handlers with builder syntax:
+
 <CodeGroup>
-  ```swift presentUpsell
-  Helium.shared.presentUpsell(
+
+```swift presentUpsell
+Helium.shared.presentUpsell(
+    trigger: "post_onboarding",
+    eventHandlers: PaywallEventHandlers()
+        .onOpen { event in
+            print("open via trigger \(event.triggerName)")
+        }
+        .onClose { event in
+            print("close for trigger \(event.triggerName)")
+        }
+        .onDismissed { event in
+            print("dismiss for trigger \(event.triggerName)")
+        }
+        .onPurchaseSucceeded { event in
+            print("purchase succeeded for trigger \(event.triggerName)")
+        }
+        .onOpenFailed {
+             print("open failed for trigger \(event.triggerName)")
+        }
+        .onCustomPaywallAction { event in
+            print("Custom action: \(event.actionName) with params: \(event.params)")
+        }
+)
+```
+
+
+```swift triggerUpsell
+struct ContentView: View {
+    @State var isPresented: Bool = false
+    var body: some View {
+        VStack {
+            Button {
+                isPresented = true;
+            } label: {
+                Text("Show paywall")
+            }
+        }
+        .triggerUpsell(
+            isPresented: $isPresented,
+            trigger: "post_onboarding",
+            eventHandlers: PaywallEventHandlers()
+                .onOpen { event in
+                    print("open via trigger \(event.triggerName)")
+                }
+                .onClose { event in
+                    print("close for trigger \(event.triggerName)")
+                }
+                .onDismissed { event in
+                    print("dismiss for trigger \(event.triggerName)")
+                }
+                .onPurchaseSucceeded { event in
+                    print("purchase made for trigger \(event.triggerName)")
+                }
+                .onCustomPaywallAction { event in
+                    print("Custom action: \(event.actionName) with params: \(event.params)")
+                }
+        )
+    }
+}
+```
+
+
+```swift upsellViewForTrigger
+  Helium.shared.upsellViewForTrigger(
       trigger: "post_onboarding",
       eventHandlers: PaywallEventHandlers()
           .onOpen { event in
-              print("\(event.paywallName) via trigger \(event.triggerName)")
+              print("open for trigger \(event.triggerName)")
           }
           .onClose { event in
-              print("\(event.paywallName) for trigger \(event.triggerName)")
+              print("close for trigger \(event.triggerName)")
           }
           .onDismissed { event in
-              print("\(event.paywallName) for trigger \(event.triggerName)")
+              // handle user dismissal here (i.e. hide the upsell view)
+              print("dismiss for trigger \(event.triggerName)")
           }
           .onPurchaseSucceeded { event in
-              print("\(event.paywallName) for trigger \(event.triggerName)")
+              print("purchase made for trigger \(event.triggerName)")
           }
           .onCustomPaywallAction { event in
               print("Custom action: \(event.actionName) with params: \(event.params)")
           }
   )
-  ```
-  ```swift triggerUpsell
-    struct ContentView: View {
-        @State var isPresented: Bool = false
-        var body: some View {
-            VStack {
-                Button {
-                    isPresented = true;
-                } label: {
-                    Text("Show paywall")
-                }
+```
 
-            }.triggerUpsell(
-                isPresented: $isPresented,
-                trigger: "post_onboarding",
-                eventHandlers: PaywallEventHandlers()
-                  .onOpen { event in
-                     print("\(event.paywallName) via trigger \(event.triggerName)")
-                  }
-                  .onClose { event in
-                     print("\(event.paywallName) for trigger \(event.triggerName)")
-                  }
-                  .onDismissed { event in
-                     print("\(event.paywallName) for trigger \(event.triggerName)")
-                  }
-                  .onPurchaseSucceeded { event in
-                     print("\(event.paywallName) for trigger \(event.triggerName)")
-                  }
-                  .onCustomPaywallAction { event in
-                     print("Custom action: \(event.actionName) with params: \(event.params)")
-                  }
-            )
-        }
-    }
-    ```
-    ```swift upsellViewForTrigger
-      Helium.shared.upsellViewForTrigger(
-          trigger: "post_onboarding",
-          eventHandlers: PaywallEventHandlers()
-              .onOpen { event in
-                  print("\(event.paywallName) via trigger \(event.triggerName)")
-              }
-              .onClose { event in
-                  print("\(event.paywallName) for trigger \(event.triggerName)")
-              }
-              .onDismissed { event in
-                  // handle user dismissal here (i.e. hide the upsell view)
-                  print("\(event.paywallName) for trigger \(event.triggerName)")
-              }
-              .onPurchaseSucceeded { event in
-                  print("\(event.paywallName) for trigger \(event.triggerName)")
-              }
-              .onCustomPaywallAction { event in
-                  print("Custom action: \(event.actionName) with params: \(event.params)")
-              }
-      )
-      ```
 </CodeGroup>
 
-Only the `onOpen`, `onClose`, `onDismiss`, `onPurchaseSucceeded`, and `onCustomPaywallAction` events can be specified this way. For others, see the section on **HeliumPaywallDelegate**.
-
 <Note>
-  **Event Timing:**
-
-  - `onDismiss` is triggered only when a user manually dismisses a paywall (from an X button, "no thanks", etc.)
-  - `onClose` is triggered both when the paywall is manually dismissed OR when a successful purchase triggers closing the paywall. (So any time the paywall is removed.)
-  - `onPurchaseSucceeded` is triggered when a purchase completes successfully
-
-  **Usage Guidelines:**
+  **Usage Suggestions:**
 
   - Use `onDismiss` for post-paywall navigation when the paywall is dismissed but a user's entitlement hasn't changed
   - Use `onPurchaseSucceeded` for your post purchase flow (e.g., a premium onboarding navigation)
-  - Use `onClose` when you need to handle logic when the paywall closed, regardless of reason
+  - Use `onClose` to handle a paywall close, regardless of reason
 </Note>
 
 ## Checking Subscription Status & Entitlements
@@ -572,7 +565,7 @@ The Helium SDK provides several ways to check user entitlements and subscription
 
 If a paywall has not completed downloading when you attempt to present it, a loading state can show.
 
-By default, Helium will show this loading state as needed (a shimmer view for up to 2 seconds). You can configure, turn off, or set trigger-specific loading budgets.
+By default, Helium will show this loading state as needed (a shimmer view for up to 7 seconds). You can configure, turn off, or set trigger-specific loading budgets.
 
 If the budget expires before the paywall is ready, a fallback paywall will show if available otherwise the loading state will hide and a [PaywallOpenFailed](/sdk/helium-events) event will be dispatched.
 
@@ -585,7 +578,7 @@ The iOS sdk has 3 options for fallbacks:
 All of this is configured via the `HeliumFallbackConfig`  object passed in to `initialize`. Here are some examples:
 
 ```swift
-// Just provde a fallback bundle
+// Just provide a fallback bundle
 let fallbackBundleURL = Bundle.main.url(
     forResource: "fallback-bundle-xxxx-xx-xx",
     withExtension: "json"
@@ -596,7 +589,7 @@ let fallbackConfig = HeliumFallbackConfig.withFallbackBundle(fallbackBundleURL)
 let fallbackConfig = HeliumFallbackConfig(
     fallbackView: YourFallbackView(),
     // Global loading budget (in seconds)
-    loadingBudget: 2.0,
+    loadingBudget: 5.0,
     // Per-trigger loading budgets
     perTriggerLoadingConfig: [
         "onboarding": TriggerLoadingConfig(loadingBudget: 4),
@@ -610,6 +603,28 @@ Helium.shared.initialize(
 )
 ```
 
-## Testing
+## Advanced
 
-Docs here coming soon\! After integration, please message us directly to get set up with a test app \+ in-app test support.
+<Accordion title="Get Paywall Info By Trigger">
+  Retrieve basic information about the paywall for a specific trigger with `Helium.shared.getPaywallInfo(trigger: String)` which returns:
+
+  ```swift
+  public struct PaywallInfo {
+      public let paywallTemplateName: String
+      // shouldShow only false if the paywall should not be shown due to targeting or workflow configuration (Helium handles this for you in presentUpsell)
+      public let shouldShow: Bool
+  }
+  ```
+
+  <Tip>
+    This method can be used if you want to be certain that a paywall is ready for display before displaying.
+  </Tip>
+</Accordion>
+
+<Accordion title="Reset Helium">
+  Reset Helium entirely so you can call initialize again. Only for advanced use cases.
+
+  ```swift
+Helium.resetHelium()
+  ```
+</Accordion>

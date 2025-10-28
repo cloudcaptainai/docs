@@ -151,6 +151,77 @@ Future<void> main() async {
   You can also check if paywalls have been downloaded with `await heliumFlutter.paywallsLoaded()`
 </Accordion>
 
+## Presenting Paywalls
+
+There are two ways to show a Helium paywall in your Flutter app:
+
+### 1. Show it as a full-screen modal (recommended)
+
+You can present a paywall programmatically using the `presentUpsell` method:
+
+```dart
+ElevatedButton(
+  onPressed: () {
+    final heliumFlutter = HeliumFlutter();
+    heliumFlutter.presentUpsell(context: context, trigger: 'insert-trigger-here');
+  },
+  child: Text('Show Premium Features'),
+),
+```
+
+<Warning>
+  Do not call `presentUpsell` in `Widget build()` as this can have unpredictable behavior.
+</Warning>
+
+Configure triggers in the dashboard. You can also pass in custom paywall traits and event handlers directly to `presentUpsell`:
+
+```dart
+HeliumFlutter().presentUpsell(
+  trigger: 'my_paywall',
+  context: context,
+  eventHandlers: PaywallEventHandlers(
+    onOpen: (event) {
+      log('${event.type} - trigger: ${event.triggerName}');
+    },
+    onClose: (event) {
+      log('${event.type} - trigger: ${event.triggerName}');
+    },
+    onDismissed: (event) {
+      log('${event.type} - trigger: ${event.triggerName}');
+    },
+    onPurchaseSucceeded: (event) {
+      log('${event.type} - trigger: ${event.triggerName}');
+    },
+  ),
+  customPaywallTraits: {
+    "has_seen_intro_video": true,
+  }
+);
+```
+
+### 2. Via Widget Integration
+
+You can also use the `HeliumFlutter.getUpsellWidget` method to embed a paywall directly in your widget tree:
+
+```dart
+class ExamplePageWithEmbeddedPaywall extends StatelessWidget {
+  const ExamplePageWithEmbeddedPaywall({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: HeliumFlutter().getUpsellWidget(trigger: 'insert-trigger-here'),
+    );
+  }
+}
+```
+
+<Note>
+  You will have to handle your own dismissal in this case. You can do so by passing in PaywallEventHandlers and using the `onDismissed` handler.
+</Note>
+
+You should now be able to see Helium paywalls in your app! Well done! 🎉
+
 ## Helium Events
 
 To handle various [paywall-related events](/sdk/helium-events), implement `HeliumCallbacks` and pass it to initialize:
@@ -285,83 +356,6 @@ class RevenueCatCallbacks implements HeliumCallbacks {
     }
   }
 }
-```
-
-## Presenting Paywalls
-
-There are two ways to show a Helium paywall in your Flutter app:
-
-### 1. Show it as a full-screen modal (recommended)
-
-You can present a paywall programmatically using the `presentUpsell` method:
-
-```dart
-ElevatedButton(
-  onPressed: () {
-    final heliumFlutter = HeliumFlutter();
-    heliumFlutter.presentUpsell(context: context, trigger: 'insert-trigger-here');
-  },
-  child: Text('Show Premium Features'),
-),
-```
-
-<Warning>
-  Do not call `presentUpsell` in `Widget build()` as this can have unpredictable behavior.
-</Warning>
-
-Configure triggers in the dashboard. You can also pass in custom paywall traits and event handlers directly to `presentUpsell`:
-
-```dart
-HeliumFlutter().presentUpsell(
-  trigger: 'my_paywall',
-  context: context,
-  eventHandlers: PaywallEventHandlers(
-    onOpen: (event) {
-      log('${event.type} - trigger: ${event.triggerName}');
-    },
-    onClose: (event) {
-      log('${event.type} - trigger: ${event.triggerName}');
-    },
-    onDismissed: (event) {
-      log('${event.type} - trigger: ${event.triggerName}');
-    },
-    onPurchaseSucceeded: (event) {
-      log('${event.type} - trigger: ${event.triggerName}');
-    },
-  ),
-  customPaywallTraits: {
-    "has_seen_intro_video": true,
-  }
-);
-```
-
-### 2. Via Widget Integration
-
-You can also use the `HeliumFlutter.getUpsellWidget` method to embed a paywall directly in your widget tree:
-
-```dart
-class ExamplePageWithEmbeddedPaywall extends StatelessWidget {
-  const ExamplePageWithEmbeddedPaywall({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: HeliumFlutter().getUpsellWidget(trigger: 'insert-trigger-here'),
-    );
-  }
-}
-```
-
-<Note>
-  You will have to handle your own dismissal in this case. You can do so by passing in PaywallEventHandlers and using the `onDismissed` handler.
-</Note>
-
-### Hiding Paywalls
-
-To programmatically hide a paywall that was shown with the `presentUpsell` method:
-
-```dart
-bool hideResult = await heliumFlutter.hideUpsell() ?? false;
 ```
 
 ## Checking Subscription Status & Entitlements

@@ -6,7 +6,7 @@ icon: "/images/sdk/logos/apple-173-svgrepo-com.svg"
 
 <Info>
   **Using an older SDK version?**
-  
+
   If you're upgrading from SDK v2.x, check our [Migration Guide](/sdk-reference/migration-2-to-3) for breaking changes and upgrade instructions.
 </Info>
 
@@ -226,140 +226,6 @@ Helium.shared.initialize(
   You can also simply check if paywalls have been successfully downloaded with `Helium.shared.paywallsLoaded()`.
 </Accordion>
 
-## Purchase Handling
-
-<Tip>
-  By default, Helium will handle purchases for you! This section is for those who want to delegate purchases to RevenueCat or implement custom purchase logic.
-</Tip>
-
-Use (or subclass) one of our pre-built `HeliumPaywallDelegate` implementations or create a custom delegate. Pass the delegate in to your  `Helium.shared.initialize`  call.
-
-<Tabs>
-  <Tab title="StoreKitDelegate">
-    The StoreKitDelegate (default delegate) handles purchases using native StoreKit 2:
-
-    ```swift
-    import Helium
-
-    let delegate = StoreKitDelegate()
-    ```
-  </Tab>
-  <Tab title="RevenueCatDelegate">
-    <Warning>
-      Make sure you included HeliumRevenueCat (for SPM) or Helium/RevenueCat (for Cocoapod) as noted in the Installation section.
-    </Warning>
-    RevenueCatDelegate handle purchases through RevenueCat:
-
-    ```swift
-    import HeliumRevenueCat // unless using Cocoapod then can just import Helium
-
-    let delegate = RevenueCatDelegate(
-        entitlementId: "<revenue-cat-entitlement-id>",
-        revenueCatApiKey: "<revenue-cat-api-id>" // Optional - pass in to have Helium to handle RevenueCat initialization.
-    )
-    ```
-
-    <Note>
-      If you do not supply `revenueCatApiKey`, make sure to initialize RevenueCat _before_ initializing Helium!
-    </Note>
-  </Tab>
-  <Tab title="Custom Delegate">
-    You can also create a custom delegate and implement your own purchase logic. You can look at our `StoreKitDelegate` and `RevenueCatDelegate` in the SDK for examples (also linked below).
-
-    The `HeliumPaywallDelegate` is defined as follows:
-
-    ```swift
-    public protocol HeliumPaywallDelegate: AnyObject {
-
-        // Execute the purchase of a product given the product ID.
-        func makePurchase(productId: String) async -> HeliumPaywallTransactionStatus
-
-        // (Optional) - Restore any existing subscriptions.
-        // Return a boolean indicating whether the restore was successful.
-        func restorePurchases() async -> Bool
-
-        // (Optional) - Handle Helium Events
-        func onPaywallEvent(_ event: HeliumEvent)
-    }
-    ```
-
-    `HeliumPaywallTransactionStatus` is an enum that defines the possible states of a paywall transaction:
-
-    ```swift
-    public enum HeliumPaywallTransactionStatus {
-        case purchased
-        case cancelled
-        case failed(Error)
-        case restored
-        case pending
-    }
-    ```
-
-    Visit [Helium Events](/sdk/helium-events) for details on the different Helium paywall events.
-
-    <Note>
-      When executing the purchase via StoreKit 2 (recommended over StoreKit 1), please use `Product.heliumPurchase()` instead of `Product.purchase()`. For example:
-
-      `let result = try await product.heliumPurchase()`
-
-      This will automatically set attribution information for [revenue tracking](/guides/revenue-reporting).
-    </Note>
-    StoreKitDelegate example [here](https://github.com/cloudcaptainai/helium-swift/blob/main/Sources/Helium/HeliumCore/StoreKitDelegate.swift).
-
-    RevenueCatDelegate example [here](https://github.com/cloudcaptainai/helium-swift/blob/main/Sources/HeliumRevenueCat/HeliumRevenueCat.swift).
-  </Tab>
-</Tabs>
-
-## Listen for Helium Events
-
-[Helium Events](/sdk/helium-events) are emitted by Helium for various paywall actions, purchase completions, and more. Options to listen for these events include:
-
-### 1. onPaywallEvent of HeliumPaywallDelegate
-
-Subclass one of the provided `HeliumPaywallDelegate` (see **Purchase Handling** section above) and override `onPaywallEvent`:
-
-```swift
-class MyStoreKitDelegate: StoreKitDelegate {
-    override func onPaywallEvent(_ event: HeliumEvent) {
-        switch event {
-        case let openEvent as PaywallOpenEvent:
-            // handle open event here
-            break
-        case let closeEvent as PaywallCloseEvent:
-            break
-        case let dismissEvent as PaywallDismissedEvent:
-            break
-        case let purchaseEvent as PurchaseSucceededEvent:
-            break
-        default:
-            break
-        }
-    }
-}
-```
-
-<Note>
-  Make sure to pass your delegate in to `Helium.shared.initialize`!
-</Note>
-
-### 2. Add a HeliumEventListener (coming soon!)
-
-```swift
-/// Add a listener for all Helium events. Listeners are stored weakly, so if you create a listener inline it may not be retained.
-public func addHeliumEventListener(_ listener: HeliumEventListener) {
-    HeliumEventListeners.shared.addListener(listener)
-}
-
-/// Remove a specific Helium event listener.
-public func removeHeliumEventListener(_ listener: HeliumEventListener) {
-    HeliumEventListeners.shared.removeListener(listener)
-}
-```
-
-### 3. Use PaywallEventHandlers for paywall-specific events
-
-See the next section for details on PaywallEventHandlers.
-
 ## Presenting Paywalls
 
 <Note>
@@ -532,6 +398,142 @@ struct ContentView: View {
   - Use `onPurchaseSucceeded` for your post purchase flow (e.g., a premium onboarding navigation)
   - Use `onClose` to handle a paywall close, regardless of reason
 </Note>
+
+You should now be able to see Helium paywalls in your app! Well done! 🎉
+
+## Purchase Handling
+
+<Tip>
+  By default, Helium will handle purchases for you! This section is for those who want to delegate purchases to RevenueCat or implement custom purchase logic.
+</Tip>
+
+Use (or subclass) one of our pre-built `HeliumPaywallDelegate` implementations or create a custom delegate. Pass the delegate in to your  `Helium.shared.initialize`  call.
+
+<Tabs>
+  <Tab title="StoreKitDelegate">
+    The StoreKitDelegate (default delegate) handles purchases using native StoreKit 2:
+
+    ```swift
+    import Helium
+
+    let delegate = StoreKitDelegate()
+    ```
+  </Tab>
+  <Tab title="RevenueCatDelegate">
+    <Warning>
+      Make sure you included HeliumRevenueCat (for SPM) or Helium/RevenueCat (for Cocoapod) as noted in the Installation section.
+    </Warning>
+    RevenueCatDelegate handle purchases through RevenueCat:
+
+    ```swift
+    import HeliumRevenueCat // unless using Cocoapod then can just import Helium
+
+    let delegate = RevenueCatDelegate(
+        entitlementId: "<revenue-cat-entitlement-id>",
+        revenueCatApiKey: "<revenue-cat-api-id>" // Optional - pass in to have Helium to handle RevenueCat initialization.
+    )
+    ```
+
+    <Note>
+      If you do not supply `revenueCatApiKey`, make sure to initialize RevenueCat _before_ initializing Helium!
+    </Note>
+  </Tab>
+  <Tab title="Custom Delegate">
+    You can also create a custom delegate and implement your own purchase logic. You can look at our `StoreKitDelegate` and `RevenueCatDelegate` in the SDK for examples (also linked below).
+
+    The `HeliumPaywallDelegate` is defined as follows:
+
+    ```swift
+    public protocol HeliumPaywallDelegate: AnyObject {
+
+        // Execute the purchase of a product given the product ID.
+        func makePurchase(productId: String) async -> HeliumPaywallTransactionStatus
+
+        // (Optional) - Restore any existing subscriptions.
+        // Return a boolean indicating whether the restore was successful.
+        func restorePurchases() async -> Bool
+
+        // (Optional) - Handle Helium Events
+        func onPaywallEvent(_ event: HeliumEvent)
+    }
+    ```
+
+    `HeliumPaywallTransactionStatus` is an enum that defines the possible states of a paywall transaction:
+
+    ```swift
+    public enum HeliumPaywallTransactionStatus {
+        case purchased
+        case cancelled
+        case failed(Error)
+        case restored
+        case pending
+    }
+    ```
+
+    Visit [Helium Events](/sdk/helium-events) for details on the different Helium paywall events.
+
+    <Note>
+      When executing the purchase via StoreKit 2 (recommended over StoreKit 1), please use `Product.heliumPurchase()` instead of `Product.purchase()`. For example:
+
+      `let result = try await product.heliumPurchase()`
+
+      This will automatically set attribution information for [revenue tracking](/guides/revenue-reporting).
+    </Note>
+    StoreKitDelegate example [here](https://github.com/cloudcaptainai/helium-swift/blob/main/Sources/Helium/HeliumCore/StoreKitDelegate.swift).
+
+    RevenueCatDelegate example [here](https://github.com/cloudcaptainai/helium-swift/blob/main/Sources/HeliumRevenueCat/HeliumRevenueCat.swift).
+  </Tab>
+</Tabs>
+
+## Listen for Helium Events
+
+[Helium Events](/sdk/helium-events) are emitted by Helium for various paywall actions, purchase completions, and more. Options to listen for these events include:
+
+### 1. onPaywallEvent of HeliumPaywallDelegate
+
+Subclass one of the provided `HeliumPaywallDelegate` (see **Purchase Handling** section above) and override `onPaywallEvent`:
+
+```swift
+class MyStoreKitDelegate: StoreKitDelegate {
+    override func onPaywallEvent(_ event: HeliumEvent) {
+        switch event {
+        case let openEvent as PaywallOpenEvent:
+            // handle open event here
+            break
+        case let closeEvent as PaywallCloseEvent:
+            break
+        case let dismissEvent as PaywallDismissedEvent:
+            break
+        case let purchaseEvent as PurchaseSucceededEvent:
+            break
+        default:
+            break
+        }
+    }
+}
+```
+
+<Note>
+  Make sure to pass your delegate in to `Helium.shared.initialize`!
+</Note>
+
+### 2. Add a HeliumEventListener (coming soon!)
+
+```swift
+/// Add a listener for all Helium events. Listeners are stored weakly, so if you create a listener inline it may not be retained.
+public func addHeliumEventListener(_ listener: HeliumEventListener) {
+    HeliumEventListeners.shared.addListener(listener)
+}
+
+/// Remove a specific Helium event listener.
+public func removeHeliumEventListener(_ listener: HeliumEventListener) {
+    HeliumEventListeners.shared.removeListener(listener)
+}
+```
+
+### 3. Use PaywallEventHandlers for paywall-specific events
+
+See the section titled PaywallEventHandlers on this page.
 
 ## Checking Subscription Status & Entitlements
 

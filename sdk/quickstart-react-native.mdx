@@ -105,6 +105,7 @@ function App() {
 <CodeGroup>
 
 ```tsx Expo 52+
+import { initialize } from 'expo-helium';
 import { createRevenueCatPurchaseConfig } from "expo-helium/src/revenuecat";
 
 const asyncHeliumInit = async () => {
@@ -128,6 +129,7 @@ useEffect(() => {
 
 
 ```tsx Older Expo / Bare
+import { initialize } from '@tryheliumai/paywall-sdk-react-native';
 import { createRevenueCatPurchaseConfig } from "@tryheliumai/paywall-sdk-react-native/src/revenuecat";
 
 const asyncHeliumInit = async () => {

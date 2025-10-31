@@ -48,6 +48,26 @@ Download the file. It should be named something like **fallback-bundle-xxxx-xx-x
       Make sure to replace **fallback-bundle-xxxx-xx-xx** with the correct name\!
     </Note>
   </Tab>
+  <Tab title="Android">
+    1. Integrate the SDK with the [Android Quickstart](/sdk/quickstart-android) if you haven't done so already.
+    2. In your app's `src/main` directory, create an `assets` folder if one doesn't already exist.
+    3. Drag your downloaded bundle into the `assets` folder.
+    4. Create a `HeliumFallbackConfig` with the bundle file name and pass it to `Helium.initialize`
+
+    ```kotlin
+    Helium.initialize(
+        context = applicationContext,
+        apiKey = "YOUR_API_KEY",
+        heliumPaywallDelegate = yourDelegate,
+        // ... other parameters ...
+        fallbackConfig = HeliumFallbackConfig.withFallbackBundle(fallbackBundleName = "fallback-bundle-xxxx-xx-xx.json"),
+    )
+    ```
+
+    <Note>
+      Make sure to replace **fallback-bundle-xxxx-xx-xx** with the correct name!
+    </Note>
+  </Tab>
   <Tab title="React Native">
     1. Integrate the SDK with the [React Native Quickstart](/sdk/quickstart-react-native) if you haven't done so already.
     2. Drag your downloaded bundle into your React Native project where desired.

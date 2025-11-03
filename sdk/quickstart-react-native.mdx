@@ -4,15 +4,13 @@ description: "Integrate Helium into your React Native App."
 icon: "/images/sdk/logos/react-svgrepo-com.svg"
 ---
 
-<Info>
-  **Using an older SDK version?**
-
-  If you're upgrading from SDK v0.x, check our [Migration Guide](/sdk-reference/migration-2-to-3) for breaking changes and upgrade instructions.
-</Info>
-
 ## Background
 
 Get set up with the Helium SDK for React Native. Reach out over your Helium slack channel or email [founders@tryhelium.com](mailto:founders@tryhelium.com) for any questions.
+
+<Warning>
+  The Helium React Native SDK **currently supports iOS only. Android supported is expected mid- to late-November.**
+</Warning>
 
 ## Installation
 
@@ -37,25 +35,19 @@ npx react-native link @tryheliumai/paywall-sdk-react-native
 </CodeGroup>
 
 <Tip>
-  We support Expo 49+ but do recommend using Helium with **Expo 53 and up**. If you're on an older version and having issues, ping us - we've got experience with all kinds of versioning, upgrade, and custom build plugin work.
+  We support Expo 49+ but recommend using Helium with **Expo 53 and up**. If you're on an older version and having issues, ping us - we've got experience with all kinds of versioning, upgrade, and custom build plugin work.
 </Tip>
 
 ## Configuration
 
 Follow these steps to integrate the SDK.
 
-### HeliumProvider
-
-<Warning>
-  HeliumProvider is no longer needed in v3.0+. See our [Migration Guide](/sdk-reference/migration-2-to-3).
-</Warning>
-
 ### Initialization
 
 Initialize Helium by calling `initialize()` early in your app's lifecycle, typically in your root component.
 
 <Note>
-  If you are using **RevenueCat**, check out the example in the next section.
+  If you are using **RevenueCat**, follow the example in the next section.
 </Note>
 
 <CodeGroup>
@@ -97,10 +89,9 @@ function App() {
 
 #### Use RevenueCat with Helium
 
-**Important** Make sure that you've already:
-
-- [Installed](https://www.revenuecat.com/docs/getting-started/installation/expo) RevenueCat (if non-Expo go [here](https://www.revenuecat.com/docs/getting-started/installation/reactnative))
-- (Recommended) Configured an [Entitlement](https://www.revenuecat.com/docs/getting-started/entitlements)
+<Note>
+  If you haven't already, make sure to [install](https://www.revenuecat.com/docs/getting-started/installation/expo) RevenueCat (for non-Expo see [here](https://www.revenuecat.com/docs/getting-started/installation/reactnative)).
+</Note>
 
 <CodeGroup>
 
@@ -200,7 +191,7 @@ type HeliumTransactionStatus =
 
 ### Custom User ID and Custom User Traits
 
-You can pass in a custom user ID (to match your backend) and custom user traits if desired to `initialize`:
+You can pass in a custom user ID and custom user traits if desired to `initialize`:
 
 ```tsx
 // (Optional) Custom user id, e.g. your amplitude analytics user id.
@@ -337,6 +328,27 @@ export const hasAnyActiveSubscription = async (): Promise<boolean>;
  * Checks if the user has any entitlement
  */
 export const hasAnyEntitlement = async (): Promise<boolean>;
+```
+
+#### Example
+
+```typescript
+const hasActiveSubscription = await hasAnyActiveSubscription();
+if (hasActiveSubscription) {
+  featureGatedLogic(); // replace this with your logic
+} else {
+  presentUpsell({
+    triggerName: 'insert-trigger-here',
+    onFallback: () => {
+      // handle fallback logic in case paywall fails to show (should be quite rare)
+    },
+    eventHandlers: {
+      onPurchaseSucceeded: (event: PurchaseSucceededEvent) => {
+        featureGatedLogic(); // replace this with your logic
+      },
+    },
+  });
+}
 ```
 
 ## Fallbacks

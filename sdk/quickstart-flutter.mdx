@@ -8,22 +8,34 @@ icon: "/images/sdk/logos/flutter-svgrepo-com.svg"
 
 Get set up with the Helium SDK for Flutter. Reach out over your Helium slack channel or email [founders@tryhelium.com](mailto:founders@tryhelium.com) for any questions.
 
+<Warning>
+  The Helium Flutter SDK **currently supports iOS only. Android supported is expected mid- to late-November.**
+</Warning>
+
 ## Installation
 
-Run `flutter pub add helium_flutter` or manually add the helium_flutter package to your pubspec.yaml:
+<Info>
+  The minimum version of Flutter supported by this SDK is **3.24.0**.
+</Info>
+
+To add the Helium package, run:
+
+```bash
+flutter pub add helium_flutter
+```
+
+Or if you prefer, you can add the helium_flutter package to your pubspec.yaml:
 
 ```yaml
 dependencies:
   helium_flutter: ^3.0.12
 ```
 
-Then run:
+then run:
 
 ```bash
 flutter pub get
 ```
-
-The minimum version of Flutter supported by this SDK is **3.24.0**.
 
 <Tip>
   **Recommended -**  Make sure that Swift Package Manager support is enabled:
@@ -76,7 +88,7 @@ Future<void> main() async {
 </Tip>
 
 <ResponseField name="initialize" type="method">
-  <Expandable title="properties">
+  <Expandable title="parameters">
     <ResponseField name="apiKey" type="string" required>
       You can create or retrieve your api key from [Account Settings](https://app.tryhelium.com/profile).
     </ResponseField>
@@ -129,6 +141,8 @@ Future<void> main() async {
     }
   );
   ```
+
+  Set these values before or during `initialize` to ensure consistency in analytics events and for the best experimentation results.
 </Accordion>
 
 <Accordion title="Checking Download Status">
@@ -153,7 +167,11 @@ Future<void> main() async {
 
 ## Presenting Paywalls
 
-There are two ways to show a Helium paywall in your Flutter app:
+<Note>
+  You must have a trigger and workflow configured in the [dashboard](https://app.tryhelium.com/workflows) in order to show a paywall.
+</Note>
+
+There are two ways to show a Helium paywall in your Flutter app.
 
 ### 1. Show it as a full-screen modal (recommended)
 
@@ -173,7 +191,7 @@ ElevatedButton(
   Do not call `presentUpsell` in `Widget build()` as this can have unpredictable behavior.
 </Warning>
 
-Configure triggers in the dashboard. You can also pass in custom paywall traits and event handlers directly to `presentUpsell`:
+You can also pass in event handlers and custom paywall traits directly to `presentUpsell`:
 
 ```dart
 HeliumFlutter().presentUpsell(
@@ -201,7 +219,7 @@ HeliumFlutter().presentUpsell(
 
 ### 2. Via Widget Integration
 
-You can also use the `HeliumFlutter.getUpsellWidget` method to embed a paywall directly in your widget tree:
+You can use the `HeliumFlutter.getUpsellWidget` method to embed a paywall directly in your widget tree:
 
 ```dart
 class ExamplePageWithEmbeddedPaywall extends StatelessWidget {
@@ -368,6 +386,26 @@ Future<bool> hasAnyActiveSubscription();
 
 /// Checks if the user has any entitlement
 Future<bool> hasAnyEntitlement();
+```
+
+#### Example
+
+```dart
+final heliumFlutter = HeliumFlutter();
+final hasActiveSubscription = await heliumFlutter.hasAnyActiveSubscription();
+if (hasActiveSubscription) {
+  featureGatedLogic(); // replace this with your logic
+} else {
+  heliumFlutter.presentUpsell(
+    trigger: 'insert-trigger-here',
+    context: context,
+    eventHandlers: PaywallEventHandlers(
+      onPurchaseSucceeded: (event) {
+        featureGatedLogic(); // replace this with your logic
+      },
+    )
+  );
+}
 ```
 
 ## Fallbacks

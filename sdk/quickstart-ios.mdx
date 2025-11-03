@@ -4,12 +4,6 @@ description: "Integrate Helium into your iOS app"
 icon: "/images/sdk/logos/apple-173-svgrepo-com.svg"
 ---
 
-<Info>
-  **Using an older SDK version?**
-
-  If you're upgrading from SDK v2.x, check our [Migration Guide](/sdk-reference/migration-2-to-3) for breaking changes and upgrade instructions.
-</Info>
-
 ## Background
 
 Get set up with the Helium SDK for iOS. Reach out over your Helium slack channel or email [founders@tryhelium.com](mailto:founders@tryhelium.com) for any questions.
@@ -43,7 +37,7 @@ We recommend using Swift Package Manager (SPM), but if your project primarily us
     5. _(Optional)_ If you are using RevenueCat to manage purchases, we recommended you also add **HeliumRevenueCat** to your target so that you can use our RevenueCatDelegate referenced in the **Purchase Handling** section of this guide. Otherwise leave as **None** for the HeliumRevenueCat row.
 
     <Warning>
-      The **HeliumRevenueCat** target includes [purchases-ios-spm](https://github.com/RevenueCat/purchases-ios-spm) as a dependency, _not_ [purchases-ios](https://github.com/RevenueCat/purchases-ios) and you may encounter build issues if are using **purchases-ios** with SPM.
+      The **HeliumRevenueCat** target includes [purchases-ios-spm](https://github.com/RevenueCat/purchases-ios-spm) as a dependency, _not_ [purchases-ios](https://github.com/RevenueCat/purchases-ios) and you may encounter build issues if are using **purchases-ios** with SPM. (We recommend just switching to **purchases-ios-spm**).
     </Warning>
     6. Select **Add Package** in the dialog and Helium should now be ready for import.
   </Tab>
@@ -139,15 +133,10 @@ import Helium
 And initialize Helium in the location referenced above:
 
 ```swift
-// Create fallback configuration
-//   with a fallback bundle (recommended - see Fallbacks and Loading Budgets section)
+// Create fallback configuration with a fallback bundle
+// (recommended - see Fallbacks and Loading Budgets section)
 let fallbackBundleURL = Bundle.main.url(forResource: "fallback-bundle", withExtension: "json")
 let fallbackConfig = HeliumFallbackConfig.withFallbackBundle(fallbackBundleURL)
-
-//   or by providing a SwiftUI View
-let fallbackConfig = HeliumFallbackConfig.withFallbackView(
-    Text("Fallback shown")
-)
 
 Helium.shared.initialize(
     apiKey: "<your-helium-api-key>",
@@ -194,11 +183,11 @@ Helium.shared.initialize(
 </ResponseField>
 
 <Note>
-  Helium's initialization is ran on a background thread, so you don't have to worry about it blocking your app's launch time. Helium will automatically retry downloads as needed for up to ~90 seconds.
+  Helium's initialization is ran on a background thread, so you don't have to worry about it affecting your app's launch time.
 </Note>
 
 <Accordion title="Custom User ID and Custom User Traits">
-  You can provide a custom user ID and custom user traits in the `initialize` method or by using `Helium.shared.overrideUserId`. Ideally this will be called before `initialize` is called to ensure consistency in analytics events.
+  You can provide a custom user ID and custom user traits in the `initialize` method or by using `Helium.shared.overrideUserId`. Set the user ID and traits before or during `initialize`  to ensure consistency in analytics events and for the best experimentation results.
 
   ```swift
   Helium.shared.overrideUserId(
@@ -259,7 +248,7 @@ Button("Try Premium") {
       _(Optional)_ Custom traits to pass to the paywall
     </ResponseField>
     <ResponseField name="dontShowIfAlreadyEntitled" type="Bool" default="false">
-      _(Optional)_ If `true`, the paywall will not show if the user already has entitlements for any product in the paywall
+      _(Optional)_ If `true`, the paywall will not show if the user already has entitlements for any product in the paywall. See the Entitlements section of this guide for more details.
     </ResponseField>
   </Expandable>
 </ResponseField>
@@ -429,7 +418,6 @@ Use (or subclass) one of our pre-built `HeliumPaywallDelegate` implementations o
     import HeliumRevenueCat // unless using Cocoapod then can just import Helium
 
     let delegate = RevenueCatDelegate(
-        entitlementId: "<revenue-cat-entitlement-id>",
         revenueCatApiKey: "<revenue-cat-api-id>" // Optional - pass in to have Helium to handle RevenueCat initialization.
     )
     ```
@@ -491,7 +479,7 @@ Use (or subclass) one of our pre-built `HeliumPaywallDelegate` implementations o
 
 ### 1. onPaywallEvent of HeliumPaywallDelegate
 
-Subclass one of the provided `HeliumPaywallDelegate` (see **Purchase Handling** section above) and override `onPaywallEvent`:
+Subclass one of the provided `HeliumPaywallDelegate` implementations (see **Purchase Handling** section above) and override `onPaywallEvent`:
 
 ```swift
 class MyStoreKitDelegate: StoreKitDelegate {
@@ -537,11 +525,41 @@ See the section titled PaywallEventHandlers on this page.
 
 ## Checking Subscription Status & Entitlements
 
+The Helium SDK provides several ways to check user entitlements and subscription status.
+
+#### Example Usage
+
 <Tip>
   Check entitlements before showing paywalls to avoid showing a paywall to a user who should not see it.
 </Tip>
 
-The Helium SDK provides several ways to check user entitlements and subscription status.
+<CodeGroup>
+
+  ```swift Use dontShowIfAlreadyEntitled with presentUpsell
+  Helium.shared.presentUpsell(trigger: "my_paywall", dontShowIfAlreadyEntitled: true)
+  ```
+
+
+  ```swift Check before showing paywall
+  let heliumTrigger = "my_paywall"
+  let hasPurchased = await Helium.shared.hasEntitlementForPaywall(trigger: heliumTrigger)
+  if hasPurchased {
+      // access premium content
+  } else {
+      // show paywall
+      Helium.shared.presentUpsell(
+          trigger: heliumTrigger,
+          eventHandlers: PaywallEventHandlers()
+              .onPurchaseSucceeded { _ in
+                  // access premium content
+              }
+          )
+  }
+  ```
+
+</CodeGroup>
+
+#### Helper Methods
 
 `hasAnyEntitlement()` Checks if the user has purchased any subscription or non-consumable product.
 
@@ -549,19 +567,19 @@ The Helium SDK provides several ways to check user entitlements and subscription
 
 `hasEntitlementForPaywall(trigger: String, considerAssociatedSubscriptions: Bool = false)` Checks if the user has entitlements for any product in a specific paywall. Returns `nil` if paywall configuration hasn't been downloaded yet.
 
-**`hasActiveEntitlementFor(productId: String)`** Checks if the user has entitlement to a specific product.
+`hasActiveEntitlementFor(productId: String)` Checks if the user has entitlement to a specific product.
 
-**`hasActiveSubscriptionFor(productId: String)`** Checks if the user has an active subscription for a specific product.
+`hasActiveSubscriptionFor(productId: String)` Checks if the user has an active subscription for a specific product.
 
-**`hasActiveSubscriptionFor(subscriptionGroupID: String)`** Checks if the user has an active subscription in a specific subscription group.
+`hasActiveSubscriptionFor(subscriptionGroupID: String)` Checks if the user has an active subscription in a specific subscription group.
 
-**`purchasedProductIds()`** Retrieves a list of all product IDs the user currently has access to.
+`purchasedProductIds()` Retrieves a list of all product IDs the user currently has access to.
 
-**`activeSubscriptions()`** Returns detailed information about all active auto-renewing subscriptions.
+`activeSubscriptions()` Returns detailed information about all active auto-renewing subscriptions.
 
-**`subscriptionStatusFor(productId: String)`** Gets detailed subscription status for a specific product, including state information like subscribed, expired, or in grace period.
+`subscriptionStatusFor(productId: String)` Gets detailed subscription status for a specific product, including state information like subscribed, expired, or in grace period.
 
-**`subscriptionStatusFor(subscriptionGroupID: String)`** Gets detailed subscription status for a specific subscription group.
+`subscriptionStatusFor(subscriptionGroupID: String)` Gets detailed subscription status for a specific subscription group.
 
 ## Fallbacks and Loading Budgets
 
@@ -627,6 +645,6 @@ Helium.shared.initialize(
   Reset Helium entirely so you can call initialize again. Only for advanced use cases.
 
   ```swift
-Helium.resetHelium()
+  Helium.resetHelium()
   ```
 </Accordion>

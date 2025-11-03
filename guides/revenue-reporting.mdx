@@ -4,6 +4,10 @@ description: "Set up webhooks to track your app's revenue and subscription event
 icon: "credit-card"
 ---
 
+<Note>
+  Revenue tracking is not yet fully supported for Android (expected mid-November). This guide only covers setup for iOS.
+</Note>
+
 Go to your dashboard's revenue settings to configure webhooks.
 
 ![Rev Reporting Pn](/images/rev-reporting.png)
@@ -17,8 +21,6 @@ You have 3 options (only do one of them):
 </Tip>
 
 Send purchase events direct from Apple to Helium. Follow the instructions shown under **App Store Connect Configuration**. If you already consume these events on your own server, then consider the **Forward** option below.
-
-In your SDK integration, be sure to use one of the pre-built delegates (StoreKitDelegate/RevenueCatDelegate) or the `heliumPurchase` method in your custom delegate for proper tracking of purchases.
 
 ## 2) RevenueCat Webhooks
 

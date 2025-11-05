@@ -225,9 +225,38 @@ You can provide an implementation of the `HeliumPaywallDelegate` or use one of t
 
 ## Presenting Paywalls
 
-To present a Paywall, ensure you have initialized the library. The SDK provides UI components that handle the underlying `PaywallWebViewManager`.
+To present a Paywall, ensure you have initialized the library.
 
-The first step to presenting a paywall is to create an `Intent` using the `createPaywallIntent` helper function. This function configures and returns an `Intent` that can be used to launch the `HeliumPaywallActivity`.
+The recommended and simplest way to present a paywall is by using the `Helium.presentUpsell` function. This function handles the creation and presentation of the paywall activity for you.
+
+```kotlin
+// From an Activity or Fragment
+Helium.presentUpsell(
+    context = this,
+    trigger = "sdk_test"
+)
+```
+
+<ResponseField name="Helium.presentUpsell" type="method">
+  <Expandable title="parameters">
+    <ResponseField name="context" type="Context" required>
+      The Android `Context` required to launch the paywall. Use `this` in an Activity.
+    </ResponseField>
+    <ResponseField name="trigger" type="String" required>
+      The specific paywall trigger you want to display.
+    </ResponseField>
+    <ResponseField name="fullscreen" type="Boolean">
+      _(Optional)_ A `Boolean` to determine if the paywall should be displayed in fullscreen [immersive mode](https://developer.android.com/develop/ui/views/layout/immersive), where the system bars (status and navigation) are hidden. Defaults to `false`.
+    </ResponseField>
+    <ResponseField name="disableSystemBackNavigation" type="Boolean">
+      _(Optional)_ A `Boolean` to control the system back button behavior. If `true`, the back button will not close the paywall. Defaults to `false`.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+For more advanced use cases, such as handling results from the paywall, you can create an `Intent` and launch it manually. This is useful when you need to know if a purchase was successful.
+
+The first step is to create an `Intent` using the `createPaywallIntent` helper function. This function configures and returns an `Intent` that can be used to launch the `HeliumPaywallActivity`.
 
 Here are the available options for `createPaywallIntent`:
 
@@ -246,7 +275,7 @@ val heliumIntent = createPaywallIntent(
 
 Once you have your intent, you can launch it using either Jetpack Compose or the Android View System.
 
-We provide two different ways of presenting the Paywall:
+We provide two different ways of presenting the Paywall with an intent:
 
 <Tabs>
   <Tab title="Jetpack Compose">
@@ -328,44 +357,24 @@ We provide two different ways of presenting the Paywall:
 
     #### Using HeliumPaywallFragment
 
-    Using the `HeliumPaywallFragment` requires you to create a subclass and implement the `HeliumNavigationDispatcher` interface.
+    You can use `HeliumPaywallFragment` to display a paywall within a fragment container.
 
-    **1. Create your Paywall Fragment:**
-
-    ```kotlin
-    // In your app, for example, MyPaywallFragment.kt
-    class MyPaywallFragment : HeliumPaywallFragment() {
-        override fun navigate(command: HeliumNavigationCommand) {
-            when (command) {
-                HeliumNavigationCommand.GoBack -> requireActivity().supportFragmentManager.popBackStack()
-                is HeliumNavigationCommand.Paywall -> {
-                    // Handle navigation to another paywall if needed
-                }
-            }
-        }
-
-        companion object {
-            fun newInstance(trigger: String): MyPaywallFragment {
-                return MyPaywallFragment().apply {
-                    arguments = Bundle().apply {
-                        putString(ARG_TRIGGER, trigger)
-                    }
-                }
-            }
-        }
-    }
-    ```
-
-    **2. Launch your Paywall Fragment:**
+    Use the `HeliumPaywallFragment.newInstance()` method to create an instance of the fragment with your desired trigger. Then, use the `FragmentManager` to add it to your view hierarchy.
 
     ```kotlin
     // To launch your paywall from an Activity or another Fragment
-    val fragment = MyPaywallFragment.newInstance("sdk_test")
-    supportFragmentManager.beginTransaction()
-        .replace(R.id.fragment_container, fragment)
-        .addToBackStack(null)
-        .commit()
+    val fragment = HeliumPaywallFragment.newInstance("sdk_test")
+    if (fragment != null) {
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, fragment)
+            .addToBackStack(null)
+            .commit()
+    }
     ```
+    
+    <Note>
+      The `newInstance` function will return `null` if the paywall is configured not to show for the current user. You should handle this case by not attempting to show the fragment.
+    </Note>
   </Tab>
 </Tabs>
 

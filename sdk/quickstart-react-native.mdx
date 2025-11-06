@@ -224,6 +224,9 @@ Use the `presentUpsell` method to present a paywall. `presentUpsell` takes in `P
     <ResponseField name="customPaywallTraits" type="Record<string, any>">
       (Advanced) Custom key/value pairs that you want available to the paywall.
     </ResponseField>
+    <ResponseField name="dontShowIfAlreadyEntitled" type="boolean" default="false">
+      (Optional) If `true`, the paywall will not show if the user already has entitlements for any product in the paywall. See the Entitlements section of this guide for more details.
+    </ResponseField>
   </Expandable>
 </ResponseField>
 
@@ -341,26 +344,41 @@ export const hasAnyEntitlement = async (): Promise<boolean>;
 export const hasEntitlementForPaywall = async (trigger: string): Promise<boolean | undefined>;
 ```
 
-#### Example
+#### Example Usage
 
-```typescript
-const hasActiveSubscription = await hasAnyActiveSubscription();
-if (hasActiveSubscription) {
-  featureGatedLogic(); // replace this with your logic
-} else {
+<Tip>
+  Check entitlements before showing paywalls to avoid showing a paywall to a user who should not see it.
+</Tip>
+
+<CodeGroup>
+
+  ```typescript Use dontShowIfAlreadyEntitled with presentUpsell
   presentUpsell({
-    triggerName: 'insert-trigger-here',
-    onFallback: () => {
-      // handle fallback logic in case paywall fails to show (should be quite rare)
-    },
-    eventHandlers: {
-      onPurchaseSucceeded: (event: PurchaseSucceededEvent) => {
-        featureGatedLogic(); // replace this with your logic
-      },
-    },
+    triggerName: 'my_paywall',
+    dontShowIfAlreadyEntitled: true
   });
-}
-```
+  ```
+
+  ```typescript Check before showing paywall
+  const hasActiveSubscription = await hasAnyActiveSubscription();
+  if (hasActiveSubscription) {
+    featureGatedLogic(); // replace this with your logic
+  } else {
+    presentUpsell({
+      triggerName: 'my_paywall',
+      onFallback: () => {
+        // handle fallback logic in case paywall fails to show (should be quite rare)
+      },
+      eventHandlers: {
+        onPurchaseSucceeded: (event: PurchaseSucceededEvent) => {
+          featureGatedLogic(); // replace this with your logic
+        },
+      },
+    });
+  }
+  ```
+
+</CodeGroup>
 
 ## Fallbacks
 

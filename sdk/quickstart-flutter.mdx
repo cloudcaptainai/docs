@@ -388,25 +388,41 @@ Future<bool> hasAnyActiveSubscription();
 Future<bool> hasAnyEntitlement();
 ```
 
-#### Example
+#### Example Usage
 
-```dart
-final heliumFlutter = HeliumFlutter();
-final hasActiveSubscription = await heliumFlutter.hasAnyActiveSubscription();
-if (hasActiveSubscription) {
-  featureGatedLogic(); // replace this with your logic
-} else {
+<Tip>
+  Check entitlements before showing paywalls to avoid showing a paywall to a user who should not see it.
+</Tip>
+
+<CodeGroup>
+
+  ```dart Use dontShowIfAlreadyEntitled with presentUpsell
   heliumFlutter.presentUpsell(
-    trigger: 'insert-trigger-here',
+    trigger: 'my_paywall',
     context: context,
-    eventHandlers: PaywallEventHandlers(
-      onPurchaseSucceeded: (event) {
-        featureGatedLogic(); // replace this with your logic
-      },
-    )
+    dontShowIfAlreadyEntitled: true
   );
-}
-```
+  ```
+
+  ```dart Check before showing paywall
+  final heliumFlutter = HeliumFlutter();
+  final hasActiveSubscription = await heliumFlutter.hasAnyActiveSubscription();
+  if (hasActiveSubscription) {
+    featureGatedLogic(); // replace this with your logic
+  } else {
+    heliumFlutter.presentUpsell(
+      trigger: 'my_paywall',
+      context: context,
+      eventHandlers: PaywallEventHandlers(
+        onPurchaseSucceeded: (event) {
+          featureGatedLogic(); // replace this with your logic
+        },
+      )
+    );
+  }
+  ```
+
+</CodeGroup>
 
 ## Fallbacks
 

@@ -186,14 +186,14 @@ All paywall events (any event that implements `PaywallContextEvent`) provide a `
 func onPaywallEvent(_ event: HeliumEvent) {
     // Access experiment info from any paywall event
     if let openEvent = event as? PaywallOpenEvent,
-       let experimentInfo = openEvent.getExperimentInfo() {
+       let experimentInfo = openEvent.getEventExperimentInfo() {
         print("Variant: \(experimentInfo.chosenVariantDetails?.allocationIndex ?? 0)")
         print("Experiment: \(experimentInfo.experimentName ?? "none")")
     }
     
     // Track which variant led to purchase
     if let purchaseEvent = event as? PurchaseSucceededEvent,
-       let experimentInfo = purchaseEvent.getExperimentInfo() {
+       let experimentInfo = purchaseEvent.getEventExperimentInfo() {
         analytics.track("conversion", variant: experimentInfo.chosenVariantDetails?.allocationIndex)
     }
 }

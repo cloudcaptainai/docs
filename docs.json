@@ -34,6 +34,7 @@
         "group": "Guides",
         "icon": "compass",
         "pages": [
+          "guides/paywall-presentation",
           "guides/revenue-reporting",
           "guides/fallback-bundle",
           "guides/third-party-analytics",

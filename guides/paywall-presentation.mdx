@@ -1,0 +1,117 @@
+---
+title: 'Paywall Presentation Methods'
+description: 'Alternative ways to present Helium paywalls in your app'
+---
+
+## Overview
+
+`presentUpsell` is the recommended way to show paywalls in most cases. But if you need more control over how and where paywalls appear in your app, you can embed them directly into your UI.
+
+<Warning>
+  These embedded methods require you to handle paywall lifecycle, dismissal logic, and fallback states yourself. We recommend sticking with `presentUpsell` unless you have a specific need for embedding.
+</Warning>
+
+## iOS: Embedded Paywall Views
+
+### Using upsellViewForTrigger
+
+You can get a SwiftUI view representation of a paywall using `Helium.shared.upsellViewForTrigger`. This returns the paywall as an `AnyView` that you can embed anywhere in your view hierarchy.
+
+```swift
+let heliumView: AnyView? = Helium.shared.upsellViewForTrigger(
+    trigger: "post_onboarding"
+)
+```
+
+<Note>
+  You'll need to handle presentation and dismissal yourself when using `upsellViewForTrigger`. Use PaywallEventHandlers to listen for dismissal events.
+</Note>
+
+#### Example with Event Handlers
+
+```swift
+Helium.shared.upsellViewForTrigger(
+    trigger: "post_onboarding",
+    eventHandlers: PaywallEventHandlers()
+        .onOpen { event in
+            print("Paywall opened for trigger \(event.triggerName)")
+        }
+        .onClose { event in
+            print("Paywall closed for trigger \(event.triggerName)")
+        }
+        .onDismissed { event in
+            // Handle user dismissal here (i.e. hide the embedded view)
+            print("Paywall dismissed for trigger \(event.triggerName)")
+        }
+        .onCustomAction { event in
+            print("Custom action: \(event.actionName) with params: \(event.params)")
+        }
+)
+```
+
+### Heads Up
+
+A few things to keep in mind when using embedded views:
+
+- **Fallback Handling**: If a fallback bundle isn't configured and the paywall fails to load, embedded views may display "No fallback view provided" text.
+- **Loading States**: Embedded views don't automatically show loading indicators during the initial paywall fetch.
+- **Manual Dismissal**: You're responsible for removing the embedded view from your hierarchy when users dismiss the paywall.
+
+## Flutter: Widget Integration
+
+### Using getUpsellWidget
+
+You can embed a paywall directly in your widget tree using `HeliumFlutter.getUpsellWidget`:
+
+```dart
+class ExamplePageWithEmbeddedPaywall extends StatelessWidget {
+  const ExamplePageWithEmbeddedPaywall({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: HeliumFlutter().getUpsellWidget(trigger: 'insert-trigger-here'),
+    );
+  }
+}
+```
+
+<Note>
+  You'll need to handle dismissal yourself. Pass in PaywallEventHandlers and use the `onDismissed` handler to remove the widget from your tree.
+</Note>
+
+### Heads Up
+
+- **Manual Dismissal**: You're responsible for handling navigation and dismissal when users close the paywall.
+- **Fallback Handling**: Like iOS embedded views, Flutter widgets require proper fallback bundle configuration to avoid showing error messages.
+
+## When should you use embedded methods?
+
+You might want to use embedded presentation methods if you need:
+
+- The paywall to be part of a multi-step onboarding or tutorial flow
+- To show a paywall alongside other content (like on iPad or tablet layouts)
+- Users to interact with other parts of your app while viewing subscription options
+
+## Recommended Approach
+
+For most cases, use the standard presentation methods from each platform's quickstart guide. Use `Helium.shared.presentUpsell()` for iOS, `HeliumFlutter().presentUpsell()` for Flutter, `Helium.presentUpsell()` for Android, or `presentUpsell()` for React Native.
+
+These methods handle loading states, fallback scenarios, and dismissal automatically—better UX with less code.
+
+## Related Documentation
+
+<CardGroup cols={2}>
+  <Card title="iOS Quickstart" icon="apple" href="/sdk/quickstart-ios">
+    Complete iOS SDK setup and presentation guide
+  </Card>
+  <Card title="Flutter Quickstart" icon="flutter" href="/sdk/quickstart-flutter">
+    Complete Flutter SDK setup and presentation guide
+  </Card>
+  <Card title="Fallback Bundle" icon="cloud-arrow-down" href="/guides/fallback-bundle">
+    Configure fallback bundles for offline paywall support
+  </Card>
+  <Card title="Helium Events" icon="bell" href="/sdk/helium-events">
+    Complete event reference for handling paywall lifecycle
+  </Card>
+</CardGroup>

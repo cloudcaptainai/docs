@@ -221,7 +221,7 @@ Helium.shared.initialize(
   You must have a trigger and workflow configured in the [dashboard](https://app.tryhelium.com/workflows) in order to show a paywall.
 </Note>
 
-You can show a paywall in one of 3 ways:
+You can show a paywall in one of 2 ways:
 
 ### 1. Show it as a full-screen modal (recommended)
 
@@ -273,19 +273,9 @@ struct ContentView: View {
 }
 ```
 
-### 3. Explicitly embed the Helium Paywall View
-
-You can also explicitly get the Helium paywall view via `Helium.shared.upsellViewForTrigger`. This method takes a trigger and returns the paywall as an `AnyView`.
-
-```swift
-let heliumView: AnyView? = Helium.shared.upsellViewForTrigger(
-    trigger: "post_onboarding"
-)
-```
-
-<Note>
-  You'll need to handle presentation and dismissal yourself if you use this way of displaying paywalls. You can handle dismissal with PaywallEventHandlers.
-</Note>
+<Info>
+  Looking for other ways to present paywalls? Check out the [Paywall Presentation Methods](/guides/paywall-presentation) guide for advanced options like embedding paywalls directly into your UI.
+</Info>
 
 ### PaywallEventHandlers
 
@@ -352,30 +342,6 @@ struct ContentView: View {
         )
     }
 }
-```
-
-
-```swift upsellViewForTrigger
-  Helium.shared.upsellViewForTrigger(
-      trigger: "post_onboarding",
-      eventHandlers: PaywallEventHandlers()
-          .onOpen { event in
-              print("open for trigger \(event.triggerName)")
-          }
-          .onClose { event in
-              print("close for trigger \(event.triggerName)")
-          }
-          .onDismissed { event in
-              // handle user dismissal here (i.e. hide the upsell view)
-              print("dismiss for trigger \(event.triggerName)")
-          }
-          .onPurchaseSucceeded { event in
-              print("purchase made for trigger \(event.triggerName)")
-          }
-          .onCustomPaywallAction { event in
-              print("Custom action: \(event.actionName) with params: \(event.params)")
-          }
-  )
 ```
 
 </CodeGroup>

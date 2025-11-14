@@ -217,26 +217,9 @@ HeliumFlutter().presentUpsell(
 );
 ```
 
-### 2. Via Widget Integration
-
-You can use the `HeliumFlutter.getUpsellWidget` method to embed a paywall directly in your widget tree:
-
-```dart
-class ExamplePageWithEmbeddedPaywall extends StatelessWidget {
-  const ExamplePageWithEmbeddedPaywall({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: HeliumFlutter().getUpsellWidget(trigger: 'insert-trigger-here'),
-    );
-  }
-}
-```
-
-<Note>
-  You will have to handle your own dismissal in this case. You can do so by passing in PaywallEventHandlers and using the `onDismissed` handler.
-</Note>
+<Info>
+  Looking for other ways to present paywalls? Check out the [Paywall Presentation Methods](/guides/paywall-presentation) guide for advanced options like embedding paywalls directly into your widget tree.
+</Info>
 
 You should now be able to see Helium paywalls in your app! Well done! 🎉
 

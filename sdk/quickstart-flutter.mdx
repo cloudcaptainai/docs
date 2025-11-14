@@ -171,10 +171,6 @@ Future<void> main() async {
   You must have a trigger and workflow configured in the [dashboard](https://app.tryhelium.com/workflows) in order to show a paywall.
 </Note>
 
-There are two ways to show a Helium paywall in your Flutter app.
-
-### 1. Show it as a full-screen modal (recommended)
-
 You can present a paywall programmatically using the `presentUpsell` method:
 
 ```dart
@@ -217,26 +213,9 @@ HeliumFlutter().presentUpsell(
 );
 ```
 
-### 2. Via Widget Integration
-
-You can use the `HeliumFlutter.getUpsellWidget` method to embed a paywall directly in your widget tree:
-
-```dart
-class ExamplePageWithEmbeddedPaywall extends StatelessWidget {
-  const ExamplePageWithEmbeddedPaywall({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: HeliumFlutter().getUpsellWidget(trigger: 'insert-trigger-here'),
-    );
-  }
-}
-```
-
-<Note>
-  You will have to handle your own dismissal in this case. You can do so by passing in PaywallEventHandlers and using the `onDismissed` handler.
-</Note>
+<Info>
+  Looking for alternative presentation methods like widget integration? Check out the [Alternative Paywall Presentation Methods](/guides/paywall-presentation-methods) guide.
+</Info>
 
 You should now be able to see Helium paywalls in your app! Well done! 🎉
 

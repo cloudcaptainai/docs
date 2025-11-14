@@ -36,6 +36,7 @@
         "pages": [
           "guides/revenue-reporting",
           "guides/fallback-bundle",
+          "guides/paywall-presentation-methods",
           "guides/third-party-analytics",
           "guides/custom-events"
         ]

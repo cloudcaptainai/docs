@@ -1,0 +1,137 @@
+---
+title: Alternative Paywall Presentation Methods
+description: Advanced and alternative ways to present Helium paywalls beyond the standard presentUpsell method
+---
+
+## Overview
+
+Most of the time you'll want to use **`presentUpsell()`** to show paywalls—it's covered in each platform's quickstart guide. But if you need more control over how and where paywalls appear in your app, there are a few other options.
+
+<Warning>
+You'll need to handle loading states, fallback scenarios, and dismissal logic yourself with these methods. We recommend sticking with `presentUpsell()` unless you have a specific reason to use these alternatives.
+</Warning>
+
+## iOS: SwiftUI ViewModifier
+
+Attach a paywall to any SwiftUI view using the **`.triggerUpsell`** view modifier:
+
+```swift
+struct ContentView: View {
+    @State var isPresented: Bool = false
+    var body: some View {
+        VStack {
+            Button {
+                isPresented = true;
+            } label: {
+                Text("Show paywall")
+            }
+
+        }.triggerUpsell(isPresented: $isPresented, trigger: "post_onboarding")
+    }
+}
+```
+
+You can also pass in event handlers:
+
+```swift
+struct ContentView: View {
+    @State var isPresented: Bool = false
+    var body: some View {
+        VStack {
+            Button {
+                isPresented = true;
+            } label: {
+                Text("Show paywall")
+            }
+        }
+        .triggerUpsell(
+            isPresented: $isPresented,
+            trigger: "post_onboarding",
+            eventHandlers: PaywallEventHandlers()
+                .onOpen { event in
+                    print("open via trigger \(event.triggerName)")
+                }
+                .onClose { event in
+                    print("close for trigger \(event.triggerName)")
+                }
+                .onDismissed { event in
+                    print("dismiss for trigger \(event.triggerName)")
+                }
+                .onPurchaseSucceeded { event in
+                    print("purchase made for trigger \(event.triggerName)")
+                }
+                .onCustomPaywallAction { event in
+                    print("Custom action: \(event.actionName) with params: \(event.params)")
+                }
+        )
+    }
+}
+```
+
+## iOS: Explicitly Embedded View
+
+Get the paywall view directly and embed it in your own view hierarchy using **`Helium.shared.upsellViewForTrigger`**:
+
+```swift
+let heliumView: AnyView? = Helium.shared.upsellViewForTrigger(
+    trigger: "post_onboarding"
+)
+```
+
+<Warning>
+You'll need to handle presentation and dismissal yourself when using this method. Use PaywallEventHandlers to handle dismissal.
+</Warning>
+
+You can pass in event handlers here too:
+
+```swift
+Helium.shared.upsellViewForTrigger(
+    trigger: "post_onboarding",
+    eventHandlers: PaywallEventHandlers()
+        .onOpen { event in
+            print("open for trigger \(event.triggerName)")
+        }
+        .onClose { event in
+            print("close for trigger \(event.triggerName)")
+        }
+        .onDismissed { event in
+            // handle user dismissal here (i.e. hide the upsell view)
+            print("dismiss for trigger \(event.triggerName)")
+        }
+        .onPurchaseSucceeded { event in
+            print("purchase made for trigger \(event.triggerName)")
+        }
+        .onCustomPaywallAction { event in
+            print("Custom action: \(event.actionName) with params: \(event.params)")
+        }
+)
+```
+
+## Flutter: Widget Integration
+
+Embed a paywall directly in your widget tree using **`HeliumFlutter.getUpsellWidget`**:
+
+```dart
+class ExamplePageWithEmbeddedPaywall extends StatelessWidget {
+  const ExamplePageWithEmbeddedPaywall({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: HeliumFlutter().getUpsellWidget(trigger: 'insert-trigger-here'),
+    );
+  }
+}
+```
+
+<Warning>
+You'll need to handle dismissal yourself when using this method. Pass in PaywallEventHandlers and use the `onDismissed` handler.
+</Warning>
+
+## When to Use These Methods
+
+Use the **ViewModifier or Widget Integration** if you need the paywall to be part of a specific navigation flow or view hierarchy. Use **Explicit Embedding** if you need fine-grained control over the paywall's layout and positioning.
+
+<Info>
+For most use cases, `presentUpsell()` is simpler and handles edge cases automatically. See the [iOS](/sdk/quickstart-ios#presenting-paywalls), [Flutter](/sdk/quickstart-flutter#presenting-paywalls), or [React Native](/sdk/quickstart-react-native#presenting-paywalls) quickstart guides for details.
+</Info>

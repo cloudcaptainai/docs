@@ -221,10 +221,6 @@ Helium.shared.initialize(
   You must have a trigger and workflow configured in the [dashboard](https://app.tryhelium.com/workflows) in order to show a paywall.
 </Note>
 
-You can show a paywall in one of 3 ways:
-
-### 1. Show it as a full-screen modal (recommended)
-
 Call `Helium.shared.presentUpsell(trigger:)` when you want to show the paywall. For example:
 
 ```swift
@@ -253,47 +249,15 @@ Button("Try Premium") {
   </Expandable>
 </ResponseField>
 
-### 2. Attach it to a SwiftUI view as a ViewModifier
-
-You can use the `.triggerUpsell` view modifier from any SwiftUI view:
-
-```swift
-struct ContentView: View {
-    @State var isPresented: Bool = false
-    var body: some View {
-        VStack {
-            Button {
-                isPresented = true;
-            } label: {
-                Text("Show paywall")
-            }
-
-        }.triggerUpsell(isPresented: $isPresented, trigger: "post_onboarding")
-    }
-}
-```
-
-### 3. Explicitly embed the Helium Paywall View
-
-You can also explicitly get the Helium paywall view via `Helium.shared.upsellViewForTrigger`. This method takes a trigger and returns the paywall as an `AnyView`.
-
-```swift
-let heliumView: AnyView? = Helium.shared.upsellViewForTrigger(
-    trigger: "post_onboarding"
-)
-```
-
-<Note>
-  You'll need to handle presentation and dismissal yourself if you use this way of displaying paywalls. You can handle dismissal with PaywallEventHandlers.
-</Note>
+<Info>
+  Looking for alternative presentation methods like SwiftUI ViewModifiers or embedded views? Check out the [Alternative Paywall Presentation Methods](/guides/paywall-presentation-methods) guide.
+</Info>
 
 ### PaywallEventHandlers
 
 When displaying a paywall you can pass in event handlers to listen for relevant [Helium Events](/sdk/helium-events). You can chain a subset of handlers with builder syntax:
 
-<CodeGroup>
-
-```swift presentUpsell
+```swift
 Helium.shared.presentUpsell(
     trigger: "post_onboarding",
     eventHandlers: PaywallEventHandlers()
@@ -317,68 +281,6 @@ Helium.shared.presentUpsell(
         }
 )
 ```
-
-
-```swift triggerUpsell
-struct ContentView: View {
-    @State var isPresented: Bool = false
-    var body: some View {
-        VStack {
-            Button {
-                isPresented = true;
-            } label: {
-                Text("Show paywall")
-            }
-        }
-        .triggerUpsell(
-            isPresented: $isPresented,
-            trigger: "post_onboarding",
-            eventHandlers: PaywallEventHandlers()
-                .onOpen { event in
-                    print("open via trigger \(event.triggerName)")
-                }
-                .onClose { event in
-                    print("close for trigger \(event.triggerName)")
-                }
-                .onDismissed { event in
-                    print("dismiss for trigger \(event.triggerName)")
-                }
-                .onPurchaseSucceeded { event in
-                    print("purchase made for trigger \(event.triggerName)")
-                }
-                .onCustomPaywallAction { event in
-                    print("Custom action: \(event.actionName) with params: \(event.params)")
-                }
-        )
-    }
-}
-```
-
-
-```swift upsellViewForTrigger
-  Helium.shared.upsellViewForTrigger(
-      trigger: "post_onboarding",
-      eventHandlers: PaywallEventHandlers()
-          .onOpen { event in
-              print("open for trigger \(event.triggerName)")
-          }
-          .onClose { event in
-              print("close for trigger \(event.triggerName)")
-          }
-          .onDismissed { event in
-              // handle user dismissal here (i.e. hide the upsell view)
-              print("dismiss for trigger \(event.triggerName)")
-          }
-          .onPurchaseSucceeded { event in
-              print("purchase made for trigger \(event.triggerName)")
-          }
-          .onCustomPaywallAction { event in
-              print("Custom action: \(event.actionName) with params: \(event.params)")
-          }
-  )
-```
-
-</CodeGroup>
 
 <Note>
   **Usage Suggestions:**

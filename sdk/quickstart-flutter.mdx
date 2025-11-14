@@ -365,6 +365,13 @@ Future<bool> hasAnyActiveSubscription();
 
 /// Checks if the user has any entitlement
 Future<bool> hasAnyEntitlement();
+
+/// Checks if the user has an active entitlement for any product attached to the paywall that will show for provided trigger.
+/// - Parameter trigger: Trigger that would be used to show the paywall.
+/// - Returns: `true` if the user has bought one of the products on the paywall.
+///            `false` if not. Returns `null` if not known (i.e. the paywall is not downloaded yet).
+Future<bool?> hasEntitlementForPaywall(String trigger) =>
+    HeliumFlutterPlatform.instance.hasEntitlementForPaywall(trigger);
 ```
 
 #### Example Usage

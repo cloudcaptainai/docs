@@ -1,0 +1,250 @@
+---
+title: "Ways to Show a Paywall"
+description: "Advanced and alternative ways to present Helium paywalls beyond the standard presentUpsell method."
+icon: "expand"
+---
+
+## Overview
+
+Most of the time you'll want to use `presentUpsell()` to show paywalls. This approach is covered in each platform's quickstart guide (see navigation menu on the left). But if you need more control over how and where paywalls appear in your app, there are a few other options.
+
+<Warning>
+  You'll need to handle loading states, fallback scenarios, and dismissal logic yourself with these methods. We recommend sticking with `presentUpsell()` unless you have a specific reason to use these alternatives.
+</Warning>
+
+## iOS
+#### SwiftUI ViewModifier
+
+Attach a paywall to any SwiftUI view using the **`.triggerUpsell`** view modifier:
+
+```swift
+struct ContentView: View {
+    @State var isPresented: Bool = false
+    var body: some View {
+        VStack {
+            Button {
+                isPresented = true;
+            } label: {
+                Text("Show paywall")
+            }
+        }.triggerUpsell(isPresented: $isPresented, trigger: "post_onboarding")
+    }
+}
+```
+
+<Accordion title="Example with PaywallEventHandlers">
+  ```swift
+  struct ContentView: View {
+      @State var isPresented: Bool = false
+      var body: some View {
+          VStack {
+              Button {
+                  isPresented = true;
+              } label: {
+                  Text("Show paywall")
+              }
+          }
+          .triggerUpsell(
+              isPresented: $isPresented,
+              trigger: "post_onboarding",
+              eventHandlers: PaywallEventHandlers()
+                  .onOpen { event in
+                      print("open via trigger \(event.triggerName)")
+                  }
+                  .onClose { event in
+                      print("close for trigger \(event.triggerName)")
+                  }
+                  .onDismissed { event in
+                      print("dismiss for trigger \(event.triggerName)")
+                  }
+                  .onPurchaseSucceeded { event in
+                      print("purchase made for trigger \(event.triggerName)")
+                  }
+                  .onCustomPaywallAction { event in
+                      print("Custom action: \(event.actionName) with params: \(event.params)")
+                  }
+          )
+      }
+  }
+  ```
+</Accordion>
+
+#### Explicitly Embedded View
+
+Get the paywall view directly and embed it in your own SwiftUI view hierarchy using **`Helium.shared.upsellViewForTrigger`**:
+
+```swift
+let heliumView: AnyView? = Helium.shared.upsellViewForTrigger(
+    trigger: "post_onboarding"
+)
+```
+
+<Warning>
+  You'll need to handle presentation and dismissal yourself when using this method. You can handle user dismissal with PaywallEventHandlers.
+</Warning>
+
+<Accordion title="Example with PaywallEventHandlers">
+  ```swift
+  Helium.shared.upsellViewForTrigger(
+      trigger: "post_onboarding",
+      eventHandlers: PaywallEventHandlers()
+          .onOpen { event in
+              print("open for trigger \(event.triggerName)")
+          }
+          .onClose { event in
+              print("close for trigger \(event.triggerName)")
+          }
+          .onDismissed { event in
+              // handle user dismissal here (i.e. hide the upsell view)
+              print("dismiss for trigger \(event.triggerName)")
+          }
+          .onPurchaseSucceeded { event in
+              print("purchase made for trigger \(event.triggerName)")
+          }
+          .onCustomPaywallAction { event in
+              print("Custom action: \(event.actionName) with params: \(event.params)")
+          }
+  )
+  ```
+</Accordion>
+
+## Android
+#### Launch from Intent
+
+Create an `Intent` using the `createPaywallIntent` helper function. This function configures and returns an `Intent` that can be used to launch the `HeliumPaywallActivity`.
+
+Here are the available options for `createPaywallIntent`:
+
+- `context`: The Android `Context` required to create the intent. Use `this` in an Activity or `LocalContext.current` in a Composable.
+- `trigger`: The specific paywall trigger you want to display. This is a required parameter.
+- `fullscreen`: A `Boolean` to determine if the paywall should be displayed in fullscreen [immersive mode](https://developer.android.com/develop/ui/views/layout/immersive), where the system bars (status and navigation) are hidden. This is optional and defaults to `false`.
+- `disableSystemBackNavigation`: A `Boolean` to control the system back button behavior. If `true`, the back button will not close the paywall. This is optional and defaults to `true`.
+
+```kotlin
+// Create the intent to launch the paywall
+val heliumIntent = createPaywallIntent(
+    context = this,
+    trigger = "sdk_test"
+)
+```
+
+Once you have your intent, you can launch it using either Jetpack Compose or the Android View System:
+
+<Tabs>
+  <Tab title="Jetpack Compose">
+    With Compose you can start the `HeliumPaywallActivity` using `rememberLauncherForActivityResult`. This approach allows you to receive a result back from the paywall, such as whether a purchase was successful.
+
+    Here is an example of how to set it up in your Composable function:
+
+    ```kotlin
+    val context = LocalContext.current
+    val paywallLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            // Handle successful purchase
+        } else {
+            // Handle cancellation
+        }
+    }
+
+    Button(onClick = {
+        paywallLauncher.launch(heliumIntent)
+    }) {
+        Text("Show Paywall")
+    }
+    ```
+  </Tab>
+  <Tab title="Android View System">
+    To launch the paywall intent and handle the result, you can use `registerForActivityResult`.
+
+    ```kotlin
+    // In your Activity or Fragment
+
+    // Set up the ActivityResultLauncher
+    val paywallLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            // User has successfully interacted with the paywall.
+            // For example, you might want to refresh the user's subscription status.
+        }
+    }
+
+    // Launch your Paywall Activity
+    paywallLauncher.launch(heliumIntent)
+    ```
+  </Tab>
+</Tabs>
+
+#### NavController Integration
+
+If you are using Jetpack Compose with `NavController`, you can add the paywall to your navigation graph using `buildHelium()`:
+
+```kotlin
+NavHost(
+    navController = navController,
+    startDestination = "landing",
+    modifier = Modifier.fillMaxSize()
+) {
+    composable("landing") {
+        LandingScreen(navController = navController)
+    }
+    buildHelium(
+        navigationDispatcher = { command ->
+            when (command) {
+                HeliumNavigationCommand.GoBack -> navController.popBackStack()
+                is HeliumNavigationCommand.Paywall -> navController.navigate("helium?trigger=${command.trigger}")
+            }
+        }
+    )
+}
+```
+
+To present a paywall, you can then navigate to the Helium route with a specific trigger:
+
+```kotlin
+// Navigate to the paywall
+navController.navigate("helium?trigger=sdk_test")
+```
+
+#### Embedded Fragment
+
+You can use `HeliumPaywallFragment` to display a paywall within a fragment container.
+
+Use the `HeliumPaywallFragment.newInstance()` method to create an instance of the fragment with your desired trigger. Then, use the `FragmentManager` to add it to your view hierarchy.
+
+```kotlin
+// To launch your paywall from an Activity or another Fragment
+val fragment = HeliumPaywallFragment.newInstance("sdk_test")
+if (fragment != null) {
+    supportFragmentManager.beginTransaction()
+        .replace(R.id.fragment_container, fragment)
+        .addToBackStack(null)
+        .commit()
+}
+```
+
+<Note>
+  The `newInstance` function will return `null` if the paywall is configured not to show for the current user. You should handle this case by not attempting to show the fragment.
+</Note>
+
+## Flutter
+#### Widget Integration
+
+Embed a paywall directly in your widget tree using **`HeliumFlutter.getUpsellWidget`**:
+
+```dart
+class ExamplePageWithEmbeddedPaywall extends StatelessWidget {
+  const ExamplePageWithEmbeddedPaywall({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: HeliumFlutter().getUpsellWidget(trigger: 'insert-trigger-here'),
+    );
+  }
+}
+```
+
+<Warning>
+  You will have to handle your own dismissal. You can do so by passing in PaywallEventHandlers and using the `onDismissed` handler.
+</Warning>

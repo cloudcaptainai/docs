@@ -171,10 +171,6 @@ Future<void> main() async {
   You must have a trigger and workflow configured in the [dashboard](https://app.tryhelium.com/workflows) in order to show a paywall.
 </Note>
 
-There are two ways to show a Helium paywall in your Flutter app.
-
-### 1. Show it as a full-screen modal (recommended)
-
 You can present a paywall programmatically using the `presentUpsell` method:
 
 ```dart
@@ -217,26 +213,9 @@ HeliumFlutter().presentUpsell(
 );
 ```
 
-### 2. Via Widget Integration
-
-You can use the `HeliumFlutter.getUpsellWidget` method to embed a paywall directly in your widget tree:
-
-```dart
-class ExamplePageWithEmbeddedPaywall extends StatelessWidget {
-  const ExamplePageWithEmbeddedPaywall({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: HeliumFlutter().getUpsellWidget(trigger: 'insert-trigger-here'),
-    );
-  }
-}
-```
-
-<Note>
-  You will have to handle your own dismissal in this case. You can do so by passing in PaywallEventHandlers and using the `onDismissed` handler.
-</Note>
+<Info>
+  Looking for alternative presentation methods? Check out the guide on [Ways to Show a Paywall](/guides/ways-to-show-paywall).
+</Info>
 
 You should now be able to see Helium paywalls in your app! Well done! 🎉
 
@@ -386,6 +365,13 @@ Future<bool> hasAnyActiveSubscription();
 
 /// Checks if the user has any entitlement
 Future<bool> hasAnyEntitlement();
+
+/// Checks if the user has an active entitlement for any product attached to the paywall that will show for provided trigger.
+/// - Parameter trigger: Trigger that would be used to show the paywall.
+/// - Returns: `true` if the user has bought one of the products on the paywall.
+///            `false` if not. Returns `null` if not known (i.e. the paywall is not downloaded yet).
+Future<bool?> hasEntitlementForPaywall(String trigger) =>
+    HeliumFlutterPlatform.instance.hasEntitlementForPaywall(trigger);
 ```
 
 #### Example Usage

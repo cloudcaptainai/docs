@@ -279,6 +279,11 @@ Helium.shared.presentUpsell(
         .onCustomPaywallAction { event in
             print("Custom action: \(event.actionName) with params: \(event.params)")
         }
+        .onAnyEvent { event in
+            // A handler for all paywall-related events.
+            // Note that if you have other handlers (i.e. onOpen) set up,
+            // both that handler AND this one will fire during paywall open.
+        }
 )
 ```
 

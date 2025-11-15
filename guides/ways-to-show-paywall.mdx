@@ -12,7 +12,8 @@ Most of the time you'll want to use `presentUpsell()` to show paywalls. This app
   You'll need to handle loading states, fallback scenarios, and dismissal logic yourself with these methods. We recommend sticking with `presentUpsell()` unless you have a specific reason to use these alternatives.
 </Warning>
 
-## iOS: SwiftUI ViewModifier
+## iOS
+#### SwiftUI ViewModifier
 
 Attach a paywall to any SwiftUI view using the **`.triggerUpsell`** view modifier:
 
@@ -68,9 +69,10 @@ struct ContentView: View {
   ```
 </Accordion>
 
-## iOS: Explicitly Embedded View
+## iOS
+#### Explicitly Embedded View
 
-Get the paywall view directly and embed it in your own view hierarchy using **`Helium.shared.upsellViewForTrigger`**:
+Get the paywall view directly and embed it in your own SwiftUI view hierarchy using **`Helium.shared.upsellViewForTrigger`**:
 
 ```swift
 let heliumView: AnyView? = Helium.shared.upsellViewForTrigger(
@@ -107,7 +109,8 @@ let heliumView: AnyView? = Helium.shared.upsellViewForTrigger(
   ```
 </Accordion>
 
-## Flutter: Widget Integration
+## Flutter
+#### Widget Integration
 
 Embed a paywall directly in your widget tree using **`HeliumFlutter.getUpsellWidget`**:
 

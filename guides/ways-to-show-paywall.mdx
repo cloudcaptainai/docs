@@ -156,13 +156,7 @@ Once you have your intent, you can launch it using either Jetpack Compose or the
     ```
   </Tab>
   <Tab title="Android View System">
-    You can present paywalls using either an `Activity` or a `Fragment`. Make sure you have initialized the Helium SDK as described in the "Initialize Helium" section before presenting the paywall.
-
-    #### Using HeliumPaywallActivity
-
-    You can use `HeliumPaywallActivity` to display a paywall.
-
-    To launch the paywall and handle the result, it is recommended to use `registerForActivityResult`.
+    To launch the paywall intent and handle the result, you can use `registerForActivityResult`.
 
     ```kotlin
     // In your Activity or Fragment
@@ -178,27 +172,6 @@ Once you have your intent, you can launch it using either Jetpack Compose or the
     // Launch your Paywall Activity
     paywallLauncher.launch(heliumIntent)
     ```
-
-    #### Using HeliumPaywallFragment
-
-    You can use `HeliumPaywallFragment` to display a paywall within a fragment container.
-
-    Use the `HeliumPaywallFragment.newInstance()` method to create an instance of the fragment with your desired trigger. Then, use the `FragmentManager` to add it to your view hierarchy.
-
-    ```kotlin
-    // To launch your paywall from an Activity or another Fragment
-    val fragment = HeliumPaywallFragment.newInstance("sdk_test")
-    if (fragment != null) {
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.fragment_container, fragment)
-            .addToBackStack(null)
-            .commit()
-    }
-    ```
-
-    <Note>
-      The `newInstance` function will return `null` if the paywall is configured not to show for the current user. You should handle this case by not attempting to show the fragment.
-    </Note>
   </Tab>
 </Tabs>
 
@@ -232,6 +205,27 @@ To present a paywall, you can then navigate to the Helium route with a specific 
 // Navigate to the paywall
 navController.navigate("helium?trigger=sdk_test")
 ```
+
+#### Embedded Fragment
+
+You can use `HeliumPaywallFragment` to display a paywall within a fragment container.
+
+Use the `HeliumPaywallFragment.newInstance()` method to create an instance of the fragment with your desired trigger. Then, use the `FragmentManager` to add it to your view hierarchy.
+
+```kotlin
+// To launch your paywall from an Activity or another Fragment
+val fragment = HeliumPaywallFragment.newInstance("sdk_test")
+if (fragment != null) {
+    supportFragmentManager.beginTransaction()
+        .replace(R.id.fragment_container, fragment)
+        .addToBackStack(null)
+        .commit()
+}
+```
+
+<Note>
+  The `newInstance` function will return `null` if the paywall is configured not to show for the current user. You should handle this case by not attempting to show the fragment.
+</Note>
 
 ## Flutter
 #### Widget Integration

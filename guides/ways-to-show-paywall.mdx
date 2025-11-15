@@ -110,11 +110,9 @@ let heliumView: AnyView? = Helium.shared.upsellViewForTrigger(
 </Accordion>
 
 ## Android
-#### Manual Intent Creation
+#### Launch from Intent
 
-For more advanced use cases, such as handling results from the paywall, you can create an `Intent` and launch it manually. This is useful when you need to know if a purchase was successful.
-
-The first step is to create an `Intent` using the `createPaywallIntent` helper function. This function configures and returns an `Intent` that can be used to launch the `HeliumPaywallActivity`.
+Create an `Intent` using the `createPaywallIntent` helper function. This function configures and returns an `Intent` that can be used to launch the `HeliumPaywallActivity`.
 
 Here are the available options for `createPaywallIntent`:
 
@@ -131,13 +129,11 @@ val heliumIntent = createPaywallIntent(
 )
 ```
 
-Once you have your intent, you can launch it using either Jetpack Compose or the Android View System.
-
-We provide two different ways of presenting the Paywall with an intent:
+Once you have your intent, you can launch it using either Jetpack Compose or the Android View System:
 
 <Tabs>
   <Tab title="Jetpack Compose">
-    The recommended way to present a paywall in Jetpack Compose is by launching the `HeliumPaywallActivity` using `rememberLauncherForActivityResult`. This approach allows you to receive a result back from the paywall, such as whether a purchase was successful.
+    With Compose you can start the `HeliumPaywallActivity` using `rememberLauncherForActivityResult`. This approach allows you to receive a result back from the paywall, such as whether a purchase was successful.
 
     Here is an example of how to set it up in your Composable function:
 
@@ -158,35 +154,6 @@ We provide two different ways of presenting the Paywall with an intent:
     }) {
         Text("Show Paywall")
     }
-    ```
-
-    Alternatively, if you are using `NavController`, you can add the paywall to your navigation graph using `buildHelium()`:
-
-    ```kotlin
-    NavHost(
-        navController = navController,
-        startDestination = "landing",
-        modifier = Modifier.fillMaxSize()
-    ) {
-        composable("landing") {
-            LandingScreen(navController = navController)
-        }
-        buildHelium(
-            navigationDispatcher = { command ->
-                when (command) {
-                    HeliumNavigationCommand.GoBack -> navController.popBackStack()
-                    is HeliumNavigationCommand.Paywall -> navController.navigate("helium?trigger=${command.trigger}")
-                }
-            }
-        )
-    }
-    ```
-
-    To present a paywall, you can then navigate to the Helium route with a specific trigger:
-
-    ```kotlin
-    // Navigate to the paywall
-    navController.navigate("helium?trigger=sdk_test")
     ```
   </Tab>
   <Tab title="Android View System">
@@ -235,6 +202,37 @@ We provide two different ways of presenting the Paywall with an intent:
     </Note>
   </Tab>
 </Tabs>
+
+#### NavController Integration
+
+If you are using Jetpack Compose with `NavController`, you can add the paywall to your navigation graph using `buildHelium()`:
+
+```kotlin
+NavHost(
+    navController = navController,
+    startDestination = "landing",
+    modifier = Modifier.fillMaxSize()
+) {
+    composable("landing") {
+        LandingScreen(navController = navController)
+    }
+    buildHelium(
+        navigationDispatcher = { command ->
+            when (command) {
+                HeliumNavigationCommand.GoBack -> navController.popBackStack()
+                is HeliumNavigationCommand.Paywall -> navController.navigate("helium?trigger=${command.trigger}")
+            }
+        }
+    )
+}
+```
+
+To present a paywall, you can then navigate to the Helium route with a specific trigger:
+
+```kotlin
+// Navigate to the paywall
+navController.navigate("helium?trigger=sdk_test")
+```
 
 ## Flutter
 #### Widget Integration

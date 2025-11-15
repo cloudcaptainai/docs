@@ -26,8 +26,7 @@
           "sdk/quickstart-android",
           "sdk/quickstart-react-native",
           "sdk/quickstart-flutter",
-          "sdk/helium-events",
-          "sdk/storekit-testing"
+          "sdk/helium-events"
         ]
       },
       {
@@ -38,7 +37,8 @@
           "guides/fallback-bundle",
           "guides/ways-to-show-paywall",
           "guides/third-party-analytics",
-          "guides/custom-events"
+          "guides/custom-events",
+          "guides/storekit-testing"
         ]
       },
       {

@@ -209,6 +209,19 @@ This page acts as a reference to what events are available in Helium, and when e
   </Tab>
 </Tabs>
 
+### Other methods for experiments
+
+You can also fetch all experiments for the current user. 
+
+// Gets all experiments for which this user is eligible
+func getAllEnrolledExperiments() -> [ExperimentInfo]?
+
+// Gets all experiments for which this user is eligible AND has already been enrolled
+func getActiveEnrolledExperiments() -> [ExperimentInfo]?
+
+// Gets all experiments for which this user is eligible but has NOT been enrolled (e.g., its on a trigger that the user hasn't come across yet)
+func getPredictedEnrolledExperiments() -> [ExperimentInfo]?
+
 ### ExperimentInfo Structure
 
 The `experimentInfo` object in the `userAllocated` event contains experiment allocation data. This event fires once per session when a user is assigned to an experiment variant, which happens on the **first** trigger the user sees.

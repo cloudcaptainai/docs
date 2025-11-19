@@ -209,10 +209,11 @@ This page acts as a reference to what events are available in Helium, and when e
   </Tab>
 </Tabs>
 
-### Other methods for experiments
+### Fetch experiments for this user
 
-You can also fetch all experiments for the current user. 
+You can also fetch all experiments for the current user with a few methods available on the `Helium` top level object. Make sure to call tehse methods after `Helium.initialize()`
 
+```swift
 // Gets all experiments for which this user is eligible
 func getAllEnrolledExperiments() -> [ExperimentInfo]?
 
@@ -221,6 +222,7 @@ func getActiveEnrolledExperiments() -> [ExperimentInfo]?
 
 // Gets all experiments for which this user is eligible but has NOT been enrolled (e.g., its on a trigger that the user hasn't come across yet)
 func getPredictedEnrolledExperiments() -> [ExperimentInfo]?
+```
 
 ### ExperimentInfo Structure
 

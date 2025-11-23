@@ -154,9 +154,13 @@ import { createCustomPurchaseConfig } from 'expo-helium';
 
 // In your initialize call:
 purchaseConfig: createCustomPurchaseConfig({
-  makePurchase: async (productId) => {
-    // Your purchase logic here
-    // Return a HeliumTransactionStatus
+  makePurchaseIOS: async (productId) => {
+    // Your iOS purchase logic here
+    return { status: 'purchased' };
+  },
+  makePurchaseAndroid: async (productId, basePlanId, offerId) => {
+    // Your Android purchase logic here
+    // basePlanId and offerId are for subscription offers
     return { status: 'purchased' };
   },
   restorePurchases: async () => {
@@ -171,9 +175,13 @@ import { createCustomPurchaseConfig } from '@tryheliumai/paywall-sdk-react-nativ
 
 // In your initialize call:
 purchaseConfig: createCustomPurchaseConfig({
-  makePurchase: async (productId) => {
-    // Your purchase logic here
-    // Return a HeliumTransactionStatus
+  makePurchaseIOS: async (productId) => {
+    // Your iOS purchase logic here
+    return { status: 'purchased' };
+  },
+  makePurchaseAndroid: async (productId, basePlanId, offerId) => {
+    // Your Android purchase logic here
+    // basePlanId and offerId are for subscription offers
     return { status: 'purchased' };
   },
   restorePurchases: async () => {
@@ -183,6 +191,14 @@ purchaseConfig: createCustomPurchaseConfig({
 }),
 ```
 </CodeGroup>
+
+<Info>
+  **Android subscription parameters:** `basePlanId` and `offerId` are optional parameters for identifying subscription plans and promotional offers in Google Play. These are only passed on Android and will be `undefined` on iOS.
+</Info>
+
+<Note>
+  The deprecated `makePurchase` handler is still supported for backward compatibility, but we recommend using the platform-specific handlers (`makePurchaseIOS` and `makePurchaseAndroid`) instead.
+</Note>
 
 ```tsx
 type HeliumTransactionStatus =

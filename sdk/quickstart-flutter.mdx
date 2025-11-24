@@ -206,6 +206,11 @@ HeliumFlutter().presentUpsell(
     onPurchaseSucceeded: (event) {
       log('${event.type} - trigger: ${event.triggerName}');
     },
+    onAnyEvent: (event) {
+      // A handler for all paywall-related events.
+      // Note that if you have other handlers (i.e. onOpen) set up,
+      // both that handler AND this one will fire during paywall open.
+    },
   ),
   customPaywallTraits: {
     "has_seen_intro_video": true,

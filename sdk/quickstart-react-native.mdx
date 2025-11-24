@@ -154,6 +154,8 @@ import { createCustomPurchaseConfig } from 'expo-helium';
 
 // In your initialize call:
 purchaseConfig: createCustomPurchaseConfig({
+  // NOTE - on version 3.1.0+ makePurchase is deprecated in favor of
+  // makePurchaseIOS and makePurchaseAndroid
   makePurchase: async (productId) => {
     // Your purchase logic here
     // Return a HeliumTransactionStatus
@@ -298,6 +300,11 @@ eventHandlers: {
   },
   onCustomPaywallAction: (event) => {
     console.log(`${event.type}`)
+  },
+  onAnyEvent: (event) => {
+    // A handler for all paywall-related events.
+    // Note that if you have other handlers (i.e. onOpen) set up,
+    // both that handler AND this one will fire during paywall open.
   },
 },
 ```

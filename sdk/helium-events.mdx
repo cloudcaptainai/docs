@@ -211,17 +211,14 @@ This page acts as a reference to what events are available in Helium, and when e
 
 ### Fetch experiments for this user
 
-You can also fetch all experiments for the current user with a few methods available on the `Helium` top level object. Make sure to call tehse methods after `Helium.initialize()`
+You can also fetch all experiments for the current user with a few methods available on the `Helium` top level object. Make sure to call these methods after `Helium.shared.initialize()`
 
 ```swift
 // Gets all experiments for which this user is eligible
-func getAllEnrolledExperiments() -> [ExperimentInfo]?
+func allExperiments() -> [ExperimentInfo]?
 
 // Gets all experiments for which this user is eligible AND has already been enrolled
-func getActiveEnrolledExperiments() -> [ExperimentInfo]?
-
-// Gets all experiments for which this user is eligible but has NOT been enrolled (e.g., its on a trigger that the user hasn't come across yet)
-func getPredictedEnrolledExperiments() -> [ExperimentInfo]?
+func enrolledExperiments() -> [ExperimentInfo]?
 ```
 
 ### ExperimentInfo Structure
@@ -230,9 +227,9 @@ The `experimentInfo` object in the `userAllocated` event contains experiment all
 
 #### Core Fields
 
-| Field     | Type   | Description                                                |
-| --------- | ------ | ---------------------------------------------------------- |
-| `trigger` | String | The trigger the user first sees that's in this epxeriment. |
+| Field             | Type   | Description                                                 |
+| ----------------- | ------ | ----------------------------------------------------------- |
+| `enrolledTrigger` | String | The trigger where this user was enrolled in the experiment. |
 
 #### Experiment Details
 

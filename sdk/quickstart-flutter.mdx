@@ -265,7 +265,7 @@ Here's a basic (incomplete) implementation of `HeliumPurchaseDelegate`:
 import 'package:helium_flutter/helium_flutter.dart';
 import 'dart:developer';
 
-class PaymentCallbacks implements HeliumCallbacks {
+class CustomPurchaseDelegate implements HeliumPurchaseDelegate {
   @override
   Future<HeliumPurchaseResult> makePurchase(String productId) async {
     log('makePurchase: $productId');
@@ -289,7 +289,7 @@ import 'package:helium_flutter/helium_flutter.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'dart:developer';
 
-class RevenueCatCallbacks implements HeliumCallbacks {
+class RevenueCatPurchaseDelegate implements HeliumPurchaseDelegate {
   @override
   Future<HeliumPurchaseResult> makePurchase(String productId) async {
     try {

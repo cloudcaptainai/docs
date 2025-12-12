@@ -33,6 +33,7 @@
         "group": "Guides",
         "icon": "compass",
         "pages": [
+          "guides/interpreting-metrics",
           "guides/revenue-reporting",
           "guides/fallback-bundle",
           "guides/ways-to-show-paywall",

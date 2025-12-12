@@ -190,3 +190,19 @@ async def forward_webhook(request: Request):
 <Tip>
   You may want to extract the pk value from the Webhook URL as an environment variable to avoid storing in version control.
 </Tip>
+
+## How to Ensure Reliable Revenue Metrics
+
+<Info>
+  Revenue attribution requires **Helium SDK 3.0.6+** for reliable tracking.
+</Info>
+
+Helium uses ID and timestamp matching to attribute subscription and trial starts on paywalls to your revenue metrics. If you've followed our quickstart and set up revenue webhooks, you don't need to do anything else to enable this. Here are a few tips to ensure reliable attribution:
+
+- **Use Helium's default delegates**: If you're using Helium's default delegates (e.g. StoreKitDelegate, RevenueCatDelegate, PlayStoreDelegate), you don't need to do anything else to get reliable revenue attribution.
+
+- **Custom implementations**: If you're using a custom makePurchase implementation, make sure to use Helium's purchase methods, e.g. `.heliumPurchase()`.
+
+- **Expected coverage**: In most cases, 95% of paywall starts should get attributed to revenue events, but revenue attribution can have noise.
+
+- **Need help?**: If our default delegates aren't an option, or you're seeing weird results, reach out to support@tryhelium.com. We're always happy to dig into data for you should you hit any issues!

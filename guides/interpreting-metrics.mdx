@@ -1,0 +1,145 @@
+---
+title: "Interpreting Metrics"
+description: "Learn how to use Helium's paywall and revenue metrics to monitor your app's performance and drive growth."
+icon: "chart-line"
+---
+
+Use Helium's paywall and revenue metrics to monitor your app's revenue, monitor paywall performance, and drive growth with paywall tests.
+
+## Metrics
+
+You can view metrics in 2 places in Helium's dashboard.
+
+In the <a href="https://app.tryhelium.com/metrics" target="_blank">**Metrics Page**</a>, you can see overall metrics for your app, across all placements and experiments.
+
+<Info>
+  Make sure to [set up revenue reporting](https://docs.tryhelium.com/guides/revenue-reporting) to see Revenue and Subscription Metrics.
+</Info>
+
+In the <a href="https://app.tryhelium.com/experiments" target="_blank">**Experiment Results Page**</a>, you can view experiment specific metrics. Scan the "at a glance" table section in the experiment results page to see general information on metrics, or look at the embedded charts for more detail on how metrics change over days.
+
+## List of Metrics
+
+### Revenue Metrics
+
+#### Revenue
+
+Total Revenue (purchases + subscription events - refunds) from all transactions in the given time period.
+
+Calculated as: sum of all revenue events in the period.
+
+This metric answers: "How much total revenue came in during this timeframe?"
+
+This revenue is pre-tax and may be discounted further with taxes/commissions. Select "Helium Attributed" to see revenue attributed to purchases on Helium paywalls.
+
+#### Realized Overall LTV Per User
+
+Calculated as: Total revenue (purchases + subscription events - refunds) / total # of unique users.
+
+This metric answers: "How much revenue have users acquired on Day X generated in total since then?"
+
+Cohorted by the date the user was first seen by Helium. Does not include pending trial conversions. Use the Customer Lifetime selector to choose how much time after a user was first seen to attribute revenue.
+
+#### Realized Overall LTV Per Paying User
+
+Calculated as: Total revenue / unique users who made at least one purchase.
+
+Unlike ARPU (which includes free users), this focuses on the spending power of converted users.
+
+This metric answers: "How much do paying customers actually spend?"
+
+Cohorted by the date the user was first seen by Helium. Does not include pending trial conversions.
+
+### Paywall Metrics
+
+#### Conversion Rate
+
+Calculated as: (Users who converted / Total users) × 100.
+
+Unlike Open to Conversion Rate (which counts every view), this counts each person only once regardless of how many times they saw a paywall.
+
+This metric answers: "What percentage of my users are converting?"
+
+#### Paywall Opens
+
+Counts the number of paywall views in a certain period.
+
+This metric answers: "How often are users seeing my paywalls?"
+
+Segment by trigger to see how often certain triggers are getting viewed.
+
+#### Open to Conversion Rate
+
+Calculated as: (Sessions with conversion / Total paywall sessions) × 100.
+
+This metric answers: "How effective is my paywall at converting each view?"
+
+Compare to Conversion Rate to see the impact of repeated paywall opens on conversions.
+
+#### Checkout Conversion Rate
+
+Calculated as: (Successful purchases / Total purchase button taps) × 100.
+
+This metric answers: "How often do users complete payment after tapping subscribe?"
+
+Note: This is approximate, as not all button presses trigger payment sheets. A low rate suggests issues with the payment flow (e.g., declined cards) rather than paywall design.
+
+#### Total Paywall Conversions
+
+Counts the absolute number of paywall sessions that resulted in a purchase or trial start.
+
+This metric answers: "How many conversions are my paywalls generating?"
+
+Unlike Conversion Rate (a percentage), this tracks raw conversion volume.
+
+### Subscription Metrics
+
+#### New Subscriptions
+
+Counts subscriptions that processed their first payment during the period. Includes direct purchases and trial conversions.
+
+This metric answers: "How many new paying subscribers did I get?"
+
+Note: This shows when revenue starts, not necessarily when the user signed up. Doesn't count consumables/IAP purchases.
+
+#### New Trials
+
+Counts unique free trials started during the period.
+
+This metric answers: "How many users are starting trials?"
+
+#### Trial Conversion Rate
+
+Calculated as: (Converted trials / Total trials started) × 100.
+
+Cohorted by trial start date, not payment date.
+
+This metric answers: "How effective are my trials at converting to paid?"
+
+If you see high trial starts but low conversion, consider adjusting price/duration or testing trial notification toggles.
+
+#### Trial Cancellations
+
+Counts trials cancelled before making a payment.
+
+This metric answers: "How many users are churning during the trial window?"
+
+Cohorted by cancellation date.
+
+### Monitoring and User Metrics
+
+#### Fallback Rate
+
+Calculated as: (Fallback sessions / Total paywall sessions) × 100.
+
+This metric answers: "How often is the paywall failing to load?"
+
+A high rate typically indicates network issues, configuration errors, or SDK integration problems.
+
+#### Active Users
+
+Counts unique users who performed at least one event.
+
+This metric answers: "How many users are actively engaging with my app?"
+
+Helium tracks users by App Install, linking anonymous logins to users by default.

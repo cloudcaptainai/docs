@@ -56,12 +56,16 @@ Initialize Helium by calling `initialize()` early in your app's lifecycle, typic
 import { initialize } from 'expo-helium';
 
 function App() {
-  useEffect(() => {
-    initialize({
+  const asyncHeliumInit = async () => {
+    await initialize({
       apiKey: '<your-helium-api-key>',
       // Fallback bundle is highly recommended. See Fallbacks section of this page.
       // fallbackBundle: require('./assets/fallback-bundle-xxxx-xx-xx.json'),
     });
+  };
+
+  useEffect(() => {
+    void asyncHeliumInit();
   }, []);
 }
 ```
@@ -72,7 +76,7 @@ import { initialize } from '@tryheliumai/paywall-sdk-react-native';
 
 function App() {
   const asyncHeliumInit = async () => {
-    initialize({
+    await initialize({
       apiKey: '<your-helium-api-key>',
       // Fallback bundle is highly recommended. See Fallbacks section of this page.
       // fallbackBundle: require('./assets/fallback-bundle-xxxx-xx-xx.json'),
@@ -100,7 +104,7 @@ import { initialize } from 'expo-helium';
 import { createRevenueCatPurchaseConfig } from "expo-helium/src/revenuecat";
 
 const asyncHeliumInit = async () => {
-  initialize({
+  await initialize({
     apiKey: '<your-helium-api-key>',
     purchaseConfig: createRevenueCatPurchaseConfig(
       // (optional) Set if you want Helium to initialize RevenueCat for you.
@@ -124,7 +128,7 @@ import { initialize } from '@tryheliumai/paywall-sdk-react-native';
 import { createRevenueCatPurchaseConfig } from "@tryheliumai/paywall-sdk-react-native/src/revenuecat";
 
 const asyncHeliumInit = async () => {
-  initialize({
+  await initialize({
     apiKey: '<your-helium-api-key>',
     purchaseConfig: createRevenueCatPurchaseConfig(
       // (optional) Set if you want Helium to initialize RevenueCat for you.
@@ -425,7 +429,7 @@ const paywallLoadingConfig: HeliumPaywallLoadingConfig = {
   },
 };
 
-initialize({
+await initialize({
   apiKey: "helium-api-key",
   fallbackBundle: require('./assets/fallback-bundle-xxxx-xx-xx.json'),
   paywallLoadingConfig: paywallLoadingConfig, // << pass to initialize

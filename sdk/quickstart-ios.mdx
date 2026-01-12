@@ -549,6 +549,25 @@ Helium.shared.initialize(
   </Tip>
 </Accordion>
 
+<Accordion title="Set a custom light mode/dark mode setting for paywalls">
+  By default, paywalls follow your device's appearance setting (light or dark mode), if you've configured it in the editor. You can override this behavior to force a specific mode (e.g., if your app has its own dark mode/light mode scheme):
+
+  ```swift
+  // Force light mode for all paywalls
+  Helium.shared.setLightDarkModeOverride(.light)
+
+  // Force dark mode for all paywalls
+  Helium.shared.setLightDarkModeOverride(.dark)
+
+  // Reset to system default (respects device setting)
+  Helium.shared.setLightDarkModeOverride(.system)
+  ```
+
+  <Note>
+    The override persists until changed and applies to all paywalls. Call this during app initialization or before presenting paywalls.
+  </Note>
+</Accordion>
+
 <Accordion title="Reset Helium">
   Reset Helium entirely so you can call initialize again. Only for advanced use cases.
 

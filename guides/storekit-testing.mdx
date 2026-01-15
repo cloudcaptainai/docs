@@ -1,17 +1,28 @@
 ---
 title: "StoreKit Testing (iOS)"
 description: "This guide covers how to set up StoreKit Testing in Xcode to test paywall displays across different regions and configurations."
-icon: 'microscope'
+icon: "microscope"
 ---
 
 ## Overview
 
 StoreKit Testing allows you to test in-app purchases and paywall presentations locally without connecting to App Store servers or making real purchases.
 
+<Note>
+  To test your actual products across different regions, we suggest creating a sandbox test user:
+
+  - Create one at https://appstoreconnect.apple.com/access/users/sandbox
+  - Change the **Country or Region** field for the sandbox user
+  - On your test device, go to Settings -\> Developer and sign in to the sandbox account
+    - Simulator _can_ work… but sometimes has issues so physical device is recommended
+  - Run app from Xcode and the selected storefront country should be reflected
+  - More details on [this page](https://developer.apple.com/documentation/storekit/testing-in-app-purchases-with-sandbox#Sign-in-to-your-Sandbox-Apple-Account-for-a-development-signed-app)
+</Note>
+
 ## Prerequisites
 
 - Xcode 14 or later (for synced StoreKit configuration files)
-- iOS 15.0\+ target
+- iOS 15.0+ target
 
 ## Setting Up StoreKit Testing
 
@@ -44,7 +55,7 @@ You can either edit an existing scheme or create a new one (recommended):
 4. Select the **Run** action.
 5. Click the **Options** tab.
 6. For the **StoreKit Configuration** option, select a configuration file and click Close.
-7. Run your project (make sure your active scheme is the one with the StoreKit Configuration option set\!)
+7. Run your project (make sure your active scheme is the one with the StoreKit Configuration option set!)
 
 An Xcode project can contain multiple StoreKit configuration files but only one can be active at a time. When it’s active, your app gets StoreKit data as defined in your configuration file instead of accessing App Store Connect or the sandbox server.
 
@@ -54,18 +65,22 @@ Go to your StoreKit config file and under **Configuration Settings**, change **D
 
 ![Screenshot2025 05 27at12 25 46PM Pn](/images/Screenshot2025-05-27at12.25.46PM.png)
 
-Then run your app again, and you should be able to see pricing displays for the selected region. Note that the price numerical value will still be what is specified in the config file, but you should see a change in currency symbols.
+Then run your app again, and you should be able to see pricing displays for the selected region. Note that the **price numerical value will still be what is specified in the config file**, but you should see a change in currency symbols.
+
+<Note>
+  Make sure you explicitly save (cmd+s) the StoreKit Configuration File before running the app — changes made here won’t get picked up otherwise!
+</Note>
 
 ## Additional Resources
 
 ### Test Purchases
 
-For actual purchase flow testing, refer to Apple's documentation on [receipt validation](https://developer.apple.com/documentation/xcode/setting-up-storekit-testing-in-xcode/#Prepare-to-validate-receipts-in-the-test-environment and the [transaction manager](https://developer.apple.com/documentation/xcode/testing-in-app-purchases-with-storekit-transaction-manager-in-code)
+For more complex purchase flows with StoreKit Testing, refer to Apple's documentation on the [transaction manager](https://developer.apple.com/documentation/xcode/testing-in-app-purchases-with-storekit-transaction-manager-in-code).
 
 ### Other Ways to Test Across Regions
 
 1. Use Xcode and your sandbox account. You can [change the region of your sandbox account](https://developer.apple.com/documentation/storekit/testing-in-app-purchases-with-sandbox#Test-In-App-Purchases-for-all-regions). Make sure you have disabled StoreKit Testing for this.
-2. On a TestFlight build, you can [use your sandbox account as well](https://developer.apple.com/documentation/storekit/testing-in-app-purchases-with-sandbox#Sign-in-to-your-Sandbox-Apple-Account-for-a-TestFlight-app), but only do this on a dedicated testing device\!
+2. On a TestFlight build, you can [use your sandbox account as well](https://developer.apple.com/documentation/storekit/testing-in-app-purchases-with-sandbox#Sign-in-to-your-Sandbox-Apple-Account-for-a-TestFlight-app), but only do this on a dedicated testing device!
 
 ### Automated Testing
 

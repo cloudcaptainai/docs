@@ -263,9 +263,14 @@ The event system now uses protocol-based events with better type safety and IDE 
 
 #### Before v3
 
-`onHeliumPaywallEvent(event:)` (deprecated but still works)
+`onHeliumPaywallEvent(event:)` (removed)
+
+<Warning>
+The `onHeliumPaywallEvent(event:)` method has been removed from the iOS SDK. You must migrate to `onPaywallEvent(_:)`.
+</Warning>
 
 ```swift
+// ❌ No longer available
 func onHeliumPaywallEvent(event: HeliumPaywallEvent) {
     switch event {
     case .paywallOpen(let trigger, let paywallTemplateName, _):
@@ -332,7 +337,7 @@ Helium.shared.initialize(
 
 ## Custom Paywall Traits
 
-You can now pass custom paywall traits when displaying a paywall, replacing the deprecated `HeliumPaywallDelegate.getCustomVariableValues` method.
+Pass custom paywall traits when displaying a paywall. The `HeliumPaywallDelegate.getCustomVariableValues` method has been removed from the iOS SDK.
 
 ```swift
 Helium.shared.presentUpsell(

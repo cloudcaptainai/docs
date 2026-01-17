@@ -85,7 +85,7 @@ You can also track events from the SDK via the PaywallDelegate or lifecycle meth
     ```swift
     // ... rest of your delegate setup ...
     
-    func onHeliumPaywallEvent(_ event: any HeliumEvent) {
+    func onPaywallEvent(_ event: HeliumEvent) {
         if let paywallOpen = event as? PaywallOpenEvent {
             // e.g., forwarding to mixpanel
             Mixpanel.mainInstance().track(

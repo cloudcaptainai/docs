@@ -1,0 +1,558 @@
+---
+title: "SDK Quickstart (iOS)"
+description: "Integrate Helium into your iOS app"
+icon: "/images/sdk/logos/apple-173-svgrepo-com.svg"
+---
+
+## Background
+
+Get set up with the Helium SDK for iOS. Reach out over your Helium slack channel or email [founders@tryhelium.com](mailto:founders@tryhelium.com) for any questions.
+
+## Installation
+
+<Note>
+  Helium requires a minimum deployment target of iOS 15 and Xcode 14+. (Latest Xcode is recommended.)
+</Note>
+
+We recommend using Swift Package Manager (SPM), but if your project primarily uses Cocoapods it might make sense to install the Helium Cocoapod instead.
+
+<Tabs>
+  <Tab title="Swift Package Manager (SPM)">
+    1. In Xcode, navigate to your project's **Package Dependencies:**
+
+       ![Spm Add Pn](/images/spm-add.png)
+    2. Click the **\+** button and search for the Helium package URL:
+
+       ```
+       https://github.com/cloudcaptainai/helium-swift.git
+       ```
+
+       <Tip>
+         For **Dependency Rule** we recommend the default **Up to Next Major Version** to make sure you get non-breaking bug fixes. View the [list of releases](https://github.com/cloudcaptainai/helium-swift/releases) here.
+       </Tip>
+    3. Click **Add Package**.
+    4. In the dialog that appears, make sure to add the **Helium** product to your app's main target:
+
+       ![Spm Target Pn](/images/spm_target.png)
+    5. _(Optional)_ If you are using RevenueCat to manage purchases, we recommended you also add **HeliumRevenueCat** to your target so that you can use our RevenueCatDelegate referenced in the **Purchase Handling** section of this guide. Otherwise leave as **None** for the HeliumRevenueCat row.
+
+    <Warning>
+      The **HeliumRevenueCat** target includes [purchases-ios-spm](https://github.com/RevenueCat/purchases-ios-spm) as a dependency, _not_ [purchases-ios](https://github.com/RevenueCat/purchases-ios) and you may encounter build issues if are using **purchases-ios** with SPM. (We recommend just switching to **purchases-ios-spm**).
+    </Warning>
+    6. Select **Add Package** in the dialog and Helium should now be ready for import.
+  </Tab>
+  <Tab title="Cocoapod">
+    ### Option 1: Core functionality only
+
+    Add this to your Podfile:
+
+    ```ruby
+    pod 'Helium', '~> 3.0'
+    ```
+
+    Then run:
+
+    ```bash
+    pod install
+    ```
+
+    ### Option 2: Core + RevenueCat
+
+    <Note>
+      Recommended if you are using RevenueCat to manage purchases.
+    </Note>
+    Add this to your Podfile:
+
+    ```ruby
+    pod 'Helium/RevenueCat', '~> 3.0'
+    ```
+
+    Then run:
+
+    ```bash
+    pod install
+    ```
+  </Tab>
+</Tabs>
+
+## Initialize Helium
+
+Initialize the Helium SDK as early as possible in your app's lifecycle. Choose the appropriate location based on your app's architecture:
+
+<Tabs>
+  <Tab title="SwiftUI">
+    ```swift
+    @main
+    struct MyApp: App {
+        init() {
+            // Call Helium.shared.initialize here (see example below)
+        }
+
+        var body: some Scene {
+            WindowGroup {
+                ContentView()
+            }
+        }
+    }
+    ```
+  </Tab>
+  <Tab title="SceneDelegate">
+    ```swift
+    class SceneDelegate: UIResponder, UIWindowSceneDelegate {
+
+        var window: UIWindow?
+
+        func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
+            // Call Helium.shared.initialize here (see example below)
+        }
+    }
+    ```
+  </Tab>
+  <Tab title="AppDelegate">
+    ```swift
+    @UIApplicationMain
+    class AppDelegate: UIResponder, UIApplicationDelegate {
+
+        var window: UIWindow?
+
+        func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+            // Call Helium.shared.initialize here (see example below)
+            return true
+        }
+    }
+    ```
+  </Tab>
+</Tabs>
+
+Add necessary imports:
+
+```swift
+import Helium
+```
+
+And initialize Helium in the location referenced above:
+
+```swift
+// Create fallback configuration with a fallback bundle
+// (recommended - see Fallbacks and Loading Budgets section)
+let fallbackBundleURL = Bundle.main.url(forResource: "fallback-bundle", withExtension: "json")
+let fallbackConfig = HeliumFallbackConfig.withFallbackBundle(fallbackBundleURL)
+
+Helium.shared.initialize(
+    apiKey: "<your-helium-api-key>",
+    fallbackConfig: fallbackConfig,
+    revenueCatAppUserId: Purchases.shared.appUserID // ONLY if using RevenueCat
+)
+```
+
+<ResponseField name="Helium.shared.initialize" type="method">
+  <Expandable title="parameters">
+    <ResponseField name="apiKey" type="string" required>
+      You can create or retrieve your api key from [Account Settings](https://app.tryhelium.com/profile).
+    </ResponseField>
+    <ResponseField name="heliumPaywallDelegate" type="HeliumPaywallDelegate" required>
+      Delegate to handle paywall events and callbacks (see next section)
+    </ResponseField>
+    <ResponseField name="fallbackConfig" type="HeliumFallbackConfig" required>
+      Fallback configuration with either a view or bundle URL. Required parameter.
+    </ResponseField>
+    <ResponseField name="customUserId" type="String?">
+      _(Optional)_ If set, a custom user id to use instead of Helium's. We'll use this id when forwarding to third party analytics services, so this can be used for attribution (e.g. an amplitude user id, or a custom user id from your own analytics service)
+    </ResponseField>
+    <ResponseField name="customUserTraits" type="HeliumUserTraits?">
+      _(Optional)_ Pass in custom user traits to be used for targeting, personalization, and dynamic content. It can be created with any dictionary, as long as the key is a string and the value is a `Codable` type.
+
+      ```swift
+      let customUserTraits = HeliumUserTraits(traits: [
+          "testTrait": 1,
+          "account_age_in_days": "20",
+      ])
+      ```
+    </ResponseField>
+    <ResponseField name="appAttributionToken" type="UUID?">
+      _(Optional)_ Set this if you use a custom appAccountToken with your StoreKit purchases.
+    </ResponseField>
+    <ResponseField name="revenueCatAppUserId" type="String?">
+      _(Optional)_ RevenueCat ONLY. Supply RevenueCat appUserID here (and initialize RevenueCat before Helium initialize). You can also set this value outside of initialize: `Helium.shared.setRevenueCatAppUserId(Purchases.shared.appUserID)`
+
+      <Tip>
+        No need to set this if you use RevenueCatDelegate (see next section).
+      </Tip>
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<Note>
+  Helium's initialization is ran on a background thread, so you don't have to worry about it affecting your app's launch time.
+</Note>
+
+<Accordion title="Custom User ID and Custom User Traits">
+  You can provide a custom user ID and custom user traits in the `initialize` method or by using `Helium.shared.overrideUserId`. Set the user ID and traits before or during `initialize`  to ensure consistency in analytics events and for the best experimentation results.
+
+  ```swift
+  Helium.shared.overrideUserId(
+      newUserId: "<your-custom-user-id>",
+      traits: HeliumUserTraits? = nil
+  );
+  ```
+</Accordion>
+
+<Accordion title="Checking Download Status">
+  <Note>
+    In most cases there is no need to check download status. Helium will display a loading indication if a paywall is presented before download has completed.
+  </Note>
+  You can check the status of the paywall configuration download using the `Helium.shared.getDownloadStatus()` method. This method returns a value of type `HeliumFetchedConfigStatus`, which is defined as follows:
+
+  ```swift
+  public enum HeliumFetchedConfigStatus: String, Codable, Equatable {
+      case notDownloadedYet
+      case inProgress
+      case downloadSuccess
+      case downloadFailure
+  }
+  ```
+
+  You can also simply check if paywalls have been successfully downloaded with `Helium.shared.paywallsLoaded()`.
+</Accordion>
+
+## Presenting Paywalls
+
+<Note>
+  You must have a trigger and workflow configured in the [dashboard](https://app.tryhelium.com/workflows) in order to show a paywall.
+</Note>
+
+Call `Helium.shared.presentUpsell(trigger:)` when you want to show the paywall. For example:
+
+```swift
+Button("Try Premium") {
+    Helium.shared.presentUpsell(trigger: "post_onboarding")
+}
+```
+
+<ResponseField name="Helium.shared.presentUpsell" type="method">
+  <Expandable title="parameters">
+    <ResponseField name="trigger" type="String" required>
+      The trigger name configured in your Helium dashboard
+    </ResponseField>
+    <ResponseField name="from" type="UIViewController?">
+      _(Optional)_ The view controller to present from. If nil, uses the current top view controller
+    </ResponseField>
+    <ResponseField name="eventHandlers" type="PaywallEventHandlers?">
+      _(Optional)_ Event handlers for paywall lifecycle events
+    </ResponseField>
+    <ResponseField name="customPaywallTraits" type="[String: Any]?">
+      _(Optional)_ Custom traits to pass to the paywall
+    </ResponseField>
+    <ResponseField name="dontShowIfAlreadyEntitled" type="Bool" default="false">
+      _(Optional)_ If `true`, the paywall will not show if the user already has entitlements for any product in the paywall. See the Entitlements section of this guide for more details.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<Info>
+  Looking for alternative presentation methods? Check out the guide on [Ways to Show a Paywall](/guides/ways-to-show-paywall).
+</Info>
+
+### PaywallEventHandlers
+
+When displaying a paywall you can pass in event handlers to listen for relevant [Helium Events](/sdk/helium-events). You can chain a subset of handlers with builder syntax:
+
+```swift
+Helium.shared.presentUpsell(
+    trigger: "post_onboarding",
+    eventHandlers: PaywallEventHandlers()
+        .onOpen { event in
+            print("open via trigger \(event.triggerName)")
+        }
+        .onClose { event in
+            print("close for trigger \(event.triggerName)")
+        }
+        .onDismissed { event in
+            print("dismiss for trigger \(event.triggerName)")
+        }
+        .onPurchaseSucceeded { event in
+            print("purchase succeeded for trigger \(event.triggerName)")
+        }
+        .onOpenFailed { event in
+             print("open failed for trigger \(event.triggerName)")
+        }
+        .onCustomPaywallAction { event in
+            print("Custom action: \(event.actionName) with params: \(event.params)")
+        }
+        .onAnyEvent { event in
+            // A handler for all paywall-related events.
+            // Note that if you have other handlers (i.e. onOpen) set up,
+            // both that handler AND this one will fire during paywall open.
+        }
+)
+```
+
+<Note>
+  **Usage Suggestions:**
+
+  - Use `onDismiss` for post-paywall navigation when the paywall is dismissed but a user's entitlement hasn't changed
+  - Use `onPurchaseSucceeded` for your post purchase flow (e.g., a premium onboarding navigation)
+  - Use `onClose` to handle a paywall close, regardless of reason
+</Note>
+
+You should now be able to see Helium paywalls in your app! Well done! 🎉
+
+## Purchase Handling
+
+<Tip>
+  By default, Helium will handle purchases for you! This section is for those who want to delegate purchases to RevenueCat or implement custom purchase logic.
+</Tip>
+
+Use (or subclass) one of our pre-built `HeliumPaywallDelegate` implementations or create a custom delegate. Pass the delegate in to your  `Helium.shared.initialize`  call.
+
+<Tabs>
+  <Tab title="StoreKitDelegate">
+    The StoreKitDelegate (default delegate) handles purchases using native StoreKit 2:
+
+    ```swift
+    import Helium
+
+    let delegate = StoreKitDelegate()
+    ```
+  </Tab>
+  <Tab title="RevenueCatDelegate">
+    <Warning>
+      Make sure you included HeliumRevenueCat (for SPM) or Helium/RevenueCat (for Cocoapod) as noted in the Installation section.
+    </Warning>
+    RevenueCatDelegate handle purchases through RevenueCat:
+
+    ```swift
+    import HeliumRevenueCat // unless using Cocoapod then can just import Helium
+
+    let delegate = RevenueCatDelegate(
+        revenueCatApiKey: "<revenue-cat-api-id>" // Optional - pass in to have Helium to handle RevenueCat initialization.
+    )
+    ```
+
+    <Note>
+      If you do not supply `revenueCatApiKey`, make sure to initialize RevenueCat _before_ initializing Helium!
+    </Note>
+  </Tab>
+  <Tab title="Custom Delegate">
+    You can also create a custom delegate and implement your own purchase logic. You can look at our `StoreKitDelegate` and `RevenueCatDelegate` in the SDK for examples (also linked below).
+
+    The `HeliumPaywallDelegate` is defined as follows:
+
+    ```swift
+    public protocol HeliumPaywallDelegate: AnyObject {
+
+        // Execute the purchase of a product given the product ID.
+        func makePurchase(productId: String) async -> HeliumPaywallTransactionStatus
+
+        // (Optional) - Restore any existing subscriptions.
+        // Return a boolean indicating whether the restore was successful.
+        func restorePurchases() async -> Bool
+
+        // (Optional) - Handle Helium Events
+        func onPaywallEvent(_ event: HeliumEvent)
+    }
+    ```
+
+    `HeliumPaywallTransactionStatus` is an enum that defines the possible states of a paywall transaction:
+
+    ```swift
+    public enum HeliumPaywallTransactionStatus {
+        case purchased
+        case cancelled
+        case failed(Error)
+        case restored
+        case pending
+    }
+    ```
+
+    Visit [Helium Events](/sdk/helium-events) for details on the different Helium paywall events.
+
+    <Note>
+      When executing the purchase via StoreKit 2 (recommended over StoreKit 1), please use `Product.heliumPurchase()` instead of `Product.purchase()`. For example:
+
+      `let result = try await product.heliumPurchase()`
+
+      This will automatically set attribution information for [revenue tracking](/guides/revenue-reporting).
+    </Note>
+    StoreKitDelegate example [here](https://github.com/cloudcaptainai/helium-swift/blob/main/Sources/Helium/HeliumCore/StoreKitDelegate.swift).
+
+    RevenueCatDelegate example [here](https://github.com/cloudcaptainai/helium-swift/blob/main/Sources/HeliumRevenueCat/HeliumRevenueCat.swift).
+  </Tab>
+</Tabs>
+
+## Listen for Helium Events
+
+[Helium Events](/sdk/helium-events) are emitted by Helium for various paywall actions, purchase completions, and more. Options to listen for these events include:
+
+### 1. onPaywallEvent of HeliumPaywallDelegate
+
+Subclass one of the provided `HeliumPaywallDelegate` implementations (see **Purchase Handling** section above) and override `onPaywallEvent`:
+
+```swift
+class MyStoreKitDelegate: StoreKitDelegate {
+    override func onPaywallEvent(_ event: HeliumEvent) {
+        switch event {
+        case let openEvent as PaywallOpenEvent:
+            // handle open event here
+            break
+        case let closeEvent as PaywallCloseEvent:
+            break
+        case let dismissEvent as PaywallDismissedEvent:
+            break
+        case let purchaseEvent as PurchaseSucceededEvent:
+            break
+        default:
+            break
+        }
+    }
+}
+```
+
+<Note>
+  Make sure to pass your delegate in to `Helium.shared.initialize`!
+</Note>
+
+### 2. Add a HeliumEventListener
+
+```swift
+/// Implement this where you want to handle events
+public protocol HeliumEventListener : AnyObject {
+    func onHeliumEvent(event: HeliumEvent)
+}
+
+/// Add a listener for all Helium events. Listeners are stored weakly, so if you create a listener inline it may not be retained.
+public func addHeliumEventListener(_ listener: HeliumEventListener)
+
+/// Remove a specific Helium event listener.
+public func removeHeliumEventListener(_ listener: HeliumEventListener)
+```
+
+### 3. Use PaywallEventHandlers for paywall-specific events
+
+See the section titled PaywallEventHandlers on this page.
+
+## Checking Subscription Status & Entitlements
+
+The Helium SDK provides several ways to check user entitlements and subscription status.
+
+<Accordion title="Entitlement Helper Methods">
+  `hasAnyEntitlement()` Checks if the user has purchased any subscription or non-consumable product.
+
+  `hasAnyActiveSubscription(includeNonRenewing: Bool = true)` Checks if the user has any active subscription. Set `includeNonRenewing` to `false` to check only auto-renewing subscriptions.
+
+  `hasEntitlementForPaywall(trigger: String, considerAssociatedSubscriptions: Bool = false)` Checks if the user has entitlements for any product in a specific paywall. Returns `nil` if paywall configuration hasn't been downloaded yet.
+
+  `hasActiveEntitlementFor(productId: String)` Checks if the user has entitlement to a specific product.
+
+  `hasActiveSubscriptionFor(productId: String)` Checks if the user has an active subscription for a specific product.
+
+  `hasActiveSubscriptionFor(subscriptionGroupID: String)` Checks if the user has an active subscription in a specific subscription group.
+
+  `purchasedProductIds()` Retrieves a list of all product IDs the user currently has access to.
+
+  `activeSubscriptions()` Returns detailed information about all active auto-renewing subscriptions.
+
+  `subscriptionStatusFor(productId: String)` Gets detailed subscription status for a specific product, including state information like subscribed, expired, or in grace period.
+
+  `subscriptionStatusFor(subscriptionGroupID: String)` Gets detailed subscription status for a specific subscription group.
+</Accordion>
+
+#### Example Usage
+
+<Tip>
+  Check entitlements before showing paywalls to avoid showing a paywall to a user who should not see it.
+</Tip>
+
+<CodeGroup>
+
+  ```swift Use dontShowIfAlreadyEntitled with presentUpsell
+  Helium.shared.presentUpsell(trigger: "my_paywall", dontShowIfAlreadyEntitled: true)
+  ```
+
+
+  ```swift Check before showing paywall
+  let heliumTrigger = "my_paywall"
+  let hasActiveSubscription = await Helium.shared.hasAnyActiveSubscription()
+  if hasActiveSubscription {
+      // access premium content
+  } else {
+      // show paywall
+      Helium.shared.presentUpsell(
+          trigger: heliumTrigger,
+          eventHandlers: PaywallEventHandlers()
+              .onPurchaseSucceeded { _ in
+                  // access premium content
+              }
+          )
+  }
+  ```
+
+</CodeGroup>
+
+## Fallbacks and Loading Budgets
+
+If a paywall has not completed downloading when you attempt to present it, a loading state can show.
+
+By default, Helium will show this loading state as needed (a shimmer view for up to 7 seconds). You can configure, turn off, or set trigger-specific loading budgets.
+
+If the budget expires before the paywall is ready, a fallback paywall will show if available otherwise the loading state will hide and a [PaywallOpenFailed](/sdk/helium-events) event will be dispatched.
+
+The iOS sdk has 3 options for fallbacks:
+
+1. [Fallback bundles](/guides/fallback-bundle)
+2. Default fallback view
+3. Fallback view per trigger
+
+All of this is configured via the `HeliumFallbackConfig`  object passed in to `initialize`. Here are some examples:
+
+```swift
+// Just provide a fallback bundle
+let fallbackBundleURL = Bundle.main.url(
+    forResource: "fallback-bundle-xxxx-xx-xx",
+    withExtension: "json"
+)
+let fallbackConfig = HeliumFallbackConfig.withFallbackBundle(fallbackBundleURL)
+
+// Provide fallback view and configure loading budgets
+let fallbackConfig = HeliumFallbackConfig(
+    fallbackView: YourFallbackView(),
+    // Global loading budget (in seconds)
+    loadingBudget: 5.0,
+    // Per-trigger loading budgets
+    perTriggerLoadingConfig: [
+        "onboarding": TriggerLoadingConfig(loadingBudget: 4),
+        "quick_upgrade": TriggerLoadingConfig(useLoadingState: false),
+    ]
+)
+
+Helium.shared.initialize(
+    apiKey: "your-api-key",
+    fallbackConfig: fallbackConfig
+)
+```
+
+## Advanced
+
+<Accordion title="Get Paywall Info By Trigger">
+  Retrieve basic information about the paywall for a specific trigger with `Helium.shared.getPaywallInfo(trigger: String)` which returns:
+
+  ```swift
+  public struct PaywallInfo {
+      public let paywallTemplateName: String
+      // shouldShow only false if the paywall should not be shown due to targeting or workflow configuration (Helium handles this for you in presentUpsell)
+      public let shouldShow: Bool
+  }
+  ```
+
+  <Tip>
+    This method can be used if you want to be certain that a paywall is ready for display before displaying.
+  </Tip>
+</Accordion>
+
+<Accordion title="Reset Helium">
+  Reset Helium entirely so you can call initialize again. Only for advanced use cases.
+
+  ```swift
+  Helium.resetHelium()
+  ```
+</Accordion>

@@ -5,19 +5,21 @@ icon: "arrow-up-right-from-square"
 ---
 
 <Warning>
-**Breaking Changes in v4:**
-- `presentUpsell()` renamed to `presentPaywall()` with required `onPaywallNotShown` handler
-- `dontShowIfAlreadyEntitled` now defaults to `true`
-- Initialize parameters moved to `Helium.identify` and `Helium.config` namespaces
-- Fallback views removed - use fallback bundles only
+  **Breaking Changes in v4:**
+
+  - `presentUpsell()` renamed to `presentPaywall()` with required `onPaywallNotShown` handler
+  - `dontShowIfAlreadyEntitled` now defaults to `true`
+  - Initialize parameters moved to `Helium.identify` and `Helium.config` namespaces
+  - Fallback views removed - use fallback bundles only
 </Warning>
 
 <Info>
-**What's New:**
-- Simplified `initialize()` - just pass your API key
-- New `HeliumPaywall` SwiftUI component for embedded paywalls
-- Automatic fallback bundle detection (`helium-fallbacks.json`)
-- Cleaner namespaced APIs: `Helium.identify`, `Helium.config`, `Helium.experiments`, `Helium.entitlements`
+  **What's New:**
+
+  - Simplified `initialize()` - just pass your API key
+  - Automatic fallback bundle detection (`helium-fallbacks.json`)
+  - Cleaner namespaced APIs: `Helium.identify`, `Helium.config`, `Helium.experiments`, `Helium.entitlements`
+  - New `HeliumPaywall` SwiftUI component for embedded paywalls
 </Info>
 
 ## Installation Update
@@ -34,7 +36,7 @@ Update your version constraint to `~> 4.0`:
     ```ruby
     # Core only
     pod 'Helium', '~> 4.0'
-
+    
     # Or with RevenueCat
     pod 'Helium/RevenueCat', '~> 4.0'
     ```
@@ -54,6 +56,7 @@ The biggest change in v4 is the simplified initialization. Configuration that wa
 **v3 (many parameters):**
 
 ```swift
+// Deprecated v3 initialize
 Helium.shared.initialize(
     apiKey: "...",
     heliumPaywallDelegate: RevenueCatDelegate(),
@@ -66,9 +69,17 @@ Helium.shared.initialize(
 **v4 (simplified):**
 
 ```swift
-// Configure before initialize
+// Set up user identification
 Helium.identify.userId = "user-123"
 Helium.identify.setUserTraits(HeliumUserTraits(["plan": "free"]))
+// If using RevenueCat
+Helium.identify.revenueCatAppUserId = Purchases.shared.appUserID 
+
+// Set up advanced configuration (if needed)
+Helium.config.customFallbacksURL = Bundle.main.url(
+    forResource: "fallback-bundle-2026-01-25",
+    withExtension: "json"
+)
 Helium.config.purchaseDelegate = RevenueCatDelegate()
 
 // Initialize with just API key
@@ -78,6 +89,10 @@ Helium.shared.initialize(apiKey: "...")
 <Tip>
   Set identity and configuration values **before** calling `initialize()` for best results.
 </Tip>
+
+<Info>
+  See the [quickstart](/sdk/quickstart-ios) for more details.
+</Info>
 
 ## presentUpsell to presentPaywall
 
@@ -89,8 +104,9 @@ The method has been renamed and now requires an `onPaywallNotShown` handler.
 Helium.shared.presentUpsell(trigger: "premium")
 ```
 
+
 ```swift v4
-Helium.shared.presentPaywall(trigger: "premium") { reason in
+Helium.shared.presentPaywall(trigger: "premium") { notShownReason in
     // handle paywall not shown
 }
 ```
@@ -98,21 +114,6 @@ Helium.shared.presentPaywall(trigger: "premium") { reason in
 </CodeGroup>
 
 ### Full Example with All Parameters
-
-**v3:**
-
-```swift
-Helium.shared.presentUpsell(
-    trigger: "premium",
-    presentFromViewController: viewController,
-    customPaywallTraits: ["source": "settings"],
-    dontShowIfAlreadyEntitled: true,
-    eventHandlers: PaywallEventHandlers()
-        .onPurchaseSucceeded { event in
-            print("Purchased!")
-        }
-)
-```
 
 **v4:**
 
@@ -122,7 +123,8 @@ Helium.shared.presentPaywall(
     config: PaywallPresentationConfig(
         presentFromViewController: viewController,
         customPaywallTraits: ["source": "settings"],
-        dontShowIfAlreadyEntitled: true
+        dontShowIfAlreadyEntitled: true, // defaults to true
+        loadingBudget: nil, // use default
     ),
     eventHandlers: PaywallEventHandlers()
         .onPurchaseSucceeded { event in
@@ -153,110 +155,40 @@ Helium.shared.presentPaywall(
 
 ### Helium.identify
 
-| v3 | v4 |
-|---|---|
-| `initialize(customUserId:)` | `Helium.identify.userId = ...` |
-| `overrideUserId()` | `Helium.identify.userId = ...` |
-| `getHeliumUserId()` | `Helium.identify.userId` |
-| `setAppAttributionToken()` | `Helium.identify.appAccountToken = ...` |
-| `setRevenueCatAppUserId()` | `Helium.identify.revenueCatAppUserId = ...` |
-
-<CodeGroup>
-
-```swift v3
-Helium.shared.overrideUserId("user-123")
-let userId = Helium.shared.getHeliumUserId()
-Helium.shared.setAppAttributionToken(uuid)
-Helium.shared.setRevenueCatAppUserId(rcUserId)
-```
-
-```swift v4
-Helium.identify.userId = "user-123"
-let userId = Helium.identify.userId
-Helium.identify.appAccountToken = uuid
-Helium.identify.revenueCatAppUserId = rcUserId
-```
-
-</CodeGroup>
+| v3                          | v4                                          |
+| --------------------------- | ------------------------------------------- |
+| `initialize(customUserId:)` | `Helium.identify.userId = ...`              |
+| `overrideUserId()`          | `Helium.identify.userId = ...`              |
+| `getHeliumUserId()`         | `Helium.identify.userId`                    |
+| `setAppAttributionToken()`  | `Helium.identify.appAccountToken = ...`     |
+| `setRevenueCatAppUserId()`  | `Helium.identify.revenueCatAppUserId = ...` |
 
 ### Helium.config
 
-| v3 | v4 |
-|---|---|
-| `initialize(heliumPaywallDelegate:)` | `Helium.config.purchaseDelegate = ...` |
-| `setLightDarkModeOverride()` | `Helium.config.lightDarkModeOverride = ...` |
-| `Helium.restorePurchaseConfig` | `Helium.config.restorePurchasesDialog` |
-
-<CodeGroup>
-
-```swift v3
-Helium.shared.initialize(
-    apiKey: "...",
-    heliumPaywallDelegate: RevenueCatDelegate()
-)
-Helium.shared.setLightDarkModeOverride(.dark)
-Helium.restorePurchaseConfig.useCustomRestoreLogic = true
-```
-
-```swift v4
-Helium.config.purchaseDelegate = RevenueCatDelegate()
-Helium.config.lightDarkModeOverride = .dark
-Helium.config.restorePurchasesDialog.useCustomRestoreLogic = true
-Helium.shared.initialize(apiKey: "...")
-```
-
-</CodeGroup>
+| v3                                   | v4                                          |
+| ------------------------------------ | ------------------------------------------- |
+| `initialize(heliumPaywallDelegate:)` | `Helium.config.purchaseDelegate = ...`      |
+| `setLightDarkModeOverride()`         | `Helium.config.lightDarkModeOverride = ...` |
+| `Helium.restorePurchaseConfig`       | `Helium.config.restorePurchasesDialog`      |
 
 ### Helium.experiments
 
-| v3 | v4 |
-|---|---|
+| v3                              | v4                                    |
+| ------------------------------- | ------------------------------------- |
 | `getExperimentInfoForTrigger()` | `Helium.experiments.infoForTrigger()` |
-| `enrolledExperiments()` | `Helium.experiments.enrolled()` |
-| `allExperiments()` | `Helium.experiments.all()` |
-
-<CodeGroup>
-
-```swift v3
-let info = Helium.shared.getExperimentInfoForTrigger("premium")
-let enrolled = Helium.shared.enrolledExperiments()
-let all = Helium.shared.allExperiments()
-```
-
-```swift v4
-let info = Helium.experiments.infoForTrigger("premium")
-let enrolled = Helium.experiments.enrolled()
-let all = Helium.experiments.all()
-```
-
-</CodeGroup>
+| `enrolledExperiments()`         | `Helium.experiments.enrolled()`       |
+| `allExperiments()`              | `Helium.experiments.all()`            |
 
 ### Helium.entitlements
 
-| v3 | v4 |
-|---|---|
-| `hasAnyEntitlement()` | `Helium.entitlements.hasAny()` |
+| v3                           | v4                                               |
+| ---------------------------- | ------------------------------------------------ |
+| `hasAnyEntitlement()`        | `Helium.entitlements.hasAny()`                   |
 | `hasAnyActiveSubscription()` | `Helium.entitlements.hasAnyActiveSubscription()` |
-| `hasEntitlementForPaywall()` | `Helium.entitlements.hasForPaywall()` |
-| `hasActiveEntitlementFor()` | `Helium.entitlements.hasActiveFor()` |
-| `purchasedProductIds()` | `Helium.entitlements.purchasedProductIds()` |
-| `activeSubscriptions()` | `Helium.entitlements.activeSubscriptions()` |
-
-<CodeGroup>
-
-```swift v3
-let hasAny = await Helium.shared.hasAnyEntitlement()
-let hasSub = await Helium.shared.hasAnyActiveSubscription()
-let products = await Helium.shared.purchasedProductIds()
-```
-
-```swift v4
-let hasAny = await Helium.entitlements.hasAny()
-let hasSub = await Helium.entitlements.hasAnyActiveSubscription()
-let products = await Helium.entitlements.purchasedProductIds()
-```
-
-</CodeGroup>
+| `hasEntitlementForPaywall()` | `Helium.entitlements.hasForPaywall()`            |
+| `hasActiveEntitlementFor()`  | `Helium.entitlements.hasActiveFor()`             |
+| `purchasedProductIds()`      | `Helium.entitlements.purchasedProductIds()`      |
+| `activeSubscriptions()`      | `Helium.entitlements.activeSubscriptions()`      |
 
 ## Fallback Changes
 
@@ -303,7 +235,7 @@ Helium.shared.initialize(apiKey: "...")
 ```
 
 <Info>
-  Download your fallback bundle from the Helium dashboard. See the [Fallback Bundle Guide](/guides/fallback-bundle) for details.
+  Download your fallbacks from the Helium dashboard. See the [Fallback Bundle Guide](/guides/fallback-bundle) for details.
 </Info>
 
 ## Embedded Paywall Views
@@ -316,6 +248,7 @@ The SwiftUI view for embedding paywalls has been replaced.
 let paywallView = Helium.shared.upsellViewForTrigger("premium")
 ```
 
+
 ```swift v4
 HeliumPaywall(
     trigger: "premium",
@@ -327,56 +260,34 @@ HeliumPaywall(
 
 </CodeGroup>
 
-### Full Example
-
-```swift
-struct PremiumView: View {
-    var body: some View {
-        HeliumPaywall(
-            trigger: "premium",
-            config: PaywallPresentationConfig(
-                customPaywallTraits: ["source": "settings"]
-            ),
-            eventHandlers: PaywallEventHandlers()
-                .onPurchaseSucceeded { _ in
-                    print("Purchased!")
-                },
-            onEntitled: {
-                // Dismiss or update UI
-            },
-            onPaywallNotShown: { reason in
-                // Show alternative content
-            }
-        )
-    }
-}
-```
+<Info>
+  See [ways to show a paywall](/guides/ways-to-show-paywall) for more information.
+</Info>
 
 ## Removed APIs
 
 The following APIs have been removed in v4:
 
-| Removed API | Replacement |
-|---|---|
-| `getHeliumExperimentInfo()` (map version) | `Helium.experiments.all()` |
-| `loadingStateEnabledFor()` | Loading handled automatically |
-| `HeliumFallbackConfig` class | Use `Helium.config.customFallbacksURL` |
-| All `fallback*` parameters from initialize | Add `helium-fallbacks.json` to bundle |
-| `upsellViewForTrigger()` | `HeliumPaywall` component |
+| Removed API                                | Replacement                            |
+| ------------------------------------------ | -------------------------------------- |
+| `getHeliumExperimentInfo()` (map version)  | `Helium.experiments.all()`             |
+| `HeliumFallbackConfig` class               | Use `Helium.config.customFallbacksURL` |
+| All `fallback*` parameters from initialize | Add `helium-fallbacks.json` to bundle  |
+| `upsellViewForTrigger()`                   | `HeliumPaywall` component              |
 
 ## Quick Migration Checklist
 
 Use this checklist to ensure you've covered all migration steps:
 
-- [ ] Update SDK to 4.x (`~> 4.0`)
-- [ ] Move user ID/traits to `Helium.identify.*` before `initialize()`
-- [ ] Move delegate/config to `Helium.config.*` before `initialize()`
-- [ ] Replace `presentUpsell()` with `presentPaywall()` and add required handler
-- [ ] Set up fallback bundle (download from dashboard, add as `helium-fallbacks.json`)
-- [ ] Update experiment calls to `Helium.experiments.*`
-- [ ] Update entitlement calls to `Helium.entitlements.*`
-- [ ] Replace `upsellViewForTrigger()` with `HeliumPaywall` component
-- [ ] Test paywall presentation and purchases
+- Update SDK to 4.x (`~> 4.0`)
+- Move user ID/traits to `Helium.identify.*` before `initialize()`
+- Move delegate/config to `Helium.config.*` before `initialize()`
+- Replace `presentUpsell()` with `presentPaywall()` and add required handler
+- Set up fallback bundle (download from dashboard, add as `helium-fallbacks.json`)
+- Update experiment calls to `Helium.experiments.*`
+- Update entitlement calls to `Helium.entitlements.*`
+- Replace `upsellViewForTrigger()` with `HeliumPaywall` component
+- Test paywall presentation and purchases
 
 ## Need Help?
 

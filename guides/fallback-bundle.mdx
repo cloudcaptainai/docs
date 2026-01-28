@@ -1,6 +1,6 @@
 ---
 title: "Setting Up Fallbacks"
-description: "How to download a fallback bundle from the dashboard and include it in your app."
+description: "How to download a fallbacks from the dashboard and include it in your app."
 icon: "helmet-safety"
 ---
 
@@ -10,7 +10,7 @@ The Helium SDK does its best to fetch the latest paywalls to display in your app
 
 By using a fallback bundle you can download copies of your actual Helium paywalls and include that in your app to use in the rare case that a Helium paywall is not ready for display.
 
-## Download Fallback Bundle
+## Download Fallbacks
 
 Go to the **Workflows** page in your dashboard and find the **Download Fallbacks** button:
 
@@ -45,7 +45,7 @@ Download the file. It should be named something like **fallback-bundle-xxxx-xx-x
     ```
 
     <Note>
-      Make sure to replace **fallback-bundle-xxxx-xx-xx** with the correct name\!
+      Make sure to replace **fallback-bundle-xxxx-xx-xx** with the correct name!
     </Note>
   </Tab>
   <Tab title="Android">
@@ -84,7 +84,7 @@ Download the file. It should be named something like **fallback-bundle-xxxx-xx-x
     ```
 
     <Note>
-      Make sure to use the correct path and filename in your `require` call\!
+      Make sure to use the correct path and filename in your `require` call!
     </Note>
   </Tab>
   <Tab title="Flutter">
@@ -107,21 +107,19 @@ Download the file. It should be named something like **fallback-bundle-xxxx-xx-x
     ```
 
     <Note>
-      Make sure to use the correct filename in both `pubspec.yaml` and the call to `initialize`\!
+      Make sure to use the correct filename in both `pubspec.yaml` and the call to `initialize`!
     </Note>
   </Tab>
 </Tabs>
 
-All done\! If you want to test the fallback bundle, you can run your app with device in airplane mode and attempt to show a paywall. The corresponding fallback paywall should display\!
+All done! If you want to test the fallback bundle, you can run your app with device in airplane mode and attempt to show a paywall. The corresponding fallback paywall should display!
 
 ## How to Monitor and Minimize Fallback Rate
 
-You can check your app's fallback rate by going to [https://app.tryhelium.com/metrics](https://app.tryhelium.com/metrics), and clicking on the "Fallback Rate" tab under Monitoring. This rate shows the # of fallback paywall opens vs prod paywall opens. If you notice your fallback rate is substantially high, here are some tips on minimizing it:
+You can check your app's fallback rate by going to https://app.tryhelium.com/metrics, and clicking on the "Fallback Rate" tab under Monitoring. This rate shows the # of fallback paywall opens vs prod paywall opens. If you notice your fallback rate is substantially high, here are some tips on minimizing it:
 
-- **Set a higher loading budget (requires Helium SDK 3.0.0+).** If a paywall is opened while a download is still in progress, Helium will show a shimmer for *loadingBudget* seconds while waiting for the download to finish, before falling back. Simply increasing this value can basically eliminate most cases of fallbacks safe - we recommend < 5 seconds.
-
+- **Set a higher loading budget (requires Helium SDK 3.0.0+).** If a paywall is opened while a download is still in progress, Helium will show a shimmer for _loadingBudget_ seconds while waiting for the download to finish, before falling back. Simply increasing this value can basically eliminate most cases of fallbacks safe - we recommend \< 5 seconds.
 - **Move your initialize() call earlier in your app's lifecycle.** We recommend right after app launch, or right after onboarding with a higher loading budget.
+- **Reduce the size of image assets in your paywall.** We recommend keeping each paywall to be under about 3-5 MB in total size. If you're adding high resolution imagery to your paywall (which is fine!) we recommend converting images to .webp format - e.g. with an online converter like https://cloudconvert.com/webp-converter.
 
-- **Reduce the size of image assets in your paywall.** We recommend keeping each paywall to be under about 3-5 MB in total size. If you're adding high resolution imagery to your paywall (which is fine!) we recommend converting images to .webp format - e.g. with an online converter like [https://cloudconvert.com/webp-converter](https://cloudconvert.com/webp-converter).
-
-If these aren't options for you (for example, if you have a lot of paywalls) and the above aren't helpful, please get in touch! We'll be happy to build a custom solution or server for you to ensure your fallback rate is low and your paywall $ rate is high.
+If these aren't options for you (for example, if you have a lot of paywalls) and the above aren't helpful, please get in touch! We'll be happy to build a custom solution or server for you to ensure your fallback rate is low and your paywall \$ rate is high.

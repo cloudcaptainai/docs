@@ -42,6 +42,13 @@
         ]
       },
       {
+        "group": "Migrations",
+        "icon": "arrow-up-right-from-square",
+        "pages": [
+          "migrations/ios-3-to-4"
+        ]
+      },
+      {
         "group": "SDK Reference",
         "icon": "book-open",
         "pages": [

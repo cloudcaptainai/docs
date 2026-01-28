@@ -261,9 +261,6 @@ Helium.shared.presentPaywall(
         .onPurchaseSucceeded { event in
             print("purchase succeeded for trigger \(event.triggerName)")
         }
-        .onOpenFailed {
-             print("open failed for trigger \(event.triggerName)")
-        }
         .onCustomPaywallAction { event in
             print("Custom action: \(event.actionName) with params: \(event.params)")
         }

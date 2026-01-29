@@ -369,11 +369,32 @@ public protocol HeliumEventListener : AnyObject {
     func onHeliumEvent(event: HeliumEvent)
 }
 
-/// Add a listener for all Helium events. Listeners are stored weakly, so if you create a listener inline it may not be retained.
+/// Add a listener for all Helium events.
 public func addHeliumEventListener(_ listener: HeliumEventListener)
 
 /// Remove a specific Helium event listener.
 public func removeHeliumEventListener(_ listener: HeliumEventListener)
+```
+
+<Warning>
+  Listeners are held **weakly** to prevent memory leaks. If you don't maintain a strong reference to your listener, it will be deallocated immediately and no events will fire.
+</Warning>
+
+```swift
+// ❌ Wrong - listener is deallocated immediately, no events will fire
+Helium.shared.addHeliumEventListener(MyListener())
+
+// ✅ Works - singleton keeps a strong reference
+class MyHeliumEventListener: HeliumEventListener {
+    static let shared = MyHeliumEventListener()
+
+    func onHeliumEvent(event: any HeliumEvent) {
+        print("Helium event: \(event.toDictionary())")
+    }
+}
+
+// And make sure to register it:
+Helium.shared.addHeliumEventListener(MyHeliumEventListener.shared)
 ```
 
 ### 2. Use PaywallEventHandlers for paywall-specific events

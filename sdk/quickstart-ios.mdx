@@ -251,6 +251,10 @@ You should now be able to see Helium paywalls in your app! Well done! 🎉
   Looking for alternative presentation methods? Check out the guide on [Ways to Show a Paywall](/guides/ways-to-show-paywall).
 </Info>
 
+<Note>
+  `dontShowIfAlreadyEntitled` defaults to `true`. Set it to `false` explicitly if you want to show paywalls to entitled users.
+</Note>
+
 ### PaywallEventHandlers
 
 When displaying a paywall you can pass in event handlers to listen for relevant [Helium Events](/sdk/helium-events). You can chain a subset of handlers with builder syntax:
@@ -513,6 +517,18 @@ If the budget expires before the paywall is ready, a fallback paywall will show 
   <Tip>
     This method can be used if you want to be certain that a paywall is ready for display before displaying.
   </Tip>
+</Accordion>
+
+<Accordion title="Hiding Paywalls Programmatically">
+  You can programmatically hide paywalls using:
+
+  ```swift
+  // Hide the current paywall
+  Helium.shared.hidePaywall()
+
+  // Hide all currently displayed paywalls
+  Helium.shared.hideAllPaywalls()
+  ```
 </Accordion>
 
 <Accordion title="Reset Helium">

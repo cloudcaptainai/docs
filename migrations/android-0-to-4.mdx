@@ -1,0 +1,339 @@
+---
+title: "Android: Migrating from v0 to v4"
+description: "Migration guide for Helium Android SDK v4"
+icon: "arrow-up-right-from-square"
+---
+
+<Warning>
+  **Breaking Changes in v4:**
+
+  - `presentUpsell()` renamed to `presentPaywall()` with new signature
+  - `hideUpsell()` renamed to `hidePaywall()`
+  - `hideAllUpsells()` renamed to `hideAllPaywalls()`
+  - `dontShowIfAlreadyEntitled` now defaults to `true`
+  - Initialize parameters moved to `Helium.identity` and `Helium.config` namespaces
+  - `HeliumFallbackConfig` removed - use `Helium.config` properties instead
+</Warning>
+
+<Info>
+  **What's New:**
+
+  - Simplified `initialize()` - just pass context and API key
+  - Automatic `PlayStorePaywallDelegate` setup if not explicitly configured
+  - Cleaner namespaced APIs: `Helium.identity`, `Helium.config`
+  - New `PaywallPresentationConfig` consolidates presentation options
+  - New `PaywallNotShownReason` for handling paywall failures
+  - New `Helium.canShowPaywallFor()` pre-flight check
+</Info>
+
+## Installation Update
+
+Update your version constraint to `4.x`:
+
+<Tabs>
+  <Tab title="Core (Android View System)">
+    ```kotlin
+    // app/build.gradle.kts
+    dependencies {
+        implementation("com.tryhelium.paywall:core:4.0.0")
+    }
+    ```
+  </Tab>
+  <Tab title="Jetpack Compose UI">
+    ```kotlin
+    // app/build.gradle.kts
+    dependencies {
+        implementation("com.tryhelium.paywall:compose-ui:4.0.0")
+    }
+    ```
+  </Tab>
+  <Tab title="RevenueCat">
+    ```kotlin
+    // app/build.gradle.kts
+    dependencies {
+        implementation("com.tryhelium.paywall:revenue-cat:4.0.0")
+    }
+    ```
+  </Tab>
+</Tabs>
+
+Then sync your Gradle files.
+
+## Initialize Migration
+
+The biggest change in v4 is the simplified initialization. Configuration that was previously passed to `initialize()` is now set on dedicated namespaces beforehand.
+
+**v0 (many parameters):**
+
+```kotlin
+val heliumPaywallDelegate = PlayStorePaywallDelegate(this)
+
+Helium.initialize(
+    context = this,
+    apiKey = "...",
+    heliumPaywallDelegate = heliumPaywallDelegate,
+    customUserId = "user-123",
+    customUserTraits = HeliumUserTraits(
+        traits = mapOf("plan" to HeliumUserTraitsArgument.StringParam("free"))
+    ),
+    fallbackConfig = HeliumFallbackConfig.withFallbackBundle(
+        fallbackBundleName = "fallback.json"
+    )
+)
+```
+
+**v4 (simplified):**
+
+```kotlin
+// Set up user identification
+Helium.identity.userId = "user-123"
+Helium.identity.setUserTraits(HeliumUserTraits(
+    traits = mapOf("plan" to HeliumUserTraitsArgument.StringParam("free"))
+))
+
+// Set up configuration (if needed)
+Helium.config.customFallbacksFileName = "fallback.json"
+// Note: PlayStorePaywallDelegate is auto-created if not set
+// Helium.config.heliumPaywallDelegate = PlayStorePaywallDelegate(this)
+
+// Initialize with just context and API key
+Helium.initialize(
+    context = this,
+    apiKey = "..."
+)
+```
+
+<Tip>
+  Set identity and configuration values **before** calling `initialize()` for best results.
+</Tip>
+
+<Info>
+  See the [quickstart](/sdk/quickstart-android) for more details.
+</Info>
+
+## presentUpsell to presentPaywall
+
+The method has been renamed and the signature has changed significantly. Parameters are now consolidated into `PaywallPresentationConfig`.
+
+<CodeGroup>
+
+```kotlin v0
+Helium.presentUpsell(
+    context = this,
+    trigger = "premium",
+    activityContext = activity,
+    dontShowIfAlreadyEntitled = true,
+    eventListener = myListener
+)
+```
+
+```kotlin v4
+Helium.presentPaywall(
+    trigger = "premium",
+    config = PaywallPresentationConfig(
+        fromActivityContext = activity,
+        dontShowIfAlreadyEntitled = true
+    ),
+    eventListener = myListener,
+    onPaywallNotShown = { reason ->
+        // handle paywall not shown
+    }
+)
+```
+
+</CodeGroup>
+
+### Full Example with All Parameters
+
+**v4:**
+
+```kotlin
+Helium.presentPaywall(
+    trigger = "premium",
+    config = PaywallPresentationConfig(
+        fromActivityContext = activity,  // optional - SDK auto-tracks activities
+        customPaywallTraits = HeliumUserTraits(...),
+        dontShowIfAlreadyEntitled = true,  // defaults to true
+        disableSystemBackNavigation = false,
+        presentationStyle = HeliumPresentationStyle.SLIDE_UP,
+        fullscreen = false
+    ),
+    onEntitled = {
+        // User is now entitled (purchased or restored)
+    },
+    eventListener = myListener,
+    onPaywallNotShown = { reason ->
+        when (reason) {
+            is PaywallNotShownReason.TargetingHoldout -> {
+                // User is in holdout group
+            }
+            is PaywallNotShownReason.AlreadyEntitled -> {
+                // User already has access
+            }
+            is PaywallNotShownReason.Error -> {
+                // Handle error, check reason.unavailableReason
+            }
+        }
+    }
+)
+```
+
+<Note>
+  `dontShowIfAlreadyEntitled` now defaults to `true` in v4. Set it to `false` explicitly if you want to show paywalls to entitled users.
+</Note>
+
+## Method Renames
+
+| v0                        | v4                         |
+| ------------------------- | -------------------------- |
+| `Helium.presentUpsell()`  | `Helium.presentPaywall()`  |
+| `Helium.hideUpsell()`     | `Helium.hidePaywall()`     |
+| `Helium.hideAllUpsells()` | `Helium.hideAllPaywalls()` |
+
+## API Namespace Migration
+
+### Helium.identity
+
+| v0                                   | v4                                  |
+| ------------------------------------ | ----------------------------------- |
+| `initialize(customUserId: ...)`      | `Helium.identity.userId = ...`      |
+| `initialize(customUserTraits: ...)` | `Helium.identity.setUserTraits(...)` |
+
+### Helium.config
+
+| v0                                        | v4                                          |
+| ----------------------------------------- | ------------------------------------------- |
+| `initialize(heliumPaywallDelegate: ...)` | `Helium.config.heliumPaywallDelegate = ...` |
+| `initialize(fallbackConfig: ...)`        | See Fallback Changes below                  |
+
+## Fallback Changes
+
+v4 removes `HeliumFallbackConfig` and simplifies fallback configuration.
+
+### What's Changed
+
+- **No more `HeliumFallbackConfig` class** - Use `Helium.config` properties directly
+- **No more fallback views** - Use fallback bundles exclusively
+- **No more per-trigger config** - Use global settings only
+- **Automatic detection** - SDK auto-detects `helium-fallbacks.json` in your assets
+
+### Migration
+
+**v0:**
+
+```kotlin
+Helium.initialize(
+    // ... other parameters
+    fallbackConfig = HeliumFallbackConfig(
+        fallbackBundleName = "my-fallback.json",
+        fallbackView = myFallbackView,
+        useLoadingState = true,
+        loadingBudgetInMs = 5000,
+        perTriggerLoadingConfig = mapOf(...)
+    )
+)
+```
+
+**v4:**
+
+```kotlin
+// Option 1: Automatic (recommended)
+// Just add helium-fallbacks.json to your assets - SDK finds it automatically
+
+// Option 2: Custom file name
+Helium.config.customFallbacksFileName = "my-fallback.json"
+Helium.config.defaultLoadingBudgetInMs = 5000
+Helium.config.defaultLoadingView = myLoadingView  // optional
+
+Helium.initialize(
+    context = this,
+    apiKey = "..."
+)
+```
+
+### Configuration Property Mapping
+
+| v0 (HeliumFallbackConfig)  | v4 (Helium.config)                                       |
+| -------------------------- | -------------------------------------------------------- |
+| `fallbackBundleName`       | `customFallbacksFileName`                                |
+| `loadingBudgetInMs`        | `defaultLoadingBudgetInMs`                               |
+| `loadingView`              | `defaultLoadingView`                                     |
+| `useLoadingState`          | Computed from `defaultLoadingBudgetInMs > 0`             |
+| `perTriggerLoadingConfig`  | Removed                                                  |
+| `fallbackPerTrigger`       | Removed                                                  |
+| `fallbackView`             | Removed (use fallback bundles only)                      |
+
+<Info>
+  Download your fallbacks from the Helium dashboard. See the [Fallback Bundle Guide](/guides/fallback-bundle) for details.
+</Info>
+
+## New Classes
+
+### PaywallPresentationConfig
+
+Consolidates all paywall presentation options into a single data class:
+
+```kotlin
+data class PaywallPresentationConfig(
+    val fromActivityContext: Activity? = null,
+    val customPaywallTraits: HeliumUserTraits? = null,
+    val dontShowIfAlreadyEntitled: Boolean = true,
+    val disableSystemBackNavigation: Boolean = false,
+    val presentationStyle: HeliumPresentationStyle = HeliumPresentationStyle.SLIDE_UP,
+    val fullscreen: Boolean = false
+) {
+    companion object {
+        val Default: PaywallPresentationConfig
+    }
+}
+```
+
+### PaywallNotShownReason
+
+Sealed class for handling paywall presentation failures:
+
+```kotlin
+sealed class PaywallNotShownReason {
+    data object TargetingHoldout : PaywallNotShownReason()
+    data object AlreadyEntitled : PaywallNotShownReason()
+    data class Error(val unavailableReason: PaywallUnavailableReason?) : PaywallNotShownReason()
+}
+```
+
+### CanShowPaywallResult
+
+New data class returned by `canShowPaywallFor()` for pre-flight checks:
+
+```kotlin
+data class CanShowPaywallResult(
+    val canShow: Boolean,
+    val isFallback: Boolean? = null,
+    val paywallUnavailableReason: PaywallUnavailableReason? = null
+)
+
+// Usage
+val result = Helium.canShowPaywallFor("premium")
+if (result.canShow) {
+    Helium.presentPaywall(trigger = "premium", ...)
+}
+```
+
+## Quick Migration Checklist
+
+Use this checklist to ensure you've covered all migration steps:
+
+- Update SDK to 4.x
+- Move user ID/traits to `Helium.identity.*` before `initialize()`
+- Move delegate to `Helium.config.*` before `initialize()` (or let SDK auto-create)
+- Replace `presentUpsell()` with `presentPaywall()` and update parameters
+- Replace `hideUpsell()` with `hidePaywall()`
+- Replace `hideAllUpsells()` with `hideAllPaywalls()`
+- Remove `HeliumFallbackConfig` usage, migrate to `Helium.config.*` properties
+- Set up fallback bundle (download from dashboard, add as `helium-fallbacks.json`)
+- Add `onPaywallNotShown` handler to `presentPaywall()` calls
+- Test paywall presentation and purchases
+
+## Need Help?
+
+- Review the [Android SDK Quickstart](/sdk/quickstart-android)
+- Contact support via Slack or [founders@tryhelium.com](mailto:founders@tryhelium.com)

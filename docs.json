@@ -53,6 +53,7 @@
         "icon": "arrow-up-right-from-square",
         "pages": [
           "migrations/ios-3-to-4",
+          "migrations/android-0-to-4",
           "migrations/ios-2-to-3"
         ]
       }

@@ -38,12 +38,18 @@ We recommend using Swift Package Manager (SPM), but if your project primarily us
     4. In the dialog that appears, make sure to add the **Helium** product to your app's main target:
 
        ![Spm Target Pn](/images/spm_target.png)
-    5. _(Optional)_ If you are using RevenueCat to manage purchases, we recommended you also add **HeliumRevenueCat** to your target so that you can use our RevenueCatDelegate referenced in the **Purchase Handling** section of this guide. Otherwise leave as **None** for the HeliumRevenueCat row.
+    5. Select **Add Package** in the dialog and Helium should now be ready for import.
+    6. _(Optional)_ If you are using RevenueCat to manage purchases, you'll need to add the **HeliumRevenueCat** package separately. This is a separate package from the core Helium SDK:
+       - Click the **\+** button again and add:
+         ```
+         https://github.com/cloudcaptainai/helium-swift-revenuecat.git
+         ```
+       - Add the **HeliumRevenueCat** product to your app's main target.
+       - This enables the RevenueCatDelegate referenced in the **Purchase Handling** section of this guide.
 
     <Warning>
-      The **HeliumRevenueCat** target includes [purchases-ios-spm](https://github.com/RevenueCat/purchases-ios-spm) as a dependency, _not_ [purchases-ios](https://github.com/RevenueCat/purchases-ios) and you may encounter build issues if are using **purchases-ios** with SPM. (We recommend just switching to **purchases-ios-spm**).
+      The **HeliumRevenueCat** package includes [purchases-ios-spm](https://github.com/RevenueCat/purchases-ios-spm) as a dependency, _not_ [purchases-ios](https://github.com/RevenueCat/purchases-ios) and you may encounter build issues if you are using **purchases-ios** with SPM. (We recommend just switching to **purchases-ios-spm**).
     </Warning>
-    6. Select **Add Package** in the dialog and Helium should now be ready for import.
   </Tab>
   <Tab title="Cocoapod">
     ### Option 1: Core functionality only
@@ -244,6 +250,10 @@ You should now be able to see Helium paywalls in your app! Well done! 🎉
 <Info>
   Looking for alternative presentation methods? Check out the guide on [Ways to Show a Paywall](/guides/ways-to-show-paywall).
 </Info>
+
+<Note>
+  `dontShowIfAlreadyEntitled` defaults to `true`. Set it to `false` explicitly if you want to show paywalls to entitled users.
+</Note>
 
 ### PaywallEventHandlers
 
@@ -507,6 +517,18 @@ If the budget expires before the paywall is ready, a fallback paywall will show 
   <Tip>
     This method can be used if you want to be certain that a paywall is ready for display before displaying.
   </Tip>
+</Accordion>
+
+<Accordion title="Hiding Paywalls Programmatically">
+  You can programmatically hide paywalls using:
+
+  ```swift
+  // Hide the current paywall
+  Helium.shared.hidePaywall()
+
+  // Hide all currently displayed paywalls
+  Helium.shared.hideAllPaywalls()
+  ```
 </Accordion>
 
 <Accordion title="Reset Helium">

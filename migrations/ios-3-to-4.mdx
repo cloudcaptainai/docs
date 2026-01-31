@@ -20,6 +20,7 @@ icon: "arrow-up-right-from-square"
   - Automatic fallback bundle detection (`helium-fallbacks.json`)
   - Cleaner namespaced APIs: `Helium.identify`, `Helium.config`, `Helium.experiments`, `Helium.entitlements`
   - New `HeliumPaywall` SwiftUI component for embedded paywalls
+  - **HeliumRevenueCat** is now a separate SPM package (CocoaPods unchanged)
 </Info>
 
 ## Installation Update
@@ -29,6 +30,20 @@ Update your version constraint to `~> 4.0`:
 <Tabs>
   <Tab title="Swift Package Manager">
     Update the **Dependency Rule** in Xcode to allow 4.x versions, or remove and re-add the package with the new version constraint.
+
+    <Warning>
+      **RevenueCat users:** HeliumRevenueCat is now a separate SPM package. After updating to v4, you may see a build error:
+      ```
+      Product 'HeliumRevenueCat' not found in package 'helium-swift'
+      ```
+      To fix this:
+      1. In your target's **Frameworks, Libraries, and Embedded Content**, remove the broken **HeliumRevenueCat** reference
+      2. Go to **Package Dependencies** and add the new package:
+         ```
+         https://github.com/cloudcaptainai/helium-swift-revenuecat.git
+         ```
+      3. Add the **HeliumRevenueCat** product from the new package to your app's main target
+    </Warning>
   </Tab>
   <Tab title="Cocoapods">
     Update your Podfile:

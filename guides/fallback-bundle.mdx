@@ -22,7 +22,7 @@ Click that to open a dialog and select which control paywalls you would like to 
   If you update these paywalls (or add new ones) then you might consider doing this process again to get a newer fallback bundle.
 </Tip>
 
-Download the file. It should be named something like **fallback-bundle-xxxx-xx-xx.json** where the **x** 's are replaced with today's date.
+Download the file. It will be named **helium-fallbacks.json**.
 
 ## Pass Fallback Bundle to Helium SDK
 
@@ -30,43 +30,33 @@ Download the file. It should be named something like **fallback-bundle-xxxx-xx-x
   <Tab title="iOS">
     1. Integrate the SDK with the [iOS Quickstart](/sdk/quickstart-ios) if you haven't done so already.
     2. Drag your downloaded bundle into the Project navigator of your Xcode project.
-    3. You should see a dialog with **Action** and \*\*Targets \*\*fields. For **Action**, either option (copy or move) is fine. For \*\*Targets \*\*ensure that your app's main target is selected.
-    4. Then pass the bundle URL to `Helium.initialize`
+    3. You should see a dialog with **Action** and **Targets** fields. For **Action**, either option (copy or move) is fine. For **Targets** ensure that your app's main target is selected.
+    4. That's it! The SDK automatically detects `helium-fallbacks.json` in your bundle.
 
-    ```swift
-    let fallbackBundleURL = Bundle.main.url(forResource: "fallback-bundle-xxxx-xx-xx", withExtension: "json")
-    
-    Helium.shared.initialize(
-       apiKey: apiKey,
-       heliumPaywallDelegate: delegate,
-       // ... other parameters ...
-       fallbackConfig: HeliumFallbackConfig.withFallbackBundle(fallbackBundleURL)
-    )
-    ```
+    <Tip>
+      To use a custom file name, set it before calling `initialize()`:
 
-    <Note>
-      Make sure to replace **fallback-bundle-xxxx-xx-xx** with the correct name!
-    </Note>
+      ```swift
+      Helium.config.customFallbacksURL = Bundle.main.url(
+          forResource: "fallback-bundle-xxxx-xx-xx",
+          withExtension: "json"
+      )
+      ```
+    </Tip>
   </Tab>
   <Tab title="Android">
     1. Integrate the SDK with the [Android Quickstart](/sdk/quickstart-android) if you haven't done so already.
     2. In your app's `src/main` directory, create an `assets` folder if one doesn't already exist.
     3. Drag your downloaded bundle into the `assets` folder.
-    4. Create a `HeliumFallbackConfig` with the bundle file name and pass it to `Helium.initialize`
+    4. That's it! The SDK automatically detects `helium-fallbacks.json` in your assets.
 
-    ```kotlin
-    Helium.initialize(
-        context = applicationContext,
-        apiKey = "YOUR_API_KEY",
-        heliumPaywallDelegate = yourDelegate,
-        // ... other parameters ...
-        fallbackConfig = HeliumFallbackConfig.withFallbackBundle(fallbackBundleName = "fallback-bundle-xxxx-xx-xx.json"),
-    )
-    ```
+    <Tip>
+      To use a custom file name, set it before calling `initialize()`:
 
-    <Note>
-      Make sure to replace **fallback-bundle-xxxx-xx-xx** with the correct name!
-    </Note>
+      ```kotlin
+      Helium.config.customFallbacksFileName = "fallback-bundle-xxxx-xx-xx.json"
+      ```
+    </Tip>
   </Tab>
   <Tab title="React Native">
     1. Integrate the SDK with the [React Native Quickstart](/sdk/quickstart-react-native) if you haven't done so already.

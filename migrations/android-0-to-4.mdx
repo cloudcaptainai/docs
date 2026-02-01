@@ -23,7 +23,6 @@ icon: "arrow-up-right-from-square"
   - Cleaner namespaced APIs: `Helium.identity`, `Helium.config`
   - New `PaywallPresentationConfig` consolidates presentation options
   - New `PaywallNotShownReason` for handling paywall failures
-  - New `Helium.canShowPaywallFor()` pre-flight check
 </Info>
 
 ## Installation Update
@@ -297,24 +296,6 @@ sealed class PaywallNotShownReason {
     data object TargetingHoldout : PaywallNotShownReason()
     data object AlreadyEntitled : PaywallNotShownReason()
     data class Error(val unavailableReason: PaywallUnavailableReason?) : PaywallNotShownReason()
-}
-```
-
-### CanShowPaywallResult
-
-New data class returned by `canShowPaywallFor()` for pre-flight checks:
-
-```kotlin
-data class CanShowPaywallResult(
-    val canShow: Boolean,
-    val isFallback: Boolean? = null,
-    val paywallUnavailableReason: PaywallUnavailableReason? = null
-)
-
-// Usage
-val result = Helium.canShowPaywallFor("premium")
-if (result.canShow) {
-    Helium.presentPaywall(trigger = "premium", ...)
 }
 ```
 

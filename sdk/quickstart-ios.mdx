@@ -11,7 +11,7 @@ Get set up with the Helium SDK for iOS. Reach out over your Helium slack channel
 ## Installation
 
 <Tip>
-  Version **4.x.x** of the iOS SDK just released on 1/27/26. To migrate from v3, view[ the migration guide](/migrations/ios-3-to-4). You can also view the [v3 guide here](/sdk/quickstart-ios-v3).
+  Version **4.x.x** of the iOS SDK just released on 1/27/26. To migrate from v3, view [the migration guide](/migrations/ios-3-to-4). You can also view the [v3 guide here](/sdk/quickstart-ios-v3).
 </Tip>
 
 <Note>
@@ -198,9 +198,9 @@ Helium.shared.presentPaywall(
     trigger: "premium"
 ) { paywallNotShownReason in
     switch paywallNotShownReason {
-        .targetingHoldout:
+        case .targetingHoldout:
             break
-        .alreadyEntitled:
+        case .alreadyEntitled:
             // e.g. ensure premium access
             break
         default:
@@ -478,8 +478,8 @@ By default, Helium will show this loading state as needed (a shimmer view for up
 
 ```swift
 Helium.config.defaultLoadingBudget = 5
-Helium.config.defaultLoadingView = Text("Loading...)
-```
+Helium.config.defaultLoadingView = Text("Loading...")
+```"
 
 If the budget expires before the paywall is ready, a fallback paywall will show if available otherwise the loading state will hide and a [PaywallOpenFailed](/sdk/helium-events) event will be dispatched.
 

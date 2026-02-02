@@ -1,37 +1,37 @@
 ---
 title: "Setting Up Fallbacks"
-description: "How to download a fallbacks from the dashboard and include it in your app."
+description: "How to download fallbacks from the dashboard and include it in your app."
 icon: "helmet-safety"
 ---
 
-## What is a "fallback bundle"?
+## What are "fallbacks"?
 
 The Helium SDK does its best to fetch the latest paywalls to display in your app. But if for some reason a paywall is not available — perhaps if an app user temporarily did not have a data connection — Helium will attempt to show a "fallback".
 
-By using a fallback bundle you can download copies of your actual Helium paywalls and include that in your app to use in the rare case that a Helium paywall is not ready for display.
+You can download copies of your actual Helium paywalls and include that in your app to use in the rare case that a Helium paywall is not ready for display.
 
 ## Download Fallbacks
 
-Go to the **Workflows** page in your dashboard and find the **Download Fallbacks** button:
+Go to the [Workflows](https://app.tryhelium.com/workflows) page in your dashboard and find the **Download Fallbacks** button:
 
 ![Download Fallbacks 1 Pn](/images/download_fallbacks_1.png)
 
-Click that to open a dialog and select which control paywalls you would like to include as fallback for their corresponding trigger.
+This will open a dialog and allow you to select which paywall/s to use as fallback.
+
+After selection, click **Download** and your browser should download a file named **helium-fallbacks.json**.
 
 <Tip>
-  If you update these paywalls (or add new ones) then you might consider doing this process again to get a newer fallback bundle.
+  Whenever you update paywalls consider whether you want to repeat this process to update your fallbacks.
 </Tip>
 
-Download the file. It will be named **helium-fallbacks.json**.
-
-## Pass Fallback Bundle to Helium SDK
+## Add fallbacks to your Helium SDK integration
 
 <Tabs>
   <Tab title="iOS">
     1. Integrate the SDK with the [iOS Quickstart](/sdk/quickstart-ios) if you haven't done so already.
-    2. Drag your downloaded bundle into the Project navigator of your Xcode project.
-    3. You should see a dialog with **Action** and **Targets** fields. For **Action**, either option (copy or move) is fine. For **Targets** ensure that your app's main target is selected.
-    4. That's it! The SDK automatically detects `helium-fallbacks.json` in your bundle.
+    2. Drag your downloaded file into the Project navigator of your Xcode project.
+    3. You should see a dialog with **Action** and **Targets** fields. For **Action**, select your preference between the move and copy options. For **Targets** ensure that your app's main target is selected.
+    4. That's it! The SDK automatically detects any file with the name `helium-fallbacks.json`.
 
     <Tip>
       To use a custom file name, set it before calling `initialize()`:
@@ -65,7 +65,7 @@ Download the file. It will be named **helium-fallbacks.json**.
 
     ```typescript
     const fallbackBundle = require('./assets/fallback-bundle-xxxx-xx-xx.json');
-    
+
     initialize(
       apiKey: apiKey,
       // ... other parameters ...
@@ -102,14 +102,18 @@ Download the file. It will be named **helium-fallbacks.json**.
   </Tab>
 </Tabs>
 
-All done! If you want to test the fallback bundle, you can run your app with device in airplane mode and attempt to show a paywall. The corresponding fallback paywall should display!
+## Testing Fallbacks
+
+In version 4+ of the SDKs, look at your log output when running a test build to see if fallbacks are successfully loaded.
+
+You can also run your app in airplane mode and then attempt to show your paywall, or show your paywall with a non-existent trigger.
 
 ## How to Monitor and Minimize Fallback Rate
 
-You can check your app's fallback rate by going to https://app.tryhelium.com/metrics, and clicking on the "Fallback Rate" tab under Monitoring. This rate shows the # of fallback paywall opens vs prod paywall opens. If you notice your fallback rate is substantially high, here are some tips on minimizing it:
+You can check your app's fallback rate by going to your [Metrics page](https://app.tryhelium.com/metrics) and clicking on the "Fallback Rate" tab under Monitoring. This rate shows the # of fallback paywall opens vs prod paywall opens. If you notice your fallback rate is higher than expected, here are some tips on minimizing it:
 
-- **Set a higher loading budget (requires Helium SDK 3.0.0+).** If a paywall is opened while a download is still in progress, Helium will show a shimmer for _loadingBudget_ seconds while waiting for the download to finish, before falling back. Simply increasing this value can basically eliminate most cases of fallbacks safe - we recommend \< 5 seconds.
-- **Move your initialize() call earlier in your app's lifecycle.** We recommend right after app launch, or right after onboarding with a higher loading budget.
+- **Move your initialize() call earlier in your app's lifecycle.** We recommend right after app launch.
+- **Set a higher loading budget.** If your paywall is still downloading when presented, Helium will show a loading state. The default loading budget of 7 seconds is generally plenty of time to ensure your paywall will show before fallback is used. But if you have overridden the budget to be a lower value, consider increasing it.
 - **Reduce the size of image assets in your paywall.** We recommend keeping each paywall to be under about 3-5 MB in total size. If you're adding high resolution imagery to your paywall (which is fine!) we recommend converting images to .webp format - e.g. with an online converter like https://cloudconvert.com/webp-converter.
 
-If these aren't options for you (for example, if you have a lot of paywalls) and the above aren't helpful, please get in touch! We'll be happy to build a custom solution or server for you to ensure your fallback rate is low and your paywall \$ rate is high.
+If you still see a rate higher than expected, please get in touch!

@@ -479,7 +479,7 @@ By default, Helium will show this loading state as needed (a shimmer view for up
 ```swift
 Helium.config.defaultLoadingBudget = 5
 Helium.config.defaultLoadingView = Text("Loading...")
-```"
+```
 
 If the budget expires before the paywall is ready, a fallback paywall will show if available otherwise the loading state will hide and a [PaywallOpenFailed](/sdk/helium-events) event will be dispatched.
 

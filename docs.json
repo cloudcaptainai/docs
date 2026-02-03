@@ -50,7 +50,7 @@
       },
       {
         "group": "Migrations",
-        "icon": "arrow-up-right-from-square",
+        "icon": "git-compare",
         "pages": [
           "migrations/ios-3-to-4",
           "migrations/android-0-to-4",

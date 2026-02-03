@@ -1,0 +1,27 @@
+---
+title: "Fallback Causes"
+icon: "lines-leaning"
+description: "Reasons why a fallback paywall would show instead of desired paywall."
+---
+
+While fallbacks are rare, they do occur on occasion. Make sure you have properly [integrated fallbacks](/guides/fallback-bundle) to ensure you don't miss chances of a paywall conversion!
+
+### Paywall is still downloading
+
+<Info>
+  This is the most common reason.
+</Info>
+
+Helium fetches your latest paywalls when the Helium SDK is initialized. If a user is on a very slow connection or has no connection at all, a fallback will be shown. Note that by default, a loading state will be shown for a short duration before the fallback is shown. This "loading budget" duration can be configured in the SDKs.
+
+### Paywalls failed to download
+
+Similarly, if user has no connection or a very limited connection, the paywall retrieval may fail entirely. Or if our servers are temporarily down.
+
+### No products associated with paywall for platform
+
+Can occur when a paywall is downloaded but does not have products properly linked for the platform (iOS/Android) it is served to.
+
+### Other Causes
+
+The above are the most common causes, but a fallback can also occur if paywall html is malformed from any other unexpected Helium bug.

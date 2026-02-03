@@ -8,10 +8,6 @@ icon: "/images/sdk/logos/flutter-svgrepo-com.svg"
 
 Get set up with the Helium SDK for Flutter. Reach out over your Helium slack channel or email [founders@tryhelium.com](mailto:founders@tryhelium.com) for any questions.
 
-<Warning>
-  The Helium Flutter SDK **currently supports iOS only. Android support is expected mid- to late-November.**
-</Warning>
-
 ## Installation
 
 <Info>
@@ -28,7 +24,7 @@ Or if you prefer, you can add the helium_flutter package to your pubspec.yaml:
 
 ```yaml
 dependencies:
-  helium_flutter: ^3.0.12
+  helium_flutter: ^3.1.3
 ```
 
 then run:
@@ -75,7 +71,7 @@ Future<void> main() async {
   final heliumFlutter = HeliumFlutter();
   await heliumFlutter.initialize(
     apiKey: "<your-helium-api-key>",
-//    fallbackPaywall: Text("your fallback view"),
+//    fallbackPaywall: Text("your fallback paywall"),
 //    fallbackBundleAssetPath: "fallback-bundle-xxxx-xx-xx.json",
   );
 
@@ -143,26 +139,6 @@ Future<void> main() async {
   ```
 
   Set these values before or during `initialize` to ensure consistency in analytics events and for the best experimentation results.
-</Accordion>
-
-<Accordion title="Checking Download Status">
-  <Note>
-    In most cases there is no need to check download status. Helium will display a loading indication if a paywall is presented before download has completed.
-  </Note>
-  After initialization, you can check the status of the paywalls download:
-
-  ```dart
-  String downloadStatus = await heliumFlutter.getDownloadStatus() ?? 'Unknown';
-  ```
-
-  The download status will be one of the following:
-
-  - `notDownloadedYet`: The download has not been initiated.
-  - `inProgress`: The download has not been initiated.
-  - `downloadSuccess`: The download was successful.
-  - `downloadFailure`: The download failed.
-
-  You can also check if paywalls have been downloaded with `await heliumFlutter.paywallsLoaded()`
 </Accordion>
 
 ## Presenting Paywalls
@@ -375,8 +351,7 @@ Future<bool> hasAnyEntitlement();
 /// - Parameter trigger: Trigger that would be used to show the paywall.
 /// - Returns: `true` if the user has bought one of the products on the paywall.
 ///            `false` if not. Returns `null` if not known (i.e. the paywall is not downloaded yet).
-Future<bool?> hasEntitlementForPaywall(String trigger) =>
-    HeliumFlutterPlatform.instance.hasEntitlementForPaywall(trigger);
+Future<bool?> hasEntitlementForPaywall(String trigger);
 ```
 
 #### Example Usage
@@ -418,3 +393,35 @@ Future<bool?> hasEntitlementForPaywall(String trigger) =>
 ## Fallbacks
 
 The Flutter SDK currently has two fallback options - 1) [Fallback bundle](/guides/fallback-bundle) and 2) a fallback view. Fallback situations should be quite rare, but to be safe, it is highly recommended that you implement a fallback bundle or custom fallback view.
+
+## Advanced
+
+<Accordion title="Checking Download Status">
+  <Note>
+    In most cases there is no need to check download status. Helium will display a loading indication if a paywall is presented before download has completed.
+  </Note>
+  You can listen to the status of the paywalls download via a stream:
+
+  ```dart
+  HeliumFlutter.downloadStatus.listen((status) {
+    print('Download status: ${status.name}');
+  });
+  ```
+
+  The download status will be one of the following:
+
+  - `notDownloadedYet`: The download has not been initiated.
+  - `inProgress`: The download is in progress.
+  - `downloadSuccess`: The download was successful.
+  - `downloadFailure`: The download failed.
+
+  You can also check if paywalls have been downloaded with `await heliumFlutter.paywallsLoaded()`
+</Accordion>
+
+<Accordion title="Reset Helium">
+  Reset Helium entirely so you can call initialize again. Only for advanced use cases.
+
+  ```dart
+  await HeliumFlutter().resetHelium();
+  ```
+</Accordion>

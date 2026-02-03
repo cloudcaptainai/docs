@@ -41,6 +41,7 @@ We recommend using Swift Package Manager (SPM), but if your project primarily us
     5. Select **Add Package** in the dialog and Helium should now be ready for import.
     6. _(Optional)_ If you are using RevenueCat to manage purchases, you'll need to add the **HeliumRevenueCat** package separately. This is a separate package from the core Helium SDK:
        - Click the **\+** button again and add:
+
          ```
          https://github.com/cloudcaptainai/helium-swift-revenuecat.git
          ```
@@ -105,7 +106,7 @@ Choose the appropriate location based on your app's architecture:
         init() {
             // Call Helium.shared.initialize here!
         }
-    
+
         var body: some Scene {
             WindowGroup {
                 ContentView()
@@ -117,9 +118,9 @@ Choose the appropriate location based on your app's architecture:
   <Tab title="SceneDelegate">
     ```swift
     class SceneDelegate: UIResponder, UIWindowSceneDelegate {
-    
+
         var window: UIWindow?
-    
+
         func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
             // Call Helium.shared.initialize here!
         }
@@ -130,9 +131,9 @@ Choose the appropriate location based on your app's architecture:
     ```swift
     @UIApplicationMain
     class AppDelegate: UIResponder, UIApplicationDelegate {
-    
+
         var window: UIWindow?
-    
+
         func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
             // Call Helium.shared.initialize here!
             return true
@@ -173,7 +174,7 @@ Helium.identify.revenueCatAppUserId = Purchases.shared.appUserID
 If you use a custom [appAccountToken](https://developer.apple.com/documentation/appstoreserverapi/appaccounttoken)
 
 ```swift
-if let appAccountTokenUUID = UUID(uuidString: "app-account-token") {
+if let appAccountTokenUUID = UUID(uuidString: "app-account-token-uuid") {
     Helium.identify.appAccountToken = appAccountTokenUUID
 }
 ```
@@ -247,13 +248,13 @@ Helium.shared.presentPaywall(
 
 You should now be able to see Helium paywalls in your app! Well done! 🎉
 
-<Info>
-  Looking for alternative presentation methods? Check out the guide on [Ways to Show a Paywall](/guides/ways-to-show-paywall).
-</Info>
-
 <Note>
   `dontShowIfAlreadyEntitled` defaults to `true`. Set it to `false` explicitly if you want to show paywalls to entitled users.
 </Note>
+
+<Info>
+  Looking for alternative presentation methods? Check out the guide on [Ways to Show a Paywall](/guides/ways-to-show-paywall).
+</Info>
 
 ### PaywallEventHandlers
 
@@ -312,7 +313,7 @@ Use (or subclass) one of our pre-built `HeliumPurchaseDelegate` implementations 
 
     ```swift
     import HeliumRevenueCat // unless using Cocoapod then can just import Helium
-    
+
     let heliumPurchaseDelegate = RevenueCatDelegate(
         // Optional - pass in to have Helium to handle RevenueCat initialization.
         revenueCatApiKey: "<revenue-cat-api-id>"
@@ -321,7 +322,7 @@ Use (or subclass) one of our pre-built `HeliumPurchaseDelegate` implementations 
     ```
 
     <Note>
-      If you do not supply `revenueCatApiKey`, make sure to initialize RevenueCat _before_ initializing Helium!
+      If you do not supply `revenueCatApiKey`, make sure to initialize RevenueCat _before_ creating the RevenueCatDelegate!
     </Note>
   </Tab>
   <Tab title="Custom Delegate">
@@ -333,7 +334,7 @@ Use (or subclass) one of our pre-built `HeliumPurchaseDelegate` implementations 
     public protocol HeliumPurchaseDelegate: AnyObject {
         // Execute the purchase of a product given the product ID.
         func makePurchase(productId: String) async -> HeliumPaywallTransactionStatus
-    
+
         // (Optional) - Restore any existing subscriptions.
         // Return a boolean indicating whether the restore was successful.
         func restorePurchases() async -> Bool
@@ -439,25 +440,8 @@ The Helium SDK provides several ways to check user entitlements and subscription
 
 #### Example Usage
 
-<Tip>
-  Check entitlements before showing paywalls to avoid showing a paywall to a user who should not see it.
-</Tip>
 
-<CodeGroup>
-
-```swift Use dontShowIfAlreadyEntitled with presentUpsell
-Helium.shared.presentPaywall(
-    trigger: "my_paywall_trigger",
-    config: PaywallPresentationConfig(
-        dontShowIfAlreadyEntitled: true
-    )
-) { paywallNotShownReason in
-    // handle paywall not shown
-}
-```
-
-
-```swift Check before showing paywall
+```swift
 let hasActiveSubscription = await Helium.entitlements.hasAnyActiveSubscription()
 if hasActiveSubscription {
     // access premium content
@@ -466,13 +450,11 @@ if hasActiveSubscription {
 }
 ```
 
-</CodeGroup>
-
 ## Fallbacks
 
-It is highly recommended that you set up a [fallback bundle](/guides/fallback-bundle) in the uncommon case where a paywall fails to display. Please follow the linked guide to do so.
+It is highly recommended that you set up a [fallbacks](/guides/fallback-bundle) in the uncommon case where a paywall fails to display. Please follow the linked guide to do so.
 
-Note that if you attempt to display a paywall while it is still being downloaded, a loading state can show.
+Note that if you attempt to display a paywall while it is still being downloaded, a loading state will show.
 
 By default, Helium will show this loading state as needed (a shimmer view for up to 7 seconds). You can configure this loading state during presentation or set global values.
 
@@ -482,6 +464,10 @@ Helium.config.defaultLoadingView = Text("Loading...")
 ```
 
 If the budget expires before the paywall is ready, a fallback paywall will show if available otherwise the loading state will hide and a [PaywallOpenFailed](/sdk/helium-events) event will be dispatched.
+
+<Info>
+  See the [Fallbacks Guide](/guides/fallback-bundle) for more details on downloading and configuring fallbacks.
+</Info>
 
 ## Advanced
 

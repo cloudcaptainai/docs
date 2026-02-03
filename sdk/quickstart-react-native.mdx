@@ -8,10 +8,6 @@ icon: "/images/sdk/logos/react-svgrepo-com.svg"
 
 Get set up with the Helium SDK for React Native. Reach out over your Helium slack channel or email [founders@tryhelium.com](mailto:founders@tryhelium.com) for any questions.
 
-<Warning>
-  The Helium React Native SDK **currently supports iOS only. Android support is expected mid- to late-November.**
-</Warning>
-
 ## Installation
 
 Install the SDK using your preferred package manager:
@@ -37,6 +33,12 @@ npx react-native link @tryheliumai/paywall-sdk-react-native
 <Tip>
   We support Expo 49+ but recommend using Helium with **Expo 53 and up**. If you're on an older version and having issues, ping us - we've got experience with all kinds of versioning, upgrade, and custom build plugin work.
 </Tip>
+
+<Warning>
+  **The Older Expo / Bare SDK supports iOS only**.
+
+  The Expo 52+ SDK supports both iOS and Android.
+</Warning>
 
 ## Configuration
 
@@ -150,50 +152,58 @@ useEffect(() => {
 
 #### Custom Purchase Config
 
-To use your own purchase logic, pass in a custom purchase config to `initialize`:
+To use your own purchase logic, pass in a custom purchase config to `initialize`.
 
-<CodeGroup>
-```tsx Expo 52+
-import { createCustomPurchaseConfig } from 'expo-helium';
+<Accordion title="Custom Purchase Config Example">
+  <CodeGroup>
 
-// In your initialize call:
-purchaseConfig: createCustomPurchaseConfig({
-  // NOTE - on version 3.1.0+ makePurchase is deprecated in favor of
-  // makePurchaseIOS and makePurchaseAndroid
-  makePurchase: async (productId) => {
-    // Your purchase logic here
-    // Return a HeliumTransactionStatus
-    return { status: 'purchased' };
-  },
-  restorePurchases: async () => {
-    // Your restore logic here
-    return true;
-  }
-}),
-```
+  ```tsx Expo 52+
+  import { createCustomPurchaseConfig } from 'expo-helium';
 
-```tsx Older Expo / Bare
-import { createCustomPurchaseConfig } from '@tryheliumai/paywall-sdk-react-native';
+  // In your initialize call:
+  purchaseConfig: createCustomPurchaseConfig({
+    makePurchaseIOS: async (productId) => {
+      // Your purchase logic here
+      // Return a HeliumTransactionStatus
+      return { status: 'purchased' };
+    },
+    makePurchaseAndroid: async (productId) => {
+      // Your purchase logic here
+      // Return a HeliumTransactionStatus
+      return { status: 'purchased' };
+    },
+    restorePurchases: async () => {
+      // Your restore logic here
+      return true;
+    }
+  }),
+  ```
 
-// In your initialize call:
-purchaseConfig: createCustomPurchaseConfig({
-  makePurchase: async (productId) => {
-    // Your purchase logic here
-    // Return a HeliumTransactionStatus
-    return { status: 'purchased' };
-  },
-  restorePurchases: async () => {
-    // Your restore logic here
-    return true;
-  }
-}),
-```
-</CodeGroup>
 
-```tsx
-type HeliumTransactionStatus =
-  'purchased' | 'failed' | 'cancelled' | 'pending' | 'restored';
-```
+  ```tsx Older Expo / Bare
+  import { createCustomPurchaseConfig } from '@tryheliumai/paywall-sdk-react-native';
+
+  // In your initialize call:
+  purchaseConfig: createCustomPurchaseConfig({
+    makePurchase: async (productId) => {
+      // Your purchase logic here
+      // Return a HeliumTransactionStatus
+      return { status: 'purchased' };
+    },
+    restorePurchases: async () => {
+      // Your restore logic here
+      return true;
+    }
+  }),
+  ```
+
+  </CodeGroup>
+
+  ```tsx
+  type HeliumTransactionStatus =
+    'purchased' | 'failed' | 'cancelled' | 'pending' | 'restored';
+  ```
+</Accordion>
 
 ### Custom User ID and Custom User Traits
 

@@ -45,12 +45,13 @@
         "group": "SDK Reference",
         "icon": "book-open",
         "pages": [
-          "sdk-reference/sdk-features"
+          "sdk-reference/sdk-features",
+          "sdk-reference/fallback-causes"
         ]
       },
       {
         "group": "Migrations",
-        "icon": "git-compare",
+        "icon": "arrow-up-right-dots",
         "pages": [
           "migrations/ios-3-to-4",
           "migrations/android-0-to-4",

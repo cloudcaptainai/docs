@@ -77,7 +77,8 @@ Helium.initialize(
     ),
     fallbackConfig = HeliumFallbackConfig.withFallbackBundle(
         fallbackBundleName = "fallback.json"
-    )
+    ),
+    environment = HeliumEnvironment.PRODUCTION,
 )
 ```
 
@@ -95,10 +96,11 @@ Helium.config.customFallbacksFileName = "fallback.json"
 // Note: PlayStorePaywallDelegate is auto-created if not set
 // Helium.config.heliumPaywallDelegate = PlayStorePaywallDelegate(this)
 
-// Initialize with just context and API key
+// Initialize
 Helium.initialize(
     context = this,
-    apiKey = "..."
+    apiKey = "...",
+    environment = HeliumEnvironment.PRODUCTION,
 )
 ```
 

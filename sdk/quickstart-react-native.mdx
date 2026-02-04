@@ -421,7 +421,7 @@ Provide a fallback bundle as described in [this guide](/guides/fallback-bundle).
 
 If a paywall has not completed downloading when you attempt to present it, a loading state can show.
 
-By default, Helium will show this loading state as needed (a shimmer view for up to 7 seconds). You can configure, turn off, or set trigger-specific loading budgets.
+By default, Helium will show this loading state as needed (a shimmer view for up to 7 seconds). You can configure or turn off this loading budget.
 
 If the budget expires before the paywall is ready, a fallback paywall will show if available otherwise the loading state will hide and `onFallback` will be called.
 
@@ -429,14 +429,6 @@ If the budget expires before the paywall is ready, a fallback paywall will show 
 const paywallLoadingConfig: HeliumPaywallLoadingConfig = {
   useLoadingState: true,
   loadingBudget: 4,
-  perTriggerLoadingConfig: {
-    "onboarding": {
-      loadingBudget: 5,
-    },
-    "trial": {
-      useLoadingState: false,
-    }
-  },
 };
 
 await initialize({

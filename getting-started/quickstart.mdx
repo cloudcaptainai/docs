@@ -8,93 +8,41 @@ This quickstart shows you how to set up, preview, and go live with an AI-editabl
 
 ## Create your account on Helium
 
-Create your Helium account at [app.tryhelium.com](https://app.tryhelium.com). 
+Create your Helium account at [app.tryhelium.com](https://app.tryhelium.com).
 
-This will take you to the *Dashboard*, where you can create paywalls, manage api keys and integrations, run A/B tests, view analytics, and more.
+This will take you to the **Helium dashboard**, where you can create paywalls, manage api keys and integrations, run A/B tests, view analytics, and more.
 
-## Connect your products from the app store
+## Connect your products
 
-Let's start by importing products from the app store. 
-
-1. Go to [app.tryhelium.com/products](**Products**)
-2. Click **Connect App Store** 
-3. Enter your App Store Connect credentials
-4. Click **Connect**
-
-You can find your app store connect credentials by going to your [app store connect page](https://appstoreconnect.apple.com), logging in
-with your Apple ID and selecting your app, selecting 
-**Users and Access**, and clicking **App Store Connect API**
-
-![Finding your App Store Credentials](/images/quickstart/guide-appstoreconnect-api.png)
-
-After syncing, your products will now be available to use in any paywall you create. Press **Refresh Products**
-any time on your [integrations page](https://app.tryhelium.com/integrations) to resync products on product/price/offer changes.
-
-<Note>
-  Do this step even if you're using RevenueCat, your products will still be in Apple App Store. Direct RevenueCat and Google Play import coming soon!
-</Note>
+Visit [Integrations → Products](https://app.tryhelium.com/integrations/products) and sync your products from the App Store and/or Google Play store.
 
 ## Create a new paywall
 
-Time to create your first paywall with Helium!
-
 1. Click on the **Paywalls** tab in the sidebar (or go [here](https://app.tryhelium.com/paywalls)).
+2. Click **New Paywall** and complete that flow
 
-2. Click **Create New Paywall**. You can create a paywall
-- From a screenshot of an existing paywall (recommended) 
-- From a Helium template
-- From a Figma design link (make sure to make its visibility public!)
-- From scratch
+   <Note>
+     You can swap products in and out as desired. Just remember to have your products linked in the paywall before going live!
+   </Note>
 
-3. Give your paywall a name, description, and select a few products. (Don't worry if you're not sure which products to use - you can swap in/out products later and Helium will automatically
-update your paywall.) Then, hit **Create Paywall**
+## Create a workflow and trigger(s)
 
-![Create a new paywall](/images/quickstart/guide-create-from-scratch.png)
+Once you have published a pawyall, visit [Workflows](https://app.tryhelium.com/workflows) to create your first workflow. Once created, add a **trigger**.
 
-## Use the Helium editor to edit and customize your paywall
-(Docs here coming soon!)
-For now, just hit *Save* to save your paywall. You should then see a screenshot of your paywall
-in the Paywalls tab. In the next section, we'll get it live. 
+**Triggers** are what you use in your app to determine which workflow (and its associated paywall/s) to show to a user.
 
-## Wire up your paywall to a workflow/trigger
-
-Helium uses several concepts that define what paywalls users see, and where in the app they'll be seen.
-
-**Triggers** are placements within your app where you'd like to show a paywall. Trigger names should be lower cased and under_scored,
-because the SDK code will refer to these strings. **Important** - Make sure to be careful when deleting a trigger! It's usually safer to _not_ delete
-triggers in most cases, and just create new ones when needed. 
-
-You might have a `post_onboarding` paywall right after onboarding (we recommend this!), `settings_screen` for in-settings upgrade for high-intent users, or a `premium_feature_upsell`. Reach out to the 
-Helium team for a free app scan to give you recommendations for your app.
-
-**Workflows** are _groups_ of triggers that should point to the same paywall, or that share same targeting or experimentation setup. 
-
-Let's start with a simple workflow and trigger. Go to the **Workflows** tab in the lefthand sidebar, and click **New Workflow**. Select the
-paywall you saved in the previous step.
-
-![Create a new workflow](/images/quickstart/guide-create-new-workflow.png)
-
-Click into the workflow, and then click **Add Triggers**. Give your trigger a name, e.g. `onboarding`:
-
-![Create a new trigger](/images/quickstart/guide-create-new-trigger.png)
-
-Then, click **Add 1 trigger**. Afterwards, if you click back out into **Workflows**, your workflows section should look like this:
-
-![Guide workflows list](/images/quickstart/guide-workflows-list.png)
-
-You now have a workflow + trigger registered with Helium! Let's set up the SDK and go live with your new paywall.
+A **workflow** is a configuration of trigger(s) that should point to the same paywall, or that share the same targeting or experimentation setup.
 
 ## Install and set up the SDK
 
-First, have an API key handy. You can find yours by clicking on the **Account Settings** tab in the bottom left, and clicking 
-**Create New API Key**. Then, choose your mobile platform and follow the integration quickstart:
+Choose your mobile platform and follow the integration quickstart:
 
 <CardGroup cols={2}>
   <Card title="iOS" icon="apple" href="/sdk/quickstart-ios">
     Swift/SwiftUI/UIKit
   </Card>
   <Card title="Android" icon="android" href="/sdk/quickstart-android">
-    Kotlin/Jetpack Compose/XML
+    Kotlin/Jetpack Compose
   </Card>
   <Card title="React Native" icon="react" href="/sdk/quickstart-react-native">
     React Native/Expo
@@ -104,30 +52,28 @@ First, have an API key handy. You can find yours by clicking on the **Account Se
   </Card>
 </CardGroup>
 
-## Set up revenue reporting so Helium can automatically optimize your revenue
+## Set up revenue reporting
 
-Follow [our guide on revenue connection](https://docs.tryhelium.com/guides/revenue-reporting) to connect Helium
-to revenue events via webhooks
+Follow our [guide on revenue reporting](https://docs.tryhelium.com/guides/revenue-reporting) to connect Helium to your app's revenue events via webhooks.
 
-<Info>
-  Revenue reporting enables Helium to track conversion rates, optimize paywalls, and provide detailed analytics about your subscription performance.
-</Info>
+<Tip>
+  Revenue reporting enables Helium to provide detailed analytics about your app's monetization. It's a _must_ to get the most out of Helium!
+</Tip>
 
 ## Set up fallbacks to guarantee 100% paywall uptime for your users
 
-Follow [our guide on fallbacks](https://docs.tryhelium.com/guides/fallback-bundle) to guarantee that you'll have
-100% uptime of your paywalls even if a user doesn't have network.
+Follow our [guide on fallbacks](https://docs.tryhelium.com/guides/fallback-bundle) to guarantee that you'll have 100% uptime of your paywalls even if a user doesn't have a network connection.
 
 ## Pre-launch and go live!
 
-Before going live, here's a quick checklist. As always, reach out via your Helium slack channel or to founders@tryhelium.com if you'd like any help with 
-testing.
+Before going live, here's a quick checklist. As always, reach out via your Helium slack channel or to [founders@tryhelium.com](mailto:founders@tryhelium.com) if you'd like any help with testing.
 
 ### Testing Checklist
-- [ ] Paywall created with products
-- [ ] Workflow + trigger created
-- [ ] SDK set up and paywall fetching wired up
-- [ ] [Tested localized price display + in app purchases](/guides/storekit-testing)
 
+- Paywall created with products
+- Workflow + trigger created
+- SDK set up and paywall displays
+- Purchases can be completed from your paywall(s)
+- [Fallbacks](/guides/fallback-bundle) are configured
 
-🎉 **Congratulations!** You now have a live, AI-optimized paywall in your app. Monitor your dashboard for insights and let Helium's AI continuously optimize for better conversion.
+🎉 Congratulations! You now have a live Helium paywall and are ready to take your app's monetization to new heights!

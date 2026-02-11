@@ -226,7 +226,7 @@ Helium.presentPaywall(
       _(Optional)_ Event listener for paywall lifecycle events.
     </ResponseField>
     <ResponseField name="onPaywallNotShown" type="((PaywallNotShownReason) -> Unit)?">
-      _(Optional but recommended)_ Handle any scenario where the paywall does not show.
+      _(Optional but highly recommended)_ Handle any scenario where the paywall does not show. If user is already entitled and `config.dontShowIfAlreadyEntitled` is true, `onPaywallNotShown(.alreadyEntitled)` will be called only if `onEntitled` is not provided.
     </ResponseField>
   </Expandable>
 </ResponseField>

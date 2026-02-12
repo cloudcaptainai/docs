@@ -38,7 +38,8 @@
           "guides/ways-to-show-paywall",
           "guides/third-party-analytics",
           "guides/custom-events",
-          "guides/storekit-testing"
+          "guides/storekit-testing",
+          "guides/importing-from-figma"
         ]
       },
       {

@@ -342,6 +342,10 @@ class RevenueCatPurchaseDelegate implements HeliumPurchaseDelegate {
 
 ## Checking Subscription Status & Entitlements
 
+<Note>
+  If you use an external payment processor like Stripe, Helium's entitlement helpers may not be reliable. We recommend implementing your own entitlement checking in that case. If you use Stripe with RevenueCat, we recommend using [RevenueCat's entitlement APIs](https://www.revenuecat.com/docs/getting-started/entitlements) instead.
+</Note>
+
 Use these methods to check current user subscription status.
 
 ```dart

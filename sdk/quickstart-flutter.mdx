@@ -48,6 +48,10 @@ See this [Flutter documentation](https://docs.flutter.dev/packages-and-plugins/s
   You can still use Cocoapods for your dependencies if preferred. If you need to disable Swift Package Manager dependencies after having enabled it, refer to that same [Flutter documentation](https://docs.flutter.dev/packages-and-plugins/swift-package-manager/for-app-developers#how-to-turn-off-swift-package-manager).
 </Info>
 
+<Note>
+  If you are using RevenueCat, you should also install the **helium_revenuecat** package so RevenueCat can handle purchases. See the section titled RevenueCat Purchase Delegate in this guide.
+</Note>
+
 ### iOS Settings
 
 Helium requires iOS 15+. If your app already has a minimum of iOS 15 or higher, you're all set. This can be specified in your `ios/Podfile` with:
@@ -237,108 +241,23 @@ abstract class HeliumPurchaseDelegate {
 }
 ```
 
-#### Basic Implementation
+### RevenueCat Purchase Delegate
 
-Here's a basic (incomplete) implementation of `HeliumPurchaseDelegate`:
-
-```dart
-import 'package:helium_flutter/helium_flutter.dart';
-import 'dart:developer';
-
-class CustomPurchaseDelegate implements HeliumPurchaseDelegate {
-  @override
-  Future<HeliumPurchaseResult> makePurchase(String productId) async {
-    log('makePurchase: $productId');
-    // Implement your purchase logic here
-    return HeliumPurchaseResult(status: HeliumTransactionStatus.purchased);
-  }
-
-  @override
-  Future<bool> restorePurchases() async {
-    log('restorePurchases called');
-    // Implement your restore logic here
-    return true;
-  }
-}
-```
-
-#### RevenueCat Implementation Example
+If you are using RevenueCat, we recommend you use our built-in RevenueCat purchase delegate:
 
 ```dart
-import 'package:helium_flutter/helium_flutter.dart';
-import 'package:purchases_flutter/purchases_flutter.dart';
-import 'dart:developer';
+import 'package:helium_revenuecat/helium_revenuecat.dart';
 
-class RevenueCatPurchaseDelegate implements HeliumPurchaseDelegate {
-  @override
-  Future<HeliumPurchaseResult> makePurchase(String productId) async {
-    try {
-      log('RevenueCat making purchase: $productId');
-      final offerings = await Purchases.getOfferings();
-
-      Package? packageToPurchase;
-
-      // Search all offerings for package
-      for (var offering in offerings.all.values) {
-        for (var package in offering.availablePackages) {
-          if (package.storeProduct.identifier == productId) {
-            packageToPurchase = package;
-            break;
-          }
-        }
-        if (packageToPurchase != null) break;
-      }
-
-      CustomerInfo? customerInfo;
-      if (packageToPurchase == null) {
-        final fetchedProducts = await Purchases.getProducts([productId]);
-        if (fetchedProducts.isEmpty) {
-          return HeliumPurchaseResult(
-              status: HeliumTransactionStatus.failed,
-              error: 'Product not found in any offering and could not be retrieved: $productId'
-          );
-        } else {
-          customerInfo = await Purchases.purchaseStoreProduct(fetchedProducts.first);
-        }
-      } else {
-        customerInfo = await Purchases.purchasePackage(packageToPurchase);
-      }
-
-      // Check if the purchase was successful by looking at entitlements
-      if (customerInfo.entitlements.active.isNotEmpty) {
-        return HeliumPurchaseResult(status: HeliumTransactionStatus.purchased);
-      } else {
-        return HeliumPurchaseResult(status: HeliumTransactionStatus.failed);
-      }
-    } catch (e) {
-      log('RevenueCat purchase error: $e');
-      if (e is PurchasesErrorCode) {
-        if (e == PurchasesErrorCode.purchaseCancelledError) {
-          return HeliumPurchaseResult(status: HeliumTransactionStatus.cancelled);
-        } else if (e == PurchasesErrorCode.paymentPendingError) {
-          return HeliumPurchaseResult(status: HeliumTransactionStatus.pending);
-        }
-      }
-      return HeliumPurchaseResult(
-          status: HeliumTransactionStatus.failed,
-          error: 'RevenueCat purchase error: ${(e as PlatformException?)?.message ?? "Unknown error"}'
-      );
-    }
-  }
-
-  @override
-  Future<bool> restorePurchases() async {
-    try {
-      log('RevenueCat restoring purchases');
-      final restoredInfo = await Purchases.restorePurchases();
-      return restoredInfo.entitlements.active.isNotEmpty;
-    } catch (e) {
-      log('RevenueCat restore error: $e');
-      return false;
-    }
-  }
-}
+final heliumFlutter = HeliumFlutter();
+await heliumFlutter.initialize(
+  apiKey: "<your-helium-api-key>",
+  purchaseDelegate: RevenueCatPurchaseDelegate(),
+);
 ```
+
+<Warning>
+  Make sure to configure RevenueCat before initializing Helium. You will need to add the **helium_revenuecat** package in addition to helium_flutter.
+</Warning>
 
 ## Checking Subscription Status & Entitlements
 

@@ -184,6 +184,7 @@ Helium.presentPaywall(
             }
             is PaywallNotShownReason.AlreadyEntitled -> {
                 // User already has access
+                // In order for this case to be hit, `config.dontShowIfAlreadyEntitled` must be true
             }
             is PaywallNotShownReason.Error -> {
                 // Handle the rare case where a paywall
@@ -209,7 +210,7 @@ Helium.presentPaywall(
           // Custom traits to send to the paywall
           val customPaywallTraits: HeliumUserTraits? = null,
           // Don't show paywall if user is entitled to a product in paywall
-          val dontShowIfAlreadyEntitled: Boolean = true,
+          val dontShowIfAlreadyEntitled: Boolean = false,
           // Disable system back button closing the paywall
           val disableSystemBackNavigation: Boolean = false,
           // How the paywall animates in
@@ -232,10 +233,6 @@ Helium.presentPaywall(
 </ResponseField>
 
 You should now be able to see Helium paywalls in your app! Well done! 🎉
-
-<Note>
-  `dontShowIfAlreadyEntitled` defaults to `true`. Set it to `false` explicitly if you want to show paywalls to entitled users.
-</Note>
 
 <Info>
   Looking for alternative presentation methods? Check out the guide on [Ways to Show a Paywall](/guides/ways-to-show-paywall).
@@ -410,7 +407,25 @@ The Helium SDK provides multiple ways to check user entitlements and subscriptio
 
 #### Example Usage
 
-```kotlin
+<Tip>
+  Check entitlements before showing paywalls to avoid showing a paywall to a user who should not see it.
+</Tip>
+
+<CodeGroup>
+
+```kotlin Use dontShowIfAlreadyEntitled with presentPaywall
+Helium.presentPaywall(
+    trigger = "my_paywall_trigger",
+    config = PaywallPresentationConfig(
+        dontShowIfAlreadyEntitled = true,
+    ),
+    onPaywallNotShown = { paywallNotShownReason ->
+        // handle paywall not shown
+    }
+)
+```
+
+```kotlin Check before showing paywall
 val hasActiveSubscription = Helium.entitlements.hasAnyActiveSubscription()
 if (hasActiveSubscription) {
     // access premium content

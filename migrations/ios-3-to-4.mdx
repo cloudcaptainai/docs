@@ -8,7 +8,6 @@ icon: "circle-small"
   **Breaking Changes in v4:**
 
   - `presentUpsell()` renamed to `presentPaywall()` with required `onPaywallNotShown` handler
-  - `dontShowIfAlreadyEntitled` now defaults to `true`
   - Initialize parameters moved to `Helium.identify` and `Helium.config` namespaces
   - Fallback views removed - use fallback bundles only
 </Warning>
@@ -138,7 +137,7 @@ Helium.shared.presentPaywall(
     config: PaywallPresentationConfig(
         presentFromViewController: viewController,
         customPaywallTraits: ["source": "settings"],
-        dontShowIfAlreadyEntitled: true, // defaults to true
+        dontShowIfAlreadyEntitled: true,
         loadingBudget: nil, // use default
     ),
     eventHandlers: PaywallEventHandlers()
@@ -161,10 +160,6 @@ Helium.shared.presentPaywall(
     }
 }
 ```
-
-<Note>
-  `dontShowIfAlreadyEntitled` now defaults to `true` in v4. Set it to `false` explicitly if you want to show paywalls to entitled users.
-</Note>
 
 ## API Namespace Migration
 

@@ -10,7 +10,6 @@ icon: "circle-small"
   - `presentUpsell()` renamed to `presentPaywall()` with new signature
   - `hideUpsell()` renamed to `hidePaywall()`
   - `hideAllUpsells()` renamed to `hideAllPaywalls()`
-  - `dontShowIfAlreadyEntitled` now defaults to `true`
   - Initialize parameters moved to `Helium.identity` and `Helium.config` namespaces
   - `HeliumFallbackConfig` removed - use `Helium.config` properties instead
 </Warning>
@@ -154,7 +153,7 @@ Helium.presentPaywall(
     config = PaywallPresentationConfig(
         fromActivityContext = activity,  // optional - SDK auto-tracks activities
         customPaywallTraits = HeliumUserTraits(...),
-        dontShowIfAlreadyEntitled = true,  // defaults to true
+        dontShowIfAlreadyEntitled = true,
         disableSystemBackNavigation = false,
         presentationStyle = HeliumPresentationStyle.SLIDE_UP,
         fullscreen = false
@@ -178,10 +177,6 @@ Helium.presentPaywall(
     }
 )
 ```
-
-<Note>
-  `dontShowIfAlreadyEntitled` now defaults to `true` in v4. Set it to `false` explicitly if you want to show paywalls to entitled users.
-</Note>
 
 ## Method Renames
 
@@ -277,7 +272,7 @@ Consolidates all paywall presentation options into a single data class:
 data class PaywallPresentationConfig(
     val fromActivityContext: Activity? = null,
     val customPaywallTraits: HeliumUserTraits? = null,
-    val dontShowIfAlreadyEntitled: Boolean = true,
+    val dontShowIfAlreadyEntitled: Boolean = false,
     val disableSystemBackNavigation: Boolean = false,
     val presentationStyle: HeliumPresentationStyle = HeliumPresentationStyle.SLIDE_UP,
     val fullscreen: Boolean = false

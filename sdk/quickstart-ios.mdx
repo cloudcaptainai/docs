@@ -207,6 +207,7 @@ Helium.shared.presentPaywall(
             break
         case .alreadyEntitled:
             // e.g. ensure premium access
+            // In order for this case to be hit, `config.dontShowIfAlreadyEntitled` must be true
             break
         default:
 			// handle the rare case where a paywall
@@ -231,7 +232,7 @@ Helium.shared.presentPaywall(
           // Custom traits to send to the paywall
           var customPaywallTraits: [String: Any]? = nil
           // Don't show paywall if user is entitled to a product in paywall
-          var dontShowIfAlreadyEntitled: Bool = true
+          var dontShowIfAlreadyEntitled: Bool = false
           // How long to allow loading state before switching to fallback logic.
           // Use zero or negative value to disable loading state.
           var loadingBudget: TimeInterval = DEFAULT_LOADING_BUDGET
@@ -251,10 +252,6 @@ Helium.shared.presentPaywall(
 </ResponseField>
 
 You should now be able to see Helium paywalls in your app! Well done! 🎉
-
-<Note>
-  `dontShowIfAlreadyEntitled` defaults to `true`. Set it to `false` explicitly if you want to show paywalls to entitled users.
-</Note>
 
 <Info>
   Looking for alternative presentation methods? Check out the guide on [Ways to Show a Paywall](/guides/ways-to-show-paywall).
@@ -448,8 +445,24 @@ The Helium SDK provides several ways to check user entitlements and subscription
 
 #### Example Usage
 
+<Tip>
+  Check entitlements before showing paywalls to avoid showing a paywall to a user who should not see it.
+</Tip>
 
-```swift
+<CodeGroup>
+
+```swift Use dontShowIfAlreadyEntitled with presentPaywall
+Helium.shared.presentPaywall(
+    trigger: "my_paywall_trigger",
+    config: PaywallPresentationConfig(
+        dontShowIfAlreadyEntitled: true
+    )
+) { paywallNotShownReason in
+    // handle paywall not shown
+}
+```
+
+```swift Check before showing paywall
 let hasActiveSubscription = await Helium.entitlements.hasAnyActiveSubscription()
 if hasActiveSubscription {
     // access premium content

@@ -1,0 +1,62 @@
+---
+title: "Stripe Integration"
+description: "Set up Apple Pay with Stripe."
+---
+
+<Warning>
+  Apple Pay with Stripe is currently limited to US-based users with Apple Pay enabled, iOS only.
+</Warning>
+
+## 1) Set Up Your Stripe Account
+
+A Helium team member will help you create your account if needed, and connect it to Helium's Stripe account.
+
+## 2) Create Stripe Products and Import Them into Helium
+
+A Helium team member will help you sync your Stripe products.
+
+## 3) Get an Apple Merchant ID
+
+If you do not have one yet, visit the [Apple Developer website](https://developer.apple.com/account/resources/identifiers/list/merchant) to create a Merchant ID.
+
+## 4) Create an Apple Pay Certificate and Share with Stripe
+
+<Note>
+  This section is copied directly from [Stripe's Apple Pay guide](https://docs.stripe.com/apple-pay?platform=ios#csr).
+</Note>
+
+Go to the [iOS Certificate Settings](https://dashboard.stripe.com/settings/ios_certificates) in the Dashboard, click **Add new application**, and follow the guide.
+
+Download a Certificate Signing Request (CSR) file to get a secure certificate from Apple that allows you to use Apple Pay.
+
+One CSR file must be used to issue exactly one certificate. If you switch your Apple Merchant ID, you must go to the [iOS Certificate Settings](https://dashboard.stripe.com/settings/ios_certificates) in the Dashboard to obtain a new CSR and certificate.
+
+## 5) App Integration
+
+<Note>
+  Stripe integration requires Helium **4.1.6+**.
+</Note>
+
+### Add Apple Pay Capability in Xcode
+
+In Xcode, open your project settings, click the **Signing & Capabilities**tab, and add the **Apple Pay** capability. Select the merchant ID you created earlier.
+
+### Add StripeOneTapPurchase Dependency
+
+Add this Swift Package dependency:
+
+```
+https://github.com/cloudcaptainai/stripe-one-tap-purchase.git
+```
+
+### Modify Your Helium Initialize Call
+
+Replace `Helium.shared.initialize` with `Helium.shared.initializeWithStripeOneTap`:
+
+```swift
+Helium.shared.initializeWithStripeOneTap(
+    apiKey: "your-helium-api-key",
+    backupDelegate: StoreKitDelegate(), // or RevenueCatDelegate
+    merchantIdentifier: "your-apple-merchant-id"
+)
+```

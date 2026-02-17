@@ -56,7 +56,11 @@ Replace `Helium.shared.initialize` with `Helium.shared.initializeWithStripeOneTa
 ```swift
 Helium.shared.initializeWithStripeOneTap(
     apiKey: "your-helium-api-key",
-    backupDelegate: StoreKitDelegate(), // or RevenueCatDelegate
+    backupPurchaseDelegate: StoreKitDelegate(), // or RevenueCatDelegate
     merchantIdentifier: "your-apple-merchant-id"
 )
 ```
+
+#### Not Yet Covered in This Guide
+* Respecting Stripe entitlements
+* [RevenueCat Stripe setup](https://www.revenuecat.com/docs/web/integrations/stripe)

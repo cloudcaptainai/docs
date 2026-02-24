@@ -34,33 +34,138 @@ One CSR file must be used to issue exactly one certificate. If you switch your A
 ## 5) App Integration
 
 <Note>
-  Stripe integration requires Helium **4.1.6+**.
+  Stripe One Tap is iOS only. On Android, Helium will continue to use standard initialization.
 </Note>
 
-### Add Apple Pay Capability in Xcode
+<Tabs>
+  <Tab title="iOS">
+    <Note>
+      Stripe integration requires Helium **4.1.7+**. If you have not integrated Helium yet, follow the [iOS SDK Quickstart](/sdk/quickstart-ios) first.
+    </Note>
 
-In Xcode, open your project settings, click the **Signing & Capabilities**tab, and add the **Apple Pay** capability. Select the merchant ID you created earlier.
+    ### Add Apple Pay Capability in Xcode
 
-### Add StripeOneTapPurchase Dependency
+    In Xcode, open your project settings, click the **Signing & Capabilities** tab, and add the **Apple Pay** capability. Select the merchant ID you created earlier.
 
-Add this Swift Package dependency:
+    ### Add StripeOneTapPurchase Dependency
 
-```
-https://github.com/cloudcaptainai/stripe-one-tap-purchase.git
-```
+    Add this Swift Package dependency:
 
-### Modify Your Helium Initialize Call
+    ```
+    https://github.com/cloudcaptainai/stripe-one-tap-purchase.git
+    ```
 
-Replace `Helium.shared.initialize` with `Helium.shared.initializeWithStripeOneTap`:
+    ### Modify Your Helium Initialize Call
 
-```swift
-Helium.shared.initializeWithStripeOneTap(
-    apiKey: "your-helium-api-key",
-    backupPurchaseDelegate: StoreKitDelegate(), // or RevenueCatDelegate
-    merchantIdentifier: "your-apple-merchant-id"
-)
-```
+    Replace `Helium.shared.initialize` with `Helium.shared.initializeWithStripeOneTap`:
 
-#### Not Yet Covered in This Guide
-* Respecting Stripe entitlements
-* [RevenueCat Stripe setup](https://www.revenuecat.com/docs/web/integrations/stripe)
+    ```swift
+    Helium.shared.initializeWithStripeOneTap(
+        apiKey: "your-helium-api-key",
+        stripePublishableKey: "pk_live_...",
+        backupPurchaseDelegate: StoreKitDelegate(), // or RevenueCatDelegate
+        merchantIdentifier: "merchant.com.example",
+        merchantName: "Your App Name",
+        managementURL: URL(string: "https://your-app.com/manage-subscription")!
+        // countryCode: "US"   // optional, defaults to "US"
+        // currencyCode: "USD"  // optional, defaults to "USD"
+    )
+    ```
+
+    If the device does not support Apple Pay, the `backupPurchaseDelegate` is used instead (e.g. StoreKit or RevenueCat).
+
+    ### Additional Stripe Functions
+
+    These are available on `Helium.shared` after initializing with Stripe:
+
+    - **`setUserIdAndSyncStripeIfNeeded(userId:)`** — Sets the user ID and syncs Stripe entitlements if the user changed. Call this instead of setting `Helium.identify.userId` directly if your user ID can change after a paywall is shown.
+
+    - **`resetStripeEntitlements(clearUserId:)`** — Resets Stripe entitlements and optionally clears the user ID. Use this to "log out" a Stripe user if your app supports multiple Stripe users on the same device.
+
+    - **`createStripePortalSession(returnUrl:)`** — Creates a Stripe Customer Portal session and returns the portal URL. Open this in a browser or in-app webview to let the user manage their subscriptions.
+
+      ```swift
+      let portalURL = try await Helium.shared.createStripePortalSession(
+          returnUrl: "myapp://settings"
+      )
+      await UIApplication.shared.open(portalURL)
+      ```
+  </Tab>
+  <Tab title="React Native">
+    <Note>
+      Stripe integration requires expo-helium **3.2.7+**. If you have not integrated Helium yet, follow the [React Native SDK Quickstart](/sdk/quickstart-react-native) first.
+    </Note>
+
+    ### Install Packages
+
+    ```bash
+    npm install expo-helium@latest expo-helium-stripe
+    ```
+
+    ### Add Apple Pay Entitlement
+
+    Add the Apple Pay entitlement to your `app.json` (or `app.config.js`):
+
+    ```json
+    {
+      "expo": {
+        "ios": {
+          "entitlements": {
+            "com.apple.developer.in-app-payments": [
+              "merchant.your-merchant-identifier"
+            ]
+          }
+        }
+      }
+    }
+    ```
+
+    The merchant identifier here should be the same Apple Merchant ID you created in [Step 3](#3-get-an-apple-merchant-id) above.
+
+    ### Update Your Initialization Code
+
+    Replace `initialize` from `expo-helium` with `initializeWithStripe` from `expo-helium-stripe`:
+
+    ```typescript
+    // Before
+    import { initialize } from 'expo-helium';
+    await initialize({ apiKey: '...', ... });
+
+    // After
+    import { initializeWithStripe } from 'expo-helium-stripe';
+    await initializeWithStripe({
+      apiKey: '...',
+      stripePublishableKey: '...',
+      merchantIdentifier: 'merchant.your-merchant-identifier',
+      merchantName: 'Your App Name',
+      managementURL: 'https://your-app.com/manage-subscription',
+      // countryCode: 'US',   // optional, defaults to "US"
+      // currencyCode: 'USD',  // optional, defaults to "USD"
+      // ...all existing HeliumConfig options still work
+    });
+    ```
+
+    All other imports (`presentUpsell`, `hasEntitlementForPaywall`, `resetHelium`, etc.) still come from `expo-helium` — only the initialization changes.
+
+    ### Additional Stripe Functions
+
+    The following functions are available from `expo-helium-stripe` (iOS only):
+
+    - `setUserIdAndSyncStripeIfNeeded(userId)` — set user ID and sync Stripe entitlements
+    - `resetStripeEntitlements(clearUserId?)` — reset Stripe entitlements
+    - `createStripePortalSession(returnUrl)` — create a Stripe customer portal session
+
+  </Tab>
+</Tabs>
+
+## Checking Entitlements
+
+The Helium SDK provides entitlement helper methods that work with Stripe purchases. See the entitlements section in the [iOS Quickstart](/sdk/quickstart-ios#checking-subscription-status--entitlements) or [React Native Quickstart](/sdk/quickstart-react-native#checking-subscription-status--entitlements) for the full API reference.
+
+<Warning>
+  On iOS, some entitlement methods (e.g. `hasActiveSubscriptionFor(subscriptionGroupID:)`, `subscriptionStatusFor(...)`, `activeSubscriptions()`) rely on StoreKit and will **not** reflect Stripe purchases. For Stripe, use `hasEntitlementForPaywall(trigger:)`, `hasActiveEntitlementFor(productId:)`, `hasAnyActiveSubscription()`, and `hasAny()` instead.
+</Warning>
+
+## RevenueCat + Stripe
+
+If you use RevenueCat alongside Stripe, see [RevenueCat's Stripe integration guide](https://www.revenuecat.com/docs/web/integrations/stripe) for setup instructions. More details to be added here soon.

@@ -115,7 +115,19 @@ Choose the appropriate location based on your app's architecture:
     class MyApplication : Application() {
         override fun onCreate() {
             super.onCreate()
-            // Call Helium.initialize here!
+            // Add this:
+            configureHelium()
+        }
+
+        // And this:
+        private fun configureHelium() {
+            // Identify user and adjust Helium.config if needed (see next sections).
+            // Then call initialize:
+            Helium.initialize(
+                context = this,
+                apiKey = "YOUR_API_KEY",
+                environment = HeliumEnvironment.PRODUCTION,
+            )
         }
     }
     ```
@@ -125,7 +137,19 @@ Choose the appropriate location based on your app's architecture:
     class MainActivity : AppCompatActivity() {
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
-            // Call Helium.initialize here!
+            // Add this:
+            configureHelium()
+        }
+
+        // And this:
+        private fun configureHelium() {
+            // Identify user and adjust Helium.config if needed (see next sections).
+            // Then call initialize:
+            Helium.initialize(
+                context = this,
+                apiKey = "YOUR_API_KEY",
+                environment = HeliumEnvironment.PRODUCTION,
+            )
         }
     }
     ```
@@ -143,6 +167,9 @@ import com.tryhelium.paywall.core.Helium
 </Note>
 
 ## Identifying Users
+
+Identifying users is optional but can help with targeting and when forwarding events to external analytics platforms.
+If you are not sure, you probably do not need to identify your users.
 
 <Tip>
   Identify users as early as you can to maximize consistency in metrics and targeting. Ideally right before you call `Helium.initialize`!
@@ -315,7 +342,7 @@ class MyActivity : AppCompatActivity(), HeliumEventListener {
   By default, Helium will handle purchases for you! The SDK automatically creates a `PlayStorePaywallDelegate` if you don't provide one. This section is for those who want to use RevenueCat or implement custom purchase logic.
 </Tip>
 
-Use (or subclass) one of our pre-built `HeliumPaywallDelegate` implementations or create a custom delegate. Set the delegate before calling `initialize()`.
+Use one of our pre-built `HeliumPaywallDelegate` implementations or create a custom delegate. Set the delegate before calling `initialize()`.
 
 <Tabs>
   <Tab title="PlayStorePaywallDelegate">
@@ -325,6 +352,10 @@ Use (or subclass) one of our pre-built `HeliumPaywallDelegate` implementations o
     // Optional - SDK auto-creates this if heliumPaywallDelegate is not set
     Helium.config.heliumPaywallDelegate = PlayStorePaywallDelegate(this)
     ```
+
+    <Note>
+      Want to add some custom behavior but still use the built-in purchase logic? Just subclass `PlayStorePaywallDelegate` or `RevenueCatPaywallDelegate`! (Be sure to make a `super` call for any overridden methods.)
+    </Note>
   </Tab>
   <Tab title="RevenueCatPaywallDelegate">
     <Warning>

@@ -33,10 +33,15 @@ One CSR file must be used to issue exactly one certificate. If you switch your A
 
 ## 5) App Integration
 
+<Warning>
+  In order to show paywalls with Stripe products, you are **required** to set a custom user ID. This ID will
+  be used to grant Stripe entitlements across devices and re-installs.
+</Warning>
+
 <Tabs>
   <Tab title="iOS">
     <Note>
-      Stripe integration requires Helium **4.1.7+**. If you have not integrated Helium yet, follow the [iOS SDK Quickstart](/sdk/quickstart-ios) first.
+      Stripe integration requires Helium **4.1.8+**. If you have not integrated Helium yet, follow the [iOS SDK Quickstart](/sdk/quickstart-ios) first.
     </Note>
 
     ### Add Apple Pay Capability in Xcode
@@ -74,7 +79,7 @@ One CSR file must be used to issue exactly one certificate. If you switch your A
 
     These are available on `Helium.shared` after initializing with Stripe:
 
-    - **`setUserIdAndSyncStripeIfNeeded(userId:)`** — Sets the user ID and syncs Stripe entitlements if the user changed. Call this instead of setting `Helium.identify.userId` directly if your user ID can change after a paywall is shown.
+    - **`setUserIdAndSyncStripeIfNeeded(userId:)`** — Sets the user ID and syncs Stripe entitlements if needed. Call this instead of setting `Helium.identify.userId` if Helium is already initialized.
 
     - **`resetStripeEntitlements(clearUserId:)`** — Resets Stripe entitlements and optionally clears the user ID. Use this to "log out" a Stripe user if your app supports multiple Stripe users on the same device.
 
@@ -86,10 +91,16 @@ One CSR file must be used to issue exactly one certificate. If you switch your A
       )
       await UIApplication.shared.open(portalURL)
       ```
+
+    - **`hasActiveStripeEntitlement()`** — Returns `true` if the user has any active Stripe entitlement (e.g. an active subscription).
+
+      ```swift
+      let hasEntitlement = await Helium.shared.hasActiveStripeEntitlement()
+      ```
   </Tab>
   <Tab title="React Native">
     <Note>
-      Stripe integration requires expo-helium **3.2.7+**. If you have not integrated Helium yet, follow the [React Native SDK Quickstart](/sdk/quickstart-react-native) first.
+      Stripe integration requires expo-helium **3.2.8+**. If you have not integrated Helium yet, follow the [React Native SDK Quickstart](/sdk/quickstart-react-native) first.
     </Note>
 
     <Warning>
@@ -151,9 +162,10 @@ One CSR file must be used to issue exactly one certificate. If you switch your A
 
     The following functions are available from `expo-helium-stripe` (iOS only):
 
-    - `setUserIdAndSyncStripeIfNeeded(userId)` — set user ID and sync Stripe entitlements
-    - `resetStripeEntitlements(clearUserId?)` — reset Stripe entitlements
-    - `createStripePortalSession(returnUrl)` — create a Stripe customer portal session
+    - `setUserIdAndSyncStripeIfNeeded(userId)` — Sets the user ID and syncs Stripe entitlements if needed. Call this instead of `setCustomUserId`.
+    - `resetStripeEntitlements(clearUserId?)` — Resets Stripe entitlements and optionally clears the user ID. Use this to "log out" a Stripe user if your app supports multiple Stripe users on the same device.
+    - `await createStripePortalSession(returnUrl)` — Creates a Stripe Customer Portal session and returns the portal URL. Open this in a browser or in-app webview to let the user manage their subscriptions.
+    - `await hasActiveStripeEntitlement()` — Returns `true` if the user has any active Stripe entitlement (e.g. an active subscription).
 
   </Tab>
 </Tabs>

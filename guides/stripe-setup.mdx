@@ -13,7 +13,13 @@ A Helium team member will help you create your account if needed, and connect it
 
 ## 2) Create Stripe Products and Import Them into Helium
 
-A Helium team member will help you sync your Stripe products.
+Create Stripe products that you would like to show in your paywall.
+
+<Tip>
+  For now, we recommend doing distinct Stripe products instead of multiple prices for one product.
+</Tip>
+
+Visit your [Products page](https://app.tryhelium.com/integrations/products) and use the Stripe tab to import your Stripe products. Your Stripe products will be placed into their own product buckets, and we recommend keeping them separate from your iOS product buckets.
 
 ## 3) Get an Apple Merchant ID
 
@@ -25,7 +31,7 @@ If you do not have one yet, visit the [Apple Developer website](https://develope
   This section is copied directly from [Stripe's Apple Pay guide](https://docs.stripe.com/apple-pay?platform=ios#csr).
 </Note>
 
-Go to the [iOS Certificate Settings](https://dashboard.stripe.com/settings/ios_certificates) in the Dashboard, click **Add new application**, and follow the guide.
+Go to the [iOS Certificate Settings](https://dashboard.stripe.com/settings/ios_certificates) in the Stripe Dashboard, click **Add new application**, and follow the guide.
 
 Download a Certificate Signing Request (CSR) file to get a secure certificate from Apple that allows you to use Apple Pay.
 
@@ -34,8 +40,7 @@ One CSR file must be used to issue exactly one certificate. If you switch your A
 ## 5) App Integration
 
 <Warning>
-  In order to show paywalls with Stripe products, you are **required** to set a custom user ID. This ID will
-  be used to grant Stripe entitlements across devices and re-installs.
+  In order to show paywalls with Stripe products, you are **required** to set a custom user ID. This ID will be used to grant Stripe entitlements across devices and re-installs.
 </Warning>
 
 <Tabs>
@@ -43,7 +48,6 @@ One CSR file must be used to issue exactly one certificate. If you switch your A
     <Note>
       Stripe integration requires Helium **4.1.8+**. If you have not integrated Helium yet, follow the [iOS SDK Quickstart](/sdk/quickstart-ios) first.
     </Note>
-
     ### Add Apple Pay Capability in Xcode
 
     In Xcode, open your project settings, click the **Signing & Capabilities** tab, and add the **Apple Pay** capability. Select the merchant ID you created earlier.
@@ -53,7 +57,7 @@ One CSR file must be used to issue exactly one certificate. If you switch your A
     Add this Swift Package dependency:
 
     ```
-    https://github.com/cloudcaptainai/stripe-one-tap-purchase.git
+    https://github.com/appmonetization/stripe-one-tap-purchase.git
     ```
 
     ### Modify Your Helium Initialize Call
@@ -80,9 +84,7 @@ One CSR file must be used to issue exactly one certificate. If you switch your A
     These are available on `Helium.shared` after initializing with Stripe:
 
     - **`setUserIdAndSyncStripeIfNeeded(userId:)`** — Sets the user ID and syncs Stripe entitlements if needed. Call this instead of setting `Helium.identify.userId` if Helium is already initialized.
-
     - **`resetStripeEntitlements(clearUserId:)`** — Resets Stripe entitlements and optionally clears the user ID. Use this to "log out" a Stripe user if your app supports multiple Stripe users on the same device.
-
     - **`createStripePortalSession(returnUrl:)`** — Creates a Stripe Customer Portal session and returns the portal URL. Open this in a browser or in-app webview to let the user manage their subscriptions.
 
       ```swift
@@ -91,7 +93,6 @@ One CSR file must be used to issue exactly one certificate. If you switch your A
       )
       await UIApplication.shared.open(portalURL)
       ```
-
     - **`hasActiveStripeEntitlement()`** — Returns `true` if the user has any active Stripe entitlement (e.g. an active subscription).
 
       ```swift
@@ -102,11 +103,9 @@ One CSR file must be used to issue exactly one certificate. If you switch your A
     <Note>
       Stripe integration requires expo-helium **3.2.8+**. If you have not integrated Helium yet, follow the [React Native SDK Quickstart](/sdk/quickstart-react-native) first.
     </Note>
-
     <Warning>
       Stripe One Tap is iOS only. On Android, Helium will continue to use standard initialization.
     </Warning>
-
     ### Install Packages
 
     ```bash
@@ -141,7 +140,7 @@ One CSR file must be used to issue exactly one certificate. If you switch your A
     // Before
     import { initialize } from 'expo-helium';
     await initialize({ apiKey: '...', ... });
-
+    
     // After
     import { initializeWithStripe } from 'expo-helium-stripe';
     await initializeWithStripe({
@@ -166,7 +165,6 @@ One CSR file must be used to issue exactly one certificate. If you switch your A
     - `resetStripeEntitlements(clearUserId?)` — Resets Stripe entitlements and optionally clears the user ID. Use this to "log out" a Stripe user if your app supports multiple Stripe users on the same device.
     - `await createStripePortalSession(returnUrl)` — Creates a Stripe Customer Portal session and returns the portal URL. Open this in a browser or in-app webview to let the user manage their subscriptions.
     - `await hasActiveStripeEntitlement()` — Returns `true` if the user has any active Stripe entitlement (e.g. an active subscription).
-
   </Tab>
 </Tabs>
 
@@ -180,4 +178,20 @@ The Helium SDK provides entitlement helper methods that work with Stripe purchas
 
 ## RevenueCat + Stripe
 
-If you use RevenueCat alongside Stripe, see [RevenueCat's Stripe integration guide](https://www.revenuecat.com/docs/web/integrations/stripe) for setup instructions. More details to be added here soon.
+If you use [RevenueCat alongside Stripe](https://www.revenuecat.com/docs/web/integrations/stripe), follow these additional steps so that RevenueCat will be able to track entitlements for Stripe purchases:
+
+1. Visit your [RevenueCat Account Settings](https://app.revenuecat.com/settings/account) and find the **Connect Stripe** button
+2. Install the Revenue Cat app to your Stripe account
+3. Open [RevenueCat dashboard](https://app.revenuecat.com/overview) \> Select your project \> Apps & providers \> Add web config \> Find your Stripe account and select it, complete the flow
+4. Select the Stripe web configuration you just added and configure [Stripe webhooks to send to RevenueCat](https://www.revenuecat.com/docs/platform-resources/server-notifications/stripe-server-notifications). Make sure to include these events:
+   1. customer.subscription.updated
+   2. customer.subscription.deleted
+   3. charge.refunded
+   4. invoice.updated
+   5. customer.subscription.created
+   6. checkout.session.completed
+5. Enable **Track new purchases from server-to-server notifications** and enter **rc_user_id** as the Metadata field key:
+
+   <Frame>
+     ![Screenshot 2026 02 26 At 7 20 29 PM](/images/Screenshot2026-02-26at7.20.29PM.png)
+   </Frame>

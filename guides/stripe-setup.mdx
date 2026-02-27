@@ -190,8 +190,13 @@ If you use [RevenueCat alongside Stripe](https://www.revenuecat.com/docs/web/int
    4. invoice.updated
    5. customer.subscription.created
    6. checkout.session.completed
-5. Enable **Track new purchases from server-to-server notifications** and enter **rc_user_id** as the Metadata field key:
+1. Enable **Track new purchases from server-to-server notifications** and enter **rc_user_id** as the Metadata field key:
 
    <Frame>
      ![Screenshot 2026 02 26 At 7 20 29 PM](/images/Screenshot2026-02-26at7.20.29PM.png)
    </Frame>
+6. Configure your Stripe products with RevenueCat:
+   1. Visit **Product catalog** for your desired project in RevenueCat dashboard.
+   2. In the Products tab, find the Stripe section and add Stripe products
+   3. Go to Entitlements tab, select desired entitlement/s, click Attach and add the Stripe products you just created
+   4. If you rely on Offerings in your RevenueCat integration, you can also add the Stripe products there

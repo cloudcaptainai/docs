@@ -4,6 +4,10 @@ description: "Integrate Helium into your iOS app"
 icon: "/images/sdk/logos/apple-173-svgrepo-com.svg"
 ---
 
+<Tip>
+  Migrating from v3? View [the migration guide](/migrations/ios-3-to-4).
+</Tip>
+
 # Present a Paywall
 
 ### Install the Helium SDK
@@ -447,7 +451,7 @@ Helium.identify.revenueCatAppUserId = Purchases.shared.appUserID
 
 You can also create a custom delegate and implement your own purchase logic. You can look at our [StoreKitDelegate](https://github.com/cloudcaptainai/helium-swift/blob/main/Sources/Helium/HeliumCore/StoreKitDelegate.swift) and [RevenueCatDelegate](https://github.com/cloudcaptainai/helium-swift/blob/main/Sources/HeliumRevenueCat/HeliumRevenueCat.swift) in the SDK for examples (also linked below).
 
-The `HeliumPaywallDelegate` is defined as follows:
+The `HeliumPurchaseDelegate` is defined as follows:
 
 ```swift
 public protocol HeliumPurchaseDelegate: AnyObject {
@@ -493,7 +497,7 @@ public protocol HeliumPurchaseDelegate: AnyObject {
   ```swift
   public struct PaywallInfo {
       public let paywallTemplateName: String
-      // shouldShow only false if the paywall should not be shown due to targeting or workflow configuration (Helium handles this for you in presentUpsell)
+      // shouldShow only false if the paywall should not be shown due to targeting or workflow configuration (Helium handles this for you in presentPaywall)
       public let shouldShow: Bool
   }
   ```

@@ -4,11 +4,9 @@ description: "Integrate Helium into your Flutter App"
 icon: "/images/sdk/logos/flutter-svgrepo-com.svg"
 ---
 
-## Background
+# Present a Paywall
 
-Get set up with the Helium SDK for Flutter. Reach out over your Helium slack channel or email [founders@tryhelium.com](mailto:founders@tryhelium.com) for any questions.
-
-## Installation
+### Install the SDK
 
 <Info>
   The minimum version of Flutter supported by this SDK is **3.24.0**.
@@ -48,11 +46,7 @@ See this [Flutter documentation](https://docs.flutter.dev/packages-and-plugins/s
   You can still use Cocoapods for your dependencies if preferred. If you need to disable Swift Package Manager dependencies after having enabled it, refer to that same [Flutter documentation](https://docs.flutter.dev/packages-and-plugins/swift-package-manager/for-app-developers#how-to-turn-off-swift-package-manager).
 </Info>
 
-<Note>
-  If you are using RevenueCat, you should also install the **helium_revenuecat** package so RevenueCat can handle purchases. See the section titled RevenueCat Purchase Delegate in this guide.
-</Note>
-
-### iOS Settings
+#### iOS Settings
 
 Helium requires iOS 15+. If your app already has a minimum of iOS 15 or higher, you're all set. This can be specified in your `ios/Podfile` with:
 
@@ -62,13 +56,13 @@ platform :ios, '15.0'
 
 If you still see errors related to minimum iOS version, consider updating to 15.0 or higher [directly in the Xcode project](https://docs.flutter.dev/packages-and-plugins/swift-package-manager/for-app-developers#how-to-use-a-swift-package-manager-flutter-plugin-that-requires-a-higher-os-version).
 
-## Initialize Helium
+### Initialize Helium
 
 <Tip>
-  Find your API key [here](https://app.tryhelium.com/profile)
+  Find your API key [here](https://app.tryhelium.com/profile). If you do not have a Helium account set up yet, you can still present a "placeholder paywall".
 </Tip>
 
-In your app's initialization code (typically in `main.dart` or your root widget), add the following to configure Helium and prepare your paywalls:
+In your app's initialization code (typically in `main.dart` or your root widget):
 
 ```dart
 import 'package:helium_flutter/helium_flutter.dart';
@@ -79,17 +73,11 @@ Future<void> main() async {
   final heliumFlutter = HeliumFlutter();
   await heliumFlutter.initialize(
     apiKey: "<your-helium-api-key>",
-//    fallbackPaywall: Text("your fallback paywall"),
-//    fallbackBundleAssetPath: "fallback-bundle-xxxx-xx-xx.json",
   );
 
   runApp(const MyApp());
 }
 ```
-
-<Tip>
-  Including a fallback option is highly recommended. See the Fallbacks section on this page.
-</Tip>
 
 <ResponseField name="initialize" type="method">
   <Expandable title="parameters">
@@ -97,65 +85,39 @@ Future<void> main() async {
       You can create or retrieve your api key from [Account Settings](https://app.tryhelium.com/profile).
     </ResponseField>
     <ResponseField name="callbacks" type="HeliumCallbacks?">
-      _(Optional)_ Pass in a listener for paywall events.
+      _(Optional)_ Pass in a listener for paywall events. See the Helium Events section.
     </ResponseField>
     <ResponseField name="purchaseDelegate" type="HeliumPurchaseDelegate?">
-      _(Optional)_ Delegate for handling your own purchase logic. If not provided, Helium will handle purchase logic for you.
+      _(Optional)_ Delegate for handling your own purchase logic. If not provided, Helium will handle purchase logic for you. See the RevenueCat and Custom Purchase Handling sections.
     </ResponseField>
     <ResponseField name="fallbackPaywall" type="Widget?">
-      _(Optional)_ A widget to display if paywall fails to display. See Fallbacks section.
+      _(Optional)_ A widget to display if paywall fails to display. See Fallback Paywalls section.
     </ResponseField>
     <ResponseField name="customUserId" type="String?">
-      _(Optional)_ If set, a custom user id to use instead of Helium's. We'll use this id when forwarding to third party analytics services, so this can be used for attribution (e.g. an amplitude user id, or a custom user id from your own analytics service)
+      _(Optional)_ A custom user id to use instead of Helium's. We'll use this id when forwarding to third party analytics services, so this can be used for attribution. See Identifying Users section.
     </ResponseField>
     <ResponseField name="customUserTraits" type="Map<String, dynamic>?">
-      _(Optional)_ Pass in custom user traits to be used for targeting, personalization, and dynamic paywall content.
+      _(Optional)_ Custom user traits to be used for targeting, personalization, and dynamic paywall content. See Identifying Users section.
     </ResponseField>
     <ResponseField name="revenueCatAppUserId" type="String?">
-      _(Optional)_ RevenueCat ONLY. Supply RevenueCat appUserID here (and initialize RevenueCat before Helium initialize). You can also set this value outside of initialize: `HeliumFlutter().setRevenueCatAppUserId(await Purchases.appUserID)`
+      _(Optional)_ RevenueCat ONLY. Supply RevenueCat appUserID here (and initialize RevenueCat before Helium initialize). See RevenueCat section.
     </ResponseField>
     <ResponseField name="fallbackBundleAssetPath" type="String?">
-      _(Optional)_ Path to fallback bundle. See Fallbacks section.
+      _(Optional)_ Path to fallback bundle. See Fallback Paywalls section.
     </ResponseField>
     <ResponseField name="paywallLoadingConfig" type="HeliumPaywallLoadingConfig?">
-      _(Optional)_ Set loading budget in seconds and whether to even show a loading state. This can be done per trigger.
-
-      ```dart
-      final paywallLoadingConfig = HeliumPaywallLoadingConfig(
-        loadingBudget: 5, // after 5 seconds, show fallback instead
-        perTriggerLoadingConfig: {
-          "onboarding": TriggerLoadingConfig(useLoadingState: false),
-          "from_menu": TriggerLoadingConfig(useLoadingState: true, loadingBudget: 2),
-        }
-      );
-      ```
+      _(Optional)_ Set loading budget in seconds and whether to show a loading state. See Fallback Paywalls section.
     </ResponseField>
   </Expandable>
 </ResponseField>
 
-<Accordion title="Custom User ID and Custom User Traits">
-  You can set a custom user ID and custom user traits with the `initialize` method or by calling:
+### Show Your First Paywall
 
-  ```dart
-  await heliumFlutter.overrideUserId(
-    newUserId: "your-custom-user-id",
-    traits: {
-      "exampleTrait": "value",
-      "userType": "premium"
-    }
-  );
-  ```
+<Tip>
+  Set up a trigger and workflow in the [dashboard](https://app.tryhelium.com/workflows) to show your desired paywall.
+</Tip>
 
-  Set these values before or during `initialize` to ensure consistency in analytics events and for the best experimentation results.
-</Accordion>
-
-## Presenting Paywalls
-
-<Note>
-  You must have a trigger and workflow configured in the [dashboard](https://app.tryhelium.com/workflows) in order to show a paywall.
-</Note>
-
-You can present a paywall programmatically using the `presentUpsell` method:
+Call `presentUpsell` wherever you want to show a full-screen paywall:
 
 ```dart
 ElevatedButton(
@@ -171,7 +133,43 @@ ElevatedButton(
   Do not call `presentUpsell` in `Widget build()` as this can have unpredictable behavior.
 </Warning>
 
-You can also pass in event handlers and custom paywall traits directly to `presentUpsell`:
+You should now be able to see Helium paywalls in your app! Well done! 🎉
+
+<Info>
+  Looking for alternative presentation methods? Check out the guide on [Ways to Show a Paywall](/guides/ways-to-show-paywall).
+</Info>
+
+# Recommended Setup
+
+Here are some common additional steps that you may want to consider.
+
+### Identifying Users
+
+Identifying users is optional but can help with targeting and when forwarding events to external analytics platforms. If you are not sure, you probably do not need to identify your users.
+
+<Tip>
+  Identify users as early as you can to maximize consistency in metrics and targeting. Ideally before or during your `initialize` call!
+</Tip>
+
+You can set a custom user ID and traits via the `initialize` method's `customUserId` and `customUserTraits` parameters, or update them at any time:
+
+```dart
+await heliumFlutter.overrideUserId(
+  newUserId: "your-custom-user-id",
+  traits: {
+    "exampleTrait": "value",
+    "userType": "premium"
+  }
+);
+```
+
+### Helium Events
+
+Helium dispatches various events during paywall presentation and purchase flow. You can optionally handle these events in your mobile app. You can also configure Helium to forward them to your [existing analytics provider](/guides/third-party-analytics).
+
+#### PaywallEventHandlers
+
+When displaying a paywall you can pass in event handlers to listen for select events:
 
 ```dart
 HeliumFlutter().presentUpsell(
@@ -196,21 +194,12 @@ HeliumFlutter().presentUpsell(
       // both that handler AND this one will fire during paywall open.
     },
   ),
-  customPaywallTraits: {
-    "has_seen_intro_video": true,
-  }
 );
 ```
 
-<Info>
-  Looking for alternative presentation methods? Check out the guide on [Ways to Show a Paywall](/guides/ways-to-show-paywall).
-</Info>
+#### Global Event Listener
 
-You should now be able to see Helium paywalls in your app! Well done! 🎉
-
-## Helium Events
-
-To handle various [paywall-related events](/sdk/helium-events), implement `HeliumCallbacks` and pass it to initialize:
+You can also listen for all Helium events globally by implementing `HeliumCallbacks` and passing it to `initialize`:
 
 ```dart
 abstract class HeliumCallbacks {
@@ -229,59 +218,41 @@ class LogCallbacks implements HeliumCallbacks {
 }
 ```
 
-## Handling Purchases
-
-By default, Helium will handle purchase logic for you. If you want a custom implementation, you'll want to implement `HeliumPurchaseDelegate` and pass that into `initialize`.
+Then pass it to initialize:
 
 ```dart
-abstract class HeliumPurchaseDelegate {
-  Future<HeliumPurchaseResult> makePurchase(String productId);
-
-  Future<bool> restorePurchases();
-}
-```
-
-### RevenueCat Purchase Delegate
-
-If you are using RevenueCat, we recommend you use our built-in RevenueCat purchase delegate:
-
-```dart
-import 'package:helium_revenuecat/helium_revenuecat.dart';
-
-final heliumFlutter = HeliumFlutter();
 await heliumFlutter.initialize(
   apiKey: "<your-helium-api-key>",
-  purchaseDelegate: RevenueCatPurchaseDelegate(),
+  callbacks: LogCallbacks(),
 );
 ```
 
-<Warning>
-  Make sure to configure RevenueCat before initializing Helium. You will need to add the **helium_revenuecat** package in addition to helium_flutter.
-</Warning>
+### Fallback Paywalls
 
-## Checking Subscription Status & Entitlements
+It is **highly recommended** that you set up "fallbacks" to handle the rare case when a paywall fails to display. Please follow [this guide](/guides/fallback-bundle) to do so.
 
-<Note>
-  If you use an external payment processor like Stripe, Helium's entitlement helpers may not be reliable. We recommend implementing your own entitlement checking in that case. If you use Stripe with RevenueCat, we recommend using [RevenueCat's entitlement APIs](https://www.revenuecat.com/docs/getting-started/entitlements) instead.
-</Note>
+<Tip>
+  Do this _after_ you have a paywall created that you want to use in production.
+</Tip>
 
-Use these methods to check current user subscription status.
+You can configure fallbacks via the `initialize` call:
 
 ```dart
-/// Checks if the user has any active subscription (including non-renewable)
-Future<bool> hasAnyActiveSubscription();
-
-/// Checks if the user has any entitlement
-Future<bool> hasAnyEntitlement();
-
-/// Checks if the user has an active entitlement for any product attached to the paywall that will show for provided trigger.
-/// - Parameter trigger: Trigger that would be used to show the paywall.
-/// - Returns: `true` if the user has bought one of the products on the paywall.
-///            `false` if not. Returns `null` if not known (i.e. the paywall is not downloaded yet).
-Future<bool?> hasEntitlementForPaywall(String trigger);
+await heliumFlutter.initialize(
+  apiKey: "<your-helium-api-key>",
+  fallbackPaywall: Text("your fallback paywall"),
+  fallbackBundleAssetPath: "fallback-bundle-xxxx-xx-xx.json",
+  paywallLoadingConfig: HeliumPaywallLoadingConfig(
+    loadingBudget: 5, // after 5 seconds, show fallback instead
+    perTriggerLoadingConfig: {
+      "onboarding": TriggerLoadingConfig(useLoadingState: false),
+      "from_menu": TriggerLoadingConfig(useLoadingState: true, loadingBudget: 2),
+    }
+  ),
+);
 ```
 
-#### Example Usage
+### Checking Subscription Status & Entitlements
 
 <Tip>
   Check entitlements before showing paywalls to avoid showing a paywall to a user who should not see it.
@@ -317,16 +288,105 @@ Future<bool?> hasEntitlementForPaywall(String trigger);
 
 </CodeGroup>
 
-## Fallbacks
+<Note>
+  If you use an external payment processor like Stripe, Helium's entitlement helpers may not be reliable. We recommend implementing your own entitlement checking in that case. If you use Stripe with RevenueCat, we recommend using [RevenueCat's entitlement APIs](https://www.revenuecat.com/docs/getting-started/entitlements) instead.
+</Note>
 
-The Flutter SDK currently has two fallback options - 1) [Fallback bundle](/guides/fallback-bundle) and 2) a fallback view. Fallback situations should be quite rare, but to be safe, it is highly recommended that you implement a fallback bundle or custom fallback view.
+<Accordion title="All Entitlement Helper Methods">
+  ```dart
+  /// Checks if the user has any active subscription (including non-renewable)
+  Future<bool> hasAnyActiveSubscription();
 
-## Advanced
+  /// Checks if the user has any entitlement
+  Future<bool> hasAnyEntitlement();
+
+  /// Checks if the user has an active entitlement for any product attached to
+  /// the paywall that will show for the provided trigger.
+  /// Returns `null` if not known (i.e. the paywall is not downloaded yet).
+  Future<bool?> hasEntitlementForPaywall(String trigger);
+  ```
+</Accordion>
+
+# Advanced
+
+### RevenueCat
+
+<Note>
+  By default, Helium will handle purchases for you! This section is typically for users who already use RevenueCat in their app.
+</Note>
+
+Helium integrates seamlessly with RevenueCat so you can continue to let RevenueCat handle your purchases and entitlements.
+
+#### Install HeliumRevenueCat
+
+Add the **helium_revenuecat** package alongside helium_flutter:
+
+```bash
+flutter pub add helium_revenuecat
+```
+
+#### Configure Helium to use RevenueCat for Purchases
+
+Use the built-in `RevenueCatPurchaseDelegate`:
+
+```dart
+import 'package:helium_revenuecat/helium_revenuecat.dart';
+
+final heliumFlutter = HeliumFlutter();
+await heliumFlutter.initialize(
+  apiKey: "<your-helium-api-key>",
+  purchaseDelegate: RevenueCatPurchaseDelegate(),
+);
+```
+
+<Warning>
+  Make sure to configure RevenueCat before initializing Helium.
+</Warning>
+
+<Tip>
+  It is best to set the `revenueCatAppUserId` during initialize for consistent targeting and analytics:
+</Tip>
+
+```dart
+await heliumFlutter.initialize(
+  apiKey: "<your-helium-api-key>",
+  purchaseDelegate: RevenueCatPurchaseDelegate(),
+  revenueCatAppUserId: await Purchases.appUserID,
+);
+```
+
+If you ever change the appUserID after initialization:
+
+```dart
+HeliumFlutter().setRevenueCatAppUserId(await Purchases.appUserID);
+```
+
+### Custom Purchase Handling
+
+<Note>
+  By default, Helium will handle purchases for you! This section is for those who want to implement custom purchase logic.
+</Note>
+
+Implement `HeliumPurchaseDelegate` and pass it to `initialize`:
+
+```dart
+abstract class HeliumPurchaseDelegate {
+  Future<HeliumPurchaseResult> makePurchase(String productId);
+
+  Future<bool> restorePurchases();
+}
+```
+
+### Additional Features
+
+<Note>
+  For the full public API and detailed parameter documentation, see the inline docstrings in the SDK source. Import Helium in your project and use your IDE's autocomplete or jump-to-definition to explore all available methods and types.
+</Note>
 
 <Accordion title="Checking Download Status">
-  <Note>
+  <Tip>
     In most cases there is no need to check download status. Helium will display a loading indication if a paywall is presented before download has completed.
-  </Note>
+  </Tip>
   You can listen to the status of the paywalls download via a stream:
 
   ```dart
@@ -346,7 +406,7 @@ The Flutter SDK currently has two fallback options - 1) [Fallback bundle](/guide
 </Accordion>
 
 <Accordion title="Reset Helium">
-  Reset Helium entirely so you can call initialize again. Only for advanced use cases.
+  Reset Helium entirely so you can call initialize again, for example after changing user traits that can affect the paywalls a user might see via targeting.
 
   ```dart
   await HeliumFlutter().resetHelium();

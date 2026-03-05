@@ -1,0 +1,34 @@
+---
+title: "How Does Helium Work?"
+icon: "circle-question"
+---
+
+An abstract overview of how the Helium platform works.
+
+# How Do Paywalls Get Displayed On my App?
+
+This is an overview of how paywalls are actually served to users.
+
+```mermaid
+flowchart LR
+    A([📱 App Initializes Helium SDK]) --> Server
+
+    subgraph Server ["☁️ Helium Server"]
+        direction TB
+        B[For Each Workflow] --> C[Apply Targeting]
+        C --> D[Resolve Experiment]
+        D --> P[Determine Paywall for Each Trigger]
+    end
+
+    Server --> E([📲 Helium SDK Prepares Paywalls])
+    E --> F([🎬 App Calls 'Present Paywall' for Trigger])
+    F --> G([✅ Mobile SDK Displays Paywall])
+
+    style Server fill:#e8f0fe,stroke:#4a90d9,stroke-width:1.5px
+    style A fill:#d4edda,stroke:#28a745,color:#000
+    style E fill:#d4edda,stroke:#28a745,color:#000
+    style F fill:#fff3cd,stroke:#ffc107,color:#000
+    style G fill:#cce5ff,stroke:#004085,color:#000
+```
+
+## More to come...

@@ -6,7 +6,7 @@ icon: "/images/sdk/logos/apple-173-svgrepo-com.svg"
 
 # Present a Paywall
 
-## Install the Helium SDK
+### Install the Helium SDK
 
 <Note>
   Helium requires a minimum deployment target of iOS 15 and Xcode 14+. (Using the latest Xcode is recommended.)
@@ -49,7 +49,7 @@ We recommend using Swift Package Manager (SPM) but also offer a Cocoapod.
   </Tab>
 </Tabs>
 
-## Initialize Helium
+### Initialize Helium
 
 Initialize the Helium SDK as early as possible in your app's lifecycle.
 
@@ -134,7 +134,7 @@ And import Helium in the same file:
 import Helium
 ```
 
-## Show Your First Paywall
+### Show Your First Paywall
 
 <Tip>
   Set up a trigger and workflow in the [dashboard](https://app.tryhelium.com/workflows) to show your desired paywall
@@ -194,7 +194,7 @@ You should now be able to see Helium paywalls in your app! Well done! 🎉
 
 Here are some common additional steps that you may want to consider.
 
-## Identifying Users
+### Identifying Users
 
 Identifying users is optional but can help with targeting and when forwarding events to external analytics platforms. If you are not sure, you probably do not need to identify your users.
 
@@ -225,11 +225,11 @@ Helium.identify.setUserTraits(HeliumUserTraits(["hasOnboarded": true]))
   ```
 </Accordion>
 
-## Helium Events
+### Helium Events
 
 Helium dispatches various events during paywall presentation and purchase flow. You can optionally handle these events in your mobile app. You can also configure Helium to forward them to your [existing analytics provider](/guides/third-party-analytics).
 
-### PaywallEventHandlers
+#### PaywallEventHandlers
 
 When displaying a paywall you can pass in event handlers to listen for select events:
 
@@ -262,7 +262,7 @@ Helium.shared.presentPaywall(
 }
 ```
 
-## Global Helium Event Listener
+#### Global Helium Event Listener
 
 You can also add one or more global event listeners. For example:
 
@@ -300,11 +300,15 @@ class MyHeliumEventListener: HeliumEventListener {
 Helium.shared.addHeliumEventListener(MyHeliumEventListener.shared)
 ```
 
-## Fallback Paywalls
+### Fallback Paywalls
 
-It is highly recommended that you set up a [fallbacks](/guides/fallback-bundle) in the uncommon case where a paywall fails to display. Please follow the linked guide to do so.
+It is **highly recommended** that you set up "fallbacks" to handle the rare case when a paywall fails to display. Please follow [this guide](/guides/fallback-bundle) to do so.
 
-## Checking Subscription Status & Entitlements
+<Tip>
+  Do this _after_ you have a paywall created that you want to use in production.
+</Tip>
+
+### Checking Subscription Status & Entitlements
 
 <Tip>
   Check entitlements before showing paywalls to avoid showing a paywall to a user who should not see it.
@@ -363,7 +367,7 @@ if hasActiveSubscription {
 
 # Advanced
 
-## RevenueCat
+### RevenueCat
 
 <Note>
   By default, Helium will handle purchases for you! This section is typically for users who already use RevenueCat in their app.
@@ -371,7 +375,7 @@ if hasActiveSubscription {
 
 Helium integrates seamlessly with RevenueCat so you can continue to let RevenueCat handle your purchases and entitlements.
 
-### Install HeliumRevenueCat
+#### Install HeliumRevenueCat
 
 <Tabs>
   <Tab title="Swift Package Manager (SPM)">
@@ -402,7 +406,7 @@ Helium integrates seamlessly with RevenueCat so you can continue to let RevenueC
   </Tab>
 </Tabs>
 
-### Configure Helium to use RevenueCat for Purchases
+#### Configure Helium to use RevenueCat for Purchases
 
 Simply use Helium's pre-built `RevenueCatDelegate`  to let RevenueCat handle paywall purchases.
 
@@ -423,7 +427,7 @@ Helium.config.purchaseDelegate = RevenueCatDelegate(
   It is best to do this configuration _before_ you call `Helium.shared.initialize`
 </Tip>
 
-### RevenueCat appUserID
+#### RevenueCat appUserID
 
 If you ever [change the appUserID](https://www.revenuecat.com/docs/customers/identifying-customers#logging-in-after-configuration) of a user, keep Helium in sync with:
 
@@ -431,7 +435,7 @@ If you ever [change the appUserID](https://www.revenuecat.com/docs/customers/ide
 Helium.identify.revenueCatAppUserId = Purchases.shared.appUserID
 ```
 
-## Custom Purchase Handling
+### Custom Purchase Handling
 
 <Note>
   By default, Helium will handle purchases for you! This section is for those who want to implement custom purchase logic.
@@ -459,7 +463,7 @@ public protocol HeliumPurchaseDelegate: AnyObject {
 }
 ```
 
-## Additional Features
+### Additional Features
 
 <Note>
   For the full public API and detailed parameter documentation, see the inline docstrings in the SDK source. Import Helium in your project and use your IDE's autocomplete or jump-to-definition to explore all available methods and types.

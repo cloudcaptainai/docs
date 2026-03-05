@@ -9,6 +9,15 @@
   },
   "favicon": "/favicon.svg",
   "navigation": {
+    "global": {
+      "anchors": [
+        {
+          "anchor": "More Info",
+          "icon": "lightbulb",
+          "href": "https://tryhelium.com"
+        }
+      ]
+    },
     "groups": [
       {
         "group": "Getting Started",
@@ -33,6 +42,7 @@
         "group": "Guides",
         "icon": "compass",
         "pages": [
+          "guides/how-does-helium-work",
           "guides/revenue-reporting",
           "guides/fallback-bundle",
           "guides/ways-to-show-paywall",
@@ -58,16 +68,7 @@
           "migrations/ios-2-to-3"
         ]
       }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "More Info",
-          "href": "https://tryhelium.com",
-          "icon": "lightbulb"
-        }
-      ]
-    }
+    ]
   },
   "logo": {
     "light": "/logo/LargeLogo-cropped.svg",

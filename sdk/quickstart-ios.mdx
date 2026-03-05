@@ -4,30 +4,24 @@ description: "Integrate Helium into your iOS app"
 icon: "/images/sdk/logos/apple-173-svgrepo-com.svg"
 ---
 
-## Background
+# Present a Paywall
 
-Get set up with the Helium SDK for iOS. Reach out over your Helium slack channel or email [founders@tryhelium.com](mailto:founders@tryhelium.com) for any questions.
-
-## Installation
-
-<Tip>
-  Version **4.x.x** of the iOS SDK just released on 1/27/26. To migrate from v3, view [the migration guide](/migrations/ios-3-to-4). You can also view the [v3 guide here](/sdk/quickstart-ios-v3).
-</Tip>
+## Install the Helium SDK
 
 <Note>
-  Helium requires a minimum deployment target of iOS 15 and Xcode 14+. (Latest Xcode is recommended.)
+  Helium requires a minimum deployment target of iOS 15 and Xcode 14+. (Using the latest Xcode is recommended.)
 </Note>
 
-We recommend using Swift Package Manager (SPM), but if your project primarily uses Cocoapods it might make sense to install the Helium Cocoapod instead.
+We recommend using Swift Package Manager (SPM) but also offer a Cocoapod.
 
 <Tabs>
   <Tab title="Swift Package Manager (SPM)">
     1. In Xcode, navigate to your project's **Package Dependencies:**
 
-       ![Spm Add Pn](/images/spm-add.png)
+       ![Spm Add Pn](/images/spmadd.png)
     2. Click the **\+** button and search for the Helium package URL:
 
-       ```
+       ```text
        https://github.com/cloudcaptainai/helium-swift.git
        ```
 
@@ -37,45 +31,17 @@ We recommend using Swift Package Manager (SPM), but if your project primarily us
     3. Click **Add Package**.
     4. In the dialog that appears, make sure to add the **Helium** product to your app's main target:
 
-       ![Spm Target Pn](/images/spm_target.png)
+       <img
+         src="/images/spmtarget.png"
+         alt="Spm Target Pn"
+       />
     5. Select **Add Package** in the dialog and Helium should now be ready for import.
-    6. _(Optional)_ If you are using RevenueCat to manage purchases, you'll need to add the **HeliumRevenueCat** package separately. This is a separate package from the core Helium SDK:
-       - Click the **\+** button again and add:
-
-         ```
-         https://github.com/cloudcaptainai/helium-swift-revenuecat.git
-         ```
-       - Add the **HeliumRevenueCat** product to your app's main target.
-       - This enables the RevenueCatDelegate referenced in the **Purchase Handling** section of this guide.
-
-    <Warning>
-      The **HeliumRevenueCat** package includes [purchases-ios-spm](https://github.com/RevenueCat/purchases-ios-spm) as a dependency, _not_ [purchases-ios](https://github.com/RevenueCat/purchases-ios) and you may encounter build issues if you are using **purchases-ios** with SPM. (We recommend just switching to **purchases-ios-spm**).
-    </Warning>
   </Tab>
   <Tab title="Cocoapod">
-    ### Option 1: Core functionality only
-
     Add this to your Podfile:
 
     ```ruby
     pod 'Helium', '~> 4.0'
-    ```
-
-    Then run:
-
-    ```bash
-    pod install
-    ```
-
-    ### Option 2: Core + RevenueCat
-
-    <Note>
-      Recommended if you are using RevenueCat to manage purchases.
-    </Note>
-    Add this to your Podfile:
-
-    ```ruby
-    pod 'Helium/RevenueCat', '~> 4.0'
     ```
 
     Then run:
@@ -88,11 +54,11 @@ We recommend using Swift Package Manager (SPM), but if your project primarily us
 
 ## Initialize Helium
 
-<Tip>
-  Find your API key [here](https://app.tryhelium.com/profile)
-</Tip>
-
 Initialize the Helium SDK as early as possible in your app's lifecycle.
+
+<Tip>
+  Find your API key [here](https://app.tryhelium.com/profile). If you do not have a Helium account set up yet, you can still present a "placeholder paywall"
+</Tip>
 
 ```swift
 Helium.shared.initialize(
@@ -108,20 +74,18 @@ Choose the appropriate location based on your app's architecture:
     @main
     struct MyApp: App {
         init() {
-            // Add this:
+            //*** Add this:
             configureHelium()
         }
-
+    
         var body: some Scene {
             WindowGroup {
                 ContentView()
             }
         }
-
-        // And this:
+    
+        //*** And this:
         private func configureHelium() {
-            // Identify user and adjust Helium.config if needed (see next sections).
-            // Then call initialize:
             Helium.shared.initialize(apiKey: "helium-api-key")
         }
     }
@@ -130,18 +94,16 @@ Choose the appropriate location based on your app's architecture:
   <Tab title="SceneDelegate">
     ```swift
     class SceneDelegate: UIResponder, UIWindowSceneDelegate {
-
+    
         var window: UIWindow?
-
+    
         func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-            // Add this:
+            //*** Add this:
             configureHelium()
         }
-
-        // And this:
+    
+        //*** And this:
         private func configureHelium() {
-            // Identify user and adjust Helium.config if needed (see next sections).
-            // Then call initialize:
             Helium.shared.initialize(apiKey: "helium-api-key")
         }
     }
@@ -151,19 +113,17 @@ Choose the appropriate location based on your app's architecture:
     ```swift
     @UIApplicationMain
     class AppDelegate: UIResponder, UIApplicationDelegate {
-
+    
         var window: UIWindow?
-
+    
         func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-            // Add this:
+            //*** Add this:
             configureHelium()
             return true
         }
-
-        // And this:
+    
+        //*** And this:
         private func configureHelium() {
-            // Identify user and adjust Helium.config if needed (see next sections).
-            // Then call initialize:
             Helium.shared.initialize(apiKey: "helium-api-key")
         }
     }
@@ -171,76 +131,25 @@ Choose the appropriate location based on your app's architecture:
   </Tab>
 </Tabs>
 
-And add necessary imports:
+And import Helium in the same file:
 
 ```swift
 import Helium
 ```
 
-<Note>
-  Helium's initialization is ran on a background thread, so you don't have to worry about it affecting your app's launch time.
-</Note>
-
-## Identifying Users
-
-Identifying users is optional but can help with targeting and when forwarding events to external analytics platforms.
-If you are not sure, you probably do not need to identify your users.
+## See Your First Paywall
 
 <Tip>
-  Identify users as early as you can to maximize consistency in metrics and targeting. Ideally right before you call Helium.shared.initialize!
+  Set up a trigger and workflow in the [dashboard](https://app.tryhelium.com/workflows) to show your desired paywall
 </Tip>
 
-Set a custom user ID
-
-```swift
-Helium.identify.userId = "custom-user-id"
-```
-
-Set RevenueCat app user ID (if using RevenueCat)
-
-```swift
-Helium.identify.revenueCatAppUserId = Purchases.shared.appUserID
-```
-
-If you use a custom [appAccountToken](https://developer.apple.com/documentation/appstoreserverapi/appaccounttoken)
-
-```swift
-if let appAccountTokenUUID = UUID(uuidString: "app-account-token-uuid") {
-    Helium.identify.appAccountToken = appAccountTokenUUID
-}
-```
-
-Set custom user traits for targeting and analytics visibility
-
-```swift
-Helium.identify.setUserTraits(HeliumUserTraits(["hasOnboarded": true]))
-// or Helium.identify.addUserTraits() if you don't want to clear existing traits
-```
-
-## Presenting Paywalls
-
-<Note>
-  You must have a trigger and workflow configured in the [dashboard](https://app.tryhelium.com/workflows) in order to show a paywall.
-</Note>
-
-Call `presentPaywall` when you want to show a full-screen paywall. For example:
+Call `presentPaywall` wherever you want to show a full-screen paywall:
 
 ```swift
 Helium.shared.presentPaywall(
     trigger: "premium"
 ) { paywallNotShownReason in
-    switch paywallNotShownReason {
-        case .targetingHoldout:
-            break
-        case .alreadyEntitled:
-            // e.g. ensure premium access
-            // In order for this case to be hit, `config.dontShowIfAlreadyEntitled` must be true
-            break
-        default:
-			// handle the rare case where a paywall
-            // fails to show (see Fallbacks section on this page)
-            break
-    }
+    // Handle any scenario where the paywall does not show
 }
 ```
 
@@ -283,6 +192,10 @@ You should now be able to see Helium paywalls in your app! Well done! 🎉
 <Info>
   Looking for alternative presentation methods? Check out the guide on [Ways to Show a Paywall](/guides/ways-to-show-paywall).
 </Info>
+
+# Recommended Setup
+
+Here are some common additional steps that you may want to consider.
 
 ### PaywallEventHandlers
 
@@ -345,7 +258,7 @@ Use one of our pre-built `HeliumPurchaseDelegate` implementations or create a cu
 
     ```swift
     import HeliumRevenueCat // unless using Cocoapod then can just import Helium
-
+    
     let heliumPurchaseDelegate = RevenueCatDelegate(
         // Optional - pass in to have Helium to handle RevenueCat initialization.
         revenueCatApiKey: "<revenue-cat-api-id>"
@@ -366,11 +279,11 @@ Use one of our pre-built `HeliumPurchaseDelegate` implementations or create a cu
     public protocol HeliumPurchaseDelegate: AnyObject {
         // Execute the purchase of a product given the product ID.
         func makePurchase(productId: String) async -> HeliumPaywallTransactionStatus
-
+    
         // (Optional) - Restore any existing subscriptions.
         // Return a boolean indicating whether the restore was successful.
         func restorePurchases() async -> Bool
-
+    
         // (Optional) - Called for all Helium events (e.g. PaywallOpenEvent)
         func onPaywallEvent(_ event: HeliumEvent)
     }
@@ -496,6 +409,7 @@ Helium.shared.presentPaywall(
 }
 ```
 
+
 ```swift Check before showing paywall
 let hasActiveSubscription = await Helium.entitlements.hasAnyActiveSubscription()
 if hasActiveSubscription {
@@ -568,7 +482,7 @@ If the budget expires before the paywall is ready, a fallback paywall will show 
   ```swift
   // Hide the current paywall
   Helium.shared.hidePaywall()
-
+  
   // Hide all currently displayed paywalls
   Helium.shared.hideAllPaywalls()
   ```

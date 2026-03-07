@@ -55,8 +55,7 @@
         "group": "SDK Reference",
         "icon": "book-open",
         "pages": [
-          "sdk-reference/sdk-features",
-          "sdk-reference/fallback-causes"
+          "sdk-reference/sdk-features"
         ]
       },
       {

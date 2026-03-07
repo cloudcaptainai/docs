@@ -1,6 +1,6 @@
 ---
-title: "Setting Up Fallbacks"
-description: "How to download fallbacks from the dashboard and include it in your app."
+title: "Fallback Paywalls"
+description: "How to download fallback paywalls from the dashboard and include it in your app."
 icon: "helmet-safety"
 ---
 
@@ -104,16 +104,38 @@ After selection, click **Download** and your browser should download a file name
 
 ## Testing Fallbacks
 
-In version 4+ of the SDKs, look at your log output when running a test build to see if fallbacks are successfully loaded.
+Look at your debug log output when running a debug build of your app to see if fallbacks are successfully loaded.
 
-You can also run your app in airplane mode and then attempt to show your paywall, or show your paywall with a non-existent trigger.
+To see a fallback paywall, you can run your app in airplane mode or use a non-existent trigger when presenting a paywall.
 
 ## How to Monitor and Minimize Fallback Rate
 
-You can check your app's fallback rate by going to your [Metrics page](https://app.tryhelium.com/metrics) and clicking on the "Fallback Rate" tab under Monitoring. This rate shows the # of fallback paywall opens vs prod paywall opens. If you notice your fallback rate is higher than expected, here are some tips on minimizing it:
+You can check your app's fallback rate by going to your [Metrics page](https://app.tryhelium.com/metrics) and clicking on the "Fallback Rate" tab under Monitoring. This rate shows the percentage of paywall opens that use a fallback paywall. If you notice your fallback rate is higher than expected, here are some tips on minimizing it:
 
-- **Move your initialize() call earlier in your app's lifecycle.** We recommend right after app launch.
+- **Move your initialize() call earlier in your app's lifecycle.** We recommend doing so right when your app is launched.
 - **Set a higher loading budget.** If your paywall is still downloading when presented, Helium will show a loading state. The default loading budget of 7 seconds is generally plenty of time to ensure your paywall will show before fallback is used. But if you have overridden the budget to be a lower value, consider increasing it.
 - **Reduce the size of image assets in your paywall.** We recommend keeping each paywall to be under about 3-5 MB in total size. If you're adding high resolution imagery to your paywall (which is fine!) we recommend converting images to .webp format - e.g. with an online converter like https://cloudconvert.com/webp-converter.
 
 If you still see a rate higher than expected, please get in touch!
+
+## Fallback Causes
+
+### Paywall is still downloading
+
+<Info>
+  This is the most common reason.
+</Info>
+
+Helium fetches your latest paywalls when the Helium SDK is initialized. If a user is on a very slow connection or has no connection at all, a fallback will be shown.
+
+### Paywalls failed to download
+
+Similarly, if user has no connection or a very limited connection, the paywall retrieval may fail entirely. Or in the unlikely event Helium servers are temporarily down.
+
+### No products associated with paywall for platform
+
+Can occur when a paywall is downloaded but does not have products properly linked for the platform (iOS/Android) it is served to.
+
+### Other Causes
+
+The above are the most likely causes, but a fallback can also occur if paywall html is malformed or from any other unexpected Helium bug.

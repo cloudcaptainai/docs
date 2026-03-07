@@ -5,15 +5,13 @@ icon: "/images/sdk/logos/react-svgrepo-com.svg"
 sidebarTitle: "React Native"
 ---
 
-## Background
-
-Get set up with the Helium SDK for React Native. Reach out over your Helium slack channel or email [founders@tryhelium.com](mailto:founders@tryhelium.com) for any questions.
-
-## Installation
-
 <Tip>
-  Find your API key [here](https://app.tryhelium.com/profile)
+  To get a better understanding of how paywalls are served, visit [here](/guides/how-does-helium-work).
 </Tip>
+
+# Present a Paywall
+
+### Install the SDK
 
 Install the SDK using your preferred package manager:
 
@@ -45,17 +43,13 @@ npx react-native link @tryheliumai/paywall-sdk-react-native
   The Expo 52+ SDK supports both iOS and Android.
 </Warning>
 
-## Configuration
+### Initialize Helium
 
-Follow these steps to integrate the SDK.
+<Tip>
+  Find your API key [here](https://app.tryhelium.com/profile). If you do not have a Helium account set up yet, you can still present a "placeholder paywall".
+</Tip>
 
-### Initialization
-
-Initialize Helium by calling `initialize()` early in your app's lifecycle, typically in your root component.
-
-<Note>
-  If you are using **RevenueCat**, follow the example in the next section.
-</Note>
+Initialize Helium by calling `initialize()` early in your app's lifecycle, typically in your root component:
 
 <CodeGroup>
 
@@ -66,8 +60,6 @@ function App() {
   const asyncHeliumInit = async () => {
     await initialize({
       apiKey: '<your-helium-api-key>',
-      // Fallback bundle is highly recommended. See Fallbacks section of this page.
-      // fallbackBundle: require('./assets/fallback-bundle-xxxx-xx-xx.json'),
     });
   };
 
@@ -85,8 +77,6 @@ function App() {
   const asyncHeliumInit = async () => {
     await initialize({
       apiKey: '<your-helium-api-key>',
-      // Fallback bundle is highly recommended. See Fallbacks section of this page.
-      // fallbackBundle: require('./assets/fallback-bundle-xxxx-xx-xx.json'),
     });
   };
 
@@ -98,158 +88,13 @@ function App() {
 
 </CodeGroup>
 
-#### Use RevenueCat with Helium
+### Show Your First Paywall
 
-<Note>
-  If you haven't already, make sure to [install](https://www.revenuecat.com/docs/getting-started/installation/expo) RevenueCat (for non-Expo see [here](https://www.revenuecat.com/docs/getting-started/installation/reactnative)).
-</Note>
+<Tip>
+  Set up a trigger and workflow in the [dashboard](https://app.tryhelium.com/workflows) to show your desired paywall.
+</Tip>
 
-<CodeGroup>
-
-```tsx Expo 52+
-import { initialize } from 'expo-helium';
-import { createRevenueCatPurchaseConfig } from "expo-helium/src/revenuecat";
-
-const asyncHeliumInit = async () => {
-  await initialize({
-    apiKey: '<your-helium-api-key>',
-    purchaseConfig: createRevenueCatPurchaseConfig(
-      // (optional) Set if you want Helium to initialize RevenueCat for you.
-      // Otherwise initialize RevenueCat (`Purchases.configure()`) before initializing Helium
-      { apiKey: 'revenue_cat_api_key' }
-    ),
-    // Fallback bundle is highly recommended. See Fallbacks section of this page.
-    // fallbackBundle: require('./assets/fallback-bundle-xxxx-xx-xx.json'),
-    revenueCatAppUserId: await Purchases.getAppUserID()
-  });
-};
-
-useEffect(() => {
-  void asyncHeliumInit();
-}, []);
-```
-
-
-```tsx Older Expo / Bare
-import { initialize } from '@tryheliumai/paywall-sdk-react-native';
-import { createRevenueCatPurchaseConfig } from "@tryheliumai/paywall-sdk-react-native/src/revenuecat";
-
-const asyncHeliumInit = async () => {
-  await initialize({
-    apiKey: '<your-helium-api-key>',
-    purchaseConfig: createRevenueCatPurchaseConfig(
-      // (optional) Set if you want Helium to initialize RevenueCat for you.
-      // Otherwise initialize RevenueCat (`Purchases.configure()`) before initializing Helium
-      { apiKey: 'revenue_cat_api_key' }
-    ),
-    // Fallback bundle is highly recommended. See Fallbacks section of this page.
-    // fallbackBundle: require('./assets/fallback-bundle-xxxx-xx-xx.json'),
-    revenueCatAppUserId: await Purchases.getAppUserID()
-  });
-};
-
-useEffect(() => {
-  void asyncHeliumInit();
-}, []);
-```
-
-</CodeGroup>
-
-#### Custom Purchase Config
-
-To use your own purchase logic, pass in a custom purchase config to `initialize`.
-
-<Accordion title="Custom Purchase Config Example">
-  <CodeGroup>
-
-  ```tsx Expo 52+
-  import { createCustomPurchaseConfig } from 'expo-helium';
-
-  // In your initialize call:
-  purchaseConfig: createCustomPurchaseConfig({
-    makePurchaseIOS: async (productId) => {
-      // Your purchase logic here
-      // Return a HeliumTransactionStatus
-      return { status: 'purchased' };
-    },
-    makePurchaseAndroid: async (productId) => {
-      // Your purchase logic here
-      // Return a HeliumTransactionStatus
-      return { status: 'purchased' };
-    },
-    restorePurchases: async () => {
-      // Your restore logic here
-      return true;
-    }
-  }),
-  ```
-
-
-  ```tsx Older Expo / Bare
-  import { createCustomPurchaseConfig } from '@tryheliumai/paywall-sdk-react-native';
-
-  // In your initialize call:
-  purchaseConfig: createCustomPurchaseConfig({
-    makePurchase: async (productId) => {
-      // Your purchase logic here
-      // Return a HeliumTransactionStatus
-      return { status: 'purchased' };
-    },
-    restorePurchases: async () => {
-      // Your restore logic here
-      return true;
-    }
-  }),
-  ```
-
-  </CodeGroup>
-
-  ```tsx
-  type HeliumTransactionStatus =
-    'purchased' | 'failed' | 'cancelled' | 'pending' | 'restored';
-  ```
-</Accordion>
-
-### Custom User ID and Custom User Traits
-
-You can pass in a custom user ID and custom user traits if desired to `initialize`:
-
-```tsx
-// (Optional) Custom user id, e.g. your amplitude analytics user id.
-customUserId: '<your-custom-user-id>',
-// (Optional) Custom user traits
-customUserTraits: {
-  "example_trait": "example_value",
-},
-```
-
-## Presenting Paywalls
-
-<Note>
-  You must have a trigger and workflow configured in the [dashboard](https://app.tryhelium.com/workflows) in order to show a paywall.
-</Note>
-
-Use the `presentUpsell` method to present a paywall. `presentUpsell` takes in `PresentUpsellParams`:
-
-<ResponseField name="PresentUpsellParams" type="method">
-  <Expandable title="properties">
-    <ResponseField name="triggerName" type="string" required>
-      Pass in the trigger for the workflow you configured in the dashboard.
-    </ResponseField>
-    <ResponseField name="onFallback" type="() => void">
-      This will be called when paywall fails to show due to an unsuccessful paywall download or if an invalid trigger is provided. (See Fallbacks section for more details.)
-    </ResponseField>
-    <ResponseField name="eventHandlers" type="PaywallEventHandlers">
-      Handlers that allow you to respond to open, close, dismiss, purchase, open-fail, and custom paywall action [events](/guides/helium-events).
-    </ResponseField>
-    <ResponseField name="customPaywallTraits" type="Record<string, any>">
-      (Advanced) Custom key/value pairs that you want available to the paywall.
-    </ResponseField>
-    <ResponseField name="dontShowIfAlreadyEntitled" type="boolean" default="false">
-      (Optional) If `true`, the paywall will not show if the user already has entitlements for any product in the paywall. See the Entitlements section of this guide for more details.
-    </ResponseField>
-  </Expandable>
-</ResponseField>
+Call `presentUpsell` wherever you want to show a full-screen paywall:
 
 <CodeGroup>
 
@@ -261,7 +106,7 @@ function YourComponent() {
     presentUpsell({
       triggerName: 'premium_feature_press',
       onFallback: () => {
-        // Implement logic to open a default paywall or display error dialog
+        // Handle the rare case where a paywall fails to show
         console.log('[Helium] onFallback called!');
       }
     });
@@ -282,7 +127,7 @@ function YourComponent() {
     presentUpsell({
       triggerName: 'premium_feature_press',
       onFallback: () => {
-        // Implement logic to open a default paywall or display error dialog
+        // Handle the rare case where a paywall fails to show
         console.log('[Helium] onFallback called!');
       }
     });
@@ -296,85 +141,157 @@ function YourComponent() {
 
 </CodeGroup>
 
-### PaywallEventHandlers
-
-You can pass in paywall event handlers to listen for specific paywall events. (See the next section Helium Events for a way to handle global events).
-
-```tsx
-eventHandlers: {
-  onOpen: (event) => {
-    console.log(`${event.type}`)
-  },
-  onClose: (event) => {
-    console.log(`${event.type}`)
-  },
-  onPurchaseSucceeded: (event) => {
-    console.log(`${event.type}`)
-  },
-  onDismissed: (event) => {
-    console.log(`${event.type}`)
-  },
-  onOpenFailed: (event) => {
-    console.log(`${event.type}`)
-  },
-  onCustomPaywallAction: (event) => {
-    console.log(`${event.type}`)
-  },
-  onAnyEvent: (event) => {
-    // A handler for all paywall-related events.
-    // Note that if you have other handlers (i.e. onOpen) set up,
-    // both that handler AND this one will fire during paywall open.
-  },
-},
-```
+<ResponseField name="PresentUpsellParams" type="method">
+  <Expandable title="properties">
+    <ResponseField name="triggerName" type="string" required>
+      Pass in the trigger for the workflow you configured in the dashboard.
+    </ResponseField>
+    <ResponseField name="onFallback" type="() => void">
+      This will be called when paywall fails to show due to an unsuccessful paywall download or if an invalid trigger is provided. See the Fallback Paywalls section.
+    </ResponseField>
+    <ResponseField name="eventHandlers" type="PaywallEventHandlers">
+      Handlers that allow you to respond to open, close, dismiss, purchase, open-fail, and custom paywall action [events](/sdk/helium-events).
+    </ResponseField>
+    <ResponseField name="customPaywallTraits" type="Record<string, any>">
+      (Optional) Custom key/value pairs that you want available to the paywall.
+    </ResponseField>
+    <ResponseField name="dontShowIfAlreadyEntitled" type="boolean" default="false">
+      (Optional) If `true`, the paywall will not show if the user already has entitlements for any product in the paywall.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
 
 You should now be able to see Helium paywalls in your app! Well done! 🎉
 
-## Helium Events
+<Info>
+  Looking for alternative presentation methods? Check out the guide on [Ways to Show a Paywall](/guides/ways-to-show-paywall).
+</Info>
 
-Listen for all [Helium Events](/guides/helium-events) by implementing `onHeliumPaywallEvent` and passing it to initialize:
+# Recommended Setup
+
+Here are some common additional steps that you may want to consider.
+
+### Identifying Users
+
+Identifying users is optional but can help with targeting and when forwarding events to external analytics platforms. If you are not sure, you probably do not need to identify your users.
+
+<Tip>
+  Identify users as early as you can to maximize consistency in metrics and targeting. Ideally in your `initialize` call!
+</Tip>
+
+Pass a custom user ID and/or user traits to `initialize`:
 
 ```tsx
-onHeliumPaywallEvent: (event) => {
-  switch (event.type) {
-    case 'paywallOpen':
-      break;
-    case 'purchaseSucceeded':
-      // Handle successful purchase
-      break;
-    // handle other events as desired
-  }
-},
+await initialize({
+  apiKey: '<your-helium-api-key>',
+  // (Optional) Custom user id, e.g. your amplitude analytics user id.
+  customUserId: '<your-custom-user-id>',
+  // (Optional) Custom user traits
+  customUserTraits: {
+    "example_trait": "example_value",
+  },
+});
 ```
 
-## Checking Subscription Status & Entitlements
+### Helium Events
 
-<Note>
-  If you use an external payment processor like Stripe, Helium's entitlement helpers may not be reliable. We recommend implementing your own entitlement checking in that case. If you use Stripe with RevenueCat, we recommend using [RevenueCat's entitlement APIs](https://www.revenuecat.com/docs/getting-started/entitlements) instead.
-</Note>
+Helium dispatches various events during paywall presentation and purchase flow. You can optionally handle these events in your mobile app. You can also configure Helium to forward them to your [existing analytics provider](/guides/third-party-analytics).
 
-Use these methods to check current user subscription status.
+#### PaywallEventHandlers
 
-```typescript
-/**
- * Checks if the user has any active subscription (including non-renewable)
- */
-export const hasAnyActiveSubscription = async (): Promise<boolean>;
+When displaying a paywall you can pass in event handlers to listen for select events:
 
-/**
- * Checks if the user has any entitlement
- */
-export const hasAnyEntitlement = async (): Promise<boolean>;
-
-/**
- * Checks if the user has an active entitlement for any product attached to the paywall that will show for provided trigger.
- * @param trigger The trigger name to check entitlement for
- * @returns Promise resolving to true if entitled, false if not, or undefined if not known (i.e. the paywall is not downloaded yet)
- */
-export const hasEntitlementForPaywall = async (trigger: string): Promise<boolean | undefined>;
+```tsx
+presentUpsell({
+  triggerName: 'my_paywall',
+  eventHandlers: {
+    onOpen: (event) => {
+      console.log(`${event.type}`)
+    },
+    onClose: (event) => {
+      console.log(`${event.type}`)
+    },
+    onPurchaseSucceeded: (event) => {
+      console.log(`${event.type}`)
+    },
+    onDismissed: (event) => {
+      console.log(`${event.type}`)
+    },
+    onOpenFailed: (event) => {
+      console.log(`${event.type}`)
+    },
+    onCustomPaywallAction: (event) => {
+      console.log(`${event.type}`)
+    },
+    onAnyEvent: (event) => {
+      // A handler for all paywall-related events.
+      // Note that if you have other handlers (i.e. onOpen) set up,
+      // both that handler AND this one will fire during paywall open.
+    },
+  },
+});
 ```
 
-#### Example Usage
+#### Global Event Listener
+
+You can also listen for all Helium events globally by passing `onHeliumPaywallEvent` to `initialize`:
+
+```tsx
+await initialize({
+  apiKey: '<your-helium-api-key>',
+  onHeliumPaywallEvent: (event) => {
+    switch (event.type) {
+      case 'paywallOpen':
+        break;
+      case 'purchaseSucceeded':
+        // Handle successful purchase
+        break;
+      // handle other events as desired
+    }
+  },
+});
+```
+
+### Fallback Paywalls
+
+It is **highly recommended** that you set up "fallbacks" to handle the rare case when a paywall fails to display.
+
+<Tip>
+  Do this _after_ you have a paywall created that you want to use in production.
+</Tip>
+
+#### 1. Use the `onFallback` function
+
+Pass `onFallback` to `presentUpsell` to handle fallback scenarios however you want.
+
+#### 2. Provide a fallback bundle (recommended)
+
+Provide a fallback bundle as described in [this guide](/guides/fallback-bundle).
+
+<Tip>
+  Update your fallback bundle whenever you make changes to your paywall for maximum reliability.
+</Tip>
+
+#### Loading Budgets
+
+If a paywall has not completed downloading when you attempt to present it, a loading state can show. By default, Helium will show this loading state as needed (a shimmer view for up to 7 seconds). You can configure or turn off this loading budget.
+
+If the budget expires before the paywall is ready, a fallback paywall will show if available otherwise the loading state will hide and `onFallback` will be called.
+
+```tsx
+const paywallLoadingConfig: HeliumPaywallLoadingConfig = {
+  useLoadingState: true,
+  loadingBudget: 4,
+};
+
+await initialize({
+  apiKey: "helium-api-key",
+  fallbackBundle: require('./assets/fallback-bundle-xxxx-xx-xx.json'),
+  paywallLoadingConfig: paywallLoadingConfig,
+});
+```
+
+### Checking Subscription Status & Entitlements
 
 <Tip>
   Check entitlements before showing paywalls to avoid showing a paywall to a user who should not see it.
@@ -410,47 +327,159 @@ export const hasEntitlementForPaywall = async (trigger: string): Promise<boolean
 
 </CodeGroup>
 
-## Fallbacks
+<Note>
+  If you use an external payment processor like Stripe, Helium's entitlement helpers may not be reliable. We recommend implementing your own entitlement checking in that case. If you use Stripe with RevenueCat, we recommend using [RevenueCat's entitlement APIs](https://www.revenuecat.com/docs/getting-started/entitlements) instead.
+</Note>
 
-There are currently two ways you can handle a "fallback" situation in the rare case that a paywall fails to download or an invalid trigger is provided. You can also do both. Better to be prepared!
+<Accordion title="All Entitlement Helper Methods">
+  ```typescript
+  /**
+   * Checks if the user has any active subscription (including non-renewable)
+   */
+  export const hasAnyActiveSubscription = async (): Promise<boolean>;
 
-### 1. Use the `onFallback` function
+  /**
+   * Checks if the user has any entitlement
+   */
+  export const hasAnyEntitlement = async (): Promise<boolean>;
 
-You can pass this in when you call `presentUpsell` and handle however you want.
+  /**
+   * Checks if the user has an active entitlement for any product attached to
+   * the paywall that will show for the provided trigger.
+   * Returns undefined if not known (i.e. the paywall is not downloaded yet).
+   */
+  export const hasEntitlementForPaywall = async (trigger: string): Promise<boolean | undefined>;
+  ```
+</Accordion>
 
-### 2. Provide a fallback bundle (recommended)
+# Advanced
 
-Provide a fallback bundle as described in [this guide](/guides/fallback-bundle).
+### RevenueCat
 
-<Tip>
-  Update your fallback bundle whenever you make changes to your paywall for maximum reliability.
-</Tip>
+<Note>
+  By default, Helium will handle purchases for you! This section is typically for users who already use RevenueCat in their app.
+</Note>
 
-## Loading Budgets
+Helium integrates seamlessly with RevenueCat so you can continue to let RevenueCat handle your purchases and entitlements.
 
-If a paywall has not completed downloading when you attempt to present it, a loading state can show.
+<Note>
+  If you haven't already, make sure to [install](https://www.revenuecat.com/docs/getting-started/installation/expo) RevenueCat (for non-Expo see [here](https://www.revenuecat.com/docs/getting-started/installation/reactnative)).
+</Note>
 
-By default, Helium will show this loading state as needed (a shimmer view for up to 7 seconds). You can configure or turn off this loading budget.
+Configure Helium to use RevenueCat by passing `createRevenueCatPurchaseConfig` to `initialize`:
 
-If the budget expires before the paywall is ready, a fallback paywall will show if available otherwise the loading state will hide and `onFallback` will be called.
+<CodeGroup>
 
-```tsx
-const paywallLoadingConfig: HeliumPaywallLoadingConfig = {
-  useLoadingState: true,
-  loadingBudget: 4,
+```tsx Expo 52+
+import { initialize } from 'expo-helium';
+import { createRevenueCatPurchaseConfig } from "expo-helium/src/revenuecat";
+
+const asyncHeliumInit = async () => {
+  await initialize({
+    apiKey: '<your-helium-api-key>',
+    purchaseConfig: createRevenueCatPurchaseConfig(
+      // (optional) Set if you want Helium to initialize RevenueCat for you.
+      // Otherwise initialize RevenueCat (`Purchases.configure()`) before initializing Helium
+      { apiKey: 'revenue_cat_api_key' }
+    ),
+    revenueCatAppUserId: await Purchases.getAppUserID()
+  });
 };
 
-await initialize({
-  apiKey: "helium-api-key",
-  fallbackBundle: require('./assets/fallback-bundle-xxxx-xx-xx.json'),
-  paywallLoadingConfig: paywallLoadingConfig, // << pass to initialize
-});
+useEffect(() => {
+  void asyncHeliumInit();
+}, []);
 ```
 
-## Advanced
+
+```tsx Older Expo / Bare
+import { initialize } from '@tryheliumai/paywall-sdk-react-native';
+import { createRevenueCatPurchaseConfig } from "@tryheliumai/paywall-sdk-react-native/src/revenuecat";
+
+const asyncHeliumInit = async () => {
+  await initialize({
+    apiKey: '<your-helium-api-key>',
+    purchaseConfig: createRevenueCatPurchaseConfig(
+      // (optional) Set if you want Helium to initialize RevenueCat for you.
+      // Otherwise initialize RevenueCat (`Purchases.configure()`) before initializing Helium
+      { apiKey: 'revenue_cat_api_key' }
+    ),
+    revenueCatAppUserId: await Purchases.getAppUserID()
+  });
+};
+
+useEffect(() => {
+  void asyncHeliumInit();
+}, []);
+```
+
+</CodeGroup>
+
+### Custom Purchase Handling
+
+<Note>
+  By default, Helium will handle purchases for you! This section is for those who want to implement custom purchase logic.
+</Note>
+
+Pass a custom purchase config to `initialize`:
+
+<CodeGroup>
+
+```tsx Expo 52+
+import { createCustomPurchaseConfig } from 'expo-helium';
+
+// In your initialize call:
+purchaseConfig: createCustomPurchaseConfig({
+  makePurchaseIOS: async (productId) => {
+    // Your purchase logic here
+    // Return a HeliumTransactionStatus
+    return { status: 'purchased' };
+  },
+  makePurchaseAndroid: async (productId) => {
+    // Your purchase logic here
+    // Return a HeliumTransactionStatus
+    return { status: 'purchased' };
+  },
+  restorePurchases: async () => {
+    // Your restore logic here
+    return true;
+  }
+}),
+```
+
+
+```tsx Older Expo / Bare
+import { createCustomPurchaseConfig } from '@tryheliumai/paywall-sdk-react-native';
+
+// In your initialize call:
+purchaseConfig: createCustomPurchaseConfig({
+  makePurchase: async (productId) => {
+    // Your purchase logic here
+    // Return a HeliumTransactionStatus
+    return { status: 'purchased' };
+  },
+  restorePurchases: async () => {
+    // Your restore logic here
+    return true;
+  }
+}),
+```
+
+</CodeGroup>
+
+```tsx
+type HeliumTransactionStatus =
+  'purchased' | 'failed' | 'cancelled' | 'pending' | 'restored';
+```
+
+### Additional Features
+
+<Note>
+  For the full public API and detailed parameter documentation, see the inline docstrings in the SDK source. Import Helium in your project and use your IDE's autocomplete or jump-to-definition to explore all available methods and types.
+</Note>
 
 <Accordion title="Reset Helium">
-  Reset Helium entirely so you can call initialize again. Only for advanced use cases.
+  Reset Helium entirely so you can call initialize again, for example after changing user traits that can affect the paywalls a user might see via targeting.
 
   ```typescript
   import { resetHelium } from 'expo-helium';
@@ -458,8 +487,6 @@ await initialize({
   await resetHelium();
   ```
 </Accordion>
-
-## Additional Considerations
 
 ### Expo Development Build
 
@@ -469,9 +496,9 @@ Please note that the Helium SDK uses native code, so you must create a [developm
 npx expo run:ios # or npx expo run:ios --device
 ```
 
-## Troubleshooting
+### Troubleshooting
 
-### Check if the Helium SDK is installed
+#### Check if the Helium SDK is installed
 
 <CodeGroup>
 
@@ -506,7 +533,7 @@ npx react-native link @tryheliumai/paywall-sdk-react-native
 
 </CodeGroup>
 
-### Check if Helium is properly installed
+#### Check if Helium is properly installed
 
 To verify that the Helium pod is correctly installed in your project, run:
 

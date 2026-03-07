@@ -96,7 +96,7 @@ Choose the appropriate location based on your app's architecture:
             //*** Add this:
             configureHelium()
         }
-
+    
         //*** And this:
         private fun configureHelium() {
             Helium.initialize(
@@ -116,7 +116,7 @@ Choose the appropriate location based on your app's architecture:
             //*** Add this:
             configureHelium()
         }
-
+    
         //*** And this:
         private fun configureHelium() {
             Helium.initialize(
@@ -307,15 +307,6 @@ It is **highly recommended** that you set up "fallbacks" to handle the rare case
   Do this _after_ you have a paywall created that you want to use in production.
 </Tip>
 
-If you attempt to display a paywall while it is still being downloaded, a loading state will show. By default, Helium will show this loading state as needed (a shimmer view for up to 7 seconds). You can configure this behavior:
-
-```kotlin
-Helium.config.defaultLoadingBudgetInMs = 5000  // 5 seconds
-Helium.config.defaultLoadingView = myCustomLoadingView  // optional
-```
-
-If the budget expires before the paywall is ready, a fallback paywall will show if available. Otherwise, the loading state will hide and a `PaywallOpenFailed` event will be dispatched.
-
 ### Checking Subscription Status & Entitlements
 
 <Tip>
@@ -499,7 +490,7 @@ Helium.config.consumableIds = setOf("coins_100", "gems_50")
   ```kotlin
   // Hide the current paywall
   Helium.hidePaywall()
-
+  
   // Hide all currently displayed paywalls
   Helium.hideAllPaywalls()
   ```

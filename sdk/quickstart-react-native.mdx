@@ -105,10 +105,6 @@ function YourComponent() {
   const handlePremiumPress = () => {
     presentUpsell({
       triggerName: 'premium_feature_press',
-      onFallback: () => {
-        // Handle the rare case where a paywall fails to show
-        console.log('[Helium] onFallback called!');
-      }
     });
   };
 
@@ -254,42 +250,11 @@ await initialize({
 
 ### Fallback Paywalls
 
-It is **highly recommended** that you set up "fallbacks" to handle the rare case when a paywall fails to display.
+It is **highly recommended** that you set up "fallbacks" to handle the rare case when a paywall fails to display. Please follow [this guide](/guides/fallback-bundle) to do so.
 
 <Tip>
   Do this _after_ you have a paywall created that you want to use in production.
 </Tip>
-
-#### 1. Use the `onFallback` function
-
-Pass `onFallback` to `presentUpsell` to handle fallback scenarios however you want.
-
-#### 2. Provide a fallback bundle (recommended)
-
-Provide a fallback bundle as described in [this guide](/guides/fallback-bundle).
-
-<Tip>
-  Update your fallback bundle whenever you make changes to your paywall for maximum reliability.
-</Tip>
-
-#### Loading Budgets
-
-If a paywall has not completed downloading when you attempt to present it, a loading state can show. By default, Helium will show this loading state as needed (a shimmer view for up to 7 seconds). You can configure or turn off this loading budget.
-
-If the budget expires before the paywall is ready, a fallback paywall will show if available otherwise the loading state will hide and `onFallback` will be called.
-
-```tsx
-const paywallLoadingConfig: HeliumPaywallLoadingConfig = {
-  useLoadingState: true,
-  loadingBudget: 4,
-};
-
-await initialize({
-  apiKey: "helium-api-key",
-  fallbackBundle: require('./assets/fallback-bundle-xxxx-xx-xx.json'),
-  paywallLoadingConfig: paywallLoadingConfig,
-});
-```
 
 ### Checking Subscription Status & Entitlements
 
@@ -299,37 +264,34 @@ await initialize({
 
 <CodeGroup>
 
-  ```typescript Use dontShowIfAlreadyEntitled with presentUpsell
+```typescript Use dontShowIfAlreadyEntitled with presentUpsell
+presentUpsell({
+  triggerName: 'my_paywall',
+  dontShowIfAlreadyEntitled: true
+});
+```
+
+
+```typescript Check before showing paywall
+const hasActiveSubscription = await hasAnyActiveSubscription();
+if (hasActiveSubscription) {
+  featureGatedLogic(); // replace this with your logic
+} else {
   presentUpsell({
     triggerName: 'my_paywall',
-    dontShowIfAlreadyEntitled: true
+    onFallback: () => {
+      // handle fallback logic in case paywall fails to show (should be quite rare)
+    },
+    eventHandlers: {
+      onPurchaseSucceeded: (event: PurchaseSucceededEvent) => {
+        featureGatedLogic(); // replace this with your logic
+      },
+    },
   });
-  ```
-
-  ```typescript Check before showing paywall
-  const hasActiveSubscription = await hasAnyActiveSubscription();
-  if (hasActiveSubscription) {
-    featureGatedLogic(); // replace this with your logic
-  } else {
-    presentUpsell({
-      triggerName: 'my_paywall',
-      onFallback: () => {
-        // handle fallback logic in case paywall fails to show (should be quite rare)
-      },
-      eventHandlers: {
-        onPurchaseSucceeded: (event: PurchaseSucceededEvent) => {
-          featureGatedLogic(); // replace this with your logic
-        },
-      },
-    });
-  }
-  ```
+}
+```
 
 </CodeGroup>
-
-<Note>
-  If you use an external payment processor like Stripe, Helium's entitlement helpers may not be reliable. We recommend implementing your own entitlement checking in that case. If you use Stripe with RevenueCat, we recommend using [RevenueCat's entitlement APIs](https://www.revenuecat.com/docs/getting-started/entitlements) instead.
-</Note>
 
 <Accordion title="All Entitlement Helper Methods">
   ```typescript
@@ -337,12 +299,12 @@ await initialize({
    * Checks if the user has any active subscription (including non-renewable)
    */
   export const hasAnyActiveSubscription = async (): Promise<boolean>;
-
+  
   /**
    * Checks if the user has any entitlement
    */
   export const hasAnyEntitlement = async (): Promise<boolean>;
-
+  
   /**
    * Checks if the user has an active entitlement for any product attached to
    * the paywall that will show for the provided trigger.
@@ -483,7 +445,7 @@ type HeliumTransactionStatus =
 
   ```typescript
   import { resetHelium } from 'expo-helium';
-
+  
   await resetHelium();
   ```
 </Accordion>

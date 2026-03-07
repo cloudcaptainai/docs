@@ -137,22 +137,25 @@ function YourComponent() {
 
 </CodeGroup>
 
-<ResponseField name="PresentUpsellParams" type="method">
+<ResponseField name="PresentUpsellParams" type="type">
   <Expandable title="properties">
     <ResponseField name="triggerName" type="string" required>
       Pass in the trigger for the workflow you configured in the dashboard.
     </ResponseField>
-    <ResponseField name="onFallback" type="() => void">
-      This will be called when paywall fails to show due to an unsuccessful paywall download or if an invalid trigger is provided. See the Fallback Paywalls section.
+    <ResponseField name="eventHandlers" type="PaywallEventHandlers?">
+      _(Optional)_ Handlers that allow you to respond to open, close, dismiss, purchase, open-fail, and custom paywall action [events](/guides/helium-events).
     </ResponseField>
-    <ResponseField name="eventHandlers" type="PaywallEventHandlers">
-      Handlers that allow you to respond to open, close, dismiss, purchase, open-fail, and custom paywall action [events](/guides/helium-events).
+    <ResponseField name="customPaywallTraits" type="Record<string, any>?">
+      _(Optional)_ Custom key/value pairs that you want available to the paywall.
     </ResponseField>
-    <ResponseField name="customPaywallTraits" type="Record<string, any>">
-      (Optional) Custom key/value pairs that you want available to the paywall.
+    <ResponseField name="dontShowIfAlreadyEntitled" type="boolean?" default="false">
+      _(Optional)_ If `true`, the paywall will not be shown if the user already has an entitlement for a product in the paywall.
     </ResponseField>
-    <ResponseField name="dontShowIfAlreadyEntitled" type="boolean" default="false">
-      (Optional) If `true`, the paywall will not show if the user already has entitlements for any product in the paywall.
+    <ResponseField name="onEntitled" type="(() => void)?">
+      _(Optional)_ Called upon purchase success or purchase restore. If `dontShowIfAlreadyEntitled` is true, this handler will also be called when the paywall is not shown to users who already have entitlement for a product in the paywall.
+    </ResponseField>
+    <ResponseField name="onPaywallUnavailable" type="(() => void)?">
+      _(Optional)_ Called if desired paywall and fallback paywall did not show for any reason. This is uncommon, but best practice to handle it just in case. See [Fallback Paywalls](/guides/fallback-bundle).
     </ResponseField>
   </Expandable>
 </ResponseField>

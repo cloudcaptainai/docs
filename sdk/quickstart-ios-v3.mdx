@@ -255,7 +255,7 @@ Button("Try Premium") {
 
 ### PaywallEventHandlers
 
-When displaying a paywall you can pass in event handlers to listen for relevant [Helium Events](/sdk/helium-events). You can chain a subset of handlers with builder syntax:
+When displaying a paywall you can pass in event handlers to listen for relevant [Helium Events](/guides/helium-events). You can chain a subset of handlers with builder syntax:
 
 ```swift
 Helium.shared.presentUpsell(
@@ -365,7 +365,7 @@ Use (or subclass) one of our pre-built `HeliumPaywallDelegate` implementations o
     }
     ```
 
-    Visit [Helium Events](/sdk/helium-events) for details on the different Helium paywall events.
+    Visit [Helium Events](/guides/helium-events) for details on the different Helium paywall events.
 
     <Note>
       When executing the purchase via StoreKit 2 (recommended over StoreKit 1), please use `Product.heliumPurchase()` instead of `Product.purchase()`. For example:
@@ -382,7 +382,7 @@ Use (or subclass) one of our pre-built `HeliumPaywallDelegate` implementations o
 
 ## Listen for Helium Events
 
-[Helium Events](/sdk/helium-events) are emitted by Helium for various paywall actions, purchase completions, and more. Options to listen for these events include:
+[Helium Events](/guides/helium-events) are emitted by Helium for various paywall actions, purchase completions, and more. Options to listen for these events include:
 
 ### 1. onPaywallEvent of HeliumPaywallDelegate
 
@@ -495,7 +495,7 @@ If a paywall has not completed downloading when you attempt to present it, a loa
 
 By default, Helium will show this loading state as needed (a shimmer view for up to 7 seconds). You can configure, turn off, or set trigger-specific loading budgets.
 
-If the budget expires before the paywall is ready, a fallback paywall will show if available otherwise the loading state will hide and a [PaywallOpenFailed](/sdk/helium-events) event will be dispatched.
+If the budget expires before the paywall is ready, a fallback paywall will show if available otherwise the loading state will hide and a [PaywallOpenFailed](/guides/helium-events) event will be dispatched.
 
 The iOS sdk has 3 options for fallbacks:
 

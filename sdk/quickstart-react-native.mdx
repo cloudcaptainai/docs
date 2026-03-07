@@ -240,7 +240,7 @@ Use the `presentUpsell` method to present a paywall. `presentUpsell` takes in `P
       This will be called when paywall fails to show due to an unsuccessful paywall download or if an invalid trigger is provided. (See Fallbacks section for more details.)
     </ResponseField>
     <ResponseField name="eventHandlers" type="PaywallEventHandlers">
-      Handlers that allow you to respond to open, close, dismiss, purchase, open-fail, and custom paywall action [events](/sdk/helium-events).
+      Handlers that allow you to respond to open, close, dismiss, purchase, open-fail, and custom paywall action [events](/guides/helium-events).
     </ResponseField>
     <ResponseField name="customPaywallTraits" type="Record<string, any>">
       (Advanced) Custom key/value pairs that you want available to the paywall.
@@ -332,7 +332,7 @@ You should now be able to see Helium paywalls in your app! Well done! 🎉
 
 ## Helium Events
 
-Listen for all [Helium Events](/sdk/helium-events) by implementing `onHeliumPaywallEvent` and passing it to initialize:
+Listen for all [Helium Events](/guides/helium-events) by implementing `onHeliumPaywallEvent` and passing it to initialize:
 
 ```tsx
 onHeliumPaywallEvent: (event) => {

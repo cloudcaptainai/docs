@@ -1,26 +1,17 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
+  "theme": "aspen",
   "name": "Helium Docs",
   "colors": {
-    "primary": "#0D9373",
-    "light": "#07C983",
-    "dark": "#0D9373"
+    "primary": "#3b82f6",
+    "light": "#60a5fa",
+    "dark": "#2563eb"
   },
   "favicon": "/favicon.svg",
   "navigation": {
-    "global": {
-      "anchors": [
-        {
-          "anchor": "More Info",
-          "icon": "lightbulb",
-          "href": "https://tryhelium.com"
-        }
-      ]
-    },
     "groups": [
       {
-        "group": "Getting Started",
+        "group": "GETTING STARTED",
         "icon": "flag",
         "pages": [
           "getting-started/introduction",
@@ -28,18 +19,17 @@
         ]
       },
       {
-        "group": "SDK Quickstarts",
+        "group": "SDK QUICKSTARTS",
         "icon": "code",
         "pages": [
           "sdk/quickstart-ios",
           "sdk/quickstart-android",
           "sdk/quickstart-react-native",
-          "sdk/quickstart-flutter",
-          "sdk/helium-events"
+          "sdk/quickstart-flutter"
         ]
       },
       {
-        "group": "Guides",
+        "group": "GUIDES",
         "icon": "compass",
         "pages": [
           "guides/how-does-helium-work",
@@ -47,19 +37,20 @@
           "guides/fallback-bundle",
           "guides/ways-to-show-paywall",
           "guides/third-party-analytics",
+          "guides/helium-events",
           "guides/custom-events",
           "guides/storekit-testing"
         ]
       },
       {
-        "group": "SDK Reference",
+        "group": "SDK REFERENCE",
         "icon": "book-open",
         "pages": [
           "sdk-reference/sdk-features"
         ]
       },
       {
-        "group": "Migrations",
+        "group": "MIGRATIONS",
         "icon": "arrow-up-right-dots",
         "pages": [
           "migrations/ios-3-to-4",
@@ -71,10 +62,16 @@
   },
   "logo": {
     "light": "/logo/LargeLogo-cropped.svg",
-    "dark": "/logo/LargeLogo-cropped.svg"
+    "dark": "/logo/LargeLogo-cropped.svg",
+    "href": "https://tryhelium.com"
   },
   "navbar": {
-    "links": [],
+    "links": [
+      {
+        "label": "Dashboard",
+        "href": "https://docs.tryhelium.com/"
+      }
+    ],
     "primary": {
       "type": "button",
       "label": "Schedule Demo",
@@ -89,5 +86,6 @@
             "chatgpt",
             "claude"
         ]
-    }
+    },
+    "description": "Documentation for Helium - App Monetization for the AI Era"
 }

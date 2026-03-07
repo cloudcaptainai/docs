@@ -2,6 +2,7 @@
 title: "SDK Quickstart (Android)"
 description: "Integrate Helium into your Android app"
 icon: "google-play"
+sidebarTitle: "Android"
 ---
 
 ## Background
@@ -58,7 +59,7 @@ dependencyResolutionManagement {
   <Tab title="Core">
     ```kotlin
     // app/build.gradle.kts
-
+    
     dependencies {
         implementation("com.tryhelium.paywall:core:4.0.0")
     }
@@ -67,7 +68,7 @@ dependencyResolutionManagement {
   <Tab title="Jetpack Compose UI">
     ```kotlin
     // app/build.gradle.kts
-
+    
     dependencies {
         // For advanced cases - only include this if you want to display your paywall
         // as an embedded view.
@@ -78,7 +79,7 @@ dependencyResolutionManagement {
   <Tab title="RevenueCat">
     ```kotlin
     // app/build.gradle.kts
-
+    
     dependencies {
         // If you're using RevenueCat, add this dependency:
         implementation("com.tryhelium.paywall:revenue-cat:4.0.0")
@@ -118,7 +119,7 @@ Choose the appropriate location based on your app's architecture:
             // Add this:
             configureHelium()
         }
-
+    
         // And this:
         private fun configureHelium() {
             // Identify user and adjust Helium.config if needed (see next sections).
@@ -140,7 +141,7 @@ Choose the appropriate location based on your app's architecture:
             // Add this:
             configureHelium()
         }
-
+    
         // And this:
         private fun configureHelium() {
             // Identify user and adjust Helium.config if needed (see next sections).
@@ -168,8 +169,7 @@ import com.tryhelium.paywall.core.Helium
 
 ## Identifying Users
 
-Identifying users is optional but can help with targeting and when forwarding events to external analytics platforms.
-If you are not sure, you probably do not need to identify your users.
+Identifying users is optional but can help with targeting and when forwarding events to external analytics platforms. If you are not sure, you probably do not need to identify your users.
 
 <Tip>
   Identify users as early as you can to maximize consistency in metrics and targeting. Ideally right before you call `Helium.initialize`!
@@ -456,6 +456,7 @@ Helium.presentPaywall(
 )
 ```
 
+
 ```kotlin Check before showing paywall
 val hasActiveSubscription = Helium.entitlements.hasAnyActiveSubscription()
 if (hasActiveSubscription) {
@@ -530,7 +531,7 @@ If the budget expires before the paywall is ready, a fallback paywall will show 
   ```kotlin
   // Hide the current paywall
   Helium.hidePaywall()
-
+  
   // Hide all currently displayed paywalls
   Helium.hideAllPaywalls()
   ```

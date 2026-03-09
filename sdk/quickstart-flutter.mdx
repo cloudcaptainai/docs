@@ -64,7 +64,7 @@ If you still see errors related to minimum iOS version, consider updating to 15.
 ### Initialize Helium
 
 <Tip>
-  Find your API key [here](https://app.tryhelium.com/profile). If you do not have a Helium account set up yet, you can still present a "placeholder paywall".
+  Find your API key [here](https://app.tryhelium.com/profile). If you do not have a Helium account set up yet, you can still integrate but will not be able to show a real paywall.
 </Tip>
 
 In your app's initialization code (typically in `main.dart` or your root widget):
@@ -153,20 +153,33 @@ Here are some common additional steps that you may want to consider.
 Identifying users is optional but can help with targeting and when forwarding events to external analytics platforms. If you are not sure, you probably do not need to identify your users.
 
 <Tip>
-  Identify users as early as you can to maximize consistency in metrics and targeting. Ideally before or during your `initialize` call!
+  Identify users as early as you can to maximize consistency in metrics and targeting. Ideally in your `initialize` call!
 </Tip>
 
-You can set a custom user ID and traits via the `initialize` method's `customUserId` and `customUserTraits` parameters, or update them at any time:
+<CodeGroup>
 
-```dart
+```dart Set during initialize
+await heliumFlutter.initialize(
+  apiKey: "<your-helium-api-key>",
+  customUserId: "your-custom-user-id",
+  customUserTraits: {
+    "exampleTrait": "value",
+    "userType": "premium",
+  },
+);
+```
+
+```dart Update after initialize
 await heliumFlutter.overrideUserId(
   newUserId: "your-custom-user-id",
   traits: {
     "exampleTrait": "value",
-    "userType": "premium"
-  }
+    "userType": "premium",
+  },
 );
 ```
+
+</CodeGroup>
 
 ### Helium Events
 

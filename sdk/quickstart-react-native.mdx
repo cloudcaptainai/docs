@@ -46,7 +46,7 @@ npx react-native link @tryheliumai/paywall-sdk-react-native
 ### Initialize Helium
 
 <Tip>
-  Find your API key [here](https://app.tryhelium.com/profile). If you do not have a Helium account set up yet, you can still present a "placeholder paywall".
+  Find your API key [here](https://app.tryhelium.com/profile). If you do not have a Helium account set up yet, you can still integrate but will not be able to show a real paywall.
 </Tip>
 
 Initialize Helium by calling `initialize()` early in your app's lifecycle, typically in your root component:
@@ -178,9 +178,9 @@ Identifying users is optional but can help with targeting and when forwarding ev
   Identify users as early as you can to maximize consistency in metrics and targeting. Ideally in your `initialize` call!
 </Tip>
 
-Pass a custom user ID and/or user traits to `initialize`:
+<CodeGroup>
 
-```tsx
+```tsx Set during initialize
 await initialize({
   apiKey: '<your-helium-api-key>',
   // (Optional) Custom user id, e.g. your amplitude analytics user id.
@@ -191,6 +191,15 @@ await initialize({
   },
 });
 ```
+
+
+```tsx Update after initialize
+import { setCustomUserId } from 'expo-helium';
+
+setCustomUserId('your-custom-user-id');
+```
+
+</CodeGroup>
 
 ### Helium Events
 

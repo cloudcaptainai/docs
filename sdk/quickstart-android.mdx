@@ -136,10 +136,6 @@ And add necessary imports:
 import com.tryhelium.paywall.core.Helium
 ```
 
-<Note>
-  Helium's initialization runs on a background thread, so you don't have to worry about it affecting your app's launch time.
-</Note>
-
 ### Show Your First Paywall 🎉
 
 <Tip>
@@ -339,10 +335,6 @@ if (hasActiveSubscription) {
 
 </CodeGroup>
 
-<Note>
-  If you use an external payment processor like Stripe, Helium's entitlement helpers may not be reliable. We recommend implementing your own entitlement checking in that case. If you use Stripe with RevenueCat, we recommend using [RevenueCat's entitlement APIs](https://www.revenuecat.com/docs/getting-started/entitlements) instead.
-</Note>
-
 <Accordion title="All Entitlement Helper Methods">
   `hasAnyEntitlement()` Checks if the user has purchased any subscription or non-consumable product.
 
@@ -352,6 +344,18 @@ if (hasActiveSubscription) {
 </Accordion>
 
 # Advanced
+
+### Consumables
+
+<Note>
+  This only applies if using the default `PlayStorePaywallDelegate` for purchase handling. If you are using `RevenueCatPaywallDelegate`, configure RevenueCat to consume appropriate purchases. If you use a custom `HeliumPaywallDelegate`, you are responsible for consuming purchases.
+</Note>
+
+If your app sells consumable products (e.g., coins, credits, or tokens) and you want Helium to consume purchases for these products, relay these product IDs to Helium:
+
+```kotlin
+Helium.config.consumableIds = setOf("coins_100", "gems_50")
+```
 
 ### RevenueCat
 
@@ -390,6 +394,14 @@ Helium.config.heliumPaywallDelegate = RevenueCatPaywallDelegate()
   It is best to do this configuration _before_ you call `Helium.initialize`.
 </Tip>
 
+#### RevenueCat appUserID
+
+If you ever [change the appUserID](https://www.revenuecat.com/docs/customers/identifying-customers#logging-in-after-configuration) of a user, keep Helium in sync with:
+
+```kotlin
+Helium.identify.revenueCatAppUserId = Purchases.sharedInstance.appUserID
+```
+
 ### Custom Purchase Handling
 
 <Note>
@@ -412,34 +424,6 @@ interface HeliumPaywallDelegate {
     suspend fun restorePurchases(): Boolean
     fun onHeliumEvent(event: HeliumEvent)
 }
-```
-
-The `makePurchase` function is called by the Helium SDK when a user initiates a purchase. It provides you with:
-
-- `productDetails`: The `ProductDetails` object from the billing library for the selected product.
-- `basePlanId`: The identifier of the base plan, if applicable (for subscriptions).
-- `offerId`: The identifier of the offer, if applicable (for subscriptions with special offers).
-
-```kotlin
-enum class HeliumPaywallTransactionStatus {
-    PURCHASED,
-    CANCELLED,
-    FAILED,
-    RESTORED,
-    PENDING
-}
-```
-
-#### Consumables
-
-<Note>
-  This only applies if using the default `PlayStorePaywallDelegate` for purchase handling. If you are using `RevenueCatPaywallDelegate`, configure RevenueCat to consume appropriate purchases. If you use a custom `HeliumPaywallDelegate`, you are responsible for consuming purchases.
-</Note>
-
-If your app sells consumable products (e.g., coins, credits, or tokens) and you want Helium to consume purchases for these products, relay these product IDs to Helium:
-
-```kotlin
-Helium.config.consumableIds = setOf("coins_100", "gems_50")
 ```
 
 ### Additional Features

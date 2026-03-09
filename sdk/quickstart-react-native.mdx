@@ -34,7 +34,7 @@ npx react-native link @tryheliumai/paywall-sdk-react-native
 </CodeGroup>
 
 <Tip>
-  We support Expo 49+ but recommend using Helium with **Expo 53 and up**. If you're on an older version and having issues, ping us - we've got experience with all kinds of versioning, upgrade, and custom build plugin work.
+  We support Expo 49+ but recommend using Helium with **Expo 53+**.
 </Tip>
 
 <Warning>
@@ -122,10 +122,6 @@ function YourComponent() {
   const handlePremiumPress = () => {
     presentUpsell({
       triggerName: 'premium_feature_press',
-      onFallback: () => {
-        // Handle the rare case where a paywall fails to show
-        console.log('[Helium] onFallback called!');
-      }
     });
   };
 
@@ -291,9 +287,6 @@ if (hasActiveSubscription) {
 } else {
   presentUpsell({
     triggerName: 'my_paywall',
-    onFallback: () => {
-      // handle fallback logic in case paywall fails to show (should be quite rare)
-    },
     eventHandlers: {
       onPurchaseSucceeded: (event: PurchaseSucceededEvent) => {
         featureGatedLogic(); // replace this with your logic
@@ -338,6 +331,8 @@ Helium integrates seamlessly with RevenueCat so you can continue to let RevenueC
 
 <Note>
   If you haven't already, make sure to [install](https://www.revenuecat.com/docs/getting-started/installation/expo) RevenueCat (for non-Expo see [here](https://www.revenuecat.com/docs/getting-started/installation/reactnative)).
+
+  Make sure to initialize RevenueCat (`Purchases.configure()`) before initializing Helium.
 </Note>
 
 Configure Helium to use RevenueCat by passing `createRevenueCatPurchaseConfig` to `initialize`:
@@ -351,11 +346,7 @@ import { createRevenueCatPurchaseConfig } from "expo-helium/src/revenuecat";
 const asyncHeliumInit = async () => {
   await initialize({
     apiKey: '<your-helium-api-key>',
-    purchaseConfig: createRevenueCatPurchaseConfig(
-      // (optional) Set if you want Helium to initialize RevenueCat for you.
-      // Otherwise initialize RevenueCat (`Purchases.configure()`) before initializing Helium
-      { apiKey: 'revenue_cat_api_key' }
-    ),
+    purchaseConfig: createRevenueCatPurchaseConfig(),
     revenueCatAppUserId: await Purchases.getAppUserID()
   });
 };
@@ -388,6 +379,16 @@ useEffect(() => {
 ```
 
 </CodeGroup>
+
+#### RevenueCat appUserID
+
+If you ever [change the appUserID](https://www.revenuecat.com/docs/customers/identifying-customers#logging-in-after-configuration) of a user, keep Helium in sync with:
+
+```tsx
+import { setRevenueCatAppUserId } from 'expo-helium';
+
+setRevenueCatAppUserId(await Purchases.getAppUserID());
+```
 
 ### Custom Purchase Handling
 

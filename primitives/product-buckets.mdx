@@ -1,0 +1,372 @@
+---
+title: Product buckets
+description: Dynamically manage product offerings across your app
+---
+
+# Product buckets
+
+Product buckets are dynamic groups of subscription products that can be updated remotely without requiring app updates.
+
+## What are product buckets?
+
+Product buckets allow you to:
+
+- Group related products together
+- Update product offerings remotely
+- Assign products to paywalls dynamically
+- Run pricing experiments
+- Customize offerings by audience or region
+
+## Why use product buckets?
+
+### Flexibility
+
+Change products without app updates:
+- Add new subscription tiers
+- Remove discontinued products
+- Adjust product ordering
+- Run limited-time promotions
+
+### Consistency
+
+Manage products in one place:
+- Single source of truth
+- Consistent across platforms
+- Centralized control
+
+### Experimentation
+
+Test different product combinations:
+- A/B test pricing
+- Try different product orders
+- Test promotional offerings
+
+## Creating product buckets
+
+In the Helium dashboard:
+
+1. Navigate to **Product Buckets**
+2. Click **Create Bucket**
+3. Name your bucket
+4. Add products
+5. Set product order
+6. Save
+
+## Bucket structure
+
+A product bucket contains:
+
+```
+Bucket: premium_subscriptions
+Products:
+  1. monthly_premium ($9.99/month)
+  2. annual_premium ($99.99/year)
+  3. lifetime_premium ($299.99 one-time)
+```
+
+## Using product buckets
+
+### In paywalls
+
+Assign a bucket to a paywall:
+
+1. Edit your paywall
+2. Select **Product Bucket** as product source
+3. Choose your bucket
+4. Products will load dynamically
+
+### In code
+
+Reference products by bucket:
+
+```swift
+// iOS example
+Helium.shared.presentPaywall(productBucket: "premium_subscriptions")
+```
+
+```kotlin
+// Android example
+Helium.presentPaywall(productBucket = "premium_subscriptions")
+```
+
+## Product selection
+
+When a paywall uses a product bucket, Helium:
+
+1. Fetches current products in the bucket
+2. Filters by platform (iOS/Android)
+3. Filters by availability
+4. Returns products in specified order
+
+## Bucket strategies
+
+### Single default bucket
+
+One bucket for all users:
+
+```
+default_products:
+  - monthly_standard
+  - annual_standard
+```
+
+### Audience-specific buckets
+
+Different buckets for different audiences:
+
+```
+new_user_products:
+  - monthly_with_trial
+  - annual_with_discount
+
+existing_user_products:
+  - monthly_standard
+  - annual_standard
+```
+
+### Regional buckets
+
+Customize by region:
+
+```
+us_products:
+  - monthly_9_99
+  - annual_99_99
+
+eu_products:
+  - monthly_8_99
+  - annual_89_99
+```
+
+### Promotional buckets
+
+Special offers:
+
+```
+black_friday_products:
+  - monthly_discounted
+  - annual_50_off
+```
+
+## Updating buckets
+
+Changes take effect immediately:
+
+1. Edit bucket in dashboard
+2. Add, remove, or reorder products
+3. Save changes
+4. Next paywall load uses updated products
+
+No app update or review required.
+
+## Product ordering
+
+Order matters for display:
+
+### Most popular first
+
+```
+1. annual_premium (Most popular)
+2. monthly_premium
+3. lifetime_premium
+```
+
+### Highest value first
+
+```
+1. lifetime_premium
+2. annual_premium
+3. monthly_premium
+```
+
+### Strategic ordering
+
+```
+1. annual_premium (Highlighted)
+2. monthly_premium (Default)
+3. weekly_premium (Budget option)
+```
+
+## Platform-specific products
+
+Include products for specific platforms:
+
+```
+cross_platform_bucket:
+  - monthly_ios (iOS only)
+  - monthly_android (Android only)
+  - annual_ios (iOS only)
+  - annual_android (Android only)
+```
+
+Helium automatically filters by platform.
+
+## Fallback handling
+
+Include buckets in fallback bundles:
+
+1. Export bucket configuration
+2. Include in app bundle
+3. SDK uses local copy when offline
+
+## Best practices
+
+### Naming conventions
+
+Use descriptive names:
+- ✅ `premium_subscriptions`
+- ✅ `trial_offers`
+- ✅ `regional_us`
+- ❌ `bucket1`
+- ❌ `temp`
+
+### Product limits
+
+Keep buckets focused:
+- 2-4 products per bucket (optimal)
+- Maximum 6-8 products
+- Too many options reduce conversion
+
+### Documentation
+
+Document your buckets:
+- Purpose of each bucket
+- Which audiences see it
+- When to use it
+- Product details
+
+### Testing
+
+Test bucket changes:
+- Verify products load correctly
+- Check pricing displays properly
+- Test on all platforms
+- Validate fallback behavior
+
+### Version control
+
+Track bucket changes:
+- Document what changed
+- When it changed
+- Why it changed
+- Expected impact
+
+## Common patterns
+
+### Seasonal promotions
+
+```
+# Normal times
+default_bucket: standard_products
+
+# Holiday season
+default_bucket: holiday_sale_products
+```
+
+### A/B testing
+
+```
+experiment_control: standard_products
+experiment_variant_a: premium_products
+experiment_variant_b: budget_products
+```
+
+### Upgrade paths
+
+```
+free_to_basic: basic_products
+basic_to_premium: premium_products
+premium_to_pro: pro_products
+```
+
+### Trial strategies
+
+```
+new_users: products_with_7day_trial
+returning_users: products_with_3day_trial
+previous_subscribers: products_no_trial
+```
+
+## Analytics
+
+Track bucket performance:
+
+- **Conversion rate**: By bucket
+- **Revenue**: By bucket
+- **Product selection**: Which products users choose
+- **Bucket usage**: How often each bucket is shown
+
+## Integration with other features
+
+Product buckets work with:
+
+- **Paywalls**: Dynamic product assignment
+- **Audiences**: Show different buckets to different segments
+- **Experiments**: Test different product combinations
+- **Workflows**: Conditionally select buckets
+
+## Advanced usage
+
+### Dynamic bucket selection
+
+Select bucket based on user attributes:
+
+```swift
+// iOS example
+let bucket = user.isNewUser ? "trial_products" : "standard_products"
+Helium.shared.presentPaywall(productBucket: bucket)
+```
+
+### Fallback chains
+
+Specify fallback buckets:
+
+```
+Primary: regional_us_products
+Fallback: default_products
+```
+
+### Product filtering
+
+Filter products within a bucket:
+
+```swift
+// iOS example
+Helium.shared.presentPaywall(
+    productBucket: "all_products",
+    filter: { product in
+        product.price < 10.0
+    }
+)
+```
+
+## Troubleshooting
+
+### Products not showing
+
+Check:
+- Products exist in App Store Connect / Google Play
+- Products are active and available
+- Platform filter is correct
+- Bucket is assigned to paywall
+
+### Wrong products displaying
+
+Verify:
+- Correct bucket is referenced
+- Product order is as expected
+- Platform-specific products are filtered
+- Cache is up to date
+
+### Fallback not working
+
+Ensure:
+- Fallback bundle is included in app
+- Bucket is exported to fallback
+- Fallback configuration is valid
+
+## Next steps
+
+- Learn about [Paywalls](/primitives/paywalls)
+- Explore [Experiments](/primitives/experiments) with product buckets
+- Set up [Audiences](/primitives/audiences) for targeted product offerings

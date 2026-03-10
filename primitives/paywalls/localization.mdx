@@ -1,0 +1,142 @@
+---
+title: Localization
+description: Localize paywalls for different languages and regions
+---
+
+# Localization
+
+Localize your paywalls to provide native experiences for users in different countries and languages.
+
+## Why localize?
+
+Localized paywalls can significantly improve conversion rates by:
+
+- Speaking users' native language
+- Showing appropriate currency and pricing
+- Respecting cultural norms and preferences
+- Building trust with local audiences
+
+## Supported languages
+
+Helium supports localization for:
+
+- English
+- Spanish
+- French
+- German
+- Italian
+- Portuguese
+- Japanese
+- Korean
+- Chinese (Simplified and Traditional)
+- And more...
+
+## Setting up localization
+
+### In the dashboard
+
+1. Navigate to your paywall
+2. Click **Localization**
+3. Add languages
+4. Translate content for each language
+
+### Content to localize
+
+Translate all user-facing text:
+
+- Headlines and subheadlines
+- Product descriptions
+- Feature lists
+- Button text
+- Legal links and disclaimers
+
+### Product information
+
+Product names and descriptions are automatically localized based on your App Store Connect or Google Play Console configuration.
+
+## Currency and pricing
+
+Pricing is automatically displayed in the user's local currency based on:
+
+- App Store or Google Play pricing tiers
+- User's device region
+- Store account settings
+
+## Automatic language detection
+
+The SDK automatically detects the user's preferred language:
+
+```swift
+// iOS - Automatic detection
+Helium.shared.presentPaywall() // Shows localized version
+
+// Override language
+Helium.shared.presentPaywall(language: "es")
+```
+
+## Fallback behavior
+
+If a localization isn't available:
+
+1. SDK checks for user's preferred language
+2. Falls back to user's region language
+3. Falls back to default language (typically English)
+
+## Testing localization
+
+Test different languages:
+
+### iOS
+
+Change device language in Settings > General > Language & Region
+
+### Android
+
+Change device language in Settings > System > Languages
+
+### Programmatically
+
+```swift
+// iOS example
+Helium.shared.setTestLanguage("es")
+Helium.shared.presentPaywall()
+```
+
+## Best practices
+
+### Professional translation
+
+- Use professional translators, not machine translation
+- Ensure cultural appropriateness
+- Test with native speakers
+
+### Consistent terminology
+
+- Maintain consistent product names
+- Use standard industry terms
+- Keep brand voice across languages
+
+### Layout considerations
+
+- Account for text expansion (some languages are longer)
+- Test UI with actual translated content
+- Ensure buttons and labels don't truncate
+
+### Regional variations
+
+Consider regional differences:
+
+- Spanish (Spain) vs Spanish (Latin America)
+- Portuguese (Portugal) vs Portuguese (Brazil)
+- Chinese (Simplified) vs Chinese (Traditional)
+
+## Localization checklist
+
+- [ ] All text content translated
+- [ ] Product information localized in store
+- [ ] Images with text localized or text-free
+- [ ] Legal links point to localized terms
+- [ ] Tested on devices in each language
+- [ ] Currency displays correctly
+- [ ] Layout works with longer text
+- [ ] Cultural appropriateness verified

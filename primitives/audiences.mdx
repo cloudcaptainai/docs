@@ -1,0 +1,337 @@
+---
+title: Audiences
+description: Segment users for targeted experiences
+---
+
+# Audiences
+
+Audiences allow you to segment users into groups and deliver personalized paywall experiences based on user attributes and behavior.
+
+## What are audiences?
+
+Audiences are dynamic user segments defined by rules and conditions. They enable you to:
+
+- Target specific user groups
+- Personalize paywall content
+- Run targeted experiments
+- Optimize conversion by segment
+
+## Creating audiences
+
+In the Helium dashboard:
+
+1. Navigate to **Audiences**
+2. Click **Create Audience**
+3. Name your audience
+4. Define membership rules
+5. Save and activate
+
+## Audience rules
+
+Define who belongs to an audience using conditions:
+
+### User attributes
+
+```
+Country: United States
+Language: English
+Platform: iOS
+App version: >= 2.0
+```
+
+### Subscription status
+
+```
+Subscription status: Not subscribed
+Previous subscriber: Yes
+Trial status: Never started
+```
+
+### Behavior
+
+```
+Session count: > 10
+Days since install: > 7
+Feature usage: Used premium feature
+Last seen: Within 7 days
+```
+
+### Custom properties
+
+```
+User tier: "power_user"
+Referral source: "social_media"
+Lifetime value: > $50
+```
+
+## Audience types
+
+### Demographic audiences
+
+Based on user characteristics:
+
+```
+Audience: US iOS Users
+Rules:
+  - Country: US
+  - Platform: iOS
+```
+
+### Behavioral audiences
+
+Based on user actions:
+
+```
+Audience: Engaged Users
+Rules:
+  - Session count: > 20
+  - Days since install: > 14
+  - Feature usage: High
+```
+
+### Lifecycle audiences
+
+Based on user journey stage:
+
+```
+Audience: Trial Users
+Rules:
+  - Trial status: Active
+  - Days remaining: > 3
+```
+
+### Value-based audiences
+
+Based on revenue potential:
+
+```
+Audience: High Value Users
+Rules:
+  - Previous subscriber: Yes
+  - Lifetime value: > $100
+  - Engagement: High
+```
+
+## Using audiences
+
+### Targeted paywalls
+
+Show different paywalls to different audiences:
+
+```
+Audience: New Users
+Paywall: Onboarding paywall with trial emphasis
+
+Audience: Returning Users
+Paywall: Feature-focused paywall
+```
+
+### Experiments
+
+Run experiments on specific audiences:
+
+```
+Experiment: Pricing test
+Audience: US users only
+Variations: Test $9.99 vs $7.99
+```
+
+### Workflows
+
+Trigger workflows based on audience membership:
+
+```
+Workflow: Win-back campaign
+Trigger: App launch
+Conditions:
+  - User in "Lapsed Subscribers" audience
+Action: Present win-back paywall
+```
+
+### Product buckets
+
+Assign different products to different audiences:
+
+```
+Audience: Students
+Product bucket: Student discounts
+
+Audience: Professionals
+Product bucket: Premium offerings
+```
+
+## Dynamic audiences
+
+Audiences update automatically as users meet or no longer meet criteria:
+
+```
+User installs app → Joins "New Users" audience
+After 7 days → Leaves "New Users", joins "Active Users"
+After 30 days inactive → Joins "At Risk" audience
+```
+
+## Audience size
+
+Monitor audience size in the dashboard:
+
+- **Current size**: Number of users currently in audience
+- **Growth trend**: How audience size changes over time
+- **Overlap**: Users in multiple audiences
+
+## Testing audiences
+
+### Preview membership
+
+Check if specific users are in an audience:
+
+```swift
+// iOS example
+let isInAudience = Helium.shared.isUserInAudience("high_value_users")
+```
+
+### Test mode
+
+Simulate audience membership:
+
+```swift
+// iOS example
+Helium.shared.setTestAudience("power_users")
+```
+
+## Best practices
+
+### Clear definitions
+
+Define audiences with clear criteria:
+- ✅ "Users who completed onboarding and used app 5+ times"
+- ❌ "Good users"
+
+### Meaningful segments
+
+Create audiences that matter for your business:
+- Different conversion patterns
+- Different value propositions
+- Different pricing sensitivity
+
+### Avoid over-segmentation
+
+Don't create too many audiences:
+- Harder to manage
+- Smaller sample sizes
+- More complex logic
+
+### Regular review
+
+Periodically review audiences:
+- Are they still relevant?
+- Are sizes appropriate?
+- Are they performing as expected?
+
+## Common audience patterns
+
+### Onboarding stages
+
+```
+New Users: Days since install < 7
+Active Users: Session count > 10
+Power Users: Daily active for 30+ days
+```
+
+### Subscription lifecycle
+
+```
+Trial Users: Active trial
+Subscribers: Active subscription
+Lapsed: Subscription expired < 90 days ago
+Churned: Subscription expired > 90 days ago
+```
+
+### Engagement levels
+
+```
+High Engagement: Sessions > 50, Features used > 10
+Medium Engagement: Sessions 10-50, Features used 3-10
+Low Engagement: Sessions < 10, Features used < 3
+```
+
+### Geographic
+
+```
+North America: US, Canada, Mexico
+Europe: EU countries
+Asia Pacific: APAC countries
+```
+
+### Platform
+
+```
+iOS Users: Platform = iOS
+Android Users: Platform = Android
+Cross-platform: Used both iOS and Android
+```
+
+## Advanced features
+
+### Nested conditions
+
+Combine multiple conditions:
+
+```
+Audience: High-value iOS users
+Rules:
+  - Platform: iOS
+  - AND (
+      Lifetime value > $50
+      OR Previous subscriber: Yes
+    )
+  - AND Session count > 20
+```
+
+### Time-based rules
+
+Include time-based conditions:
+
+```
+Audience: Weekend users
+Rules:
+  - Last active: Weekend
+  - Session count: > 5 on weekends
+```
+
+### Exclusion rules
+
+Define who should NOT be in audience:
+
+```
+Audience: Potential subscribers
+Rules:
+  - Include: All users
+  - Exclude: Current subscribers
+  - Exclude: Trial users
+```
+
+## Analytics
+
+Track audience performance:
+
+- **Conversion rate**: By audience
+- **Revenue**: By audience
+- **Retention**: By audience
+- **Engagement**: By audience
+
+Use insights to refine audience definitions and targeting strategies.
+
+## Integration with other features
+
+Audiences work with:
+
+- **Experiments**: Test variations on specific segments
+- **Workflows**: Trigger different flows for different audiences
+- **Product buckets**: Show different products to different audiences
+- **Paywalls**: Customize content by audience
+
+## Next steps
+
+- Set up [Experiments](/primitives/experiments) with audience targeting
+- Create [Workflows](/primitives/workflows) for different audiences
+- Configure [Product buckets](/primitives/product-buckets) by audience

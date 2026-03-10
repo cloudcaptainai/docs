@@ -71,7 +71,7 @@ One CSR file must be used to issue exactly one certificate. If you switch your A
         backupPurchaseDelegate: StoreKitDelegate(), // or RevenueCatDelegate
         merchantIdentifier: "merchant.com.example",
         merchantName: "Your App Name",
-        managementURL: URL(string: "https://your-app.com/manage-subscription")!
+        managementURL: URL(string: "https://your-app.com/manage-subscription")! // e.g. link to generic Stripe portal or your website
         // countryCode: "US"   // optional, defaults to "US"
         // currencyCode: "USD"  // optional, defaults to "USD"
     )
@@ -148,7 +148,7 @@ One CSR file must be used to issue exactly one certificate. If you switch your A
       stripePublishableKey: '...',
       merchantIdentifier: 'merchant.your-merchant-identifier',
       merchantName: 'Your App Name',
-      managementURL: 'https://your-app.com/manage-subscription',
+      managementURL: 'https://your-app.com/manage-subscription', // e.g. link to generic Stripe portal or your website
       // countryCode: 'US',   // optional, defaults to "US"
       // currencyCode: 'USD',  // optional, defaults to "USD"
       // ...all existing HeliumConfig options still work
@@ -166,11 +166,59 @@ One CSR file must be used to issue exactly one certificate. If you switch your A
     - `await createStripePortalSession(returnUrl)` — Creates a Stripe Customer Portal session and returns the portal URL. Open this in a browser or in-app webview to let the user manage their subscriptions.
     - `await hasActiveStripeEntitlement()` — Returns `true` if the user has any active Stripe entitlement (e.g. an active subscription).
   </Tab>
+  <Tab title="Flutter">
+    <Note>
+      Stripe integration requires helium_flutter **3.2.4+**. If you have not integrated Helium yet, follow the [Flutter SDK Quickstart](/sdk/quickstart-flutter) first.
+    </Note>
+    <Warning>
+      Stripe One Tap is iOS only. On Android, Helium will continue to use standard initialization.
+    </Warning>
+    ### Install Package
+
+    Add `helium_stripe` to your `pubspec.yaml`:
+
+    ```yaml
+    dependencies:
+      helium_stripe: ^1.0.0
+    ```
+
+    ### Add Apple Pay Capability in Xcode
+
+    Open `ios/Runner.xcodeproj` in Xcode, click the **Signing & Capabilities** tab on the Runner target, and add the **Apple Pay** capability. Select the merchant ID you created in [Step 3](#3-get-an-apple-merchant-id) above.
+
+    ### Update Your Initialization Code
+
+    Replace `HeliumFlutter.initialize` with `HeliumStripe.initializeWithStripe`:
+
+    ```dart
+    import 'package:helium_stripe/helium_stripe.dart';
+
+    await HeliumStripe.initializeWithStripe(
+      apiKey: 'your-helium-api-key',
+      stripePublishableKey: 'pk_live_...',
+      merchantIdentifier: 'merchant.com.yourapp',
+      merchantName: 'Your App',
+      managementURL: 'https://yourapp.com/manage', // e.g. link to generic Stripe portal or your website
+      // countryCode: 'US',   // optional, defaults to "US"
+      // currencyCode: 'USD', // optional, defaults to "USD"
+      // ...all existing HeliumFlutter.initialize options still work
+    );
+    ```
+
+    ### Additional Stripe Functions
+
+    The following functions are available from `helium_stripe` (iOS only — no-ops on other platforms):
+
+    - `HeliumStripe.setUserIdAndSyncStripeIfNeeded('user-id')` — Sets the user ID and syncs Stripe entitlements if needed. Call this instead of setting `customUserId` directly.
+    - `HeliumStripe.resetStripeEntitlements(clearUserId: false)` — Resets Stripe entitlements and optionally clears the user ID. Use this to "log out" a Stripe user if your app supports multiple Stripe users on the same device.
+    - `await HeliumStripe.createStripePortalSession('yourapp://return')` — Creates a Stripe Customer Portal session and returns the portal URL (or `null`). Open this in a browser or in-app webview to let the user manage their subscriptions.
+    - `await HeliumStripe.hasActiveStripeEntitlement()` — Returns `true` if the user has any active Stripe entitlement (e.g. an active subscription).
+  </Tab>
 </Tabs>
 
 ## Checking Entitlements
 
-The Helium SDK provides entitlement helper methods that work with Stripe purchases. See the entitlements section in the [iOS Quickstart](/sdk/quickstart-ios#checking-subscription-status--entitlements) or [React Native Quickstart](/sdk/quickstart-react-native#checking-subscription-status--entitlements) for the full API reference.
+The Helium SDK provides entitlement helper methods that work with Stripe purchases. See the entitlements section in the [iOS Quickstart](/sdk/quickstart-ios#checking-subscription-status--entitlements), [React Native Quickstart](/sdk/quickstart-react-native#checking-subscription-status--entitlements), or [Flutter Quickstart](/sdk/quickstart-flutter#checking-subscription-status--entitlements) for the full API reference.
 
 <Warning>
   On iOS, some entitlement methods (e.g. `hasActiveSubscriptionFor(subscriptionGroupID:)`, `subscriptionStatusFor(...)`, `activeSubscriptions()`) rely on StoreKit and will **not** reflect Stripe purchases. For Stripe, use `hasEntitlementForPaywall(trigger:)`, `hasActiveEntitlementFor(productId:)`, `hasAnyActiveSubscription()`, and `hasAny()` instead.

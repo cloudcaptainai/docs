@@ -1,0 +1,337 @@
+---
+title: Custom paywall events
+description: Track custom events from your paywalls
+---
+
+# Custom paywall events
+
+Custom paywall events allow you to track user interactions and behaviors within your paywalls beyond the standard events Helium automatically tracks.
+
+## What are custom paywall events?
+
+Custom events are user-defined tracking points that capture specific interactions or milestones in your paywall experience.
+
+## Why track custom events?
+
+Custom events help you:
+
+- **Understand user behavior**: See how users interact with paywalls
+- **Optimize conversion**: Identify friction points
+- **Measure engagement**: Track which elements users interact with
+- **Debug issues**: Identify where users drop off
+- **Inform decisions**: Make data-driven improvements
+
+## Automatic events
+
+Helium automatically tracks these events:
+
+- `paywall_viewed`: Paywall was displayed
+- `paywall_dismissed`: User closed the paywall
+- `product_selected`: User tapped a product
+- `purchase_started`: Purchase flow initiated
+- `purchase_completed`: Subscription purchased
+- `purchase_failed`: Purchase encountered an error
+- `restore_started`: User tapped restore purchases
+- `restore_completed`: Restore purchases succeeded
+
+## Creating custom events
+
+Track custom events from your paywalls:
+
+```swift
+// iOS example
+Helium.shared.trackPaywallEvent("feature_comparison_viewed")
+```
+
+```kotlin
+// Android example
+Helium.trackPaywallEvent("feature_comparison_viewed")
+```
+
+## Event properties
+
+Add context with event properties:
+
+```swift
+// iOS example
+Helium.shared.trackPaywallEvent("video_played", properties: [
+    "video_id": "intro_video",
+    "duration": 30,
+    "completed": false
+])
+```
+
+```kotlin
+// Android example
+Helium.trackPaywallEvent("video_played", mapOf(
+    "video_id" to "intro_video",
+    "duration" to 30,
+    "completed" to false
+))
+```
+
+## Common custom events
+
+### User interactions
+
+```swift
+// User tapped FAQ
+Helium.shared.trackPaywallEvent("faq_tapped")
+
+// User expanded feature details
+Helium.shared.trackPaywallEvent("feature_details_expanded", properties: [
+    "feature": "advanced_editor"
+])
+
+// User watched testimonial video
+Helium.shared.trackPaywallEvent("testimonial_video_viewed")
+```
+
+### Navigation
+
+```swift
+// User scrolled to bottom
+Helium.shared.trackPaywallEvent("paywall_scrolled_to_bottom")
+
+// User switched between tabs
+Helium.shared.trackPaywallEvent("tab_changed", properties: [
+    "from_tab": "monthly",
+    "to_tab": "annual"
+])
+```
+
+### Engagement
+
+```swift
+// User spent significant time
+Helium.shared.trackPaywallEvent("paywall_engaged", properties: [
+    "time_spent": 45
+])
+
+// User interacted with calculator
+Helium.shared.trackPaywallEvent("savings_calculator_used", properties: [
+    "calculated_savings": 120
+])
+```
+
+## Event naming conventions
+
+Use clear, consistent names:
+
+### Good names
+
+- `feature_comparison_viewed`
+- `testimonial_video_played`
+- `faq_item_expanded`
+- `pricing_calculator_used`
+
+### Avoid
+
+- `event1`
+- `click`
+- `thing_happened`
+- `test`
+
+## Event properties best practices
+
+### Use consistent types
+
+```swift
+// ✅ Good
+properties: [
+    "duration": 30,           // Number
+    "completed": true,        // Boolean
+    "video_id": "intro"       // String
+]
+
+// ❌ Avoid
+properties: [
+    "duration": "30 seconds", // Should be number
+    "completed": "yes",       // Should be boolean
+]
+```
+
+### Keep properties relevant
+
+```swift
+// ✅ Good - relevant properties
+Helium.shared.trackPaywallEvent("product_selected", properties: [
+    "product_id": "monthly_premium",
+    "price": 9.99,
+    "position": 1
+])
+
+// ❌ Too much - irrelevant properties
+Helium.shared.trackPaywallEvent("product_selected", properties: [
+    "product_id": "monthly_premium",
+    "user_name": "John",
+    "device_model": "iPhone 14",
+    "battery_level": 85
+])
+```
+
+## Viewing custom events
+
+### In the dashboard
+
+View custom events in the Helium dashboard:
+
+1. Navigate to **Events**
+2. Filter by event name
+3. View event properties
+4. Analyze trends over time
+
+### Event analytics
+
+Track metrics for custom events:
+
+- **Event count**: How many times event fired
+- **Unique users**: How many users triggered event
+- **Conversion correlation**: How events relate to conversions
+- **Property distribution**: Common property values
+
+## Integration with analytics
+
+Custom events can be forwarded to third-party analytics platforms. See [Third-party analytics integrations](/analytics/third-party-integrations).
+
+## Use cases
+
+### Optimize paywall design
+
+Track which elements users interact with:
+
+```swift
+Helium.shared.trackPaywallEvent("feature_bullet_tapped", properties: [
+    "feature": "unlimited_exports"
+])
+```
+
+Analyze which features resonate most with users.
+
+### Measure content effectiveness
+
+Track engagement with different content:
+
+```swift
+Helium.shared.trackPaywallEvent("testimonial_viewed", properties: [
+    "testimonial_id": "user_123",
+    "position": 2
+])
+```
+
+See which testimonials drive conversions.
+
+### Identify friction points
+
+Track where users hesitate:
+
+```swift
+Helium.shared.trackPaywallEvent("terms_link_tapped")
+Helium.shared.trackPaywallEvent("privacy_policy_viewed")
+```
+
+Understand what concerns users have.
+
+### A/B test insights
+
+Track variant-specific interactions:
+
+```swift
+Helium.shared.trackPaywallEvent("cta_button_tapped", properties: [
+    "variant": "variant_a",
+    "button_text": "Start Free Trial"
+])
+```
+
+## Performance considerations
+
+### Event volume
+
+Be mindful of event volume:
+- Don't track every pixel scroll
+- Focus on meaningful interactions
+- Batch events when possible
+
+### Property size
+
+Keep properties concise:
+- Avoid large strings
+- Don't include sensitive data
+- Limit number of properties
+
+## Privacy and compliance
+
+### User consent
+
+Ensure you have user consent for tracking:
+- Follow GDPR requirements
+- Respect user privacy settings
+- Provide opt-out mechanisms
+
+### Sensitive data
+
+Never track:
+- Personal identifying information
+- Payment details
+- Passwords or credentials
+- Health information
+
+## Testing custom events
+
+### Debug mode
+
+Enable debug logging to verify events:
+
+```swift
+// iOS example
+Helium.shared.setLogLevel(.verbose)
+Helium.shared.trackPaywallEvent("test_event")
+// Check console for event confirmation
+```
+
+### Event validation
+
+Verify events in dashboard:
+1. Trigger event in test environment
+2. Check dashboard for event appearance
+3. Verify properties are correct
+4. Confirm event timing
+
+## Best practices
+
+### Track meaningful events
+
+Focus on events that:
+- Inform product decisions
+- Correlate with conversions
+- Identify user pain points
+- Measure engagement
+
+### Consistent naming
+
+Use a naming convention:
+- `object_action` format (e.g., `video_played`)
+- Lowercase with underscores
+- Descriptive and specific
+
+### Document events
+
+Maintain documentation of:
+- Event names and purposes
+- Property definitions
+- When events fire
+- How to interpret data
+
+### Regular review
+
+Periodically review:
+- Which events are still useful
+- Event volume and performance
+- Data quality
+- New events needed
+
+## Next steps
+
+- Learn about [Revenue tracking](/events/revenue-tracking)
+- Explore [Third-party analytics integrations](/analytics/third-party-integrations)
+- Set up [Experiments](/primitives/experiments) using event data

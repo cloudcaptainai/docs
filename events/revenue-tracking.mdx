@@ -1,0 +1,344 @@
+---
+title: Revenue tracking
+description: Track and analyze subscription revenue
+---
+
+# Revenue tracking
+
+Revenue tracking allows you to monitor subscription revenue, analyze trends, and measure the financial impact of your monetization strategies.
+
+## What is revenue tracking?
+
+Revenue tracking captures and reports all subscription-related financial events, including:
+
+- New subscriptions
+- Renewals
+- Upgrades and downgrades
+- Refunds
+- Trial conversions
+
+## Automatic revenue tracking
+
+Helium automatically tracks revenue events:
+
+### Purchase events
+
+- **Initial purchase**: First subscription purchase
+- **Renewal**: Automatic subscription renewal
+- **Upgrade**: User upgrades to higher tier
+- **Downgrade**: User downgrades to lower tier
+
+### Revenue events
+
+- **Trial started**: Free trial begins (no revenue)
+- **Trial converted**: Trial converts to paid subscription
+- **Refund**: Subscription refunded
+- **Cancellation**: Subscription cancelled (future revenue impact)
+
+## Revenue metrics
+
+### Key metrics tracked
+
+- **Total revenue**: All subscription revenue
+- **Monthly recurring revenue (MRR)**: Normalized monthly revenue
+- **Annual recurring revenue (ARR)**: Normalized annual revenue
+- **Average revenue per user (ARPU)**: Revenue divided by users
+- **Lifetime value (LTV)**: Predicted total revenue per user
+
+### Cohort analysis
+
+Track revenue by user cohorts:
+- Install date cohorts
+- Subscription start cohorts
+- Geographic cohorts
+- Platform cohorts
+
+## Viewing revenue data
+
+### Dashboard
+
+Access revenue analytics in the Helium dashboard:
+
+1. Navigate to **Analytics**
+2. Select **Revenue**
+3. Choose date range
+4. Filter by product, platform, or region
+
+### Reports
+
+Generate revenue reports:
+- Daily revenue trends
+- Product performance
+- Conversion funnels
+- Retention curves
+
+## Revenue attribution
+
+### Source attribution
+
+Track revenue by acquisition source:
+
+```swift
+// iOS example - Set attribution
+Helium.shared.setUserProperty("acquisition_source", value: "facebook_ads")
+```
+
+Analyze which sources drive highest revenue.
+
+### Campaign attribution
+
+Attribute revenue to specific campaigns:
+
+```swift
+// iOS example
+Helium.shared.setUserProperty("campaign", value: "summer_sale_2024")
+```
+
+### Experiment attribution
+
+Revenue is automatically attributed to experiments:
+- Control vs variant revenue
+- Statistical significance
+- Revenue lift calculations
+
+## Revenue events in code
+
+While Helium tracks revenue automatically, you can access revenue events:
+
+```swift
+// iOS example - Listen for revenue events
+Helium.shared.onRevenueEvent { event in
+    print("Revenue event: \(event.type)")
+    print("Amount: \(event.amount)")
+    print("Product: \(event.productId)")
+}
+```
+
+## Third-party integration
+
+Forward revenue events to analytics platforms:
+
+### Supported platforms
+
+- Google Analytics
+- Firebase Analytics
+- Mixpanel
+- Amplitude
+- Segment
+- Custom webhooks
+
+### Configuration
+
+Configure in the Helium dashboard:
+
+1. Navigate to **Integrations**
+2. Select analytics platform
+3. Enter API credentials
+4. Map revenue events
+5. Enable integration
+
+See [Third-party analytics integrations](/analytics/third-party-integrations) for details.
+
+## Revenue validation
+
+### Receipt validation
+
+Helium automatically validates receipts:
+
+- **iOS**: App Store receipt validation
+- **Android**: Google Play purchase verification
+
+This ensures revenue data is accurate and prevents fraud.
+
+### Server-to-server notifications
+
+Helium processes server notifications from app stores:
+
+- Real-time revenue updates
+- Renewal notifications
+- Cancellation alerts
+- Refund notifications
+
+## Revenue reconciliation
+
+### App store reports
+
+Compare Helium revenue data with app store reports:
+
+1. Export revenue from Helium dashboard
+2. Download app store financial reports
+3. Reconcile differences
+4. Investigate discrepancies
+
+### Common discrepancies
+
+- **Timing differences**: Events may be reported at different times
+- **Refunds**: May appear in different periods
+- **Currency conversion**: Exchange rate differences
+- **Tax handling**: Gross vs net revenue
+
+## Revenue forecasting
+
+### Predictive analytics
+
+Helium provides revenue forecasts based on:
+
+- Historical trends
+- Cohort behavior
+- Retention rates
+- Seasonal patterns
+
+### Scenario modeling
+
+Model revenue impact of changes:
+
+- Price adjustments
+- New product offerings
+- Conversion rate improvements
+- Retention improvements
+
+## Revenue optimization
+
+### Identify opportunities
+
+Use revenue data to find optimization opportunities:
+
+- **Low-converting products**: Consider pricing changes
+- **High-churn products**: Improve value proposition
+- **Seasonal trends**: Plan promotional campaigns
+- **Geographic variations**: Adjust regional pricing
+
+### A/B testing impact
+
+Measure revenue impact of experiments:
+
+```
+Experiment: Pricing test
+Control revenue: $10,000
+Variant revenue: $12,500
+Lift: +25%
+```
+
+## Revenue alerts
+
+Set up alerts for revenue events:
+
+### Threshold alerts
+
+```
+Alert: Daily revenue below $1,000
+Notification: Email to team
+```
+
+### Anomaly detection
+
+```
+Alert: Revenue drops >20% from average
+Notification: Slack message
+```
+
+### Milestone alerts
+
+```
+Alert: Monthly revenue exceeds $100,000
+Notification: Celebrate! 🎉
+```
+
+## Privacy and compliance
+
+### Data handling
+
+Revenue data is:
+- Encrypted in transit and at rest
+- Stored securely
+- Accessible only to authorized users
+- Retained per your data retention policy
+
+### Compliance
+
+Helium revenue tracking complies with:
+- GDPR
+- CCPA
+- App Store guidelines
+- Google Play policies
+
+## Best practices
+
+### Regular monitoring
+
+- Review revenue daily
+- Analyze trends weekly
+- Deep dive monthly
+- Strategic planning quarterly
+
+### Segment analysis
+
+Analyze revenue by:
+- Product
+- Platform
+- Region
+- User segment
+- Acquisition source
+
+### Combine with other metrics
+
+Don't look at revenue in isolation:
+- Conversion rates
+- Retention rates
+- User engagement
+- Customer satisfaction
+
+### Act on insights
+
+Use revenue data to:
+- Inform product decisions
+- Optimize pricing
+- Improve user experience
+- Guide marketing spend
+
+## Troubleshooting
+
+### Missing revenue events
+
+If revenue isn't tracking:
+
+1. Verify SDK integration
+2. Check receipt validation
+3. Confirm server notifications are enabled
+4. Review error logs
+
+### Incorrect amounts
+
+If revenue amounts are wrong:
+
+1. Check currency conversion settings
+2. Verify tax handling configuration
+3. Confirm product pricing in app stores
+4. Review refund processing
+
+### Delayed reporting
+
+Revenue may be delayed due to:
+- App store processing time
+- Server notification delays
+- Time zone differences
+- Batch processing schedules
+
+## API access
+
+Access revenue data programmatically:
+
+```bash
+# Example API request
+curl -X GET "https://api.helium.com/v1/revenue" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json"
+```
+
+See API documentation for details.
+
+## Next steps
+
+- Set up [Third-party analytics integrations](/analytics/third-party-integrations)
+- Learn about [Custom paywall events](/events/custom-paywall-events)
+- Explore [Experiments](/primitives/experiments) to optimize revenue

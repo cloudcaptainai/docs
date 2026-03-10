@@ -1,0 +1,95 @@
+---
+title: Fallbacks
+description: Handle offline scenarios and network failures gracefully
+---
+
+# Fallbacks
+
+Fallback paywalls ensure your app can present subscription offers even when network connectivity is unavailable or Helium's servers are unreachable.
+
+## Why fallbacks matter
+
+Users may encounter paywalls when:
+- Device is offline
+- Network connection is poor
+- Helium's CDN is temporarily unavailable
+- Initial app launch before data is cached
+
+Without fallbacks, you risk losing conversion opportunities during these scenarios.
+
+## How fallbacks work
+
+1. **Primary attempt**: SDK tries to fetch the latest paywall from Helium
+2. **Cache check**: If network fails, SDK checks for cached paywall data
+3. **Fallback bundle**: If no cache exists, SDK uses the bundled fallback paywall
+4. **Graceful degradation**: User sees a functional paywall regardless of network state
+
+## Setting up fallbacks
+
+### Include fallback bundle
+
+Bundle a static paywall configuration with your app:
+
+```swift
+// iOS example
+Helium.configure(
+    apiKey: "your-api-key",
+    fallbackBundle: "helium-fallback"
+)
+```
+
+### Create fallback content
+
+In your Helium dashboard:
+
+1. Navigate to Paywalls
+2. Select the paywall to use as fallback
+3. Export the fallback bundle
+4. Add the bundle to your app's resources
+
+### Test fallback behavior
+
+Simulate offline scenarios:
+
+```swift
+// iOS example - Force fallback mode
+Helium.shared.setTestMode(.forceFallback)
+Helium.shared.presentPaywall()
+```
+
+## Fallback limitations
+
+Fallback paywalls have some constraints:
+
+- **Static content**: Cannot include dynamic experiments or personalization
+- **Fixed products**: Product offerings are predetermined
+- **No analytics**: Limited event tracking until connectivity is restored
+- **Stale data**: May show outdated pricing or features
+
+## Best practices
+
+### Keep fallbacks updated
+
+Update your fallback bundle with each app release to ensure:
+- Current pricing is displayed
+- Latest product offerings are available
+- Messaging aligns with your current marketing
+
+### Design for offline
+
+Create fallback paywalls that:
+- Work without images (or bundle images locally)
+- Don't rely on dynamic content
+- Include all essential products
+- Have clear, timeless messaging
+
+### Monitor fallback usage
+
+Track how often fallbacks are triggered to identify:
+- Network reliability issues
+- CDN performance problems
+- Opportunities to improve caching
+
+## Fallback causes
+
+See the [fallback causes reference](/sdk-reference/fallback-causes) for detailed information on why fallbacks are triggered.

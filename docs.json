@@ -11,48 +11,64 @@
   "navigation": {
     "groups": [
       {
-        "group": "Getting Started",
+        "group": "Introduction",
         "icon": "flag",
         "pages": [
-          "getting-started/introduction",
-          "getting-started/quickstart"
+          "introduction/what-you-can-do",
+          "introduction/billing-setup",
+          "introduction/contact"
         ]
       },
       {
         "group": "SDK Quickstarts",
         "icon": "code",
         "pages": [
-          "sdk/quickstart-ios",
-          "sdk/quickstart-android",
-          "sdk/quickstart-react-native",
-          "sdk/quickstart-flutter",
-          "sdk/helium-events"
+          "sdk-quickstarts/overview",
+          "sdk-quickstarts/paywall-presentation",
+          "sdk-quickstarts/feature-availability",
+          "sdk-quickstarts/fallbacks",
+          "sdk-quickstarts/storekit-testing"
         ]
       },
       {
-        "group": "Guides",
-        "icon": "compass",
+        "group": "Primitives",
+        "icon": "cube",
         "pages": [
-          "guides/revenue-reporting",
-          "guides/fallback-bundle",
-          "guides/ways-to-show-paywall",
-          "guides/third-party-analytics",
-          "guides/custom-events",
-          "guides/storekit-testing"
+          {
+            "group": "Paywalls",
+            "pages": [
+              "primitives/paywalls",
+              "primitives/paywalls/localization",
+              "primitives/paywalls/product-buckets"
+            ]
+          },
+          "primitives/workflows",
+          "primitives/triggers",
+          "primitives/experiments",
+          "primitives/audiences",
+          "primitives/product-buckets"
         ]
       },
       {
-        "group": "SDK Reference",
-        "icon": "book-open",
+        "group": "Events",
+        "icon": "chart-line",
         "pages": [
-          "sdk-reference/sdk-features",
-          "sdk-reference/fallback-causes"
+          "events/custom-paywall-events",
+          "events/revenue-tracking"
+        ]
+      },
+      {
+        "group": "Analytics",
+        "icon": "chart-bar",
+        "pages": [
+          "analytics/third-party-integrations"
         ]
       },
       {
         "group": "Migrations",
         "icon": "arrow-up-right-dots",
         "pages": [
+          "migrations/overview",
           "migrations/ios-3-to-4",
           "migrations/android-0-to-4",
           "migrations/ios-2-to-3"

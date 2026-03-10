@@ -1,0 +1,280 @@
+---
+title: Triggers
+description: Define events that initiate paywall presentation
+---
+
+# Triggers
+
+Triggers are events that can initiate paywall presentation or workflow execution. They define when your monetization logic should activate.
+
+## What are triggers?
+
+Triggers are named events that occur in your app. When a trigger fires, Helium evaluates associated workflows and determines whether to present a paywall.
+
+## Built-in triggers
+
+Helium provides several built-in triggers:
+
+### App lifecycle
+
+- **app_launch**: App starts or returns to foreground
+- **app_install**: First app launch after installation
+- **app_update**: First launch after app update
+
+### Subscription events
+
+- **subscription_expired**: User's subscription has expired
+- **trial_started**: User started a free trial
+- **trial_ending**: Trial will expire soon (configurable threshold)
+- **subscription_renewed**: Subscription successfully renewed
+
+### User actions
+
+- **feature_accessed**: User attempts to access a feature
+- **content_viewed**: User views specific content
+- **limit_reached**: User hits usage limit
+
+## Custom triggers
+
+Create custom triggers for your specific use cases:
+
+```swift
+// iOS example
+Helium.shared.trigger("premium_feature_tapped")
+```
+
+```kotlin
+// Android example
+Helium.trigger("premium_feature_tapped")
+```
+
+## Trigger properties
+
+Attach additional data to triggers:
+
+```swift
+// iOS example
+Helium.shared.trigger("feature_accessed", properties: [
+    "feature_name": "advanced_editor",
+    "access_count": 3
+])
+```
+
+Use properties in workflow conditions:
+
+```
+Trigger: feature_accessed
+Conditions:
+  - feature_name == "advanced_editor"
+  - access_count > 2
+Action: Present paywall
+```
+
+## Creating triggers
+
+### In the dashboard
+
+1. Navigate to **Triggers**
+2. Click **Create Trigger**
+3. Name your trigger
+4. Define trigger properties (optional)
+5. Associate with workflows
+
+### In code
+
+Implement trigger calls at appropriate points:
+
+```swift
+// iOS example - Feature gate
+func openPremiumFeature() {
+    if !user.isSubscribed {
+        Helium.shared.trigger("premium_feature_accessed")
+    }
+    // Feature logic...
+}
+```
+
+## Trigger timing
+
+### Immediate triggers
+
+Fire as soon as the event occurs:
+
+```swift
+Helium.shared.trigger("button_tapped")
+```
+
+### Delayed triggers
+
+Fire after a delay:
+
+```swift
+// iOS example
+Helium.shared.trigger("app_launch", delay: 3.0)
+```
+
+### Scheduled triggers
+
+Fire at specific times (configured in dashboard):
+
+```
+Trigger: trial_reminder
+Schedule: Daily at 10:00 AM
+```
+
+## Trigger conditions
+
+Add conditions to triggers to control when they fire:
+
+### Frequency limits
+
+```
+Max frequency: Once per day
+```
+
+### User state
+
+```
+Only trigger if:
+  - Not subscribed
+  - Session count > 5
+```
+
+### Time windows
+
+```
+Only trigger between:
+  - 9:00 AM - 9:00 PM user local time
+```
+
+## Testing triggers
+
+### Manual triggering
+
+Test triggers manually:
+
+```swift
+// iOS example
+Helium.shared.setTestMode(.enabled)
+Helium.shared.trigger("test_trigger")
+```
+
+### Trigger logs
+
+View trigger activity in the dashboard:
+- When triggers fired
+- Associated properties
+- Which workflows executed
+- Resulting actions
+
+## Best practices
+
+### Naming conventions
+
+Use clear, descriptive names:
+- `premium_feature_accessed` not `trigger1`
+- `trial_ending_soon` not `temp_trigger`
+- `onboarding_completed` not `done`
+
+### Strategic placement
+
+Place triggers where they make sense:
+- Before showing premium features
+- After demonstrating value
+- At natural decision points
+
+### Don't over-trigger
+
+Avoid:
+- Triggering too frequently
+- Interrupting critical flows
+- Annoying users with repeated prompts
+
+### Include context
+
+Add relevant properties:
+
+```swift
+Helium.shared.trigger("content_viewed", properties: [
+    "content_type": "article",
+    "content_id": "123",
+    "view_duration": 45
+])
+```
+
+## Common patterns
+
+### Feature gating
+
+```swift
+func accessPremiumFeature() {
+    guard user.isSubscribed else {
+        Helium.shared.trigger("premium_feature_gate")
+        return
+    }
+    // Show feature
+}
+```
+
+### Usage limits
+
+```swift
+func performAction() {
+    usageCount += 1
+    
+    if usageCount >= freeLimit && !user.isSubscribed {
+        Helium.shared.trigger("usage_limit_reached", properties: [
+            "limit": freeLimit,
+            "count": usageCount
+        ])
+    }
+}
+```
+
+### Onboarding completion
+
+```swift
+func completeOnboarding() {
+    // Onboarding logic...
+    
+    Helium.shared.trigger("onboarding_completed", properties: [
+        "steps_completed": 5,
+        "time_spent": 120
+    ])
+}
+```
+
+### Time-based prompts
+
+```swift
+func checkTrialStatus() {
+    if let trialEndDate = user.trialEndDate {
+        let daysRemaining = trialEndDate.daysFromNow
+        
+        if daysRemaining <= 3 {
+            Helium.shared.trigger("trial_ending_soon", properties: [
+                "days_remaining": daysRemaining
+            ])
+        }
+    }
+}
+```
+
+## Integration with workflows
+
+Triggers are the entry point for workflows:
+
+```
+Workflow: Premium feature gate
+Trigger: premium_feature_accessed
+Conditions:
+  - Not subscribed
+  - Access count > 2
+Action: Present feature_gate_paywall
+```
+
+## Next steps
+
+- Learn about [Workflows](/primitives/workflows)
+- Explore [Experiments](/primitives/experiments)
+- Set up [Audiences](/primitives/audiences)

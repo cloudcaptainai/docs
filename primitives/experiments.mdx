@@ -1,0 +1,324 @@
+---
+title: Experiments
+description: Run A/B tests to optimize conversion rates
+---
+
+# Experiments
+
+Experiments allow you to test different paywall variations, pricing strategies, and messaging to optimize your subscription conversion rates.
+
+## What are experiments?
+
+Experiments (also called A/B tests) show different variations of your paywalls to different users and measure which performs better.
+
+## Why run experiments?
+
+Experiments help you:
+
+- **Increase conversions**: Find the most effective paywall design
+- **Optimize pricing**: Test different price points and offerings
+- **Improve messaging**: Discover which copy resonates with users
+- **Reduce churn**: Test retention strategies
+- **Make data-driven decisions**: Replace guesswork with evidence
+
+## Creating experiments
+
+In the Helium dashboard:
+
+1. Navigate to **Experiments**
+2. Click **Create Experiment**
+3. Define your hypothesis
+4. Create variations
+5. Set traffic allocation
+6. Configure success metrics
+7. Launch experiment
+
+## Experiment components
+
+### Control group
+
+The baseline variation (usually your current paywall):
+
+```
+Control: Current paywall design
+Traffic: 50%
+```
+
+### Variants
+
+Alternative versions to test:
+
+```
+Variant A: New headline and pricing
+Traffic: 25%
+
+Variant B: Different product order
+Traffic: 25%
+```
+
+### Success metrics
+
+What you're measuring:
+
+- Conversion rate
+- Revenue per user
+- Trial start rate
+- Subscription retention
+
+## Types of experiments
+
+### Design experiments
+
+Test visual elements:
+- Layout and spacing
+- Colors and fonts
+- Images and icons
+- Button styles
+
+### Pricing experiments
+
+Test different pricing strategies:
+- Price points
+- Product offerings
+- Free trial lengths
+- Promotional discounts
+
+### Messaging experiments
+
+Test different copy:
+- Headlines
+- Value propositions
+- Feature descriptions
+- Call-to-action text
+
+### Product experiments
+
+Test product configurations:
+- Number of options
+- Product ordering
+- Default selections
+- Product buckets
+
+## Traffic allocation
+
+Distribute users across variations:
+
+### Equal split
+
+```
+Control: 33%
+Variant A: 33%
+Variant B: 34%
+```
+
+### Weighted split
+
+```
+Control: 70%
+Variant A: 30%
+```
+
+### Gradual rollout
+
+```
+Week 1: Control 90%, Variant 10%
+Week 2: Control 70%, Variant 30%
+Week 3: Control 50%, Variant 50%
+```
+
+## Statistical significance
+
+Helium automatically calculates:
+
+- **Confidence level**: How certain we are about results
+- **Sample size**: Number of users in each variation
+- **P-value**: Statistical significance
+- **Lift**: Percentage improvement over control
+
+Wait for statistical significance before making decisions (typically 95% confidence).
+
+## Running experiments
+
+### Duration
+
+Run experiments long enough to:
+- Reach statistical significance
+- Account for weekly patterns
+- Include different user cohorts
+
+Typical duration: 1-4 weeks
+
+### Sample size
+
+Ensure adequate sample size:
+- Minimum: ~1000 users per variation
+- More for smaller effect sizes
+- Consider your traffic volume
+
+### Consistency
+
+Users always see the same variation:
+- Assigned on first view
+- Consistent across sessions
+- Tracked by user ID
+
+## Analyzing results
+
+### Key metrics
+
+Monitor:
+- **Conversion rate**: % of users who subscribe
+- **Revenue per user**: Average revenue generated
+- **Statistical significance**: Confidence in results
+- **Secondary metrics**: Trial starts, engagement, etc.
+
+### Dashboard view
+
+View experiment results:
+- Real-time metrics
+- Variation comparison
+- Statistical analysis
+- User segmentation
+
+## Implementing winners
+
+When a variation wins:
+
+1. Review results and confirm significance
+2. Stop the experiment
+3. Make the winning variation the default
+4. Document learnings
+5. Plan next experiment
+
+## Best practices
+
+### One variable at a time
+
+Test one thing per experiment:
+- ✅ Test headline only
+- ❌ Test headline + pricing + layout
+
+### Clear hypothesis
+
+Start with a hypothesis:
+- "Emphasizing the free trial will increase conversions"
+- "Showing annual savings will increase annual subscriptions"
+
+### Sufficient duration
+
+Don't stop too early:
+- Wait for statistical significance
+- Account for day-of-week effects
+- Include multiple user cohorts
+
+### Document everything
+
+Record:
+- Hypothesis
+- Variations tested
+- Results and insights
+- Next steps
+
+### Iterate continuously
+
+- Always have an experiment running
+- Build on previous learnings
+- Test incrementally
+
+## Common pitfalls
+
+### Stopping too early
+
+Avoid:
+- Declaring winners before significance
+- Reacting to early trends
+- Not accounting for variance
+
+### Testing too much
+
+Avoid:
+- Multiple changes in one experiment
+- Too many variations
+- Complex multivariate tests
+
+### Ignoring segments
+
+Consider:
+- Different user segments may respond differently
+- Regional variations
+- Platform differences (iOS vs Android)
+
+## Advanced techniques
+
+### Multivariate testing
+
+Test multiple variables simultaneously:
+
+```
+Headline A + Price A
+Headline A + Price B
+Headline B + Price A
+Headline B + Price B
+```
+
+Requires larger sample sizes.
+
+### Sequential testing
+
+Run experiments in sequence:
+
+```
+Experiment 1: Test headline → Winner: Headline B
+Experiment 2: Test pricing with Headline B → Winner: Price A
+Experiment 3: Test layout with Headline B + Price A
+```
+
+### Holdout groups
+
+Keep a control group long-term:
+
+```
+90% see optimized paywalls
+10% see original (for comparison)
+```
+
+## Integration with other features
+
+Experiments work with:
+
+- **Audiences**: Test variations on specific segments
+- **Workflows**: Experiment with different presentation logic
+- **Product buckets**: Test different product offerings
+- **Triggers**: Experiment with timing and context
+
+## Example experiments
+
+### Headline test
+
+```
+Control: "Unlock Premium Features"
+Variant A: "Start Your Free Trial"
+Variant B: "Join 1M+ Premium Users"
+```
+
+### Pricing test
+
+```
+Control: Monthly $9.99, Annual $99.99
+Variant A: Monthly $7.99, Annual $79.99
+Variant B: Monthly $12.99, Annual $119.99
+```
+
+### Product order test
+
+```
+Control: Monthly, Annual, Lifetime
+Variant A: Annual, Monthly, Lifetime
+Variant B: Annual (highlighted), Monthly, Lifetime
+```
+
+## Next steps
+
+- Set up [Audiences](/primitives/audiences) for targeted experiments
+- Learn about [Workflows](/primitives/workflows) for complex testing
+- Explore [Analytics](/analytics/overview) to track results

@@ -1,0 +1,164 @@
+---
+title: Migrations
+description: Migrate between Helium SDK versions
+---
+
+# Migrations
+
+This guide helps you migrate between different versions of the Helium SDK.
+
+## Available migration guides
+
+Select your platform and version to view the migration guide:
+
+### iOS
+
+<CardGroup cols={2}>
+  <Card title="iOS 3.x to 4.x" icon="apple" href="/migrations/ios-3-to-4">
+    Migrate from iOS SDK version 3.x to 4.x
+  </Card>
+  <Card title="iOS 2.x to 3.x" icon="apple" href="/migrations/ios-2-to-3">
+    Migrate from iOS SDK version 2.x to 3.x
+  </Card>
+</CardGroup>
+
+### Android
+
+<Card title="Android 0.x to 4.x" icon="android" href="/migrations/android-0-to-4">
+  Migrate from Android SDK version 0.x to 4.x
+</Card>
+
+## Migration best practices
+
+### Before you migrate
+
+1. **Review changelog**: Read the full changelog for breaking changes
+2. **Test thoroughly**: Test migration in development environment first
+3. **Backup code**: Commit current working code before starting
+4. **Plan timing**: Schedule migration during low-traffic periods
+5. **Communicate**: Inform team members about upcoming changes
+
+### During migration
+
+1. **Follow guide**: Complete all steps in the migration guide
+2. **Update dependencies**: Ensure all dependencies are compatible
+3. **Fix deprecations**: Address all deprecation warnings
+4. **Test features**: Verify all features work as expected
+5. **Check analytics**: Confirm events are tracking correctly
+
+### After migration
+
+1. **Monitor errors**: Watch for crashes or errors in production
+2. **Verify revenue**: Ensure purchases are processing correctly
+3. **Check analytics**: Confirm data is flowing to analytics platforms
+4. **Update documentation**: Document any custom changes made
+5. **Plan next steps**: Consider adopting new features
+
+## Common migration tasks
+
+### Updating initialization
+
+Most migrations require updating SDK initialization:
+
+```swift
+// Old (example)
+Helium.configure(apiKey: "your-api-key")
+
+// New (example)
+Helium.configure(
+    apiKey: "your-api-key",
+    options: HeliumOptions()
+)
+```
+
+### Updating method calls
+
+Method signatures may change:
+
+```swift
+// Old (example)
+Helium.shared.presentPaywall()
+
+// New (example)
+Helium.shared.presentPaywall(completion: { result in
+    // Handle result
+})
+```
+
+### Updating event tracking
+
+Event tracking APIs may be updated:
+
+```swift
+// Old (example)
+Helium.shared.logEvent("custom_event")
+
+// New (example)
+Helium.shared.trackEvent("custom_event", properties: [:])
+```
+
+## Breaking changes
+
+Migration guides clearly identify breaking changes:
+
+- **API changes**: Method signatures or parameters changed
+- **Behavior changes**: Functionality works differently
+- **Removed features**: Features no longer supported
+- **New requirements**: Additional setup or configuration needed
+
+## Deprecation timeline
+
+Helium follows a deprecation policy:
+
+1. **Deprecation announced**: Feature marked as deprecated
+2. **Grace period**: Feature continues to work (typically 6-12 months)
+3. **Removal**: Feature removed in next major version
+
+Always address deprecation warnings promptly.
+
+## Getting help
+
+If you encounter issues during migration:
+
+1. **Check migration guide**: Ensure all steps were completed
+2. **Review changelog**: Look for additional context
+3. **Search documentation**: Look for related topics
+4. **Contact support**: Email support@tryhelium.com with details
+
+## Version compatibility
+
+### SDK versions
+
+Ensure SDK versions are compatible:
+
+- iOS SDK 4.x requires iOS 13.0+
+- Android SDK 4.x requires Android 5.0+ (API 21+)
+- React Native SDK requires React Native 0.64+
+- Flutter SDK requires Flutter 2.0+
+
+### Platform versions
+
+Check platform requirements:
+
+- Xcode version for iOS
+- Android Studio version for Android
+- Node version for React Native
+- Dart version for Flutter
+
+## Rollback plan
+
+If migration causes issues:
+
+1. **Revert code**: Return to previous version
+2. **Restore dependencies**: Downgrade SDK version
+3. **Redeploy**: Push previous working version
+4. **Investigate**: Determine root cause
+5. **Plan retry**: Address issues before retrying migration
+
+## Next steps
+
+Select your migration guide:
+
+- [iOS 3.x to 4.x](/migrations/ios-3-to-4)
+- [iOS 2.x to 3.x](/migrations/ios-2-to-3)
+- [Android 0.x to 4.x](/migrations/android-0-to-4)

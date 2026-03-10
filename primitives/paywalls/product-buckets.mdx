@@ -1,0 +1,196 @@
+---
+title: Product buckets
+description: Dynamically manage product offerings in paywalls
+---
+
+# Product buckets
+
+Product buckets allow you to dynamically control which products appear in your paywalls without requiring app updates.
+
+## What are product buckets?
+
+Product buckets are named groups of products that can be updated remotely. Instead of hardcoding specific products in your paywalls, you reference a bucket, and Helium determines which products to show.
+
+## Benefits
+
+### No app updates required
+
+Change product offerings without:
+- Submitting new app versions
+- Waiting for app review
+- Forcing users to update
+
+### Dynamic pricing
+
+Easily:
+- Run promotional campaigns
+- Test different price points
+- Adjust offerings by region or audience
+
+### Simplified management
+
+- Update products in one place
+- Consistent across all platforms
+- Centralized control
+
+## Creating product buckets
+
+In the Helium dashboard:
+
+1. Navigate to **Product Buckets**
+2. Click **Create Bucket**
+3. Name your bucket (e.g., "premium_products")
+4. Add products to the bucket
+5. Set priority order
+
+## Using product buckets
+
+### In paywalls
+
+Assign a product bucket instead of specific products:
+
+1. Edit your paywall
+2. In product selection, choose **Product Bucket**
+3. Select your bucket
+4. Products will be dynamically loaded
+
+### In code
+
+Reference products by bucket:
+
+```swift
+// iOS example
+Helium.shared.presentPaywall(productBucket: "premium_products")
+```
+
+## Product selection logic
+
+When a paywall uses a product bucket, Helium:
+
+1. Fetches the current products in the bucket
+2. Filters by platform (iOS/Android)
+3. Filters by availability
+4. Returns products in priority order
+
+## Bucket strategies
+
+### Single bucket
+
+Use one bucket for all users:
+
+```
+premium_products:
+  - monthly_subscription
+  - annual_subscription
+```
+
+### Audience-specific buckets
+
+Create different buckets for different audiences:
+
+```
+premium_new_users:
+  - monthly_trial
+  - annual_discount
+
+premium_existing_users:
+  - monthly_standard
+  - annual_standard
+```
+
+### Regional buckets
+
+Customize offerings by region:
+
+```
+premium_us:
+  - monthly_9_99
+  - annual_99_99
+
+premium_eu:
+  - monthly_8_99
+  - annual_89_99
+```
+
+## Updating buckets
+
+Changes to product buckets take effect immediately:
+
+1. Edit the bucket in the dashboard
+2. Add, remove, or reorder products
+3. Save changes
+4. Next paywall load will use updated products
+
+## Fallback handling
+
+Always include product buckets in your fallback bundle to ensure offline functionality.
+
+## Best practices
+
+### Naming conventions
+
+Use clear, descriptive names:
+- `premium_products` not `bucket1`
+- `trial_offers` not `temp`
+- `regional_us` not `us`
+
+### Product ordering
+
+Order products strategically:
+- Most popular first
+- Highest value first
+- Or based on your conversion data
+
+### Testing
+
+Test bucket changes before rolling out:
+- Use test audiences
+- Verify products load correctly
+- Check pricing displays properly
+
+### Documentation
+
+Document your bucket strategy:
+- What each bucket contains
+- Which audiences see which buckets
+- When to use each bucket
+
+## Common patterns
+
+### Seasonal promotions
+
+```
+summer_sale:
+  - monthly_discounted
+  - annual_discounted
+```
+
+Switch paywalls to use `summer_sale` bucket during promotion, then switch back.
+
+### A/B testing
+
+```
+variant_a:
+  - monthly_standard
+  - annual_standard
+
+variant_b:
+  - monthly_premium
+  - annual_premium
+```
+
+Use experiments to test which bucket converts better.
+
+### Upgrade paths
+
+```
+basic_to_premium:
+  - premium_monthly
+  - premium_annual
+
+premium_to_pro:
+  - pro_monthly
+  - pro_annual
+```
+
+Show different buckets based on user's current subscription tier.

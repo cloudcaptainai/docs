@@ -1,0 +1,231 @@
+---
+title: Workflows
+description: Orchestrate complex paywall presentation logic
+---
+
+# Workflows
+
+Workflows allow you to create sophisticated logic for when and how paywalls are presented to users.
+
+## What are workflows?
+
+Workflows are sequences of conditions and actions that determine paywall behavior. They let you:
+
+- Control when paywalls appear
+- Customize which paywall to show
+- Personalize based on user attributes
+- Implement complex business logic
+
+## Workflow components
+
+### Triggers
+
+Events that initiate a workflow:
+- App launch
+- Feature access attempt
+- Custom events
+- Time-based conditions
+
+### Conditions
+
+Rules that must be met:
+- User subscription status
+- Number of app sessions
+- Time since install
+- Custom user properties
+- Audience membership
+
+### Actions
+
+What happens when conditions are met:
+- Present specific paywall
+- Show different paywall variants
+- Track analytics event
+- Do nothing (suppress paywall)
+
+## Creating workflows
+
+In the Helium dashboard:
+
+1. Navigate to **Workflows**
+2. Click **Create Workflow**
+3. Define trigger conditions
+4. Add conditional logic
+5. Specify actions
+6. Activate workflow
+
+## Example workflows
+
+### New user onboarding
+
+```
+Trigger: App launch
+Conditions:
+  - Session count < 3
+  - Not subscribed
+Action: Present onboarding_paywall
+```
+
+### Feature gate
+
+```
+Trigger: Premium feature accessed
+Conditions:
+  - Not subscribed
+  - Feature access count > 2
+Action: Present feature_gate_paywall
+```
+
+### Win-back campaign
+
+```
+Trigger: App launch
+Conditions:
+  - Previously subscribed
+  - Subscription expired > 30 days ago
+  - Not seen paywall in 7 days
+Action: Present winback_paywall
+```
+
+### Trial expiration
+
+```
+Trigger: Daily check
+Conditions:
+  - Trial expires in 3 days
+  - Not converted to paid
+Action: Present trial_ending_paywall
+```
+
+## Workflow priority
+
+When multiple workflows could trigger:
+
+1. Workflows are evaluated in priority order
+2. First matching workflow executes
+3. Subsequent workflows are skipped
+
+Set priority in the dashboard to control execution order.
+
+## Testing workflows
+
+### Test mode
+
+Enable test mode to verify workflow logic:
+
+```swift
+// iOS example
+Helium.shared.setTestMode(.enabled)
+Helium.shared.triggerWorkflow("new_user_onboarding")
+```
+
+### Workflow logs
+
+View workflow execution logs in the dashboard:
+- Which workflows triggered
+- Which conditions were met
+- What actions were taken
+- Why workflows were skipped
+
+## Advanced features
+
+### Delays
+
+Add delays between trigger and action:
+
+```
+Trigger: App launch
+Delay: 5 seconds
+Action: Present paywall
+```
+
+### Frequency capping
+
+Limit how often workflows execute:
+
+```
+Max frequency: Once per 7 days
+```
+
+### Audience targeting
+
+Combine workflows with audiences:
+
+```
+Conditions:
+  - User in "high_value" audience
+  - Not subscribed
+```
+
+## Best practices
+
+### Start simple
+
+Begin with basic workflows:
+- One trigger
+- Few conditions
+- Single action
+
+Add complexity as needed.
+
+### Test thoroughly
+
+- Test all condition branches
+- Verify timing and delays
+- Check frequency caps
+- Monitor analytics
+
+### Document logic
+
+Maintain documentation of:
+- Workflow purpose
+- Expected behavior
+- Business rules
+- Edge cases
+
+### Monitor performance
+
+Track workflow metrics:
+- Trigger frequency
+- Conversion rates
+- User feedback
+- Technical errors
+
+## Common pitfalls
+
+### Over-complication
+
+Avoid:
+- Too many conditions
+- Complex nested logic
+- Unclear execution paths
+
+### Conflicting workflows
+
+Watch for:
+- Multiple workflows triggering simultaneously
+- Contradictory conditions
+- Priority conflicts
+
+### Poor timing
+
+Consider:
+- User context
+- App state
+- Network conditions
+- Previous interactions
+
+## Integration with other primitives
+
+Workflows work with:
+
+- **Triggers**: Define when workflows start
+- **Audiences**: Target specific user segments
+- **Experiments**: Test different workflow variants
+- **Product buckets**: Dynamically select products
+
+## Next steps
+
+- Learn about [Triggers](/primitives/triggers)
+- Explore [Experiments](/primitives/experiments)
+- Set up [Audiences](/primitives/audiences)

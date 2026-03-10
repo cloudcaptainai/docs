@@ -1,0 +1,460 @@
+---
+title: Third-party analytics integrations
+description: Connect Helium with your analytics platforms
+---
+
+# Third-party analytics integrations
+
+Integrate Helium with third-party analytics platforms to get a complete view of your app's performance and user behavior.
+
+## Why integrate analytics?
+
+Third-party integrations allow you to:
+
+- **Centralize data**: View subscription data alongside other app metrics
+- **Cross-reference events**: Correlate subscription events with user behavior
+- **Custom analysis**: Use your preferred analytics tools
+- **Data warehouse**: Export to your data infrastructure
+- **Attribution**: Connect revenue to acquisition sources
+
+## Supported platforms
+
+Helium integrates with popular analytics platforms:
+
+### Google Analytics
+
+Track subscription events in Google Analytics:
+- Purchase events
+- Revenue tracking
+- User properties
+- Custom dimensions
+
+### Firebase Analytics
+
+Send events to Firebase:
+- Automatic event mapping
+- User properties sync
+- Revenue events
+- Audience integration
+
+### Mixpanel
+
+Forward events to Mixpanel:
+- Event tracking
+- User profiles
+- Revenue analytics
+- Funnel analysis
+
+### Amplitude
+
+Integrate with Amplitude:
+- Event streaming
+- User properties
+- Revenue tracking
+- Cohort analysis
+
+### Segment
+
+Use Segment as a hub:
+- Single integration point
+- Forward to multiple destinations
+- Event transformation
+- Data governance
+
+### Custom webhooks
+
+Send events to your own endpoints:
+- Real-time event delivery
+- Custom payload format
+- Retry logic
+- Authentication support
+
+## Setting up integrations
+
+### In the dashboard
+
+1. Navigate to **Integrations**
+2. Select your analytics platform
+3. Enter API credentials
+4. Configure event mapping
+5. Test integration
+6. Enable
+
+### Configuration options
+
+For each integration, configure:
+
+- **Events to forward**: Select which events to send
+- **Event mapping**: Map Helium events to platform events
+- **User properties**: Sync user attributes
+- **Revenue tracking**: Enable revenue event forwarding
+
+## Event mapping
+
+### Automatic mapping
+
+Helium automatically maps common events:
+
+| Helium Event | Google Analytics | Firebase | Mixpanel |
+|--------------|------------------|----------|----------|
+| paywall_viewed | view_item | paywall_viewed | Paywall Viewed |
+| purchase_completed | purchase | in_app_purchase | Purchase |
+| trial_started | begin_checkout | trial_started | Trial Started |
+| subscription_renewed | purchase | subscription_renewed | Subscription Renewed |
+
+### Custom mapping
+
+Override default mappings:
+
+```json
+{
+  "paywall_viewed": {
+    "google_analytics": "view_subscription_offer",
+    "mixpanel": "Subscription Offer Viewed"
+  }
+}
+```
+
+## User properties
+
+Sync user properties to analytics platforms:
+
+### Standard properties
+
+- Subscription status
+- Product ID
+- Trial status
+- Revenue (lifetime value)
+- First purchase date
+
+### Custom properties
+
+Add custom user properties:
+
+```swift
+// iOS example
+Helium.shared.setUserProperty("user_tier", value: "premium")
+Helium.shared.setUserProperty("signup_source", value: "organic")
+```
+
+These sync to connected analytics platforms.
+
+## Revenue tracking
+
+### Automatic revenue forwarding
+
+Revenue events are automatically sent to analytics platforms with:
+
+- Transaction ID
+- Product ID
+- Revenue amount
+- Currency
+- Timestamp
+
+### Platform-specific formats
+
+Helium formats revenue data for each platform:
+
+#### Google Analytics
+
+```javascript
+{
+  event: "purchase",
+  transaction_id: "txn_123",
+  value: 9.99,
+  currency: "USD",
+  items: [{
+    item_id: "monthly_premium",
+    item_name: "Monthly Premium",
+    price: 9.99
+  }]
+}
+```
+
+#### Mixpanel
+
+```javascript
+{
+  event: "Purchase",
+  properties: {
+    "$transaction_id": "txn_123",
+    "$amount": 9.99,
+    "product_id": "monthly_premium"
+  }
+}
+```
+
+## Google Analytics setup
+
+### Prerequisites
+
+- Google Analytics 4 property
+- Measurement ID
+- API secret (for server-side events)
+
+### Configuration
+
+1. In Helium dashboard, go to **Integrations > Google Analytics**
+2. Enter Measurement ID
+3. Enter API Secret
+4. Select events to forward
+5. Test and enable
+
+### Recommended events
+
+Enable these events:
+- `purchase` - Subscription purchases
+- `begin_checkout` - Trial starts
+- `view_item` - Paywall views
+- `refund` - Subscription refunds
+
+## Firebase Analytics setup
+
+### Prerequisites
+
+- Firebase project
+- Firebase SDK integrated in app
+- Service account credentials
+
+### Configuration
+
+1. Download service account JSON from Firebase Console
+2. In Helium dashboard, go to **Integrations > Firebase**
+3. Upload service account credentials
+4. Select events to forward
+5. Test and enable
+
+### User properties
+
+Firebase user properties are automatically synced:
+- `subscription_status`
+- `product_id`
+- `trial_status`
+
+## Mixpanel setup
+
+### Prerequisites
+
+- Mixpanel project
+- Project token
+- API secret (for server-side events)
+
+### Configuration
+
+1. In Helium dashboard, go to **Integrations > Mixpanel**
+2. Enter Project Token
+3. Enter API Secret
+4. Select events to forward
+5. Test and enable
+
+### Revenue tracking
+
+Mixpanel revenue is tracked using:
+- `$transaction` special event
+- `$amount` property
+- User profile revenue updates
+
+## Amplitude setup
+
+### Prerequisites
+
+- Amplitude project
+- API key
+
+### Configuration
+
+1. In Helium dashboard, go to **Integrations > Amplitude**
+2. Enter API Key
+3. Select events to forward
+4. Test and enable
+
+### User properties
+
+Amplitude user properties include:
+- `subscription_status`
+- `ltv` (lifetime value)
+- `first_purchase_date`
+
+## Segment setup
+
+### Prerequisites
+
+- Segment workspace
+- Write key
+
+### Configuration
+
+1. In Helium dashboard, go to **Integrations > Segment**
+2. Enter Write Key
+3. Select events to forward
+4. Test and enable
+
+### Advantages
+
+Using Segment allows you to:
+- Forward to multiple destinations
+- Transform events
+- Manage data governance
+- Reduce integration complexity
+
+## Custom webhooks
+
+### Setup
+
+1. In Helium dashboard, go to **Integrations > Webhooks**
+2. Enter webhook URL
+3. Configure authentication (optional)
+4. Select events to forward
+5. Test and enable
+
+### Payload format
+
+Webhook payloads are sent as JSON:
+
+```json
+{
+  "event": "purchase_completed",
+  "user_id": "user_123",
+  "timestamp": "2024-03-10T12:00:00Z",
+  "properties": {
+    "product_id": "monthly_premium",
+    "price": 9.99,
+    "currency": "USD",
+    "transaction_id": "txn_123"
+  }
+}
+```
+
+### Authentication
+
+Secure webhooks with:
+- **API key**: Include in header
+- **HMAC signature**: Verify payload integrity
+- **OAuth**: Token-based authentication
+
+### Retry logic
+
+Failed webhook deliveries are retried:
+- Immediate retry
+- Exponential backoff
+- Up to 5 retry attempts
+- 24-hour retry window
+
+## Testing integrations
+
+### Test mode
+
+Test integrations before enabling:
+
+1. Enable test mode in integration settings
+2. Trigger test events in your app
+3. Verify events appear in analytics platform
+4. Check event properties and formatting
+5. Confirm revenue tracking
+
+### Debug logs
+
+View integration logs in dashboard:
+- Events sent
+- Delivery status
+- Error messages
+- Retry attempts
+
+## Best practices
+
+### Event selection
+
+Don't forward all events:
+- Select relevant events only
+- Avoid duplicate tracking
+- Consider data volume limits
+- Monitor analytics platform costs
+
+### User identification
+
+Ensure consistent user IDs:
+- Use same ID across platforms
+- Set user ID early in app lifecycle
+- Handle anonymous users appropriately
+
+### Data quality
+
+Maintain data quality:
+- Test integrations thoroughly
+- Monitor for errors
+- Validate event properties
+- Regular audits
+
+### Privacy compliance
+
+Respect user privacy:
+- Obtain necessary consents
+- Honor opt-out requests
+- Follow platform policies
+- Comply with regulations (GDPR, CCPA)
+
+## Troubleshooting
+
+### Events not appearing
+
+If events aren't showing in analytics platform:
+
+1. Check integration is enabled
+2. Verify API credentials
+3. Confirm event mapping
+4. Review error logs
+5. Check platform-specific delays
+
+### Incorrect data
+
+If data is incorrect:
+
+1. Verify event property mapping
+2. Check currency conversion
+3. Confirm user ID matching
+4. Review timestamp handling
+
+### Rate limiting
+
+If hitting rate limits:
+
+1. Reduce event volume
+2. Batch events if supported
+3. Implement sampling
+4. Contact platform support
+
+## Data privacy
+
+### User consent
+
+Obtain user consent before forwarding data:
+
+```swift
+// iOS example
+if user.hasAnalyticsConsent {
+    Helium.shared.enableAnalyticsIntegrations()
+} else {
+    Helium.shared.disableAnalyticsIntegrations()
+}
+```
+
+### Data minimization
+
+Only forward necessary data:
+- Essential event properties
+- Required user attributes
+- Relevant revenue information
+
+### Compliance
+
+Integrations comply with:
+- GDPR
+- CCPA
+- Platform-specific policies
+- Industry regulations
+
+## Next steps
+
+- Learn about [Custom paywall events](/events/custom-paywall-events)
+- Explore [Revenue tracking](/events/revenue-tracking)
+- Set up [Experiments](/primitives/experiments) with analytics data

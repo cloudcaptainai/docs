@@ -1,0 +1,61 @@
+---
+title: Feature availability
+description: Platform-specific feature support across Helium SDKs
+---
+
+# Feature availability
+
+Not all features are available on every platform. This guide outlines what's supported on each SDK.
+
+## Core features
+
+| Feature | iOS | Android | React Native | Flutter |
+|---------|-----|---------|--------------|---------|
+| Paywall presentation | ✅ | ✅ | ✅ | ✅ |
+| Product buckets | ✅ | ✅ | ✅ | ✅ |
+| Custom events | ✅ | ✅ | ✅ | ✅ |
+| Revenue tracking | ✅ | ✅ | ✅ | ✅ |
+| Fallback paywalls | ✅ | ✅ | ✅ | ✅ |
+
+## Advanced features
+
+| Feature | iOS | Android | React Native | Flutter |
+|---------|-----|---------|--------------|---------|
+| Workflows | ✅ | ✅ | ✅ | ✅ |
+| Triggers | ✅ | ✅ | ✅ | ✅ |
+| Experiments | ✅ | ✅ | ✅ | ✅ |
+| Audiences | ✅ | ✅ | ✅ | ✅ |
+| Localization | ✅ | ✅ | ✅ | ✅ |
+
+## Platform-specific features
+
+### iOS only
+
+- **StoreKit 2 support**: Native integration with Apple's latest StoreKit APIs
+- **App Store receipt validation**: Automatic receipt verification
+- **Family Sharing**: Support for subscription sharing
+
+### Android only
+
+- **Google Play Billing Library 5+**: Latest billing APIs
+- **Pending purchases**: Handle deferred payment methods
+- **Proration modes**: Subscription upgrade/downgrade handling
+
+### Cross-platform considerations
+
+React Native and Flutter SDKs provide unified APIs but rely on native platform capabilities underneath. Some platform-specific behaviors may differ slightly.
+
+## Version requirements
+
+- **iOS**: iOS 13.0+
+- **Android**: Android 5.0+ (API level 21+)
+- **React Native**: React Native 0.64+
+- **Flutter**: Flutter 2.0+
+
+## Coming soon
+
+Features currently in development:
+
+- Web SDK support
+- Advanced paywall customization
+- A/B testing enhancements

@@ -1,0 +1,542 @@
+[
+  {
+    "field_name": "helium_sdk_version",
+    "old_field_names": "contextTraits.applicationInfo.heliumSdkVersion",
+    "type": "String",
+    "category": "App Info",
+    "required": true,
+    "example": "3.1.2",
+    "description": "Helium SDK version"
+  },
+  {
+    "field_name": "app_bundle_id",
+    "old_field_names": "context_app_namespace",
+    "type": "String",
+    "category": "App Info",
+    "required": true,
+    "example": "com.company.myapp",
+    "description": "App bundle identifier or package name"
+  },
+  {
+    "field_name": "app_version",
+    "old_field_names": "contextTraits.applicationInfo.version, context_app_version",
+    "type": "String",
+    "category": "App Info",
+    "required": true,
+    "example": "1.6.5",
+    "description": "App version number"
+  },
+  {
+    "field_name": "app_version_full",
+    "old_field_names": "contextTraits.applicationInfo.completeAppVersion",
+    "type": "String",
+    "category": "App Info",
+    "required": false,
+    "example": "1.6.5 (329)",
+    "description": "Full app version including build number"
+  },
+  {
+    "field_name": "app_build",
+    "old_field_names": "contextTraits.applicationInfo.build, context_app_build",
+    "type": "String",
+    "category": "App Info",
+    "required": false,
+    "example": "329",
+    "description": "App build number"
+  },
+  {
+    "field_name": "app_environment",
+    "old_field_names": "contextTraits.applicationInfo.environment",
+    "type": "String",
+    "category": "App Info",
+    "required": true,
+    "example": "production",
+    "description": "App environment (production, sandbox, or debug)"
+  },
+  {
+    "field_name": "device_orientation",
+    "old_field_names": "contextTraits.deviceInfo.orientation",
+    "type": "Integer",
+    "category": "Device Info",
+    "required": false,
+    "example": "1",
+    "description": "Screen orientation (1 = portrait; 2 = landscape)"
+  },
+  {
+    "field_name": "os_name",
+    "old_field_names": "contextTraits.deviceInfo.systemName, context_os_name",
+    "type": "String",
+    "category": "Device Info",
+    "required": true,
+    "example": "iOS",
+    "description": "Operating system name"
+  },
+  {
+    "field_name": "os_version",
+    "old_field_names": "contextTraits.deviceInfo.systemVersion, context_os_version",
+    "type": "String",
+    "category": "Device Info",
+    "required": true,
+    "example": "26.2",
+    "description": "Operating system version"
+  },
+  {
+    "field_name": "device_idiom",
+    "old_field_names": "contextTraits.deviceInfo.userInterfaceIdiom",
+    "type": "String",
+    "category": "Device Info",
+    "required": true,
+    "example": "Phone",
+    "description": "Device form factor"
+  },
+  {
+    "field_name": "device_model",
+    "old_field_names": "contextTraits.deviceInfo.deviceModel, context_device_model",
+    "type": "String",
+    "category": "Device Info",
+    "required": true,
+    "example": "iPhone 14",
+    "description": "Device model"
+  },
+  {
+    "field_name": "helium_device_id",
+    "old_field_names": "contextTraits.deviceInfo.currentDeviceIdentifier, context_device_id",
+    "type": "String",
+    "category": "Device Info",
+    "required": false,
+    "example": "9F13A47E-40A1-49D3-A047-1DBAEBF2C659",
+    "description": "Vendor-specific device identifier"
+  },
+  {
+    "field_name": "platform",
+    "old_field_names": "context_device_type",
+    "type": "String",
+    "category": "Device Info",
+    "required": true,
+    "example": "ios",
+    "description": "Platform (ios or android)"
+  },
+  {
+    "field_name": "device_manufacturer",
+    "old_field_names": "context_device_manufacturer",
+    "type": "String",
+    "category": "Device Info",
+    "required": false,
+    "example": "Apple",
+    "description": "Device manufacturer"
+  },
+  {
+    "field_name": "custom_paywall_action_name",
+    "old_field_names": "heliumEvent.actionName",
+    "type": "String",
+    "category": "Engagement",
+    "required": false,
+    "example": "",
+    "description": "Name of a custom event fired from the paywall (only on custom_event)"
+  },
+  {
+    "field_name": "custom_paywall_action_params",
+    "old_field_names": "heliumEvent.paramsJSON, heliumEvent.params",
+    "type": "String",
+    "category": "Engagement",
+    "required": false,
+    "example": "",
+    "description": "JSON string of custom event parameters (only on custom_event)"
+  },
+  {
+    "field_name": "error_description",
+    "old_field_names": "heliumEvent.errorDescription",
+    "type": "String",
+    "category": "Error",
+    "required": false,
+    "example": "",
+    "description": "Error message when a purchase or event fails (only on error events)"
+  },
+  {
+    "field_name": "helium_event_timestamp",
+    "old_field_names": "timestamp",
+    "type": "String",
+    "category": "Event Metadata",
+    "required": true,
+    "example": "2026-02-05T21:17:38.076Z",
+    "description": "Timestamp when the event occurred"
+  },
+  {
+    "field_name": "helium_event_name",
+    "old_field_names": "heliumEvent.type, event",
+    "type": "String",
+    "category": "Event Metadata",
+    "required": true,
+    "example": "purchase_abandoned",
+    "description": "Event type name (see Event Name Mapping tab)"
+  },
+  {
+    "field_name": "experiment_id",
+    "old_field_names": "experimentID, experimentInfo.experimentId",
+    "type": "String",
+    "category": "Experiment",
+    "required": false,
+    "example": "b767cae9-45e0-43b4-826d-b48561881522",
+    "description": "Experiment unique identifier"
+  },
+  {
+    "field_name": "experiment_name",
+    "old_field_names": "experimentInfo.experimentName",
+    "type": "String",
+    "category": "Experiment",
+    "required": false,
+    "example": "Homepage Test Q3",
+    "description": "Human-readable experiment name"
+  },
+  {
+    "field_name": "experiment_type",
+    "old_field_names": "experimentInfo.experimentType",
+    "type": "String",
+    "category": "Experiment",
+    "required": false,
+    "example": "A/B/n test",
+    "description": "Type of experiment"
+  },
+  {
+    "field_name": "experiment_chosen_variant_name",
+    "old_field_names": "experimentInfo.chosenVariantDetails.allocationName, experimentInfo.chosenVariantDetails.allocationMetadata.variant_name",
+    "type": "String",
+    "category": "Experiment",
+    "required": false,
+    "example": "Variant B",
+    "description": "Name of the variant the user was assigned to"
+  },
+  {
+    "field_name": "experiment_chosen_variant_id",
+    "old_field_names": "experimentInfo.chosenVariantDetails.allocationId, experimentInfo.chosenVariantDetails.allocationMetadata.paywall_id",
+    "type": "String",
+    "category": "Experiment",
+    "required": false,
+    "example": "68313964-7c33-4eb3-9314-acae5e8543ec",
+    "description": "Unique identifier of the assigned variant"
+  },
+  {
+    "field_name": "geo_country_name",
+    "old_field_names": "context_geo_country_name",
+    "type": "String",
+    "category": "Geo",
+    "required": false,
+    "example": "United States",
+    "description": "Country name derived from IP address"
+  },
+  {
+    "field_name": "geo_continent_code",
+    "old_field_names": "context_geo_continent_code",
+    "type": "String",
+    "category": "Geo",
+    "required": false,
+    "example": "NA",
+    "description": "Continent code"
+  },
+  {
+    "field_name": "geo_continent_name",
+    "old_field_names": "context_geo_continent_name",
+    "type": "String",
+    "category": "Geo",
+    "required": false,
+    "example": "North America",
+    "description": "Continent name"
+  },
+  {
+    "field_name": "geo_region_name",
+    "old_field_names": "context_geo_region_name",
+    "type": "String",
+    "category": "Geo",
+    "required": false,
+    "example": "Texas",
+    "description": "Region or state name"
+  },
+  {
+    "field_name": "geo_region_code",
+    "old_field_names": "context_geo_region_code",
+    "type": "String",
+    "category": "Geo",
+    "required": false,
+    "example": "TX",
+    "description": "Region or state code"
+  },
+  {
+    "field_name": "geo_city",
+    "old_field_names": "context_geo_city_name",
+    "type": "String",
+    "category": "Geo",
+    "required": false,
+    "example": "Azle",
+    "description": "City name"
+  },
+  {
+    "field_name": "geo_is_eu",
+    "old_field_names": "context_geo_country_is_eu",
+    "type": "Boolean",
+    "category": "Geo",
+    "required": false,
+    "example": "FALSE",
+    "description": "Whether the user is in an EU country"
+  },
+  {
+    "field_name": "locale_language",
+    "old_field_names": "contextTraits.locale.currentLanguage",
+    "type": "String",
+    "category": "Locale",
+    "required": true,
+    "example": "en",
+    "description": "Device language code"
+  },
+  {
+    "field_name": "locale_code",
+    "old_field_names": "context_locale",
+    "type": "String",
+    "category": "Locale",
+    "required": true,
+    "example": "en-US",
+    "description": "Full locale code"
+  },
+  {
+    "field_name": "locale_country",
+    "old_field_names": "contextTraits.locale.currentCountry",
+    "type": "String",
+    "category": "Locale",
+    "required": true,
+    "example": "US",
+    "description": "Device country code"
+  },
+  {
+    "field_name": "currency_code",
+    "old_field_names": "contextTraits.locale.currentCurrency",
+    "type": "String",
+    "category": "Locale",
+    "required": true,
+    "example": "USD",
+    "description": "Device currency code"
+  },
+  {
+    "field_name": "is_wifi",
+    "old_field_names": "context_network_wifi",
+    "type": "Boolean",
+    "category": "Network",
+    "required": false,
+    "example": "TRUE",
+    "description": "Whether the device is on WiFi"
+  },
+  {
+    "field_name": "is_cellular",
+    "old_field_names": "context_network_cellular",
+    "type": "Boolean",
+    "category": "Network",
+    "required": false,
+    "example": "FALSE",
+    "description": "Whether cellular data is enabled"
+  },
+  {
+    "field_name": "paywall_session_id",
+    "old_field_names": "heliumPaywallSessionId",
+    "type": "String",
+    "category": "Paywall",
+    "required": false,
+    "example": "1C744C14-E188-4EDD-A461-83E7836A7887",
+    "description": "Unique ID for a single paywall presentation"
+  },
+  {
+    "field_name": "paywall_presentation_type",
+    "old_field_names": "heliumEvent.viewType",
+    "type": "String",
+    "category": "Paywall",
+    "required": false,
+    "example": "presented",
+    "description": "How the paywall was shown (presented, triggered, or embedded)"
+  },
+  {
+    "field_name": "trigger_name",
+    "old_field_names": "heliumEvent.triggerName",
+    "type": "String",
+    "category": "Paywall",
+    "required": true,
+    "example": "helium_onboarding",
+    "description": "Name of the trigger that opened the paywall"
+  },
+  {
+    "field_name": "paywall_id",
+    "old_field_names": "paywallUUID, paywallID",
+    "type": "String",
+    "category": "Paywall",
+    "required": true,
+    "example": "68313964-7c33-4eb3-9314-acae5e8543ec",
+    "description": "Paywall unique identifier"
+  },
+  {
+    "field_name": "paywall_name",
+    "old_field_names": "heliumEvent.paywallTemplateName, paywallTemplateName",
+    "type": "String",
+    "category": "Paywall",
+    "required": true,
+    "example": "My Paywall",
+    "description": "Human-readable paywall name"
+  },
+  {
+    "field_name": "is_fallback",
+    "old_field_names": "isFallback",
+    "type": "Boolean",
+    "category": "Paywall",
+    "required": false,
+    "example": "FALSE",
+    "description": "Whether this is a fallback paywall"
+  },
+  {
+    "field_name": "is_second_try",
+    "old_field_names": "heliumEvent.isSecondTry",
+    "type": "Boolean",
+    "category": "Paywall",
+    "required": false,
+    "example": "FALSE",
+    "description": "Whether this is a second-chance paywall"
+  },
+  {
+    "field_name": "screen_width_points",
+    "old_field_names": "contextTraits.screenInfo.bounds.width",
+    "type": "Integer",
+    "category": "Screen",
+    "required": true,
+    "example": "390",
+    "description": "Screen width in points"
+  },
+  {
+    "field_name": "screen_height_points",
+    "old_field_names": "contextTraits.screenInfo.bounds.height",
+    "type": "Integer",
+    "category": "Screen",
+    "required": true,
+    "example": "844",
+    "description": "Screen height in points"
+  },
+  {
+    "field_name": "is_system_dark_mode",
+    "old_field_names": "contextTraits.screenInfo.isDarkModeEnabled",
+    "type": "Boolean",
+    "category": "Screen",
+    "required": false,
+    "example": "TRUE",
+    "description": "Whether dark mode is enabled"
+  },
+  {
+    "field_name": "product_id",
+    "old_field_names": "heliumEvent.productKey",
+    "type": "String",
+    "category": "Subscription",
+    "required": false,
+    "example": "com.app.yearly_sub",
+    "description": "Product identifier (on purchase events)"
+  },
+  {
+    "field_name": "storekit_transaction_id",
+    "old_field_names": "heliumEvent.storeKitTransactionId",
+    "type": "String",
+    "category": "Subscription",
+    "required": false,
+    "example": "",
+    "description": "StoreKit transaction ID (iOS only; on purchase_succeeded)"
+  },
+  {
+    "field_name": "app_transaction_id",
+    "old_field_names": "appTransactionId",
+    "type": "String",
+    "category": "Subscription",
+    "required": false,
+    "example": "705259359233484353",
+    "description": "App Store transaction ID (iOS only)"
+  },
+  {
+    "field_name": "google_play_order_id",
+    "old_field_names": "heliumEvent.googlePlayOrderId",
+    "type": "String",
+    "category": "Subscription",
+    "required": false,
+    "example": "",
+    "description": "Google Play order ID (Android only; on purchase_succeeded)"
+  },
+  {
+    "field_name": "google_play_purchase_token",
+    "old_field_names": "heliumEvent.googlePlayPurchaseToken",
+    "type": "String",
+    "category": "Subscription",
+    "required": false,
+    "example": "",
+    "description": "Google Play purchase token (Android only; on purchase_succeeded)"
+  },
+  {
+    "field_name": "attribution_token",
+    "old_field_names": "appAttributionToken",
+    "type": "String",
+    "category": "Subscription",
+    "required": true,
+    "example": "A0A4C5BA-9198-4E28-B27F-01224752B2CB",
+    "description": "Token used for revenue attribution"
+  },
+  {
+    "field_name": "canonical_transaction_id",
+    "old_field_names": "heliumEvent.canonicalJoinTransactionId",
+    "type": "String",
+    "category": "Subscription",
+    "required": false,
+    "example": "",
+    "description": "Cross-platform transaction ID for revenue tracking (on purchase_succeeded)"
+  },
+  {
+    "field_name": "session_id",
+    "old_field_names": "heliumSessionID",
+    "type": "String",
+    "category": "User Identity",
+    "required": true,
+    "example": "85CADF16-8954-433E-BCC6-F4DC5DCBFB29",
+    "description": "Unique ID per app session (resets on each app launch)"
+  },
+  {
+    "field_name": "organization_id",
+    "old_field_names": "organizationID",
+    "type": "String",
+    "category": "User Identity",
+    "required": true,
+    "example": "3fa703d8-ed81-4102-bfc7-06e4db41b09e",
+    "description": "Your Helium organization ID, specific to each app"
+  },
+  {
+    "field_name": "persistent_id",
+    "old_field_names": "heliumPersistentID",
+    "type": "String",
+    "category": "User Identity",
+    "required": true,
+    "example": "A0A4C5BA-9198-4E28-B27F-01224752B2CB",
+    "description": "Unique ID per app install (persists across sessions)"
+  },
+  {
+    "field_name": "user_id",
+    "old_field_names": "user_id",
+    "type": "String",
+    "category": "User Identity",
+    "required": true,
+    "example": "54490FB0-EC33-44B0-BF1B-E3E896E53634",
+    "description": "User ID (can be set via the SDK)"
+  },
+  {
+    "field_name": "revenuecat_app_user_id",
+    "old_field_names": "revenueCatAppUserID",
+    "type": "String",
+    "category": "User Identity",
+    "required": false,
+    "example": "$RCAnonymousID:f9b0359c...",
+    "description": "RevenueCat app user ID (only if using RevenueCat)"
+  },
+  {
+    "field_name": "custom_user_traits_json",
+    "old_field_names": "contextTraits.customUserTraitsJSON",
+    "type": "String",
+    "category": "User Identity",
+    "required": false,
+    "example": "{}",
+    "description": "JSON string of custom user traits passed via the SDK"
+  }
+]

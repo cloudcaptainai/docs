@@ -76,6 +76,66 @@ Helium uses a CDP under the hood to route events. It may take several minutes fo
 
 All Helium events, along with their parameters and contextual/custom traits, are automatically forwarded to your analytics backend. For a complete list of events, parameters, and additional context sent with each event, see [Logged Events](/guides/helium-events#logged-events).
 
+## Field Names and Descriptions
+
+Below is a preview of the key fields that are sent with Helium events to your analytics system. For the complete list of all fields, download the CSV file.
+
+<Card title="Download Full Field List" icon="download" href="/files/helium-event-fields.csv">
+  Download a CSV file containing all event field names, types, and descriptions
+</Card>
+
+### Common Event Fields
+
+| Field Name | Type | Description |
+| --- | --- | --- |
+| `triggerName` | String | The name of the trigger that initiated the paywall |
+| `paywallName` | String | The name of the paywall being displayed |
+| `productId` | String | The product identifier from the App Store or Play Store |
+| `isSecondTry` | Boolean | Whether this is a "second try" paywall flow |
+| `timestamp` | Number | Unix timestamp when the event occurred |
+| `buttonName` | String | Identifier for the button that was pressed |
+| `viewType` | String | How the paywall was presented: `presented`, `triggered`, or `embedded` |
+| `dismissAll` | Boolean | Whether the entire paywall stack was dismissed |
+| `error` | String | Error message or description when applicable |
+
+### Contextual Traits
+
+These fields are automatically collected and sent with all events:
+
+| Field Name | Type | Description |
+| --- | --- | --- |
+| `locale.country` | String | User's country code |
+| `locale.currency` | String | User's currency code |
+| `locale.language` | String | User's language code |
+| `locale.timeZone` | String | User's time zone |
+| `screen.darkModeEnabled` | Boolean | Whether dark mode is enabled |
+| `device.systemName` | String | Operating system name (iOS, Android) |
+| `device.systemVersion` | String | Operating system version |
+| `device.deviceModel` | String | Device model identifier |
+| `application.version` | String | App version number |
+| `application.buildNumber` | String | App build number |
+| `application.heliumSDKVersion` | String | Version of the Helium SDK |
+| `application.environment` | String | Environment (production, sandbox, etc.) |
+
+### Performance Metrics
+
+| Field Name | Type | Description |
+| --- | --- | --- |
+| `loadTimeTakenMS` | Number | Time taken to load the paywall in milliseconds |
+| `webviewRenderTimeTakenMS` | Number | Time taken to render the webview in milliseconds |
+| `downloadTimeTakenMS` | Number | Time taken to download config in milliseconds |
+| `imagesDownloadTimeTakenMS` | Number | Time taken to download images in milliseconds |
+| `fontsDownloadTimeTakenMS` | Number | Time taken to download fonts in milliseconds |
+| `bundleDownloadTimeMS` | Number | Time taken to download bundle in milliseconds |
+
+### Transaction Fields
+
+| Field Name | Type | Description |
+| --- | --- | --- |
+| `storeKitTransactionId` | String | StoreKit transaction identifier |
+| `storeKitOriginalTransactionId` | String | Original StoreKit transaction identifier |
+| `skPostPurchaseTxnTimeMS` | Number | Post-purchase transaction time in milliseconds |
+
 ## Custom forwarding from the SDK
 
 You can also track events from the SDK via the PaywallDelegate or lifecycle methods in each framework. View our SDK quickstarts for more information.

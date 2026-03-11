@@ -76,7 +76,35 @@ Helium uses a CDP under the hood to route events. It may take several minutes fo
 
 All Helium events, along with their parameters and contextual/custom traits, are automatically forwarded to your analytics backend. For a complete list of events, parameters, and additional context sent with each event, see [Logged Events](/guides/helium-events#logged-events).
 
-## Field Names and Descriptions
+## Event Names
+
+Below is a preview of the key events that Helium sends to your analytics system. For the complete list of all events, download the CSV file.
+
+<Card title="Download Full Event List" icon="download" href="/files/helium-events.csv">
+  Download a CSV file containing all event names and descriptions
+</Card>
+
+### Core Events
+
+| Event Name | Description |
+| --- | --- |
+| `paywall_open` | Paywall was opened and displayed to the user |
+| `paywall_close` | Paywall was closed or dismissed |
+| `paywall_response_load_start` | Started loading paywall configuration |
+| `paywall_response_load_complete` | Finished loading paywall configuration |
+| `paywall_response_load_fail` | Failed to load paywall configuration |
+| `paywall_webview_load_start` | Started loading paywall webview |
+| `paywall_webview_load_complete` | Finished loading paywall webview |
+| `paywall_webview_load_fail` | Failed to load paywall webview |
+| `transaction_start` | User initiated a purchase transaction |
+| `transaction_fail` | Purchase transaction failed |
+| `transaction_abandon` | User abandoned the purchase flow |
+| `transaction_complete` | Purchase transaction completed successfully |
+| `subscription_start` | New subscription started |
+| `transaction_restore` | User restored previous purchases |
+| `user_attributes` | User attributes were updated |
+
+## Field Names
 
 Below is a preview of the key fields that are sent with Helium events to your analytics system. For the complete list of all fields, download the CSV file.
 

@@ -54,39 +54,182 @@ description: "Set up Apple Pay with Stripe."
 
 ## App Integration
 
-<Steps>
-  <Step title="Add Apple Pay Capability to XCode">
-    In Xcode, open your project settings, click the **Signing & Capabilities** tab, and add the **Apple Pay** capability. Select the merchant ID you created earlier.
-  </Step>
-  <Step title="Add StripeOneTapPurchase Dependency">
-    Add this Swift Package dependency:
+<Warning>
+  In order to show paywalls with Stripe products, you are **required** to set a custom user ID. This ID will be used to grant Stripe entitlements across devices and re-installs.
+</Warning>
 
-    ```text
-    https://github.com/appmonetization/stripe-one-tap-purchase.git
-    ```
-  </Step>
-  <Step title="Modify your Helium Initialize Call">
+<Tabs>
+  <Tab title="iOS">
+    <Note>
+      Stripe integration requires Helium **4.1.8+**. If you have not integrated Helium yet, follow the [iOS SDK Quickstart](/sdk/quickstart-ios) first.
+    </Note>
+    <Steps>
+      <Step title="Add Apple Pay Capability to Xcode">
+        In Xcode, open your project settings, click the **Signing & Capabilities** tab, and add the **Apple Pay** capability. Select the merchant ID you created earlier.
+      </Step>
+      <Step title="Add StripeOneTapPurchase Dependency">
+        Add this Swift Package dependency:
+
+        ```text
+        https://github.com/appmonetization/stripe-one-tap-purchase.git
+        ```
+      </Step>
+      <Step title="Modify your Helium Initialize Call">
+        Replace `Helium.shared.initialize` with `Helium.shared.initializeWithStripeOneTap`:
+
+        ```swift
+        Helium.shared.initializeWithStripeOneTap(
+            apiKey: "your-helium-api-key",
+            stripePublishableKey: "pk_live_...",
+            backupPurchaseDelegate: StoreKitDelegate(), // or RevenueCatDelegate
+            merchantIdentifier: "merchant.com.example",
+            merchantName: "Your App Name",
+            managementURL: URL(string: "https://your-app.com/manage-subscription")! // e.g. link to generic Stripe portal or your website
+            // countryCode: "US"   // optional, defaults to "US"
+            // currencyCode: "USD"  // optional, defaults to "USD"
+        )
+        ```
+
+        If the device does not support Apple Pay, the `backupPurchaseDelegate` is used instead (e.g. StoreKit or RevenueCat).
+      </Step>
+    </Steps>
+
+    ### Additional Stripe Functions
+
+    These are available on `Helium.shared` after initializing with Stripe:
+
+    - **`setUserIdAndSyncStripeIfNeeded(userId:)`** — Sets the user ID and syncs Stripe entitlements if needed. Call this instead of setting `Helium.identify.userId` if Helium is already initialized.
+    - **`resetStripeEntitlements(clearUserId:)`** — Resets Stripe entitlements and optionally clears the user ID. Use this to "log out" a Stripe user if your app supports multiple Stripe users on the same device.
+    - **`createStripePortalSession(returnUrl:)`** — Creates a Stripe Customer Portal session and returns the portal URL. Open this in a browser or in-app webview to let the user manage their subscriptions.
+
+      ```swift
+      let portalURL = try await Helium.shared.createStripePortalSession(
+          returnUrl: "myapp://settings"
+      )
+      await UIApplication.shared.open(portalURL)
+      ```
+    - **`hasActiveStripeEntitlement()`** — Returns `true` if the user has any active Stripe entitlement (e.g. an active subscription).
+
+      ```swift
+      let hasEntitlement = await Helium.shared.hasActiveStripeEntitlement()
+      ```
+  </Tab>
+  <Tab title="React Native">
+    <Note>
+      Stripe integration requires expo-helium **3.3.4+**. If you have not integrated Helium yet, follow the [React Native SDK Quickstart](/sdk/quickstart-react-native) first.
+    </Note>
     <Warning>
-      In order to show paywalls with Stripe products, you are **required** to set a custom user ID. This ID will be used to grant Stripe entitlements across devices and re-installs.
+      Stripe One Tap is iOS only. On Android, Helium will continue to use standard initialization.
     </Warning>
-    Replace `Helium.shared.initialize` with `Helium.shared.initializeWithStripeOneTap`:
+    <Steps>
+      <Step title="Install Packages">
+        ```bash
+        npx expo install expo-helium@latest expo-helium-stripe
+        ```
+      </Step>
+      <Step title="Add Apple Pay Entitlement">
+        Add the Apple Pay entitlement to your `app.json` (or `app.config.js`):
 
-    ```swift
-    Helium.shared.initializeWithStripeOneTap(
-        apiKey: "your-helium-api-key",
-        stripePublishableKey: "pk_live_...",
-        backupPurchaseDelegate: StoreKitDelegate(), // or RevenueCatDelegate
-        merchantIdentifier: "merchant.com.example",
-        merchantName: "Your App Name",
-        managementURL: URL(string: "https://your-app.com/manage-subscription")! // e.g. link to generic Stripe portal or your website
-        // countryCode: "US"   // optional, defaults to "US"
-        // currencyCode: "USD"  // optional, defaults to "USD"
-    )
-    ```
+        ```json
+        {
+          "expo": {
+            "ios": {
+              "entitlements": {
+                "com.apple.developer.in-app-payments": [
+                  "merchant.your-merchant-identifier"
+                ]
+              }
+            }
+          }
+        }
+        ```
 
-    If the device does not support Apple Pay, the `backupPurchaseDelegate` is used instead (e.g. StoreKit or RevenueCat).
-  </Step>
-</Steps>
+        The merchant identifier here should be the same Apple Merchant ID you created in the prerequisites above.
+      </Step>
+      <Step title="Update Your Initialization Code">
+        Replace `initialize` from `expo-helium` with `initializeWithStripe` from `expo-helium-stripe`:
+
+        ```typescript
+        // Before
+        import { initialize } from 'expo-helium';
+        await initialize({ apiKey: '...', ... });
+
+        // After
+        import { initializeWithStripe } from 'expo-helium-stripe';
+        await initializeWithStripe({
+          apiKey: '...',
+          stripePublishableKey: '...',
+          merchantIdentifier: 'merchant.your-merchant-identifier',
+          merchantName: 'Your App Name',
+          managementURL: 'https://your-app.com/manage-subscription', // e.g. link to generic Stripe portal or your website
+          // countryCode: 'US',   // optional, defaults to "US"
+          // currencyCode: 'USD',  // optional, defaults to "USD"
+          // ...all existing HeliumConfig options still work
+        });
+        ```
+
+        All other imports (`presentUpsell`, `hasEntitlementForPaywall`, `resetHelium`, etc.) still come from `expo-helium` — only the initialization changes.
+      </Step>
+    </Steps>
+
+    ### Additional Stripe Functions
+
+    The following functions are available from `expo-helium-stripe` (iOS only):
+
+    - `setUserIdAndSyncStripeIfNeeded(userId)` — Sets the user ID and syncs Stripe entitlements if needed. Call this instead of `setCustomUserId`.
+    - `resetStripeEntitlements(clearUserId?)` — Resets Stripe entitlements and optionally clears the user ID. Use this to "log out" a Stripe user if your app supports multiple Stripe users on the same device.
+    - `await createStripePortalSession(returnUrl)` — Creates a Stripe Customer Portal session and returns the portal URL. Open this in a browser or in-app webview to let the user manage their subscriptions.
+    - `await hasActiveStripeEntitlement()` — Returns `true` if the user has any active Stripe entitlement (e.g. an active subscription).
+  </Tab>
+  <Tab title="Flutter">
+    <Note>
+      Stripe integration requires helium_flutter **3.2.4+**. If you have not integrated Helium yet, follow the [Flutter SDK Quickstart](/sdk/quickstart-flutter) first.
+    </Note>
+    <Warning>
+      Stripe One Tap is iOS only. On Android, Helium will continue to use standard initialization.
+    </Warning>
+    <Steps>
+      <Step title="Install Package">
+        Add `helium_stripe` to your `pubspec.yaml`:
+
+        ```yaml
+        dependencies:
+          helium_stripe: ^1.0.0
+        ```
+      </Step>
+      <Step title="Add Apple Pay Capability in Xcode">
+        Open `ios/Runner.xcodeproj` in Xcode, click the **Signing & Capabilities** tab on the Runner target, and add the **Apple Pay** capability. Select the merchant ID you created in the prerequisites above.
+      </Step>
+      <Step title="Update Your Initialization Code">
+        Replace `HeliumFlutter.initialize` with `HeliumStripe.initializeWithStripe`:
+
+        ```dart
+        import 'package:helium_stripe/helium_stripe.dart';
+
+        await HeliumStripe.initializeWithStripe(
+          apiKey: 'your-helium-api-key',
+          stripePublishableKey: 'pk_live_...',
+          merchantIdentifier: 'merchant.com.yourapp',
+          merchantName: 'Your App',
+          managementURL: 'https://yourapp.com/manage', // e.g. link to generic Stripe portal or your website
+          // countryCode: 'US',   // optional, defaults to "US"
+          // currencyCode: 'USD', // optional, defaults to "USD"
+          // ...all existing HeliumFlutter.initialize options still work
+        );
+        ```
+      </Step>
+    </Steps>
+
+    ### Additional Stripe Functions
+
+    The following functions are available from `helium_stripe` (iOS only — no-ops on other platforms):
+
+    - `HeliumStripe.setUserIdAndSyncStripeIfNeeded('user-id')` — Sets the user ID and syncs Stripe entitlements if needed. Call this instead of setting `customUserId` directly.
+    - `HeliumStripe.resetStripeEntitlements(clearUserId: false)` — Resets Stripe entitlements and optionally clears the user ID. Use this to "log out" a Stripe user if your app supports multiple Stripe users on the same device.
+    - `await HeliumStripe.createStripePortalSession('yourapp://return')` — Creates a Stripe Customer Portal session and returns the portal URL (or `null`). Open this in a browser or in-app webview to let the user manage their subscriptions.
+    - `await HeliumStripe.hasActiveStripeEntitlement()` — Returns `true` if the user has any active Stripe entitlement (e.g. an active subscription).
+  </Tab>
+</Tabs>
 
 ## Checking Entitlements
 

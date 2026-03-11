@@ -93,7 +93,6 @@ description: "Set up Apple Pay with Stripe."
         If the device does not support Apple Pay, the `backupPurchaseDelegate` is used instead (e.g. StoreKit or RevenueCat).
       </Step>
     </Steps>
-
     <Accordion title="Additional Stripe Functions">
       These are available on `Helium.shared` after initializing with Stripe:
 
@@ -150,7 +149,7 @@ description: "Set up Apple Pay with Stripe."
         // Before
         import { initialize } from 'expo-helium';
         await initialize({ apiKey: '...', ... });
-
+        
         // After
         import { initializeWithStripe } from 'expo-helium-stripe';
         await initializeWithStripe({
@@ -168,7 +167,6 @@ description: "Set up Apple Pay with Stripe."
         All other imports (`presentUpsell`, `hasEntitlementForPaywall`, `resetHelium`, etc.) still come from `expo-helium` — only the initialization changes.
       </Step>
     </Steps>
-
     <Accordion title="Additional Stripe Functions">
       The following functions are available from `expo-helium-stripe` (iOS only):
 
@@ -199,7 +197,7 @@ description: "Set up Apple Pay with Stripe."
 
         ```dart
         import 'package:helium_stripe/helium_stripe.dart';
-
+        
         await HeliumStripe.initializeWithStripe(
           apiKey: 'your-helium-api-key',
           stripePublishableKey: 'pk_live_...',
@@ -213,7 +211,6 @@ description: "Set up Apple Pay with Stripe."
         ```
       </Step>
     </Steps>
-
     <Accordion title="Additional Stripe Functions">
       The following functions are available from `helium_stripe` (iOS only — no-ops on other platforms):
 
@@ -273,3 +270,51 @@ If you use [RevenueCat alongside Stripe](https://www.revenuecat.com/docs/web/int
     4. If you rely on Offerings in your RevenueCat integration, you can also add the Stripe products there
   </Step>
 </Steps>
+
+## Creating and Target your Stripe Paywall
+
+<Steps>
+  <Step title="In your Helium Dashboard, create a paywall and add your Stripe product buckets">
+    <Danger>
+      At the moment, each paywall can include **iOS-only** buckets and **Stripe-only** buckets on the same paywall. However, you cannot mix **Stripe-only** buckets with **iOS+Android** buckets on the same paywall.
+    </Danger>
+    Once you've done the step above to import your Stripe products to Helium, you can create a paywall and adding your product bucket with the Stripe product. This product will behave the same way as all Helium product buckets (except for the caveat above).
+  </Step>
+  <Step title="Workflows should target US storefront and Apple Pay enabled only">
+    <Warning>
+      This is required to make sure that paywalls with Stripe are shown in the US.
+    </Warning>
+    When adding paywalls to a workflow make sure to use a Stripe eligible targeting rule that selects:
+
+    - Country Storefront: US
+    - Apple Pay: Enabled
+
+    To make this easy we've added a button within audeince creation to easily add the neccessary attributes for Stripe targeting. Navigate to Targeting \> Create Audience \> Press the 3 dot menu in **Targeting Rules** \> add Stripe Eligible!
+
+    <Frame>
+      ![Screenshot 2026 03 11 At 1 17 11 PM](/images/Screenshot2026-03-11at1.17.11PM.png)
+    </Frame>
+  </Step>
+</Steps>
+
+## FAQ
+
+- Does this work on Android?
+  - Not yet, we are adding support for Google Wallet payments soon.
+- How do entitlements work?
+  - Helium provides some methods to retrieve current entitlements of Stripe customers.
+- How do trial offers work?
+  - Once your product has been imported from Stripe, you must use the Helium dashboard to actually add a trial product.
+  - Due to limitations of the Stripe dashboard.
+- Can I do one-time purchases / consumables?
+  - Not yet, coming soon.
+- Can retention and re-subscribe flows move from iOS/App Store to this Stripe flow?
+  - Yes, users who have made a purchase or have an existing entitlement to App Store can still make Stripe purchases. Note however that any existing App Store subscriptions will not automatically be canceled.
+- Do you support RevenueCat?
+  - Yes, but this requires some extra configuration so that RevenueCat can include Stripe products in their entitlements logic.
+- Do I need to present a paywall to use this Stripe flow?
+  - At the moment, yes.
+- How do I handle subscription management?
+  - Cancels and subscription management is handled by Stripe. The Helium SDK provides a method to access the Stripe portal.
+  - On iOS the SDK method is `Helum.shared.createStripePortalSession(returnUrl:)`
+  - On React Native the SDK method is `await createStripePortalSession(returnUrl)`

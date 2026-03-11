@@ -1,0 +1,97 @@
+[
+  {
+    "event_name": "initialization_started",
+    "previous_event_name": "initializeCalled",
+    "description": "SDK initialization began"
+  },
+  {
+    "event_name": "initialization_succeeded",
+    "previous_event_name": "paywallsDownloadSuccess",
+    "description": "SDK successfully initialized and downloaded paywalls"
+  },
+  {
+    "event_name": "initialization_failed",
+    "previous_event_name": "paywallsDownloadError",
+    "description": "SDK failed to initialize or download paywalls"
+  },
+  {
+    "event_name": "experience_opened",
+    "previous_event_name": "paywallOpen",
+    "description": "A paywall was presented to the user"
+  },
+  {
+    "event_name": "experience_open_failed",
+    "previous_event_name": "paywallOpenFailed",
+    "description": "A paywall failed to open"
+  },
+  {
+    "event_name": "experience_view_rendered",
+    "previous_event_name": "paywallWebViewRendered",
+    "description": "The paywall view finished rendering"
+  },
+  {
+    "event_name": "experience_view_render_failed",
+    "previous_event_name": "paywallWebViewRenderFailed",
+    "description": "The paywall view failed to render"
+  },
+  {
+    "event_name": "experience_skipped",
+    "previous_event_name": "paywallSkipped",
+    "description": "A paywall was skipped (e.g. targeting rules excluded the user)"
+  },
+  {
+    "event_name": "experience_dismissed",
+    "previous_event_name": "paywallDismiss",
+    "description": "The user dismissed the paywall"
+  },
+  {
+    "event_name": "experience_view_closed",
+    "previous_event_name": "paywallClose",
+    "description": "The paywall view was closed"
+  },
+  {
+    "event_name": "purchase_started",
+    "previous_event_name": "subscriptionPressed",
+    "description": "The user tapped a purchase button"
+  },
+  {
+    "event_name": "purchase_pending",
+    "previous_event_name": "subscriptionPending",
+    "description": "A purchase is pending (e.g. awaiting parental approval)"
+  },
+  {
+    "event_name": "purchase_succeeded",
+    "previous_event_name": "subscriptionSucceeded",
+    "description": "A purchase completed successfully"
+  },
+  {
+    "event_name": "purchase_failed",
+    "previous_event_name": "subscriptionFailed",
+    "description": "A purchase failed"
+  },
+  {
+    "event_name": "purchase_abandoned",
+    "previous_event_name": "subscriptionCancelled",
+    "description": "The user cancelled the purchase flow"
+  },
+  {
+    "event_name": "entitlement_restored",
+    "previous_event_name": "subscriptionRestoreSucceeded",
+    "description": "A previous purchase was successfully restored"
+  },
+  {
+    "event_name": "entitlement_restore_failed",
+    "previous_event_name": "subscriptionRestoreFailed",
+    "description": "A purchase restore attempt failed"
+  },
+  {
+    "event_name": "user_experiment_allocated",
+    "previous_event_name": "userAllocated",
+    "description": "The user was allocated to an experiment variant"
+  },
+  {
+    "event_name": "custom_event",
+    "previous_event_name": "customPaywallAction",
+    "description": "A custom analytics event fired from the paywall"
+  }
+]

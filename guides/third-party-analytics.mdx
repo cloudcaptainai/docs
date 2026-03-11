@@ -76,6 +76,60 @@ Helium uses a CDP under the hood to route events. It may take several minutes fo
 
 All Helium events, along with their parameters and contextual/custom traits, are automatically forwarded to your analytics backend. For a complete list of events, parameters, and additional context sent with each event, see [Logged Events](/guides/helium-events#logged-events).
 
+## Field Names
+
+Below is a preview of the key fields that are sent with Helium events to your analytics system. For the complete list of all fields, download the CSV file.
+
+<Card icon="download" href="/files/helium-event-fields.json" title="Download Full Field List">
+  Download a JSON file containing all event field names, types, and descriptions
+</Card>
+
+### Common Event Fields
+
+| Field Name                     | Description                                  |
+| ------------------------------ | -------------------------------------------- |
+| `helium_event_timestamp`       | Timestamp when the event occurred            |
+| `helium_event_name`            | Event type name (see Event Name Mapping tab) |
+| `experiment_id`                | Experiment unique identifier                 |
+| `experiment_chosen_variant_id` | Unique identifier of the assigned variant    |
+| `geo_country_name`             | Country name derived from IP address         |
+| `locale_country`               | Device country code                          |
+| `trigger_name`                 | Name of the trigger that opened the paywall  |
+| `paywall_id`                   | Paywall unique identifier                    |
+| `paywall_name`                 | Human-readable paywall name                  |
+
+## Event Names
+
+Below is a preview of the key events that Helium sends to your analytics system. For the complete list of all events, download the CSV file.
+
+<Card icon="download" href="/files/helium-events.json" title="Download Full Event List">
+  Download a JSON file containing all event names and descriptions
+</Card>
+
+### Core Events
+
+| Event Name                      | Description                                                    |
+| ------------------------------- | -------------------------------------------------------------- |
+| `initialization_started`        | SDK initialization began                                       |
+| `initialization_succeeded`      | SDK successfully initialized and downloaded paywalls           |
+| `initialization_failed`         | SDK failed to initialize or download paywalls                  |
+| `experience_opened`             | A paywall was presented to the user                            |
+| `experience_open_failed`        | A paywall failed to open                                       |
+| `experience_view_rendered`      | The paywall view finished rendering                            |
+| `experience_view_render_failed` | The paywall view failed to render                              |
+| `experience_skipped`            | A paywall was skipped (e.g. targeting rules excluded the user) |
+| `experience_dismissed`          | The user dismissed the paywall                                 |
+| `experience_view_closed`        | The paywall view was closed                                    |
+| `purchase_started`              | The user tapped a purchase button                              |
+| `purchase_pending`              | A purchase is pending (e.g. awaiting parental approval)        |
+| `purchase_succeeded`            | A purchase completed successfully                              |
+| `purchase_failed`               | A purchase failed                                              |
+| `purchase_abandoned`            | The user cancelled the purchase flow                           |
+| `entitlement_restored`          | A previous purchase was successfully restored                  |
+| `entitlement_restore_failed`    | A purchase restore attempt failed                              |
+| `user_experiment_allocated`     | The user was allocated to an experiment variant                |
+| `custom_event`                  | A custom analytics event fired from the paywall                |
+
 ## Custom forwarding from the SDK
 
 You can also track events from the SDK via the PaywallDelegate or lifecycle methods in each framework. View our SDK quickstarts for more information.

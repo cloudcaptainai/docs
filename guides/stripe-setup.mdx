@@ -280,6 +280,19 @@ If you use [RevenueCat alongside Stripe](https://www.revenuecat.com/docs/web/int
     </Danger>
     Once you've done the step above to import your Stripe products to Helium, you can create a paywall and adding your product bucket with the Stripe product. This product will behave the same way as all Helium product buckets (except for the caveat above).
   </Step>
+  <Step title="Add Stripe Products and iOS Products as Alternative">
+    When creating a paywall you will add your product buckets, then you will need to direct the editor to make the appropriate visual changes to show the Stripe products at once and the iOS products in another view. 
+
+    For example, if you had a `pro_plus` as an iOS product and `pro_plus` as a Stripe product you would:
+
+    1. Add both products to the paywall
+    2. Prompt the editor to present the Stripe product in the primary view, and have a "Show Other Payment Options" button that would bring up the secondary view with the iOS product.
+    3. Test the functionality right in the editor preview using the action log.
+
+    <Tip>
+      It's generally best practice to pair each Stripe product with a corresponding iOS product. Present only Stripe products by default, surfacing iOS products only when absolutely necessary.
+    </Tip>
+  </Step>
   <Step title="Workflows should target US storefront and Apple Pay enabled only">
     <Warning>
       This is required to make sure that paywalls with Stripe are shown in the US.

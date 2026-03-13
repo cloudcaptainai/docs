@@ -9,14 +9,22 @@
   },
   "favicon": "/favicon.svg",
   "navigation": {
+    "global": {
+      "anchors": [
+        {
+          "anchor": "More Info",
+          "icon": "lightbulb",
+          "href": "https://tryhelium.com"
+        }
+      ]
+    },
     "groups": [
       {
         "group": "Introduction",
         "icon": "flag",
         "pages": [
-          "introduction/what-you-can-do",
-          "introduction/billing-setup",
-          "introduction/contact"
+          "introduction/introduction",
+          "introduction/quickstart"
         ]
       },
       {
@@ -24,10 +32,11 @@
         "icon": "code",
         "pages": [
           "sdk-quickstarts/overview",
-          "sdk-quickstarts/paywall-presentation",
-          "sdk-quickstarts/feature-availability",
-          "sdk-quickstarts/fallbacks",
-          "sdk-quickstarts/storekit-testing"
+          "sdk-quickstarts/i-os",
+          "sdk-quickstarts/android",
+          "sdk-quickstarts/react-native",
+          "sdk-quickstarts/flutter",
+          "sdk-quickstarts/feature-availability"
         ]
       },
       {
@@ -39,7 +48,8 @@
             "pages": [
               "primitives/paywalls",
               "primitives/paywalls/localization",
-              "primitives/paywalls/product-buckets"
+              "primitives/paywalls/product-buckets",
+              "sdk-quickstarts/fallbacks"
             ]
           },
           "primitives/workflows",
@@ -74,16 +84,7 @@
           "migrations/ios-2-to-3"
         ]
       }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "More Info",
-          "href": "https://tryhelium.com",
-          "icon": "lightbulb"
-        }
-      ]
-    }
+    ]
   },
   "logo": {
     "light": "/logo/LargeLogo-cropped.svg",

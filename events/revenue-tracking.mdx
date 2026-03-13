@@ -1,344 +1,131 @@
 ---
-title: Revenue tracking
-description: Track and analyze subscription revenue
+title: "Revenue tracking"
+description: "Track and analyze subscription revenue"
 ---
 
-# Revenue tracking
+Revenue tracking connects your purchase and subscription data to Helium so it can **attribute revenue to specific paywalls, experiments, and triggers**. Without it, Helium can track paywall opens and user interactions, but can't tell you which paywall actually drove a subscription.
 
-Revenue tracking allows you to monitor subscription revenue, analyze trends, and measure the financial impact of your monetization strategies.
+Revenue data flows _into_ Helium from your payment platforms via webhooks.
 
-## What is revenue tracking?
+---
 
-Revenue tracking captures and reports all subscription-related financial events, including:
+### **Supported Sources**
 
-- New subscriptions
-- Renewals
-- Upgrades and downgrades
-- Refunds
-- Trial conversions
+| Source                             | How it connects | What it sends                                                          |
+| :--------------------------------- | :-------------- | :--------------------------------------------------------------------- |
+| **RevenueCat**                     | Webhook         | Purchases, renewals, cancellations, refunds, billing issues, and more. |
+| **App Store Server Notifications** | Webhook         | Apple purchase, renewal, and refund events directly from Apple.        |
+| **Google Play RTDN**               | Pub/Sub         | Google Play purchase and subscription state changes.                   |
+| **Stripe Connect**                 | Webhook         | Stripe subscription and payment events.                                |
 
-## Automatic revenue tracking
+You can connect **multiple sources**. If you use RevenueCat as a wrapper around App Store and Google Play, you typically only need the RevenueCat integration. If you process payments directly, connect the platform-specific webhooks instead.
 
-Helium automatically tracks revenue events:
+---
 
-### Purchase events
+### **RevenueCat**
 
-- **Initial purchase**: First subscription purchase
-- **Renewal**: Automatic subscription renewal
-- **Upgrade**: User upgrades to higher tier
-- **Downgrade**: User downgrades to lower tier
+The most common integration. RevenueCat aggregates purchases from all stores and forwards them to Helium in a single webhook.
 
-### Revenue events
+#### Setup
 
-- **Trial started**: Free trial begins (no revenue)
-- **Trial converted**: Trial converts to paid subscription
-- **Refund**: Subscription refunded
-- **Cancellation**: Subscription cancelled (future revenue impact)
+1. Go to **Integrations** → **Revenue Tracking** in the Helium dashboard.
+2. Copy the **webhook URL** and **authorization token**.
+3. In RevenueCat, go to **Integrations** → **Webhooks**.
+4. Add a new webhook with the URL and token from Helium.
+5. Select the events you want to forward.
 
-## Revenue metrics
+#### Event Mapping
 
-### Key metrics tracked
+| RevenueCat Event      | Helium Type               |
+| :-------------------- | :------------------------ |
+| INITIAL_PURCHASE      | subscription_start        |
+| RENEWAL               | subscription_renewal      |
+| CANCELLATION          | subscription_cancel       |
+| NON_RENEWING_PURCHASE | purchase                  |
+| UNCANCELLATION        | subscription_reactivation |
+| BILLING_ISSUE         | billing_issue             |
+| EXPIRATION            | subscription_expiration   |
 
-- **Total revenue**: All subscription revenue
-- **Monthly recurring revenue (MRR)**: Normalized monthly revenue
-- **Annual recurring revenue (ARR)**: Normalized annual revenue
-- **Average revenue per user (ARPU)**: Revenue divided by users
-- **Lifetime value (LTV)**: Predicted total revenue per user
+Helium normalizes all RevenueCat events into a standard schema with fields like revenue_usd, product_id, store, and app_user_id, so metrics work consistently regardless of the original store.
 
-### Cohort analysis
+---
 
-Track revenue by user cohorts:
-- Install date cohorts
-- Subscription start cohorts
-- Geographic cohorts
-- Platform cohorts
+### **App Store Server Notifications**
 
-## Viewing revenue data
+For teams that don't use RevenueCat and want purchase data directly from Apple.
 
-### Dashboard
+#### Setup
 
-Access revenue analytics in the Helium dashboard:
+1. Copy the webhook URL from the **Revenue Tracking** tab in the Helium dashboard.
 
-1. Navigate to **Analytics**
-2. Select **Revenue**
-3. Choose date range
-4. Filter by product, platform, or region
 
-### Reports
+1. In **App Store Connect**, go to your app → **App Information**.
 
-Generate revenue reports:
-- Daily revenue trends
-- Product performance
-- Conversion funnels
-- Retention curves
 
-## Revenue attribution
+1. Paste the URL into the **Production Server URL** field.
 
-### Source attribution
+Apple will send purchase, renewal, refund, and subscription state change events directly to Helium.
 
-Track revenue by acquisition source:
+---
 
-```swift
-// iOS example - Set attribution
-Helium.shared.setUserProperty("acquisition_source", value: "facebook_ads")
-```
+### **Google Play Real-Time Developer Notifications**
 
-Analyze which sources drive highest revenue.
+For teams processing Google Play purchases without RevenueCat.
 
-### Campaign attribution
+#### Setup
 
-Attribute revenue to specific campaigns:
+1. In the **Revenue Tracking** tab, create or connect a **Cloud Pub/Sub topic**.
 
-```swift
-// iOS example
-Helium.shared.setUserProperty("campaign", value: "summer_sale_2024")
-```
 
-### Experiment attribution
+1. In the **Google Play Console**, go to **Monetization Setup** → **Real-Time Developer Notifications**.
 
-Revenue is automatically attributed to experiments:
-- Control vs variant revenue
-- Statistical significance
-- Revenue lift calculations
 
-## Revenue events in code
+1. Configure it to publish to the Pub/Sub topic from step 1.
 
-While Helium tracks revenue automatically, you can access revenue events:
+Google Play will send purchase and subscription state changes to Helium via the Pub/Sub topic.
 
-```swift
-// iOS example - Listen for revenue events
-Helium.shared.onRevenueEvent { event in
-    print("Revenue event: \(event.type)")
-    print("Amount: \(event.amount)")
-    print("Product: \(event.productId)")
-}
-```
+---
 
-## Third-party integration
+### **Stripe Connect**
 
-Forward revenue events to analytics platforms:
+For teams using Stripe for web-based or Apple Pay subscriptions.
 
-### Supported platforms
+#### Setup
 
-- Google Analytics
-- Firebase Analytics
-- Mixpanel
-- Amplitude
-- Segment
-- Custom webhooks
+1. In the **Revenue Tracking** tab, connect your Stripe account.
+2. Helium receives subscription and payment events via Stripe webhooks automatically.
 
-### Configuration
+#### Avoiding Double-Counting
 
-Configure in the Helium dashboard:
+If you use **both RevenueCat and Stripe Connect**, RevenueCat may also forward Stripe events. To prevent double-counting, the Revenue Tracking tab lets you choose which source Helium uses for Stripe revenue:
 
-1. Navigate to **Integrations**
-2. Select analytics platform
-3. Enter API credentials
-4. Map revenue events
-5. Enable integration
+| Setting            | Behavior                                                                           |
+| :----------------- | :--------------------------------------------------------------------------------- |
+| **Stripe Connect** | Helium uses Stripe's webhooks directly. Stripe events from RevenueCat are ignored. |
+| **RevenueCat**     | Helium uses RevenueCat's webhook for all revenue, including Stripe.                |
 
-See [Third-party analytics integrations](/analytics/third-party-integrations) for details.
+Pick one source per store — don't send the same purchase from both.
 
-## Revenue validation
+---
 
-### Receipt validation
+### **What Revenue Tracking Enables**
 
-Helium automatically validates receipts:
+Once connected, revenue data powers several features in Helium:
 
-- **iOS**: App Store receipt validation
-- **Android**: Google Play purchase verification
+| Feature                     | How revenue data is used                                                      |
+| :-------------------------- | :---------------------------------------------------------------------------- |
+| **Paywall attribution**     | See which paywall a subscriber converted on.                                  |
+| **Experiment metrics**      | Compare revenue per variant — ARPU, conversion rate, trial-to-paid, and more. |
+| **Trigger-level analytics** | Break down revenue by trigger to see which entry points drive the most value. |
+| **Subscription lifecycle**  | Track renewals, cancellations, and refunds attributed to specific paywalls.   |
+| **Monitoring**              | Revenue metrics on the dashboard (MRR, ARPU, LTV projections).                |
 
-This ensures revenue data is accurate and prevents fraud.
+---
 
-### Server-to-server notifications
+### **Key Points**
 
-Helium processes server notifications from app stores:
-
-- Real-time revenue updates
-- Renewal notifications
-- Cancellation alerts
-- Refund notifications
-
-## Revenue reconciliation
-
-### App store reports
-
-Compare Helium revenue data with app store reports:
-
-1. Export revenue from Helium dashboard
-2. Download app store financial reports
-3. Reconcile differences
-4. Investigate discrepancies
-
-### Common discrepancies
-
-- **Timing differences**: Events may be reported at different times
-- **Refunds**: May appear in different periods
-- **Currency conversion**: Exchange rate differences
-- **Tax handling**: Gross vs net revenue
-
-## Revenue forecasting
-
-### Predictive analytics
-
-Helium provides revenue forecasts based on:
-
-- Historical trends
-- Cohort behavior
-- Retention rates
-- Seasonal patterns
-
-### Scenario modeling
-
-Model revenue impact of changes:
-
-- Price adjustments
-- New product offerings
-- Conversion rate improvements
-- Retention improvements
-
-## Revenue optimization
-
-### Identify opportunities
-
-Use revenue data to find optimization opportunities:
-
-- **Low-converting products**: Consider pricing changes
-- **High-churn products**: Improve value proposition
-- **Seasonal trends**: Plan promotional campaigns
-- **Geographic variations**: Adjust regional pricing
-
-### A/B testing impact
-
-Measure revenue impact of experiments:
-
-```
-Experiment: Pricing test
-Control revenue: $10,000
-Variant revenue: $12,500
-Lift: +25%
-```
-
-## Revenue alerts
-
-Set up alerts for revenue events:
-
-### Threshold alerts
-
-```
-Alert: Daily revenue below $1,000
-Notification: Email to team
-```
-
-### Anomaly detection
-
-```
-Alert: Revenue drops >20% from average
-Notification: Slack message
-```
-
-### Milestone alerts
-
-```
-Alert: Monthly revenue exceeds $100,000
-Notification: Celebrate! 🎉
-```
-
-## Privacy and compliance
-
-### Data handling
-
-Revenue data is:
-- Encrypted in transit and at rest
-- Stored securely
-- Accessible only to authorized users
-- Retained per your data retention policy
-
-### Compliance
-
-Helium revenue tracking complies with:
-- GDPR
-- CCPA
-- App Store guidelines
-- Google Play policies
-
-## Best practices
-
-### Regular monitoring
-
-- Review revenue daily
-- Analyze trends weekly
-- Deep dive monthly
-- Strategic planning quarterly
-
-### Segment analysis
-
-Analyze revenue by:
-- Product
-- Platform
-- Region
-- User segment
-- Acquisition source
-
-### Combine with other metrics
-
-Don't look at revenue in isolation:
-- Conversion rates
-- Retention rates
-- User engagement
-- Customer satisfaction
-
-### Act on insights
-
-Use revenue data to:
-- Inform product decisions
-- Optimize pricing
-- Improve user experience
-- Guide marketing spend
-
-## Troubleshooting
-
-### Missing revenue events
-
-If revenue isn't tracking:
-
-1. Verify SDK integration
-2. Check receipt validation
-3. Confirm server notifications are enabled
-4. Review error logs
-
-### Incorrect amounts
-
-If revenue amounts are wrong:
-
-1. Check currency conversion settings
-2. Verify tax handling configuration
-3. Confirm product pricing in app stores
-4. Review refund processing
-
-### Delayed reporting
-
-Revenue may be delayed due to:
-- App store processing time
-- Server notification delays
-- Time zone differences
-- Batch processing schedules
-
-## API access
-
-Access revenue data programmatically:
-
-```bash
-# Example API request
-curl -X GET "https://api.helium.com/v1/revenue" \
-  -H "Authorization: Bearer YOUR_API_KEY" \
-  -H "Content-Type: application/json"
-```
-
-See API documentation for details.
-
-## Next steps
-
-- Set up [Third-party analytics integrations](/analytics/third-party-integrations)
-- Learn about [Custom paywall events](/events/custom-paywall-events)
-- Explore [Experiments](/primitives/experiments) to optimize revenue
+- Revenue tracking is **inbound** — purchase platforms send data to Helium, not the other way around.
+- All revenue events are **normalized** into a standard schema, regardless of source.
+- **Pick one source per store** to avoid double-counting (especially Stripe via RevenueCat vs. Stripe Connect).
+- Revenue data is **linked to paywall sessions** using user identity — this is how Helium attributes a subscription to the specific paywall that converted the user.
+- Events are processed and available in metrics **within minutes** of being received.

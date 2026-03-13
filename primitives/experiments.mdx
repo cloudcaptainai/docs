@@ -28,11 +28,7 @@ An **experiment** is an A/B test that compares two or more paywall variants to d
 Each experiment contains two or more **variants** — paywall designs you're comparing. Every variant has:
 
 - A **paywall** — the actual paywall UI shown to users in that variant
-
-
 - A **percentage allocation** — the share of eligible traffic this variant receives
-
-
 - A **variant type** — either control (the baseline) or treatment (the challenger)
 
 Allocations must total exactly **100%**. When a user qualifies for the experiment, they're randomly assigned to a variant based on these percentages and consistently see that same variant on subsequent triggers.
@@ -43,59 +39,43 @@ You can **update allocations on a running experiment**. When you do, Helium crea
 
 ### **Lifecycle of an Experiment**
 
-#### 1. Create
+<Steps>
+  <Step title="Create">
+    Experiments are created from within a workflow's detail page. The creation flow has four steps:
 
-Experiments are created from within a workflow's detail page. The creation flow has four steps:
+    1. **Basic Info** — Name your experiment and state your hypothesis.
+    1. **Target Audience** — Choose which audience this experiment applies to. You can select "All Users," pick an existing audience, or create a new one.
+    1. **Paywalls & Allocations** — Select the paywall variants, mark one as control, and set traffic percentages.
+    1. **Review** — Confirm your configuration before launching.
 
-1. **Basic Info** — Name your experiment and state your hypothesis.
+    Experiments start **immediately** upon creation — there is no draft state.
+  </Step>
+  <Step title="Running">
+    While an experiment is running:
 
+    - Users are **allocated to variants** based on the configured percentages.
+    - Each user is **consistently bucketed** — they see the same variant every time the trigger fires.
+    - You can **view results** on the experiment detail page, including per-variant metrics.
+    - You can **adjust allocations** on the fly. Changing allocations creates a new experiment version for clean cohort tracking.
+    - You can **add or remove paywall variants** from a running experiment.
+  </Step>
+  <Step title="Stop">
+    When you stop an experiment, you decide what happens to the audience that was enrolled:
 
-1. **Target Audience** — Choose which audience this experiment applies to. You can select "All Users," pick an existing audience, or create a new one.
+    | Option                            | Behavior                                                                                                                 |
+    | :-------------------------------- | :----------------------------------------------------------------------------------------------------------------------- |
+    | **Route to a specific paywall**   | Replace the experiment with a static paywall for that audience. Typically used to lock in the winner.                    |
+    | **Fall through to next audience** | Remove the audience's targeting rule entirely, letting the user match the next applicable rule (or the control paywall). |
 
-
-1. **Paywalls & Allocations** — Select the paywall variants, mark one as control, and set traffic percentages.
-
-
-1. **Review** — Confirm your configuration before launching.
-
-Experiments start **immediately** upon creation — there is no draft state.
-
-#### 2. Running
-
-While an experiment is running:
-
-- Users are **allocated to variants** based on the configured percentages.
-
-
-- Each user is **consistently bucketed** — they see the same variant every time the trigger fires.
-
-
-- You can **view results** on the experiment detail page, including per-variant metrics.
-
-
-- You can **adjust allocations** on the fly. Changing allocations creates a new experiment version for clean cohort tracking.
-
-
-- You can **add or remove paywall variants** from a running experiment.
-
-#### 3. Stop
-
-When you stop an experiment, you decide what happens to the audience that was enrolled:
-
-| Option                            | Behavior                                                                                                                 |
-| :-------------------------------- | :----------------------------------------------------------------------------------------------------------------------- |
-| **Route to a specific paywall**   | Replace the experiment with a static paywall for that audience. Typically used to lock in the winner.                    |
-| **Fall through to next audience** | Remove the audience's targeting rule entirely, letting the user match the next applicable rule (or the control paywall). |
-
-Stopping an experiment updates the workflow's targeting criteria automatically. The experiment's status changes to stopped and a stopped_at timestamp is recorded.
-
-#### 4. Analyze
-
-Stopped experiments and their data remain available for analysis. You can filter and group metrics by experiment to compare variant performance across revenue, conversion rate, and other metrics.
-
-#### 5. Delete
-
-Deleting an experiment removes it and its locale associations. A database constraint prevents deleting a **running** experiment — you must stop it first. Deletion is permanent.
+    Stopping an experiment updates the workflow's targeting criteria automatically. The experiment's status changes to stopped and a stopped_at timestamp is recorded.
+  </Step>
+  <Step title="Analyze">
+    Stopped experiments and their data remain available for analysis. You can filter and group metrics by experiment to compare variant performance across revenue, conversion rate, and other metrics.
+  </Step>
+  <Step title="Delete">
+    Deleting an experiment removes it and its locale associations. A database constraint prevents deleting a **running** experiment — you must stop it first. Deletion is permanent.
+  </Step>
+</Steps>
 
 ---
 
@@ -104,11 +84,7 @@ Deleting an experiment removes it and its locale associations. A database constr
 The database enforces several constraints to prevent conflicting experiments:
 
 - **One running experiment per workflow + locale.** You can't have two active experiments competing for the same locale within the same workflow.
-
-
 - **Global experiments block all others.** A global experiment cannot overlap in time with any other experiment, regardless of locale or workflow.
-
-
 - **Same-locale overlap protection.** Two experiments in the same workflow and locale cannot have overlapping date ranges if both are running or scheduled.
 
 If you try to create an experiment that violates these rules, you'll see an overlap conflict error.
@@ -120,11 +96,7 @@ If you try to create an experiment that violates these rules, you'll see an over
 Experiments are connected to audiences through the workflow's **targeting criteria**. When you create an experiment and select an audience:
 
 - Helium adds a targeting rule to the parent workflow: "For this audience, run this experiment."
-
-
 - Only users who match the audience see the experiment.
-
-
 - Users outside the audience follow the workflow's other rules (or fall through to the control paywall).
 
 If you select **All Users**, Helium creates (or reuses) a system "All Users" audience and maps it to the experiment.
@@ -138,11 +110,7 @@ Audiences that are already mapped to another experiment in the same workflow are
 Every time you change an experiment's allocations, Helium creates an **experiment version** — an immutable snapshot of the allocation state at that point in time. This enables:
 
 - Clean cohort analysis (users allocated under version 1 vs. version 2)
-
-
 - Allocation change history
-
-
 - Accurate attribution even when you ramp traffic mid-experiment
 
 ---
@@ -152,8 +120,6 @@ Every time you change an experiment's allocations, Helium creates an **experimen
 If any paywall variant in your experiment uses Stripe products, additional rules apply:
 
 - **Stripe paywalls cannot be the control variant.** Stripe paywalls only work for a subset of users (Apple Pay enabled, US store), so using one as the control would bias results.
-
-
 - **Audience must have Stripe-compatible targeting.** If you include a Stripe paywall, the experiment's audience must be configured to target only eligible users.
 
 These constraints are validated during experiment creation and will block you if not satisfied.
@@ -163,29 +129,13 @@ These constraints are validated during experiment creation and will block you if
 ### **Key Rules**
 
 - Experiments start **immediately** — there is no draft state.
-
-
 - Allocations must total exactly **100%**.
-
-
 - Exactly **one variant** must be marked as the control.
-
-
 - Only **published paywalls** can be used as variants.
-
-
 - **Running experiments cannot be deleted** — stop them first.
-
-
 - Only **one running experiment per workflow + locale** is allowed at a time.
-
-
 - **Global experiments** cannot overlap with any other experiment.
-
-
 - Changes to allocations are **versioned** for clean cohort tracking.
-
-
 - Stopping an experiment automatically updates the parent workflow's targeting criteria.
 
 ---

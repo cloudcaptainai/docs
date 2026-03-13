@@ -1,95 +1,59 @@
 ---
-title: Fallbacks
-description: Handle offline scenarios and network failures gracefully
+title: "Fallbacks"
+description: "Handle offline scenarios and network failures gracefully"
 ---
 
-# Fallbacks
+A **fallback paywall** is a safety net. If the Helium SDK can't load the intended paywall — due to a slow connection, a timeout, or the user going offline — it shows a fallback instead. This ensures your users always see a paywall, even in imperfect network conditions.
 
-Fallback paywalls ensure your app can present subscription offers even when network connectivity is unavailable or Helium's servers are unreachable.
+---
 
-## Why fallbacks matter
+### **How It Works**
 
-Users may encounter paywalls when:
-- Device is offline
-- Network connection is poor
-- Helium's CDN is temporarily unavailable
-- Initial app launch before data is cached
+1. You **download a fallback bundle** from the Workflows page in the Helium dashboard.
+2. You **include the bundle in your app** and pass it to the SDK during initialization.
+3. If the SDK can't fetch or display the live paywall in time, it shows the fallback.
 
-Without fallbacks, you risk losing conversion opportunities during these scenarios.
+The fallback is a fully functional paywall — users can still subscribe, restore purchases, and dismiss. It just happens to be pre-bundled with the app rather than fetched from the server.
 
-## How fallbacks work
+---
 
-1. **Primary attempt**: SDK tries to fetch the latest paywall from Helium
-2. **Cache check**: If network fails, SDK checks for cached paywall data
-3. **Fallback bundle**: If no cache exists, SDK uses the bundled fallback paywall
-4. **Graceful degradation**: User sees a functional paywall regardless of network state
+### **Configuring Fallbacks**
 
-## Setting up fallbacks
+From the Workflows page, click **Download Fallbacks**. You'll configure:
 
-### Include fallback bundle
+| Setting                              | Description                                                                                             |
+| :----------------------------------- | :------------------------------------------------------------------------------------------------------ |
+| **iOS default fallback**             | The paywall shown on iOS when no trigger-specific fallback matches.                                     |
+| **Android default fallback**         | The paywall shown on Android when no trigger-specific fallback matches.                                 |
+| **Per-trigger fallbacks** (optional) | Override the default for specific triggers — useful if different triggers show very different paywalls. |
 
-Bundle a static paywall configuration with your app:
+The download produces a `helium-fallbacks.json` file that you add to your app's assets.
 
-```swift
-// iOS example
-Helium.configure(
-    apiKey: "your-api-key",
-    fallbackBundle: "helium-fallback"
-)
-```
+---
 
-### Create fallback content
+### **Monitoring Fallback Rate**
 
-In your Helium dashboard:
+Helium tracks your **Fallback Rate** — the percentage of paywall sessions that served a fallback instead of the live paywall. You'll find it in the Monitoring section of your metrics.
 
-1. Navigate to Paywalls
-2. Select the paywall to use as fallback
-3. Export the fallback bundle
-4. Add the bundle to your app's resources
+A healthy fallback rate is **as close to 0% as possible**. If it's elevated, the most common fixes are:
 
-### Test fallback behavior
+| Lever                           | What it does                                                                                           |
+| :------------------------------ | :----------------------------------------------------------------------------------------------------- |
+| **Call initialize() earlier**   | Start the SDK sooner (e.g., at app launch) so paywalls are pre-fetched before the user triggers one.   |
+| **Increase the loading budget** | Give the SDK more time to download the paywall before falling back. The default is 7 seconds.          |
+| **Update your fallback bundle** | Re-download and ship an updated fallback when you change your paywalls, so the fallback stays current. |
 
-Simulate offline scenarios:
+---
 
-```swift
-// iOS example - Force fallback mode
-Helium.shared.setTestMode(.forceFallback)
-Helium.shared.presentPaywall()
-```
+### **Key Points**
 
-## Fallback limitations
+- Fallbacks are **fully functional** — subscriptions work normally.
 
-Fallback paywalls have some constraints:
 
-- **Static content**: Cannot include dynamic experiments or personalization
-- **Fixed products**: Product offerings are predetermined
-- **No analytics**: Limited event tracking until connectivity is restored
-- **Stale data**: May show outdated pricing or features
+- Fallback sessions are **tracked separately** in analytics so they don't skew your paywall metrics.
 
-## Best practices
 
-### Keep fallbacks updated
+- Keep your fallback bundle **up to date** — re-download it when you publish significant paywall changes.
 
-Update your fallback bundle with each app release to ensure:
-- Current pricing is displayed
-- Latest product offerings are available
-- Messaging aligns with your current marketing
 
-### Design for offline
-
-Create fallback paywalls that:
-- Work without images (or bundle images locally)
-- Don't rely on dynamic content
-- Include all essential products
-- Have clear, timeless messaging
-
-### Monitor fallback usage
-
-Track how often fallbacks are triggered to identify:
-- Network reliability issues
-- CDN performance problems
-- Opportunities to improve caching
-
-## Fallback causes
-
-See the [fallback causes reference](/sdk-reference/fallback-causes) for detailed information on why fallbacks are triggered.
+- A low fallback rate means the SDK is loading paywalls successfully before users need them.

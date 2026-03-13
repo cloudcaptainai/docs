@@ -1,280 +1,95 @@
 ---
-title: Triggers
-description: Define events that initiate paywall presentation
+title: "Triggers"
+description: "Define events that initiate paywall presentation"
 ---
 
-# Triggers
+A **trigger** is a named placement in your app where you want to present a paywall. Think of it as a specific moment or screen in your user journey — like after onboarding, when a user hits a feature gate, or when they open settings.
 
-Triggers are events that can initiate paywall presentation or workflow execution. They define when your monetization logic should activate.
+When the Helium SDK encounters a trigger in your app code, it resolves the trigger to a **workflow**, which determines which paywall (or A/B experiment) to display.
 
-## What are triggers?
+---
 
-Triggers are named events that occur in your app. When a trigger fires, Helium evaluates associated workflows and determines whether to present a paywall.
+### **Anatomy of a Trigger**
 
-## Built-in triggers
+Each trigger has three fields:
 
-Helium provides several built-in triggers:
+| Field            | Description                                                                                                                                                   |
+| :--------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Trigger Name** | A human-readable label for the trigger (e.g., "Post Onboarding"). Editable after creation.                                                                    |
+| **Trigger Key**  | A programmatic identifier used in your SDK integration (e.g., post_onboarding). Only letters, numbers, and underscores. **Cannot be changed after creation.** |
+| **Description**  | An optional note describing when or where this trigger fires.                                                                                                 |
 
-### App lifecycle
+---
 
-- **app_launch**: App starts or returns to foreground
-- **app_install**: First app launch after installation
-- **app_update**: First launch after app update
+### **Lifecycle of a Trigger**
 
-### Subscription events
+<Steps>
+  <Step title="Create">
+    Triggers can be created in two ways:
 
-- **subscription_expired**: User's subscription has expired
-- **trial_started**: User started a free trial
-- **trial_ending**: Trial will expire soon (configurable threshold)
-- **subscription_renewed**: Subscription successfully renewed
+    - **During onboarding** — The "Wire up your paywall" flow creates a trigger, a default workflow, and connects them to your first paywall in one step.
+    - **From a workflow** — On any workflow's detail page, you can add triggers from the Triggers section. Create new ones inline, or attach existing unassigned triggers.
 
-### User actions
+    When you create a trigger, you choose a **trigger key**. This is the identifier you'll use in your app's code, so pick something descriptive and stable — it can't be renamed later. The trigger name and description can be updated at any time.
+  </Step>
+  <Step title="Associate with Workflow">
+    A trigger must be linked to exactly **one workflow**. A workflow can have **many triggers**, but each trigger can only belong to a single workflow at a time. This constraint is enforced automatically — if you try to assign a trigger that's already in use by another workflow, you'll see an error.
 
-- **feature_accessed**: User attempts to access a feature
-- **content_viewed**: User views specific content
-- **limit_reached**: User hits usage limit
+    This means multiple entry points in your app (e.g., feature_gate, settings_upsell, post_onboarding) can all route to the same paywall experience, while each trigger still gets its own analytics.
+  </Step>
+  <Step title="Integrate in Your App">
+    Once created and associated with a workflow, use the trigger key in your SDK integration:
 
-## Custom triggers
+    _// iOS example_
 
-Create custom triggers for your specific use cases:
+    Helium.trigger("post_onboarding")
 
-```swift
-// iOS example
-Helium.shared.trigger("premium_feature_tapped")
-```
+    When this code runs, the SDK sends the trigger key to Helium, which resolves it to the associated workflow and returns the correct paywall (or experiment variant) to display.
+  </Step>
+  <Step title="Analyze">
+    Triggers appear throughout Helium's analytics. You can **filter** and **group by** trigger to understand how each entry point performs — for example, comparing conversion rates between post_onboarding and feature_gate. Trigger attribution flows through to paywall sessions and subscription data.
+  </Step>
+  <Step title="Edit">
+    You can update a trigger's **name** and **description** at any time from the trigger's detail page. The **trigger key is immutable** — if you need a different key, create a new trigger and reassign it to the workflow.
+  </Step>
+  <Step title="Move or Reassign">
+    Triggers can be detached from one workflow and attached to another. When you remove a trigger from a workflow, that trigger's key will immediately stop serving that workflow's paywalls.
+  </Step>
+  <Step title="Delete">
+    A trigger can only be deleted if it is **not currently associated with any workflow**. If it's in use, you'll be shown which workflow(s) reference it and prompted to remove the association first. Deletion is permanent.
+  </Step>
+</Steps>
 
-```kotlin
-// Android example
-Helium.trigger("premium_feature_tapped")
-```
+---
 
-## Trigger properties
+### **Reserved Trigger Keys**
 
-Attach additional data to triggers:
+Helium reserves a small set of trigger keys for system-managed workflows:
 
-```swift
-// iOS example
-Helium.shared.trigger("feature_accessed", properties: [
-    "feature_name": "advanced_editor",
-    "access_count": 3
-])
-```
+| Key                      | Purpose                           |
+| :----------------------- | :-------------------------------- |
+| hlm_ios_default_flbk     | iOS default fallback workflow     |
+| hlm_android_default_flbk | Android default fallback workflow |
 
-Use properties in workflow conditions:
+These cannot be used for custom triggers.
 
-```
-Trigger: feature_accessed
-Conditions:
-  - feature_name == "advanced_editor"
-  - access_count > 2
-Action: Present paywall
-```
+---
 
-## Creating triggers
+### **Key Rules**
 
-### In the dashboard
+- Each trigger belongs to **exactly one workflow** at a time.
+- One workflow can have **multiple triggers**.
+- Trigger keys are **unique per organization** and **immutable** after creation.
+- Trigger keys can only contain **letters, numbers, and underscores**.
+- A trigger must be **unassociated from all workflows** before it can be deleted.
 
-1. Navigate to **Triggers**
-2. Click **Create Trigger**
-3. Name your trigger
-4. Define trigger properties (optional)
-5. Associate with workflows
+---
 
-### In code
+### **Common Patterns**
 
-Implement trigger calls at appropriate points:
-
-```swift
-// iOS example - Feature gate
-func openPremiumFeature() {
-    if !user.isSubscribed {
-        Helium.shared.trigger("premium_feature_accessed")
-    }
-    // Feature logic...
-}
-```
-
-## Trigger timing
-
-### Immediate triggers
-
-Fire as soon as the event occurs:
-
-```swift
-Helium.shared.trigger("button_tapped")
-```
-
-### Delayed triggers
-
-Fire after a delay:
-
-```swift
-// iOS example
-Helium.shared.trigger("app_launch", delay: 3.0)
-```
-
-### Scheduled triggers
-
-Fire at specific times (configured in dashboard):
-
-```
-Trigger: trial_reminder
-Schedule: Daily at 10:00 AM
-```
-
-## Trigger conditions
-
-Add conditions to triggers to control when they fire:
-
-### Frequency limits
-
-```
-Max frequency: Once per day
-```
-
-### User state
-
-```
-Only trigger if:
-  - Not subscribed
-  - Session count > 5
-```
-
-### Time windows
-
-```
-Only trigger between:
-  - 9:00 AM - 9:00 PM user local time
-```
-
-## Testing triggers
-
-### Manual triggering
-
-Test triggers manually:
-
-```swift
-// iOS example
-Helium.shared.setTestMode(.enabled)
-Helium.shared.trigger("test_trigger")
-```
-
-### Trigger logs
-
-View trigger activity in the dashboard:
-- When triggers fired
-- Associated properties
-- Which workflows executed
-- Resulting actions
-
-## Best practices
-
-### Naming conventions
-
-Use clear, descriptive names:
-- `premium_feature_accessed` not `trigger1`
-- `trial_ending_soon` not `temp_trigger`
-- `onboarding_completed` not `done`
-
-### Strategic placement
-
-Place triggers where they make sense:
-- Before showing premium features
-- After demonstrating value
-- At natural decision points
-
-### Don't over-trigger
-
-Avoid:
-- Triggering too frequently
-- Interrupting critical flows
-- Annoying users with repeated prompts
-
-### Include context
-
-Add relevant properties:
-
-```swift
-Helium.shared.trigger("content_viewed", properties: [
-    "content_type": "article",
-    "content_id": "123",
-    "view_duration": 45
-])
-```
-
-## Common patterns
-
-### Feature gating
-
-```swift
-func accessPremiumFeature() {
-    guard user.isSubscribed else {
-        Helium.shared.trigger("premium_feature_gate")
-        return
-    }
-    // Show feature
-}
-```
-
-### Usage limits
-
-```swift
-func performAction() {
-    usageCount += 1
-    
-    if usageCount >= freeLimit && !user.isSubscribed {
-        Helium.shared.trigger("usage_limit_reached", properties: [
-            "limit": freeLimit,
-            "count": usageCount
-        ])
-    }
-}
-```
-
-### Onboarding completion
-
-```swift
-func completeOnboarding() {
-    // Onboarding logic...
-    
-    Helium.shared.trigger("onboarding_completed", properties: [
-        "steps_completed": 5,
-        "time_spent": 120
-    ])
-}
-```
-
-### Time-based prompts
-
-```swift
-func checkTrialStatus() {
-    if let trialEndDate = user.trialEndDate {
-        let daysRemaining = trialEndDate.daysFromNow
-        
-        if daysRemaining <= 3 {
-            Helium.shared.trigger("trial_ending_soon", properties: [
-                "days_remaining": daysRemaining
-            ])
-        }
-    }
-}
-```
-
-## Integration with workflows
-
-Triggers are the entry point for workflows:
-
-```
-Workflow: Premium feature gate
-Trigger: premium_feature_accessed
-Conditions:
-  - Not subscribed
-  - Access count > 2
-Action: Present feature_gate_paywall
-```
-
-## Next steps
-
-- Learn about [Workflows](/primitives/workflows)
-- Explore [Experiments](/primitives/experiments)
-- Set up [Audiences](/primitives/audiences)
+| Pattern         | Example Key           | When It Fires                                   |
+| :-------------- | :-------------------- | :---------------------------------------------- |
+| Post-onboarding | post_onboarding       | Right after a new user completes onboarding     |
+| Feature gate    | feature_gate_ai_tools | When a free user taps a premium feature         |
+| Settings upsell | settings_upgrade      | From an "Upgrade" button on the settings screen |
+| Session-based   | session_start_day_3   | On app open after the user's 3rd day            |

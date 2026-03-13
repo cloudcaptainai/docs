@@ -1,231 +1,120 @@
 ---
-title: Workflows
-description: Orchestrate complex paywall presentation logic
+title: "Workflows"
+description: "Orchestrate complex paywall presentation logic"
 ---
 
-# Workflows
+A **workflow** is the decision engine that sits between a trigger and a paywall. When a trigger fires in your app, the Helium SDK resolves it to a workflow, which then evaluates a set of rules to decide what to show the user — a specific paywall, an A/B experiment, or nothing at all.
 
-Workflows allow you to create sophisticated logic for when and how paywalls are presented to users.
+Workflows are the central configuration object in Helium. They tie together triggers, paywalls, experiments, audiences, and locales into a single, manageable unit.
 
-## What are workflows?
+---
 
-Workflows are sequences of conditions and actions that determine paywall behavior. They let you:
+### **Anatomy of a Workflow**
 
-- Control when paywalls appear
-- Customize which paywall to show
-- Personalize based on user attributes
-- Implement complex business logic
+| Field                  | Description                                                                                  |
+| :--------------------- | :------------------------------------------------------------------------------------------- |
+| **Workflow Name**      | A human-readable label, unique within your organization (e.g., "Onboarding Upsell").         |
+| **Description**        | An optional note describing the workflow's purpose.                                          |
+| **Control Paywall**    | The default paywall shown when no other targeting rules match. Every workflow must have one. |
+| **Triggers**           | One or more triggers that route to this workflow from your app.                              |
+| **Targeting Criteria** | Audience-based rules that determine what to show different user segments.                    |
+| **Experiments**        | A/B tests running within this workflow, comparing different paywalls.                        |
+| **Locale Experiments** | Per-locale experiment assignments, allowing different tests for different regions.           |
 
-## Workflow components
+---
 
-### Triggers
+### **How a Workflow Resolves**
 
-Events that initiate a workflow:
-- App launch
-- Feature access attempt
-- Custom events
-- Time-based conditions
+When a trigger fires, the SDK asks Helium: "What should I show?" The workflow answers by evaluating its configuration:
 
-### Conditions
+1. **Check targeting criteria** — Does the user match any audience-based rule?
+1. **If a rule matches** — Show that audience's configured paywall or enroll the user in an experiment. If the rule is "no paywall," dismiss silently.
+1. **If no rule matches** — Fall through to the **control paywall**.
 
-Rules that must be met:
-- User subscription status
-- Number of app sessions
-- Time since install
-- Custom user properties
-- Audience membership
+This means a single workflow can serve entirely different experiences to different user segments — a premium upsell to power users, a gentle nudge to casual users, and an A/B test for everyone else.
 
-### Actions
+---
 
-What happens when conditions are met:
-- Present specific paywall
-- Show different paywall variants
-- Track analytics event
-- Do nothing (suppress paywall)
+### **Lifecycle of a Workflow**
 
-## Creating workflows
+<Steps>
+  <Step title="Create">
+    When you create a workflow, you provide:
 
-In the Helium dashboard:
+    - A **name** (must be unique within your organization)
+    - A **control paywall** (the default paywall to show — must be a published paywall)
+    - An optional **description**
 
-1. Navigate to **Workflows**
-2. Click **Create Workflow**
-3. Define trigger conditions
-4. Add conditional logic
-5. Specify actions
-6. Activate workflow
+    During onboarding, Helium creates a "Default Workflow" automatically when you set up your first trigger. You can also create workflows manually from the Workflows page.
+  </Step>
+  <Step title="Attach Triggers">
+    A workflow needs at least one trigger to be reachable from your app. You can attach multiple triggers to a single workflow — for example, both post_onboarding and feature_gate can route to the same workflow. Each trigger can only belong to one workflow at a time.
+  </Step>
+  <Step title="Configure Targeting Criteria">
+    Targeting criteria are audience-based rules that let you customize what different users see. Each rule maps an **audience** to an **action**:
 
-## Example workflows
+    | Action Type    | Behavior                                                                          |
+    | :------------- | :-------------------------------------------------------------------------------- |
+    | **Paywall**    | Show a specific paywall to users in this audience.                                |
+    | **Experiment** | Enroll users in this audience into an A/B test.                                   |
+    | **No Paywall** | Don't show anything — the trigger silently resolves without presenting a paywall. |
 
-### New user onboarding
+    Rules are evaluated in order. If a user matches multiple audiences, the first matching rule wins. Users who don't match any rule see the **control paywall**.
+  </Step>
+  <Step title="Run Experiments">
+    Experiments are A/B tests that live within a workflow. Each experiment:
 
-```
-Trigger: App launch
-Conditions:
-  - Session count < 3
-  - Not subscribed
-Action: Present onboarding_paywall
-```
+    - Compares two or more paywall variants with configurable traffic allocations
+    - Can be scoped to a specific audience via targeting criteria
+    - Has a lifecycle of its own: **scheduled** → **running** → **stopped**/**completed**
+    - Can be scoped to specific **locales**, so you can run different tests in different regions
 
-### Feature gate
+    When you stop an experiment, you choose what happens next — route that audience to the winning paywall, fall back to the control, or pass through to the next matching rule.
+  </Step>
+  <Step title="Edit">
+    You can update a workflow's **name**, **description**, **control paywall**, and **targeting criteria** at any time. Changes take effect immediately — there is no draft/publish cycle for workflows. Keep in mind:
 
-```
-Trigger: Premium feature accessed
-Conditions:
-  - Not subscribed
-  - Feature access count > 2
-Action: Present feature_gate_paywall
-```
+    - Changing the control paywall instantly changes what unmatched users see.
+    - Updating targeting criteria reorders or replaces audience rules on the fly.
+  </Step>
+  <Step title="Delete">
+    Deleting a workflow **cascades** — all trigger associations and locale-experiment mappings tied to this workflow are removed automatically. The triggers themselves are not deleted; they become unassigned and can be reattached to another workflow. Experiments associated with the workflow are also affected.
 
-### Win-back campaign
+    Deletion is permanent and takes effect immediately. Any triggers still referencing this workflow in your app code will fail to resolve, so make sure to remove or reassign them first.
+  </Step>
+</Steps>
 
-```
-Trigger: App launch
-Conditions:
-  - Previously subscribed
-  - Subscription expired > 30 days ago
-  - Not seen paywall in 7 days
-Action: Present winback_paywall
-```
+---
 
-### Trial expiration
+### **Relationships**
 
-```
-Trigger: Daily check
-Conditions:
-  - Trial expires in 3 days
-  - Not converted to paid
-Action: Present trial_ending_paywall
-```
+- **Triggers → Workflow**: Many-to-one. Multiple triggers can point to one workflow.
+- **Workflow → Control Paywall**: One-to-one. Every workflow has exactly one default paywall.
+- **Workflow → Targeting Criteria**: One-to-many. A workflow can have multiple audience-based rules.
+- **Workflow → Experiments**: One-to-many. A workflow can have multiple A/B tests (active, stopped, or scheduled).
+- **Workflow → Locale Experiments**: One-to-many. Different experiments can run per locale within the same workflow.
 
-## Workflow priority
+---
 
-When multiple workflows could trigger:
+### **Key Rules**
 
-1. Workflows are evaluated in priority order
-2. First matching workflow executes
-3. Subsequent workflows are skipped
+- Workflow names are **unique per organization**.
+- Every workflow must have a **control paywall** — it's the guaranteed fallback.
+- Only **published paywalls** can be used as a control paywall or in experiments.
+- Targeting criteria are evaluated **in order** — the first matching audience wins.
+- Deleting a workflow **cascades** to trigger associations and locale mappings, but does not delete the triggers or experiments themselves.
+- Changes to workflows are **live immediately** — there is no staging step.
 
-Set priority in the dashboard to control execution order.
+---
 
-## Testing workflows
+### **Common Patterns**
 
-### Test mode
+| Pattern                   | Description                                                                                                                                                |
+| :------------------------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Simple paywall**        | One trigger, one workflow, one control paywall. The simplest setup — every user sees the same paywall.                                                     |
+| **A/B test**              | One workflow with an experiment. Split traffic between paywall variants to find the best performer.                                                        |
+| **Audience segmentation** | Targeting criteria route different audiences to different paywalls. Power users see a premium offer; new users see a trial offer.                          |
+| **Locale-based testing**  | Different experiments per locale. Test an annual plan in the US while testing a monthly plan in Europe.                                                    |
+| **Multi-trigger funnel**  | Multiple triggers (e.g., feature_gate, settings_upgrade, day_3_prompt) all pointing to the same workflow. Shared paywall logic with per-trigger analytics. |
 
-Enable test mode to verify workflow logic:
-
-```swift
-// iOS example
-Helium.shared.setTestMode(.enabled)
-Helium.shared.triggerWorkflow("new_user_onboarding")
-```
-
-### Workflow logs
-
-View workflow execution logs in the dashboard:
-- Which workflows triggered
-- Which conditions were met
-- What actions were taken
-- Why workflows were skipped
-
-## Advanced features
-
-### Delays
-
-Add delays between trigger and action:
-
-```
-Trigger: App launch
-Delay: 5 seconds
-Action: Present paywall
-```
-
-### Frequency capping
-
-Limit how often workflows execute:
-
-```
-Max frequency: Once per 7 days
-```
-
-### Audience targeting
-
-Combine workflows with audiences:
-
-```
-Conditions:
-  - User in "high_value" audience
-  - Not subscribed
-```
-
-## Best practices
-
-### Start simple
-
-Begin with basic workflows:
-- One trigger
-- Few conditions
-- Single action
-
-Add complexity as needed.
-
-### Test thoroughly
-
-- Test all condition branches
-- Verify timing and delays
-- Check frequency caps
-- Monitor analytics
-
-### Document logic
-
-Maintain documentation of:
-- Workflow purpose
-- Expected behavior
-- Business rules
-- Edge cases
-
-### Monitor performance
-
-Track workflow metrics:
-- Trigger frequency
-- Conversion rates
-- User feedback
-- Technical errors
-
-## Common pitfalls
-
-### Over-complication
-
-Avoid:
-- Too many conditions
-- Complex nested logic
-- Unclear execution paths
-
-### Conflicting workflows
-
-Watch for:
-- Multiple workflows triggering simultaneously
-- Contradictory conditions
-- Priority conflicts
-
-### Poor timing
-
-Consider:
-- User context
-- App state
-- Network conditions
-- Previous interactions
-
-## Integration with other primitives
-
-Workflows work with:
-
-- **Triggers**: Define when workflows start
-- **Audiences**: Target specific user segments
-- **Experiments**: Test different workflow variants
-- **Product buckets**: Dynamically select products
-
-## Next steps
-
-- Learn about [Triggers](/primitives/triggers)
-- Explore [Experiments](/primitives/experiments)
-- Set up [Audiences](/primitives/audiences)
+---

@@ -1,324 +1,204 @@
 ---
-title: Experiments
-description: Run A/B tests to optimize conversion rates
+title: "Experiments"
+description: "Run A/B tests to optimize conversion rates"
 ---
 
-# Experiments
+An **experiment** is an A/B test that compares two or more paywall variants to determine which one performs best. Experiments live within a workflow and can be scoped to specific audiences and locales, allowing you to test different monetization strategies on different user segments simultaneously.
 
-Experiments allow you to test different paywall variations, pricing strategies, and messaging to optimize your subscription conversion rates.
+---
 
-## What are experiments?
+### **Anatomy of an Experiment**
 
-Experiments (also called A/B tests) show different variations of your paywalls to different users and measure which performs better.
+| Field                   | Description                                                                                               |
+| :---------------------- | :-------------------------------------------------------------------------------------------------------- |
+| **Experiment Name**     | A human-readable label for the test (e.g., "Annual vs Monthly Q1 2025").                                  |
+| **Hypothesis**          | An optional description of what you're testing and why.                                                   |
+| **Experiment Type**     | The test methodology: abcd (standard A/B/C/D test), aa (validation test), or bandit (multi-armed bandit). |
+| **Status**              | The current state: running, scheduled, or stopped.                                                        |
+| **Paywall Variants**    | Two or more paywalls being tested, each with a traffic allocation percentage.                             |
+| **Allocations**         | The percentage of traffic routed to each variant (must total 100%).                                       |
+| **Control & Treatment** | Exactly one variant is marked as the **control** (your baseline). All others are **treatments**.          |
+| **Locale**              | An optional locale scope (e.g., en_US). A global experiment applies to all locales.                       |
+| **Start / End Date**    | When the experiment begins and when it's scheduled to end.                                                |
 
-## Why run experiments?
+---
 
-Experiments help you:
+### **Variants and Allocations**
 
-- **Increase conversions**: Find the most effective paywall design
-- **Optimize pricing**: Test different price points and offerings
-- **Improve messaging**: Discover which copy resonates with users
-- **Reduce churn**: Test retention strategies
-- **Make data-driven decisions**: Replace guesswork with evidence
+Each experiment contains two or more **variants** — paywall designs you're comparing. Every variant has:
 
-## Creating experiments
+- A **paywall** — the actual paywall UI shown to users in that variant
 
-In the Helium dashboard:
 
-1. Navigate to **Experiments**
-2. Click **Create Experiment**
-3. Define your hypothesis
-4. Create variations
-5. Set traffic allocation
-6. Configure success metrics
-7. Launch experiment
+- A **percentage allocation** — the share of eligible traffic this variant receives
 
-## Experiment components
 
-### Control group
+- A **variant type** — either control (the baseline) or treatment (the challenger)
 
-The baseline variation (usually your current paywall):
+Allocations must total exactly **100%**. When a user qualifies for the experiment, they're randomly assigned to a variant based on these percentages and consistently see that same variant on subsequent triggers.
 
-```
-Control: Current paywall design
-Traffic: 50%
-```
+You can **update allocations on a running experiment**. When you do, Helium creates an **experiment version** — a snapshot of the allocation state. This lets you ramp up a promising treatment or wind down an underperformer without stopping the test entirely.
 
-### Variants
+---
 
-Alternative versions to test:
+### **Lifecycle of an Experiment**
 
-```
-Variant A: New headline and pricing
-Traffic: 25%
+#### 1. Create
 
-Variant B: Different product order
-Traffic: 25%
-```
+Experiments are created from within a workflow's detail page. The creation flow has four steps:
 
-### Success metrics
+1. **Basic Info** — Name your experiment and state your hypothesis.
 
-What you're measuring:
 
-- Conversion rate
-- Revenue per user
-- Trial start rate
-- Subscription retention
+1. **Target Audience** — Choose which audience this experiment applies to. You can select "All Users," pick an existing audience, or create a new one.
 
-## Types of experiments
 
-### Design experiments
+1. **Paywalls & Allocations** — Select the paywall variants, mark one as control, and set traffic percentages.
 
-Test visual elements:
-- Layout and spacing
-- Colors and fonts
-- Images and icons
-- Button styles
 
-### Pricing experiments
+1. **Review** — Confirm your configuration before launching.
 
-Test different pricing strategies:
-- Price points
-- Product offerings
-- Free trial lengths
-- Promotional discounts
+Experiments start **immediately** upon creation — there is no draft state.
 
-### Messaging experiments
+#### 2. Running
 
-Test different copy:
-- Headlines
-- Value propositions
-- Feature descriptions
-- Call-to-action text
+While an experiment is running:
 
-### Product experiments
+- Users are **allocated to variants** based on the configured percentages.
 
-Test product configurations:
-- Number of options
-- Product ordering
-- Default selections
-- Product buckets
 
-## Traffic allocation
+- Each user is **consistently bucketed** — they see the same variant every time the trigger fires.
 
-Distribute users across variations:
 
-### Equal split
+- You can **view results** on the experiment detail page, including per-variant metrics.
 
-```
-Control: 33%
-Variant A: 33%
-Variant B: 34%
-```
 
-### Weighted split
+- You can **adjust allocations** on the fly. Changing allocations creates a new experiment version for clean cohort tracking.
 
-```
-Control: 70%
-Variant A: 30%
-```
 
-### Gradual rollout
+- You can **add or remove paywall variants** from a running experiment.
 
-```
-Week 1: Control 90%, Variant 10%
-Week 2: Control 70%, Variant 30%
-Week 3: Control 50%, Variant 50%
-```
+#### 3. Stop
 
-## Statistical significance
+When you stop an experiment, you decide what happens to the audience that was enrolled:
 
-Helium automatically calculates:
+| Option                            | Behavior                                                                                                                 |
+| :-------------------------------- | :----------------------------------------------------------------------------------------------------------------------- |
+| **Route to a specific paywall**   | Replace the experiment with a static paywall for that audience. Typically used to lock in the winner.                    |
+| **Fall through to next audience** | Remove the audience's targeting rule entirely, letting the user match the next applicable rule (or the control paywall). |
 
-- **Confidence level**: How certain we are about results
-- **Sample size**: Number of users in each variation
-- **P-value**: Statistical significance
-- **Lift**: Percentage improvement over control
+Stopping an experiment updates the workflow's targeting criteria automatically. The experiment's status changes to stopped and a stopped_at timestamp is recorded.
 
-Wait for statistical significance before making decisions (typically 95% confidence).
+#### 4. Analyze
 
-## Running experiments
+Stopped experiments and their data remain available for analysis. You can filter and group metrics by experiment to compare variant performance across revenue, conversion rate, and other metrics.
 
-### Duration
+#### 5. Delete
 
-Run experiments long enough to:
-- Reach statistical significance
-- Account for weekly patterns
-- Include different user cohorts
+Deleting an experiment removes it and its locale associations. A database constraint prevents deleting a **running** experiment — you must stop it first. Deletion is permanent.
 
-Typical duration: 1-4 weeks
+---
 
-### Sample size
+### **Overlap and Conflict Rules**
 
-Ensure adequate sample size:
-- Minimum: ~1000 users per variation
-- More for smaller effect sizes
-- Consider your traffic volume
+The database enforces several constraints to prevent conflicting experiments:
 
-### Consistency
+- **One running experiment per workflow + locale.** You can't have two active experiments competing for the same locale within the same workflow.
 
-Users always see the same variation:
-- Assigned on first view
-- Consistent across sessions
-- Tracked by user ID
 
-## Analyzing results
+- **Global experiments block all others.** A global experiment cannot overlap in time with any other experiment, regardless of locale or workflow.
 
-### Key metrics
 
-Monitor:
-- **Conversion rate**: % of users who subscribe
-- **Revenue per user**: Average revenue generated
-- **Statistical significance**: Confidence in results
-- **Secondary metrics**: Trial starts, engagement, etc.
+- **Same-locale overlap protection.** Two experiments in the same workflow and locale cannot have overlapping date ranges if both are running or scheduled.
 
-### Dashboard view
+If you try to create an experiment that violates these rules, you'll see an overlap conflict error.
 
-View experiment results:
-- Real-time metrics
-- Variation comparison
-- Statistical analysis
-- User segmentation
+---
 
-## Implementing winners
+### **Audience Scoping**
 
-When a variation wins:
+Experiments are connected to audiences through the workflow's **targeting criteria**. When you create an experiment and select an audience:
 
-1. Review results and confirm significance
-2. Stop the experiment
-3. Make the winning variation the default
-4. Document learnings
-5. Plan next experiment
+- Helium adds a targeting rule to the parent workflow: "For this audience, run this experiment."
 
-## Best practices
 
-### One variable at a time
+- Only users who match the audience see the experiment.
 
-Test one thing per experiment:
-- ✅ Test headline only
-- ❌ Test headline + pricing + layout
 
-### Clear hypothesis
+- Users outside the audience follow the workflow's other rules (or fall through to the control paywall).
 
-Start with a hypothesis:
-- "Emphasizing the free trial will increase conversions"
-- "Showing annual savings will increase annual subscriptions"
+If you select **All Users**, Helium creates (or reuses) a system "All Users" audience and maps it to the experiment.
 
-### Sufficient duration
+Audiences that are already mapped to another experiment in the same workflow are excluded from selection, preventing double-enrollment.
 
-Don't stop too early:
-- Wait for statistical significance
-- Account for day-of-week effects
-- Include multiple user cohorts
+---
 
-### Document everything
+### **Experiment Versions**
 
-Record:
-- Hypothesis
-- Variations tested
-- Results and insights
-- Next steps
+Every time you change an experiment's allocations, Helium creates an **experiment version** — an immutable snapshot of the allocation state at that point in time. This enables:
 
-### Iterate continuously
+- Clean cohort analysis (users allocated under version 1 vs. version 2)
 
-- Always have an experiment running
-- Build on previous learnings
-- Test incrementally
 
-## Common pitfalls
+- Allocation change history
 
-### Stopping too early
 
-Avoid:
-- Declaring winners before significance
-- Reacting to early trends
-- Not accounting for variance
+- Accurate attribution even when you ramp traffic mid-experiment
 
-### Testing too much
+---
 
-Avoid:
-- Multiple changes in one experiment
-- Too many variations
-- Complex multivariate tests
+### **Stripe Paywall Constraints**
 
-### Ignoring segments
+If any paywall variant in your experiment uses Stripe products, additional rules apply:
 
-Consider:
-- Different user segments may respond differently
-- Regional variations
-- Platform differences (iOS vs Android)
+- **Stripe paywalls cannot be the control variant.** Stripe paywalls only work for a subset of users (Apple Pay enabled, US store), so using one as the control would bias results.
 
-## Advanced techniques
 
-### Multivariate testing
+- **Audience must have Stripe-compatible targeting.** If you include a Stripe paywall, the experiment's audience must be configured to target only eligible users.
 
-Test multiple variables simultaneously:
+These constraints are validated during experiment creation and will block you if not satisfied.
 
-```
-Headline A + Price A
-Headline A + Price B
-Headline B + Price A
-Headline B + Price B
-```
+---
 
-Requires larger sample sizes.
+### **Key Rules**
 
-### Sequential testing
+- Experiments start **immediately** — there is no draft state.
 
-Run experiments in sequence:
 
-```
-Experiment 1: Test headline → Winner: Headline B
-Experiment 2: Test pricing with Headline B → Winner: Price A
-Experiment 3: Test layout with Headline B + Price A
-```
+- Allocations must total exactly **100%**.
 
-### Holdout groups
 
-Keep a control group long-term:
+- Exactly **one variant** must be marked as the control.
 
-```
-90% see optimized paywalls
-10% see original (for comparison)
-```
 
-## Integration with other features
+- Only **published paywalls** can be used as variants.
 
-Experiments work with:
 
-- **Audiences**: Test variations on specific segments
-- **Workflows**: Experiment with different presentation logic
-- **Product buckets**: Test different product offerings
-- **Triggers**: Experiment with timing and context
+- **Running experiments cannot be deleted** — stop them first.
 
-## Example experiments
 
-### Headline test
+- Only **one running experiment per workflow + locale** is allowed at a time.
 
-```
-Control: "Unlock Premium Features"
-Variant A: "Start Your Free Trial"
-Variant B: "Join 1M+ Premium Users"
-```
 
-### Pricing test
+- **Global experiments** cannot overlap with any other experiment.
 
-```
-Control: Monthly $9.99, Annual $99.99
-Variant A: Monthly $7.99, Annual $79.99
-Variant B: Monthly $12.99, Annual $119.99
-```
 
-### Product order test
+- Changes to allocations are **versioned** for clean cohort tracking.
 
-```
-Control: Monthly, Annual, Lifetime
-Variant A: Annual, Monthly, Lifetime
-Variant B: Annual (highlighted), Monthly, Lifetime
-```
 
-## Next steps
+- Stopping an experiment automatically updates the parent workflow's targeting criteria.
 
-- Set up [Audiences](/primitives/audiences) for targeted experiments
-- Learn about [Workflows](/primitives/workflows) for complex testing
-- Explore [Analytics](/analytics/overview) to track results
+---
+
+### **Common Patterns**
+
+| Pattern                  | Description                                                                                                   |
+| :----------------------- | :------------------------------------------------------------------------------------------------------------ |
+| **Simple A/B test**      | Two paywalls (control vs. treatment), 50/50 split, scoped to all users. The classic test.                     |
+| **Multi-variant test**   | Three or more paywalls with custom allocations (e.g., 40% control, 30% treatment A, 30% treatment B).         |
+| **Audience-scoped test** | Run an experiment only for a specific user segment, like "users on day 3+" or "users in the US."              |
+| **Ramp-up**              | Start with 90/10 control/treatment, then gradually increase the treatment allocation as confidence grows.     |
+| **Locale-specific test** | Run different experiments per locale — test annual pricing in the US while testing monthly pricing in Europe. |
+| **AA test**              | Show the same paywall to both groups to validate your instrumentation and statistical methodology.            |
+
+---

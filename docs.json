@@ -48,7 +48,6 @@
             "pages": [
               "primitives/paywalls",
               "primitives/paywalls/localization",
-              "primitives/paywalls/product-buckets",
               "sdk-quickstarts/fallbacks"
             ]
           },

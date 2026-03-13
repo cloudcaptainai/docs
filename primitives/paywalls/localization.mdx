@@ -1,142 +1,226 @@
 ---
-title: Localization
-description: Localize paywalls for different languages and regions
+title: "Localization"
+description: "Localize paywalls for different languages and regions"
 ---
 
-# Localization
+Helium's localization system lets you translate your paywall's text into any language, preview territory-specific pricing, and manage translations at scale — with AI auto-translation, manual editing, and third-party sync via Localizely.
 
-Localize your paywalls to provide native experiences for users in different countries and languages.
+Localization in Helium has two distinct layers: **copy** (translated UI text) and **pricing** (territory-specific product prices and currencies). They work independently — you can localize copy without changing pricing territory, and vice versa.
 
-## Why localize?
+---
 
-Localized paywalls can significantly improve conversion rates by:
+### **How It Works**
 
-- Speaking users' native language
-- Showing appropriate currency and pricing
-- Respecting cultural norms and preferences
-- Building trust with local audiences
+Every paywall has a localizations file that maps **translation keys** to **per-locale values**.
 
-## Supported languages
+At runtime, the SDK provides the user's preferred languages, and Helium resolves the best available translation using a waterfall:
 
-Helium supports localization for:
+1. **Exact locale match** (e.g., es-MX)
+2. **Base language match** (e.g., es from es-MX)
+3. **Universal fallback** (the key — your source language)
+4. **Inline fallback**
 
-- English
-- Spanish
-- French
-- German
-- Italian
-- Portuguese
-- Japanese
-- Korean
-- Chinese (Simplified and Traditional)
-- And more...
+---
 
-## Setting up localization
+### **Translation Keys**
 
-### In the dashboard
+Translation keys are identifiers that connect your UI code to translated values. They originate from your  paywall.
 
-1. Navigate to your paywall
-2. Click **Localization**
-3. Add languages
-4. Translate content for each language
+#### How keys are created
 
-### Content to localize
+- **Automatic extraction** — When you create a paywall, Helium's AI analyzes your App.tsx and wraps localizable strings in translate() calls, generating stable keys.
 
-Translate all user-facing text:
 
-- Headlines and subheadlines
-- Product descriptions
-- Feature lists
-- Button text
-- Legal links and disclaimers
+- **Manual** — You can add translate("my_key", "fallback") calls directly in your code.
 
-### Product information
 
-Product names and descriptions are automatically localized based on your App Store Connect or Google Play Console configuration.
+- **From the translation editor** — Add keys through the localization UI and reference them in code.
 
-## Currency and pricing
+#### Key format
 
-Pricing is automatically displayed in the user's local currency based on:
+Keys are plain strings, typically `snake_case`: `hero_title`, `cta_subscribe`, `feature_list_item_1`. Auto-generated keys may include a hash suffix for uniqueness (e.g., `unlock_premium_a3f2b1`).
 
-- App Store or Google Play pricing tiers
-- User's device region
-- Store account settings
+---
 
-## Automatic language detection
+### **Managing Translations**
 
-The SDK automatically detects the user's preferred language:
+The **localization editor** is a sidebar/modal in the paywall editor with a full set of tools:
 
-```swift
-// iOS - Automatic detection
-Helium.shared.presentPaywall() // Shows localized version
+| Feature                 | Description                                                                                               |
+| :---------------------- | :-------------------------------------------------------------------------------------------------------- |
+| **Translation table**   | Edit values per key, per locale. Inline editing with immediate preview.                                   |
+| **Language tabs**       | Switch between locales. Add or remove languages.                                                          |
+| **Search**              | Find keys by name or value.                                                                               |
+| **AI auto-translate**   | Translate all keys to a new locale (or retranslate existing ones) using AI.                               |
+| **Translation context** | Provide context to the AI (e.g., "This is a fitness app targeting young adults") for better translations. |
+| **Unused key cleanup**  | Detect and remove keys that are no longer referenced in App.tsx.                                          |
+| **Export**              | Export translations as CSV or .strings files.                                                             |
+| **Status tracking**     | Each value is tagged with its source: base, helium (AI), user (manual), or localizely (synced).           |
 
-// Override language
-Helium.shared.presentPaywall(language: "es")
-```
+---
 
-## Fallback behavior
+### **AI Auto-Translation**
 
-If a localization isn't available:
+Helium can auto-translate all keys to any supported locale using an LLM:
 
-1. SDK checks for user's preferred language
-2. Falls back to user's region language
-3. Falls back to default language (typically English)
+1. Select a target locale (or translate to all added languages at once).
+2. Helium sends the source values plus any translation context you've provided.
+3. The AI returns translations, which are marked with status helium.
+4. You can review and edit any auto-translated value — editing changes the status to user.
 
-## Testing localization
+Auto-translation is powered by Gemini and processes up to 100 keys per batch. It uses your source locale (typically English) as the input.
 
-Test different languages:
+AI is also used during **paywall creation** — when you create a paywall from scratch or a template, Helium can automatically identify localizable strings in your code, wrap them in translate() calls, and generate the initial localizations.
 
-### iOS
+**You can also simply prompt the editor to localize your paywall into whatever language is necessary!**
 
-Change device language in Settings > General > Language & Region
+---
 
-### Android
+### **Localizely Integration**
 
-Change device language in Settings > System > Languages
+For teams with existing translation workflows, Helium integrates with **Localizely** (a translation management platform):
 
-### Programmatically
+- **Sync overrides** — Localizely translations can override Helium values per key and locale.
 
-```swift
-// iOS example
-Helium.shared.setTestLanguage("es")
-Helium.shared.presentPaywall()
-```
 
-## Best practices
+- **Status tracking** — Values from Localizely are marked with status localizely and can be locked to prevent accidental edits.
 
-### Professional translation
 
-- Use professional translators, not machine translation
-- Ensure cultural appropriateness
-- Test with native speakers
+- **Key linking** — Map Helium translation keys to Localizely keys.
 
-### Consistent terminology
 
-- Maintain consistent product names
-- Use standard industry terms
-- Keep brand voice across languages
+- **Filter** — Filter the translation table to show only Localizely-managed or non-Localizely keys.
 
-### Layout considerations
+---
 
-- Account for text expansion (some languages are longer)
-- Test UI with actual translated content
-- Ensure buttons and labels don't truncate
+### **Translation Metadata**
 
-### Regional variations
+Every translation value tracks its **source status**:
 
-Consider regional differences:
+| Status     | Meaning                                            |
+| :--------- | :------------------------------------------------- |
+| base       | The original source value (your default language). |
+| helium     | Auto-translated by Helium's AI.                    |
+| user       | Manually edited by a team member.                  |
+| localizely | Synced from Localizely.                            |
 
-- Spanish (Spain) vs Spanish (Latin America)
-- Portuguese (Portugal) vs Portuguese (Brazil)
-- Chinese (Simplified) vs Chinese (Traditional)
+Metadata is stored per key, per locale — so one key might have base for English, helium for Spanish, and user for German (if you manually corrected the AI's output).
 
-## Localization checklist
+---
 
-- [ ] All text content translated
-- [ ] Product information localized in store
-- [ ] Images with text localized or text-free
-- [ ] Legal links point to localized terms
-- [ ] Tested on devices in each language
-- [ ] Currency displays correctly
-- [ ] Layout works with longer text
-- [ ] Cultural appropriateness verified
+### **Territory and Pricing**
+
+**Territory controls product pricing. Locale controls UI text.** These are separate concepts:
+
+- **Locale** — Determines which translation values to display (e.g., es shows Spanish copy).
+
+
+- **Territory** — Determines which price points to display (e.g., USA shows USD prices, JPN shows JPY).
+
+#### How pricing localization works
+
+1. Each product has **price points** per territory (from App Store Connect, Google Play, or Stripe).
+
+
+1. When you select a territory in the editor, Helium resolves the correct price, currency, and currency symbol for that territory.
+
+
+1. The products.tsx file is regenerated with localized pricing data.
+
+
+1. Your paywall accesses prices through product data — never hardcode price strings.
+
+#### Territory picker
+
+The editor's context panel includes a territory selector. Changing it:
+
+- Updates all product prices to that territory's pricing.
+
+
+- Updates offer eligibility (intro offers may vary by territory).
+
+
+- Validates that the territory is available for the selected platform (iOS and Android use different territory code formats).
+
+The default territory is **USA**. If a product doesn't have pricing for the selected territory, Helium falls back to the closest available territory.
+
+---
+
+### **Previewing Locales in the Editor**
+
+The paywall editor has a **locale selector** that lets you preview any language in real time:
+
+1. Select a locale from the dropdown (e.g., es, de, ja).
+2. The editor sends the locale and translations to the preview iframe via postMessage.
+3. The LocalizationProvider re-renders the paywall with the selected locale's translations.
+4. You see exactly what a Spanish-speaking user (or German, Japanese, etc.) would see — with the correct copy and formatting.
+
+Changes made in the translation editor are reflected in the preview immediately, without saving.
+
+---
+
+### **Locale-Specific Experiments**
+
+Separate from UI localization, Helium supports **per-locale experiments** at the workflow level. A workflow can run different A/B tests for different locales — for example, testing annual pricing in en users while testing monthly pricing for es users.
+
+This is configured through the workflow's locale-experiment mappings, not through the paywall's localization system. See [Experiments] and [Workflows] for details.
+
+---
+
+### **SDK Runtime Behavior**
+
+When a paywall loads in your app:
+
+1. The SDK provides heliumContext.locale.preferredLanguages — the user's device language preferences (e.g., ["es-MX", "es", "en"]).
+
+
+1. The paywall's LocalizationProvider receives this and resolves translations using the waterfall (exact locale → base language → fallback).
+
+
+1. Product prices are resolved based on the user's **territory** (separate from language), using heliumContext.locale.currentCurrency and related fields.
+
+This means a user in Mexico with their phone set to Spanish sees:
+
+- **Copy** in es-MX (or es if no Mexico-specific translations exist)
+
+
+- **Prices** in MXN from the Mexico App Store territory
+
+---
+
+### **Key Rules**
+
+- The "" (empty string) locale is the **universal fallback** — always populate it with your source language values.
+
+
+- Translation keys must match between App.tsx and localizations.ts — use the unused key cleanup to keep them in sync.
+
+
+- **Don't hardcode prices** in your UI text — use product data from products.tsx. Hardcoded prices will block publishing.
+
+
+- Territory and locale are **independent** — a user can have Spanish copy with USD pricing (e.g., a Spanish speaker in the US).
+
+
+- AI translations are a starting point — always review auto-translated values for quality, especially for marketing copy.
+
+
+- Each translation value tracks its **source status** (base, helium, user, localizely) for auditability.
+
+
+- Locale-specific experiments are a **workflow-level** feature, not a paywall-level feature.
+
+---
+
+### **Common Patterns**
+
+| Pattern                  | Description                                                                                                                                                           |
+| :----------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **English-only paywall** | No localization needed. Use translate() calls anyway so you can add languages later without code changes.                                                             |
+| **Top 5 languages**      | Add English, Spanish, French, German, and Japanese. Use AI auto-translate for the initial pass, then review.                                                          |
+| **Regional variants**    | Add both es (generic Spanish) and es-MX (Mexico-specific). The SDK picks the best match based on the user's device.                                                   |
+| **Price in copy**        | Don't write "Only \$9.99/month" — instead use translate("price_cta") with the price injected from product data. This ensures prices are always correct per territory. |
+| **Localizely workflow**  | Manage translations in Localizely, sync to Helium. Localizely values override AI translations and are locked from accidental edits.                                   |
+| **Translation context**  | Set context like "Premium fitness app targeting millennials" — the AI uses this for tone and terminology when translating.                                            |
+
+---

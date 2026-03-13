@@ -1,117 +1,225 @@
 ---
-title: Paywalls
-description: Create and customize subscription paywalls
+title: "Paywalls"
+description: "Create and customize subscription paywalls"
 ---
 
-# Paywalls
+A **paywall** is a fullscreen UI that you design in Helium and display to users in your app. It's built with React, rendered in a WebView, and can be fully customized — layout, copy, images, animations, products, and translations. Paywalls are the visual surface of your monetization strategy; workflows and experiments decide _when_ to show them, but the paywall is _what_ the user sees.
 
-Paywalls are the primary interface for presenting subscription offers to your users. Helium provides flexible paywall creation and customization options.
+---
 
-## What are paywalls?
+### **Anatomy of a Paywall**
 
-Paywalls are screens that display your subscription products and encourage users to subscribe. They can include:
+| Field               | Description                                                                                                 |
+| :------------------ | :---------------------------------------------------------------------------------------------------------- |
+| **Paywall Name**    | A human-readable label (e.g., "Annual Upsell — Dark Mode"). Max 100 characters.                             |
+| **Description**     | A short summary of the paywall's purpose. Max 250 characters.                                               |
+| **Product Buckets** | The products offered on this paywall — each bucket maps to a plan (monthly, annual, etc.) across platforms. |
 
-- Product offerings and pricing
-- Feature comparisons
-- Promotional messaging
-- Social proof and testimonials
-- Call-to-action buttons
+---
 
-## Creating paywalls
+### **How Paywalls Are Rendered**
 
-Create paywalls in the Helium dashboard:
+Paywalls are **bundled into a single web file** and rendered inside a native WebView:
 
-1. Navigate to **Paywalls**
-2. Click **Create Paywall**
-3. Choose a template or start from scratch
-4. Customize design and content
-5. Assign products or product buckets
+1. Your app's SDK receives a trigger and resolves it to a workflow.
+2. The SDK loads this bundle in a **WKWebView** (iOS) or **WebView** (Android).
+3. The paywall communicates back to the native app via a bridge — handling subscribe, dismiss, restore purchases, and product selection events.
 
-## Paywall components
+This architecture means paywalls support anything a web page can: CSS animations, custom fonts, Lottie animations, responsive layouts, and dynamic product data. And your paywall can interact directly with the native functions of your mobile frameworks.
 
-### Header
+---
 
-The top section typically includes:
-- App icon or logo
-- Headline
-- Subheadline or value proposition
+### **Creating a Paywall**
 
-### Product display
+Paywalls can be created in four ways:
 
-Show subscription options:
-- Product names and descriptions
-- Pricing and billing periods
-- Promotional badges (e.g., "Most Popular")
-- Free trial information
+| Method                | Description                                                                                       |
+| :-------------------- | :------------------------------------------------------------------------------------------------ |
+| **From scratch**      | Start with a blank canvas and build your UI in the code editor.                                   |
+| **From a template**   | Pick a pre-built starter template and customize it.                                               |
+| **From a screenshot** | Upload a screenshot of a paywall you like — Helium's AI generates React code matching the design. |
+| **From Figma**        | Paste a Figma URL — Helium converts the design into a working paywall.                            |
 
-### Features list
+All creation methods follow the same flow:
 
-Highlight what users get:
-- Feature bullets
-- Icons or checkmarks
-- Comparison tables
+1. Enter a **name** and **description**.
+2. Select **product buckets** (and choose initial iOS/Android/Stripe products).
+3. Helium generates the initial files and opens the editor.
 
-### Footer
+---
 
-Bottom section with:
-- Purchase button
-- Terms of service links
-- Privacy policy links
-- Restore purchases option
+### **The Paywall Editor**
 
-## Customization
+The editor is a live coding environment powered by **Sandpack** (CodeSandbox's embeddable bundler). You edit React code on the left and see a real-time preview on the right.
 
-### Visual design
+#### Editable files
 
-Customize appearance:
-- Colors and fonts
-- Spacing and layout
-- Images and icons
-- Button styles
+| File                  | What you edit                                                                                  |
+| :-------------------- | :--------------------------------------------------------------------------------------------- |
+| **App.tsx**           | The paywall's UI — layout, styling, components, animations. This is the main file you work in. |
+| **paywallConfig.tsx** | Initial product selection logic, scroll settings, platform-specific behavior.                  |
+| **localizations.ts**  | Translation strings for every locale. (See [Localization] for the full localization system.)   |
 
-### Content
+#### Auto-generated files (read-only in most cases)
 
-Tailor messaging:
-- Localized text
-- Dynamic product information
-- Personalized offers
-- A/B test variations
+| File                     | Purpose                                                                                                      |
+| :----------------------- | :----------------------------------------------------------------------------------------------------------- |
+| **products.tsx**         | Product prices, offers, and metadata. Regenerated when you change territory, products, or offer settings.    |
+| **index.html**           | The HTML shell — includes font imports and global setup.                                                     |
+| **withPaywallState.tsx** | A higher-order component that provides paywall state (subscribing, restoring, product selection) to your UI. |
 
-## Product assignment
+#### Preview features
 
-Assign products to paywalls:
+- **Device selector** — Preview on different phone models and sizes.
 
-- **Direct assignment**: Specify exact products
-- **Product buckets**: Use dynamic product groups that can be updated without app releases
 
-See [Product buckets](/primitives/product-buckets) for more information.
+- **Platform toggle** — Switch between iOS and Android to see platform-specific products.
 
-## Localization
 
-Support multiple languages and regions. See [Localization](/primitives/paywalls/localization) for details.
+- **Territory picker** — Preview localized prices for any App Store or Play Store territory.
 
-## Best practices
 
-### Keep it simple
+- **Offer simulation** — Toggle intro offer eligibility to preview trial and promotional pricing.
 
-- Focus on 2-3 product options
-- Use clear, concise copy
-- Avoid overwhelming users with information
+---
 
-### Highlight value
+### **Versioning**
 
-- Lead with benefits, not features
-- Use social proof
-- Show what users get immediately
+Every paywall has a **version history**. Each save creates a new version, building a timeline of changes.
 
-### Test and iterate
+#### Version statuses
 
-- Run experiments to optimize conversion
-- Test different layouts and messaging
-- Monitor analytics to identify improvements
+| Status        | Meaning                                                                                                |
+| :------------ | :----------------------------------------------------------------------------------------------------- |
+| **Draft**     | A saved version that hasn't been published yet. Only visible in the editor.                            |
+| **Published** | The live version served to users via the SDK. Only one published version exists per paywall at a time. |
+| **Archived**  | A previously published version that was superseded. Kept for history and rollback.                     |
 
-## Next steps
+#### How it works
 
-- Learn about [Localization](/primitives/paywalls/localization)
-- Explore [Product buckets](/primitives/paywalls/product-buckets)
-- Set up [Workflows](/primitives/workflows) to control when paywalls appear
+- Every save (manual or autosave) creates a new **draft** version.
+
+
+- The version stores all paywall files, product bucket references, font references, and a CRDT snapshot.
+
+
+- Each version tracks its **parent version**, forming a version tree.
+
+
+- You can browse version history and see who saved each version and when.
+
+---
+
+### **Saving**
+
+Paywalls support both manual and automatic saving:
+
+| Trigger                    | Behavior                                                                            |
+| :------------------------- | :---------------------------------------------------------------------------------- |
+| **Manual save**            | Click "Save" or use the keyboard shortcut. Creates a draft version immediately.     |
+| **Autosave (interval)**    | Periodic saves while you're editing. Debounced to avoid excessive version creation. |
+| **Autosave (new paywall)** | Automatic first save when you create a new paywall.                                 |
+
+Each save **bundles the code** into a deployable web file. This means your draft is always previewable — bundling doesn't wait for publish.
+
+---
+
+### **Publishing**
+
+Publishing makes a draft version live. When you publish:
+
+1. **Validation** — Helium checks for issues like hardcoded prices (prices should come from product data, not be typed into the UI).
+2. **Status update** — The draft becomes published. The previously published version becomes archived.
+3. **SDK sync** — The bundle_url on the paywall record is updated so the SDK fetches the new version.
+4. **History entry** — A record is added to paywall_publish_history with who published and when.
+
+Publishing is **instant** — once published, the next SDK fetch gets the new bundle. There's no deploy step or propagation delay.
+
+---
+
+### **Products and Buckets**
+
+Paywalls don't reference raw product IDs. Instead, they reference **product buckets** — cross-platform containers that hold iOS, Android, and Stripe products for a single logical offering.
+
+- A paywall's `product_bucket_ids` lists which buckets it uses.
+
+
+- The editor resolves buckets into a `products.tsx` file with localized pricing for the selected territory.
+
+
+- When the SDK loads the paywall, it receives the product references and handles purchasing natively.
+
+---
+
+### **How Paywalls Connect to Workflows**
+
+Paywalls are used in workflows in three ways:
+
+- **Control paywall** — Every workflow has a default paywall shown when no targeting rules match.
+
+
+- **Audience targeting** — A workflow rule can map an audience directly to a specific paywall.
+
+
+- **Experiment variants** — Paywalls serve as variants in A/B tests, each receiving a share of traffic.
+
+Only **published paywalls** can be assigned to workflows and experiments. Draft-only paywalls won't appear in selection lists.
+
+---
+
+### **Second-Try Paywalls**
+
+A paywall can optionally have a **second-try paywall** — a follow-up paywall shown if the user dismisses the first one. This is configured via paywall settings field and allows for a softer re-engagement attempt (e.g., a discounted offer after the user declines the full-price paywall).
+
+Second-try paywalls can either appear after a paywall dismiss or after a subscription cancel event.
+
+---
+
+### **Localization**
+
+Paywalls have a full localization system with per-locale translations, territory-aware pricing, and right-to-left layout support. Translation keys are defined and managed through the editor. Localizely support is available for localization management as well.
+
+See [Localization] for the complete localization documentation.
+
+---
+
+### **Key Rules**
+
+- Paywall names can be **up to 100 characters**.
+
+
+- Only **published paywalls** can be used in workflows and experiments.
+
+
+- Only **one published version** exists per paywall at a time.
+
+
+- Publishing runs **validation** — hardcoded prices and other issues can block publish.
+
+
+- Paywalls **cannot be deleted** if they're referenced by a workflow.
+
+
+- Every save **bundles the code** — drafts are always previewable.
+
+
+- Product data is **auto-generated** from buckets — don't hardcode prices in your UI.
+
+
+- Paywalls render in a **WebView** — they support standard web features (CSS, fonts, animations, Lottie).
+
+---
+
+### **Common Patterns**
+
+| Pattern                 | Description                                                                                                                                 |
+| :---------------------- | :------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Single-plan paywall** | One product bucket, one CTA. Clean and focused conversion.                                                                                  |
+| **Multi-plan paywall**  | Two or three product buckets (monthly, annual, lifetime) with a plan selector. The most common layout.                                      |
+| **Free trial emphasis** | Highlight the trial period prominently. Use introOfferEligible from product data to conditionally show trial messaging.                     |
+| **Feature comparison**  | List free vs. premium features with a comparison table. Common for productivity apps.                                                       |
+| **Seasonal promotion**  | Duplicate an existing paywall, update the copy and styling for a holiday sale, run it as an experiment.                                     |
+| **Second-try offer**    | Main paywall at full price; second-try paywall with a discount or extended trial for users who dismiss.                                     |
+| **Localized paywall**   | Same layout, different copy per locale. Prices are automatically localized from product buckets; translate the UI text in localizations.ts. |
+
+---

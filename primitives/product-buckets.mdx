@@ -1,372 +1,222 @@
 ---
-title: Product buckets
-description: Dynamically manage product offerings across your app
+title: "Product buckets"
+description: "Dynamically manage product offerings across your app"
 ---
 
-# Product buckets
+A **product bucket** is a cross-platform container that groups equivalent products from different stores into a single, reusable unit. Instead of managing separate iOS, Android, and Stripe product IDs across every paywall, you define a bucket once — "Annual Premium," for example — and assign it platform-specific products. Paywalls then reference buckets, and Helium resolves the right product for each user's platform at runtime.
 
-Product buckets are dynamic groups of subscription products that can be updated remotely without requiring app updates.
+---
 
-## What are product buckets?
+### **Why Buckets?**
 
-Product buckets allow you to:
+Without buckets, every paywall would need to independently track product IDs for every platform. Buckets solve this by creating a single abstraction:
 
-- Group related products together
-- Update product offerings remotely
-- Assign products to paywalls dynamically
-- Run pricing experiments
-- Customize offerings by audience or region
+- **One bucket = one logical product** across all platforms.
 
-## Why use product buckets?
 
-### Flexibility
+- Change a product ID in the bucket, and every paywall using it updates automatically.
 
-Change products without app updates:
-- Add new subscription tiers
-- Remove discontinued products
-- Adjust product ordering
-- Run limited-time promotions
 
-### Consistency
+- Paywalls reference buckets, not raw product IDs — keeping paywall configuration clean and portable.
 
-Manage products in one place:
-- Single source of truth
-- Consistent across platforms
-- Centralized control
+---
 
-### Experimentation
+### **Anatomy of a Product Bucket**
 
-Test different product combinations:
-- A/B test pricing
-- Try different product orders
-- Test promotional offerings
+| Field              | Description                                                                                  |
+| :----------------- | :------------------------------------------------------------------------------------------- |
+| **Bucket Name**    | A human-readable label (e.g., "Annual Premium"). Must be unique within your organization.    |
+| **Description**    | An optional note about the product.                                                          |
+| **Bucket Type**    | The product category: subscription, consumable, managed, or mixed. Defaults to subscription. |
+| **Product Map**    | A per-platform mapping of product references (iOS, Android, Stripe).                         |
+| **Platform Count** | How many platforms have a product assigned (0–3).                                            |
 
-## Creating product buckets
+---
 
-In the Helium dashboard:
+### **The Product Map**
 
-1. Navigate to **Product Buckets**
-2. Click **Create Bucket**
-3. Name your bucket
-4. Add products
-5. Set product order
-6. Save
+The product map is the core of a bucket. It holds one product reference per platform:
 
-## Bucket structure
+| Platform    | Fields                   | Example                                                |
+| :---------- | :----------------------- | :----------------------------------------------------- |
+| **iOS**     | product_uuid             | Maps to an App Store Connect product                   |
+| **Android** | product_uuid, basePlanId | Maps to a Google Play product + subscription base plan |
+| **Stripe**  | product_uuid, price_id   | Maps to a Stripe product + specific price              |
 
-A product bucket contains:
+A bucket doesn't need all three platforms populated — a bucket with only an iOS product is perfectly valid. You add platform support as you expand.
 
-```
-Bucket: premium_subscriptions
-Products:
-  1. monthly_premium ($9.99/month)
-  2. annual_premium ($99.99/year)
-  3. lifetime_premium ($299.99 one-time)
-```
+---
 
-## Using product buckets
+### **Platform Isolation Rule**
 
-### In paywalls
+**Stripe products and app store products (iOS/Android) cannot coexist in the same bucket.**
 
-Assign a bucket to a paywall:
+This is a hard constraint. Stripe paywalls serve a fundamentally different audience (web, Apple Pay) than native app store paywalls, so mixing them in one bucket would create ambiguity at resolution time. If you need both, create separate buckets:
 
-1. Edit your paywall
-2. Select **Product Bucket** as product source
-3. Choose your bucket
-4. Products will load dynamically
+- Annual Premium — iOS + Android products
 
-### In code
 
-Reference products by bucket:
+- Annual Premium (Stripe) — Stripe product
 
-```swift
-// iOS example
-Helium.shared.presentPaywall(productBucket: "premium_subscriptions")
-```
+---
 
-```kotlin
-// Android example
-Helium.presentPaywall(productBucket = "premium_subscriptions")
-```
+### **Lifecycle of a Product Bucket**
 
-## Product selection
+<Steps>
+  <Step title="Create">
+    When you create a bucket, you provide:
 
-When a paywall uses a product bucket, Helium:
+    - A **name** (must be unique per organization)
 
-1. Fetches current products in the bucket
-2. Filters by platform (iOS/Android)
-3. Filters by availability
-4. Returns products in specified order
 
-## Bucket strategies
+    - At least **one product** on any platform
 
-### Single default bucket
 
-One bucket for all users:
+    - An optional **description**
 
-```
-default_products:
-  - monthly_standard
-  - annual_standard
-```
+    The API validates that you've provided at least one product and that you're not mixing Stripe with iOS/Android.
+  </Step>
+  <Step title="Assign to Paywalls">
+    Paywalls reference buckets through a product_bucket_ids array. A single paywall can use **multiple buckets** — for example, a paywall offering both an annual and monthly plan would reference two buckets.
 
-### Audience-specific buckets
+    Bucket assignment happens during:
 
-Different buckets for different audiences:
+    - **Paywall creation** — Select buckets in the product selection step.
 
-```
-new_user_products:
-  - monthly_with_trial
-  - annual_with_discount
 
-existing_user_products:
-  - monthly_standard
-  - annual_standard
-```
+    - **Paywall editing** — Add, remove, or reorder buckets on an existing paywall.
 
-### Regional buckets
+    When a paywall is published, the bucket references are snapshotted onto the paywall version.
+  </Step>
+  <Step title="Add or Change Products">
+    You can add, remove, or change individual platform products within a bucket at any time:
 
-Customize by region:
+    - **Add a product** — Attach a new platform's product (e.g., adding Android support to an iOS-only bucket).
 
-```
-us_products:
-  - monthly_9_99
-  - annual_99_99
 
-eu_products:
-  - monthly_8_99
-  - annual_89_99
-```
+    - **Remove a product** — Detach a platform's product from the bucket.
 
-### Promotional buckets
 
-Special offers:
+    - **Move a product** — Transfer a product from one bucket to another.
 
-```
-black_friday_products:
-  - monthly_discounted
-  - annual_50_off
-```
+    Changes propagate to all paywalls using that bucket.
+  </Step>
+  <Step title="View Usage">
+    From the bucket details view, you can see which paywalls currently reference a given bucket. This is useful before making changes — you can understand the blast radius.
+  </Step>
+  <Step title="Delete">
+    Buckets can be deleted individually or in batch. Deleting a bucket removes it from any paywall's bucket list. If a paywall relied solely on that bucket, it will have no products until you reassign.
+  </Step>
+</Steps>
 
-## Updating buckets
+---
 
-Changes take effect immediately:
+### **Products and Pricing**
 
-1. Edit bucket in dashboard
-2. Add, remove, or reorder products
-3. Save changes
-4. Next paywall load uses updated products
+Each platform product within a bucket carries its own pricing and offer information, pulled from the respective store:
 
-No app update or review required.
+#### iOS (App Store Connect)
 
-## Product ordering
+- Base price and territory-specific pricing
 
-Order matters for display:
 
-### Most popular first
+- **Introductory offers**: free trial, pay-as-you-go, pay-up-front
 
-```
-1. annual_premium (Most popular)
-2. monthly_premium
-3. lifetime_premium
-```
 
-### Highest value first
+- **Promotional offers** and **offer codes**
 
-```
-1. lifetime_premium
-2. annual_premium
-3. monthly_premium
-```
 
-### Strategic ordering
+- Offer eligibility is simulated per-territory in the paywall editor
 
-```
-1. annual_premium (Highlighted)
-2. monthly_premium (Default)
-3. weekly_premium (Budget option)
-```
+#### Android (Google Play)
 
-## Platform-specific products
+- Base plan pricing with regional configurations
 
-Include products for specific platforms:
 
-```
-cross_platform_bucket:
-  - monthly_ios (iOS only)
-  - monthly_android (Android only)
-  - annual_ios (iOS only)
-  - annual_android (Android only)
-```
+- Per-base-plan offers: free trials, percentage discounts, fixed-amount discounts
 
-Helium automatically filters by platform.
 
-## Fallback handling
+- basePlanId is required for subscriptions (in-app purchases use a sentinel value)
 
-Include buckets in fallback bundles:
+#### Stripe
 
-1. Export bucket configuration
-2. Include in app bundle
-3. SDK uses local copy when offline
+- Price points tied to a specific `price_id`
 
-## Best practices
 
-### Naming conventions
+- Free trials via `trial_period_days` on the price
 
-Use descriptive names:
-- ✅ `premium_subscriptions`
-- ✅ `trial_offers`
-- ✅ `regional_us`
-- ❌ `bucket1`
-- ❌ `temp`
 
-### Product limits
+- Stripe products require a `price_id` — the product UUID alone isn't enough
 
-Keep buckets focused:
-- 2-4 products per bucket (optimal)
-- Maximum 6-8 products
-- Too many options reduce conversion
+---
 
-### Documentation
+### **How Buckets Work in the Paywall Editor**
 
-Document your buckets:
-- Purpose of each bucket
-- Which audiences see it
-- When to use it
-- Product details
+When editing a paywall, the bucket system drives the product preview:
 
-### Testing
+1. The editor loads the paywall's assigned buckets.
 
-Test bucket changes:
-- Verify products load correctly
-- Check pricing displays properly
-- Test on all platforms
-- Validate fallback behavior
 
-### Version control
+1. Based on the selected **territory** and **platform** in the preview, Helium resolves the right product from each bucket.
 
-Track bucket changes:
-- Document what changed
-- When it changed
-- Why it changed
-- Expected impact
 
-## Common patterns
+1. A `products.tsx` file is generated with localized prices, offer details, and product metadata.
 
-### Seasonal promotions
 
-```
-# Normal times
-default_bucket: standard_products
+1. The live preview renders with real pricing data for the selected territory.
 
-# Holiday season
-default_bucket: holiday_sale_products
-```
+This means you can preview exactly what a user in Japan on iOS would see, versus a user in Germany on Android — all driven by the same bucket configuration.
 
-### A/B testing
+---
 
-```
-experiment_control: standard_products
-experiment_variant_a: premium_products
-experiment_variant_b: budget_products
-```
+### **Duplicate Detection**
 
-### Upgrade paths
+Helium prevents the same product from appearing in multiple buckets on a paywall. Before publishing, a duplicate check runs across all buckets assigned to the paywall:
 
-```
-free_to_basic: basic_products
-basic_to_premium: premium_products
-premium_to_pro: pro_products
-```
+- Same iOS product UUID in two buckets — blocked.
 
-### Trial strategies
 
-```
-new_users: products_with_7day_trial
-returning_users: products_with_3day_trial
-previous_subscribers: products_no_trial
-```
+- Same Android product UUID + base plan in two buckets — blocked.
 
-## Analytics
 
-Track bucket performance:
+- Same Stripe product UUID + price ID in two buckets — blocked.
 
-- **Conversion rate**: By bucket
-- **Revenue**: By bucket
-- **Product selection**: Which products users choose
-- **Bucket usage**: How often each bucket is shown
+If duplicates are detected, you'll be prompted to resolve the conflict before publishing.
 
-## Integration with other features
+---
 
-Product buckets work with:
+### **Key Rules**
 
-- **Paywalls**: Dynamic product assignment
-- **Audiences**: Show different buckets to different segments
-- **Experiments**: Test different product combinations
-- **Workflows**: Conditionally select buckets
+- Bucket names are **unique per organization**.
 
-## Advanced usage
 
-### Dynamic bucket selection
+- Every bucket must have **at least one product** on any platform.
 
-Select bucket based on user attributes:
 
-```swift
-// iOS example
-let bucket = user.isNewUser ? "trial_products" : "standard_products"
-Helium.shared.presentPaywall(productBucket: bucket)
-```
+- **Stripe and iOS/Android products cannot share a bucket** (platform isolation).
 
-### Fallback chains
 
-Specify fallback buckets:
+- A paywall can reference **multiple buckets** (one per logical product offering).
 
-```
-Primary: regional_us_products
-Fallback: default_products
-```
 
-### Product filtering
+- Changes to a bucket **propagate to all paywalls** using it.
 
-Filter products within a bucket:
 
-```swift
-// iOS example
-Helium.shared.presentPaywall(
-    productBucket: "all_products",
-    filter: { product in
-        product.price < 10.0
-    }
-)
-```
+- **Duplicate products across buckets** on the same paywall are blocked at publish time.
 
-## Troubleshooting
 
-### Products not showing
+- Android subscriptions require a `basePlanId`; Stripe products require a `price_id`.
 
-Check:
-- Products exist in App Store Connect / Google Play
-- Products are active and available
-- Platform filter is correct
-- Bucket is assigned to paywall
+---
 
-### Wrong products displaying
+### **Common Patterns**
 
-Verify:
-- Correct bucket is referenced
-- Product order is as expected
-- Platform-specific products are filtered
-- Cache is up to date
+| Pattern                    | Description                                                                                                               |
+| :------------------------- | :------------------------------------------------------------------------------------------------------------------------ |
+| **Single-product paywall** | One bucket ("Monthly Premium") assigned to one paywall. The simplest setup.                                               |
+| **Multi-tier paywall**     | Two or three buckets ("Monthly," "Annual," "Lifetime") on a single paywall, letting users choose a plan.                  |
+| **Cross-platform product** | One bucket with iOS, Android, and Stripe products — same logical offering, resolved per platform.                         |
+| **Stripe-only bucket**     | A separate bucket for Stripe products, used on paywalls that serve web or Apple Pay users.                                |
+| **Shared across paywalls** | The same "Annual Premium" bucket referenced by multiple paywalls. Update the product once, every paywall gets the change. |
 
-### Fallback not working
-
-Ensure:
-- Fallback bundle is included in app
-- Bucket is exported to fallback
-- Fallback configuration is valid
-
-## Next steps
-
-- Learn about [Paywalls](/primitives/paywalls)
-- Explore [Experiments](/primitives/experiments) with product buckets
-- Set up [Audiences](/primitives/audiences) for targeted product offerings
+---

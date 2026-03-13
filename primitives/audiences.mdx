@@ -1,337 +1,187 @@
 ---
-title: Audiences
-description: Segment users for targeted experiences
+title: "Audiences"
+description: "Segment users for targeted experiences"
 ---
 
-# Audiences
+An **audience** is a segment of your users defined by a set of rules. Audiences determine _who_ sees what inside a workflow — you can route different user groups to different paywalls, experiments, or suppress the paywall entirely.
 
-Audiences allow you to segment users into groups and deliver personalized paywall experiences based on user attributes and behavior.
+Audiences are used through a workflow's **targeting criteria**, where each rule maps an audience to an action. They're the "who" to the workflow's "what."
 
-## What are audiences?
+---
 
-Audiences are dynamic user segments defined by rules and conditions. They enable you to:
+### **Anatomy of an Audience**
 
-- Target specific user groups
-- Personalize paywall content
-- Run targeted experiments
-- Optimize conversion by segment
+| Field           | Description                                                                                                                                 |
+| :-------------- | :------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Name**        | A human-readable label (e.g., "US Power Users"). Must be unique within your organization.                                                   |
+| **Description** | An optional note explaining the segment.                                                                                                    |
+| **Rules**       | A set of conditions that define which users belong to this audience. Rules use AND/OR logic across device, app, and custom user attributes. |
 
-## Creating audiences
+---
 
-In the Helium dashboard:
+### **Rules and Conditions**
 
-1. Navigate to **Audiences**
-2. Click **Create Audience**
-3. Name your audience
-4. Define membership rules
-5. Save and activate
+An audience's rules define membership. Each rule tests a **variable** against a **value** using an **operator**. Rules are combined with **AND** or **OR** at the top level.
 
-## Audience rules
+#### Variables
 
-Define who belongs to an audience using conditions:
+You can target on two categories of attributes:
 
-### User attributes
+- **System variables** — Built-in device and app properties available for all users. Examples:
+  - `locale.currentCountry `— The user's country
+  - `deviceInfo.systemVersion` — OS version (supports semver comparisons)
+  - `applicationInfo.version` — App version (supports semver comparisons)
+  - `applicationInfo.heliumSdkVersion` — Helium SDK version
+  - Device type, OS name, language, and more
 
-```
-Country: United States
-Language: English
-Platform: iOS
-App version: >= 2.0
-```
 
-### Subscription status
+- **Custom user traits** — Properties you pass to the Helium SDK from your app (e.g., subscription_tier, days_since_install, has_completed_onboarding). These are fully custom and scoped to your organization.
 
-```
-Subscription status: Not subscribed
-Previous subscriber: Yes
-Trial status: Never started
-```
+#### Operators
 
-### Behavior
+Available operators depend on the variable type:
 
-```
-Session count: > 10
-Days since install: > 7
-Feature usage: Used premium feature
-Last seen: Within 7 days
-```
+| Type                        | Operators                                   |
+| :-------------------------- | :------------------------------------------ |
+| **String**                  | =, !=, exists, not exists                   |
+| **Number**                  | =, !=, \>, \<, \>=, \<=, exists, not exists |
+| **Boolean**                 | =, exists, not exists                       |
+| **Datetime**                | \>, \<, \>=, \<=, exists, not exists        |
+| **Semver** (app/OS version) | =, !=, \>, \<, \>=, \<=, exists, not exists |
 
-### Custom properties
+Multi-value selection is supported for `=` and `!=` on string variables (e.g., country is one of US, CA, GB).
 
-```
-User tier: "power_user"
-Referral source: "social_media"
-Lifetime value: > $50
-```
+#### Example Rules
 
-## Audience types
+- **US users on iOS 17+**: `locale.currentCountry = US AND deviceInfo.systemVersion >= 17.0`
 
-### Demographic audiences
 
-Based on user characteristics:
+- **Power users**: `custom.days_since_install > 30 AND custom.sessions_count > 50`
 
-```
-Audience: US iOS Users
-Rules:
-  - Country: US
-  - Platform: iOS
-```
 
-### Behavioral audiences
+- **Non-subscribers**: `custom.subscription_tier not exists`
 
-Based on user actions:
+---
 
-```
-Audience: Engaged Users
-Rules:
-  - Session count: > 20
-  - Days since install: > 14
-  - Feature usage: High
-```
+### **The "All Users" Audience**
 
-### Lifecycle audiences
+Helium has a special system audience called **All Users**. It matches every user unconditionally.
 
-Based on user journey stage:
+- Stored as a real audience record with empty rules `({ operator: "AND", rules: [], isAllUsers: true })`.
 
-```
-Audience: Trial Users
-Rules:
-  - Trial status: Active
-  - Days remaining: > 3
-```
 
-### Value-based audiences
+- Created automatically the first time you scope an experiment to "All Users."
 
-Based on revenue potential:
 
-```
-Audience: High Value Users
-Rules:
-  - Previous subscriber: Yes
-  - Lifetime value: > $100
-  - Engagement: High
-```
+- Hidden from the standard audiences list — it only appears when selecting audiences for experiments or workflow targeting.
 
-## Using audiences
 
-### Targeted paywalls
+- In analytics queries, it translates to no filtering.
 
-Show different paywalls to different audiences:
+You don't need to create it manually. When you select "All Users" during experiment creation, Helium handles it for you.
 
-```
-Audience: New Users
-Paywall: Onboarding paywall with trial emphasis
+---
 
-Audience: Returning Users
-Paywall: Feature-focused paywall
-```
+### **Lifecycle of an Audience**
 
-### Experiments
+<Steps>
+  <Step title="Create">
+    Audiences can be created in several ways:
 
-Run experiments on specific audiences:
+    - **From the Targeting page** — Use the audience builder with the full rule editor.
 
-```
-Experiment: Pricing test
-Audience: US users only
-Variations: Test $9.99 vs $7.99
-```
 
-### Workflows
+    - **From experiment creation** — The audience selector lets you create a new audience inline while setting up an A/B test.
 
-Trigger workflows based on audience membership:
+    When creating an audience, names are validated for uniqueness (case-insensitive) and rules are stored in both a legacy format and JSON Logic format for compatibility.
+  </Step>
+  <Step title="Use In Targeting">
+    Once created, audiences are available in two places:
 
-```
-Workflow: Win-back campaign
-Trigger: App launch
-Conditions:
-  - User in "Lapsed Subscribers" audience
-Action: Present win-back paywall
-```
+    - **Workflow targeting criteria** — Map an audience to a paywall, experiment, or "no paywall" action. Rules are evaluated in order; the first matching audience wins.
 
-### Product buckets
 
-Assign different products to different audiences:
+    - **Experiment scoping** — Scope an experiment to a specific audience so only matching users are enrolled.
 
-```
-Audience: Students
-Product bucket: Student discounts
+    An audience can be used across multiple workflows and experiments simultaneously.
+  </Step>
+  <Step title="View Metrics">
+    Each audience shows real-time metrics computed from your analytics data:
 
-Audience: Professionals
-Product bucket: Premium offerings
-```
+    | Metric                 | Description                                                                     |
+    | :--------------------- | :------------------------------------------------------------------------------ |
+    | **Unique users (7d)**  | Distinct users matching this audience in the last 7 days.                       |
+    | **Paywall opens (7d)** | Number of paywall open events from users in this audience over the last 7 days. |
 
-## Dynamic audiences
+    These metrics are computed on-demand from ClickHouse — they're not cached or pre-aggregated, so they reflect current data. During experiment creation, Helium shows an "estimated exposed users per day" based on these metrics to help you gauge experiment reach.
+  </Step>
+  <Step title="Edit">
+    You can update an audience's **name**, **description**, and **rules** at any time. Changes apply to all workflows and experiments referencing that audience. Keep in mind that changing rules alters who qualifies — if you narrow the rules, some users currently seeing a paywall may stop matching.
+  </Step>
+  <Step title="Delete">
+    An audience can only be deleted if it is **not currently referenced by any workflow's targeting criteria**. If it's in use, you'll need to remove it from the workflow first. Deletion is permanent.
+  </Step>
+</Steps>
 
-Audiences update automatically as users meet or no longer meet criteria:
+---
 
-```
-User installs app → Joins "New Users" audience
-After 7 days → Leaves "New Users", joins "Active Users"
-After 30 days inactive → Joins "At Risk" audience
-```
+### **Stripe Targeting Constraints**
 
-## Audience size
+If a workflow or experiment includes paywalls with Stripe products, the audience must meet specific targeting requirements. "All Users" does **not** qualify for Stripe targeting because Stripe paywalls only work for a subset of users (Apple Pay enabled, US App Store). You'll need to create a more targeted audience that filters for eligible users.
 
-Monitor audience size in the dashboard:
+Helium validates this automatically and shows a warning if Stripe targeting constraints aren't met.
 
-- **Current size**: Number of users currently in audience
-- **Growth trend**: How audience size changes over time
-- **Overlap**: Users in multiple audiences
+---
 
-## Testing audiences
+### **Integration with Workflows**
 
-### Preview membership
+Audiences connect to workflows through **targeting criteria** — an ordered list of rules on the workflow:
 
-Check if specific users are in an audience:
+1. For each rule: "If the user is in **[audience]**, then **[show paywall / run experiment / show nothing]**."
 
-```swift
-// iOS example
-let isInAudience = Helium.shared.isUserInAudience("high_value_users")
-```
 
-### Test mode
+1. Rules are evaluated top-to-bottom. The first matching audience determines the outcome.
 
-Simulate audience membership:
 
-```swift
-// iOS example
-Helium.shared.setTestAudience("power_users")
-```
+1. Users who don't match any audience rule see the workflow's **control paywall**.
 
-## Best practices
+This means audience order matters. A broad audience (like "All Users") placed first would catch everyone before more specific audiences get evaluated.
 
-### Clear definitions
+---
 
-Define audiences with clear criteria:
-- ✅ "Users who completed onboarding and used app 5+ times"
-- ❌ "Good users"
+### **Key Rules**
 
-### Meaningful segments
+- Audience names are **unique per organization** (case-insensitive).
 
-Create audiences that matter for your business:
-- Different conversion patterns
-- Different value propositions
-- Different pricing sensitivity
 
-### Avoid over-segmentation
+- Rules use **AND/OR** logic with system variables and custom user traits.
 
-Don't create too many audiences:
-- Harder to manage
-- Smaller sample sizes
-- More complex logic
 
-### Regular review
+- The **"All Users"** audience is a system audience — it's created automatically and hidden from the standard list.
 
-Periodically review audiences:
-- Are they still relevant?
-- Are sizes appropriate?
-- Are they performing as expected?
 
-## Common audience patterns
+- Audiences **cannot be deleted** while referenced by a workflow.
 
-### Onboarding stages
 
-```
-New Users: Days since install < 7
-Active Users: Session count > 10
-Power Users: Daily active for 30+ days
-```
+- Metrics are computed **in real-time** from ClickHouse (7-day window).
 
-### Subscription lifecycle
 
-```
-Trial Users: Active trial
-Subscribers: Active subscription
-Lapsed: Subscription expired < 90 days ago
-Churned: Subscription expired > 90 days ago
-```
+- Changes to audience rules take effect **immediately** across all workflows and experiments using that audience.
 
-### Engagement levels
 
-```
-High Engagement: Sessions > 50, Features used > 10
-Medium Engagement: Sessions 10-50, Features used 3-10
-Low Engagement: Sessions < 10, Features used < 3
-```
+- Audiences can be **AI-generated** from natural language descriptions.
 
-### Geographic
+---
 
-```
-North America: US, Canada, Mexico
-Europe: EU countries
-Asia Pacific: APAC countries
-```
+### **Common Patterns**
 
-### Platform
+| Pattern                 | Description                                                                                               |
+| :---------------------- | :-------------------------------------------------------------------------------------------------------- |
+| **Country targeting**   | locale.currentCountry = US — Show a US-specific paywall with USD pricing.                                 |
+| **Version gating**      | applicationInfo.version \>= 3.0 — Only show a new paywall design to users on the latest app version.      |
+| **New user onboarding** | custom.days_since_install \<= 3 — Aggressive trial offer for users in their first few days.               |
+| **Power user upsell**   | custom.sessions_count \> 50 AND custom.subscription_tier not exists — Target engaged free users.          |
+| **Platform split**      | deviceInfo.osName = iOS vs. deviceInfo.osName = Android — Different paywall designs per platform.         |
+| **All Users fallback**  | Use the "All Users" audience as a catch-all at the bottom of targeting criteria for a default experience. |
 
-```
-iOS Users: Platform = iOS
-Android Users: Platform = Android
-Cross-platform: Used both iOS and Android
-```
-
-## Advanced features
-
-### Nested conditions
-
-Combine multiple conditions:
-
-```
-Audience: High-value iOS users
-Rules:
-  - Platform: iOS
-  - AND (
-      Lifetime value > $50
-      OR Previous subscriber: Yes
-    )
-  - AND Session count > 20
-```
-
-### Time-based rules
-
-Include time-based conditions:
-
-```
-Audience: Weekend users
-Rules:
-  - Last active: Weekend
-  - Session count: > 5 on weekends
-```
-
-### Exclusion rules
-
-Define who should NOT be in audience:
-
-```
-Audience: Potential subscribers
-Rules:
-  - Include: All users
-  - Exclude: Current subscribers
-  - Exclude: Trial users
-```
-
-## Analytics
-
-Track audience performance:
-
-- **Conversion rate**: By audience
-- **Revenue**: By audience
-- **Retention**: By audience
-- **Engagement**: By audience
-
-Use insights to refine audience definitions and targeting strategies.
-
-## Integration with other features
-
-Audiences work with:
-
-- **Experiments**: Test variations on specific segments
-- **Workflows**: Trigger different flows for different audiences
-- **Product buckets**: Show different products to different audiences
-- **Paywalls**: Customize content by audience
-
-## Next steps
-
-- Set up [Experiments](/primitives/experiments) with audience targeting
-- Create [Workflows](/primitives/workflows) for different audiences
-- Configure [Product buckets](/primitives/product-buckets) by audience
+---

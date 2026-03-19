@@ -39,7 +39,8 @@
           "guides/third-party-analytics",
           "guides/helium-events",
           "guides/custom-events",
-          "guides/storekit-testing"
+          "guides/storekit-testing",
+          "guides/importing-from-figma"
         ]
       },
       {

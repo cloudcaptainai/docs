@@ -217,12 +217,19 @@ Set a custom user ID
 Helium.identify.userId = "custom-user-id"
 ```
 
-Set custom user traits for targeting and analytics visibility
+Set custom user traits for targeting and analytics. Traits persist across app sessions.
 
 ```swift
 Helium.identify.setUserTraits(HeliumUserTraits(["hasOnboarded": true]))
 // or Helium.identify.addUserTraits() if you don't want to clear existing traits
+
+// You can also pass a dictionary directly:
+Helium.identify.setUserTraits(["hasOnboarded": true, "accountAge": 30])
 ```
+
+<Note>
+  Numeric values set as `Int` may return as `Double` after app restart due to JSON serialization. Use `as? Double` when reading numeric traits with `getUserTraits()`.
+</Note>
 
 <Accordion title="appAccountToken">
   If you use an `appAccountToken` for your existing purchases, then we recommend you also share this value with Helium so Helium can apply the `appAccountToken` to paywall purchases.

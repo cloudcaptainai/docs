@@ -113,6 +113,9 @@ Future<void> main() async {
     <ResponseField name="paywallLoadingConfig" type="HeliumPaywallLoadingConfig?">
       _(Optional)_ Set loading budget in seconds and whether to show a loading state. See Fallback Paywalls section.
     </ResponseField>
+    <ResponseField name="androidConsumableProductIds" type="Set<String>?">
+      _(Optional)_ Android only. Product IDs for consumable products (e.g., coins, credits) that Helium should consume after purchase. See the Consumables section below.
+    </ResponseField>
   </Expandable>
 </ResponseField>
 
@@ -347,6 +350,27 @@ If you ever [change the appUserID](https://www.revenuecat.com/docs/customers/ide
 
 ```dart
 HeliumFlutter().setRevenueCatAppUserId(await Purchases.appUserID);
+```
+
+### Consumables (Android Only)
+
+<Note>
+  This only applies to Android when using Helium's default purchase handling. If you're using `RevenueCatPurchaseDelegate`, configure RevenueCat to consume purchases. If you use a custom `HeliumPurchaseDelegate`, you're responsible for consuming purchases. This is a no-op on iOS.
+</Note>
+
+If your app sells consumable products (e.g., coins, credits, or tokens) on Android, pass the product IDs during initialization:
+
+```dart
+await heliumFlutter.initialize(
+  apiKey: "<your-helium-api-key>",
+  androidConsumableProductIds: {"coins_100", "gems_50"},
+);
+```
+
+To update consumable product IDs at runtime:
+
+```dart
+heliumFlutter.setAndroidConsumableProductIds({"coins_100", "gems_50"});
 ```
 
 ### Custom Purchase Handling

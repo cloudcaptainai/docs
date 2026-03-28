@@ -454,13 +454,27 @@ type HeliumTransactionStatus =
 </Note>
 
 <Accordion title="Reset Helium">
-  Reset Helium entirely so you can call initialize again, for example after changing user traits that can affect the paywalls a user might see via targeting.
+  Reset Helium entirely so you can call `initialize` again, for example after changing user traits that can affect the paywalls a user might see via targeting.
 
   ```typescript
   import { resetHelium } from 'expo-helium';
   
   await resetHelium();
   ```
+
+  Pass options to control what gets cleared:
+
+  ```typescript
+  await resetHelium({
+    clearUserTraits: true,           // default: true
+    clearExperimentAllocations: false // default: false
+  });
+  ```
+
+  | Option | Default | Description |
+  | ------ | ------- | ----------- |
+  | `clearUserTraits` | `true` | Clear custom user traits |
+  | `clearExperimentAllocations` | `false` | Clear experiment allocations |
 </Accordion>
 
 ### Expo Development Build

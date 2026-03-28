@@ -93,6 +93,20 @@ description: "Set up Apple Pay with Stripe."
         If the device does not support Apple Pay, the `backupPurchaseDelegate` is used instead (e.g. StoreKit or RevenueCat).
       </Step>
     </Steps>
+    ### Set a Custom User ID
+
+    Before showing a Stripe paywall, set a custom user ID:
+
+    ```swift
+    Helium.identify.userId = "your-custom-user-id"
+    ```
+
+    Stripe uses this ID to link purchases to your user.
+
+    <Warning>
+      If you trigger a Stripe paywall without setting a custom user ID, the SDK will show a fallback paywall instead.
+    </Warning>
+
     <Accordion title="Additional Stripe Functions">
       These are available on `Helium.shared` after initializing with Stripe:
 

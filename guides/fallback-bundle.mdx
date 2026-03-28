@@ -136,6 +136,18 @@ Similarly, if user has no connection or a very limited connection, the paywall r
 
 Can occur when a paywall is downloaded but does not have products properly linked for the platform (iOS/Android) it is served to.
 
+### No custom user ID for Stripe paywall
+
+Paywalls with Stripe products (like Apple Pay via Stripe) require a custom user ID to be set before showing. Otherwise, a fallback will be shown.
+
+To fix this, set a custom user ID before triggering the paywall:
+
+```swift
+Helium.identify.userId = "your-custom-user-id"
+```
+
+Stripe uses this ID to associate the purchase with your user's account.
+
 ### Other Causes
 
 The above are the most likely causes, but a fallback can also occur if paywall html is malformed or from any other unexpected Helium bug.

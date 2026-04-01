@@ -112,6 +112,34 @@ description: "Set up Apple Pay with Stripe."
         let hasEntitlement = await Helium.shared.hasActiveStripeEntitlement()
         ```
     </Accordion>
+    <Accordion title="Stripe Checkout Configuration (App-to-Web)">
+      For products using Stripe's web checkout (instead of Apple Pay one-tap), configure how the checkout page appears using these properties on `Helium.shared`:
+
+      - **`stripeCheckoutStyle`** — Controls how the Stripe checkout page displays. Options:
+        - `.webView` — Presents checkout in an embedded WKWebView within your app (default)
+        - `.safariInApp` — Presents checkout using SFSafariViewController
+        - `.externalBrowser` — Opens checkout in the system's default browser (Safari)
+
+        ```swift
+        Helium.shared.stripeCheckoutStyle = .safariInApp
+        ```
+
+      - **`stripeCheckoutSuccessURL`** — The URL to redirect to after successful checkout. Set this to handle the success redirect in your app.
+
+        ```swift
+        Helium.shared.stripeCheckoutSuccessURL = "myapp://checkout-success"
+        ```
+
+      - **`stripeCheckoutCancelURL`** — The URL to redirect to if the user cancels checkout.
+
+        ```swift
+        Helium.shared.stripeCheckoutCancelURL = "myapp://checkout-cancelled"
+        ```
+
+      <Note>
+        If the app is terminated during a checkout session, Helium automatically recovers and completes any pending checkouts when the app next initializes.
+      </Note>
+    </Accordion>
   </Tab>
   <Tab title="React Native">
     <Note>

@@ -112,29 +112,62 @@ description: "Set up Apple Pay with Stripe."
         let hasEntitlement = await Helium.shared.hasActiveStripeEntitlement()
         ```
     </Accordion>
-    <Accordion title="Stripe Checkout Configuration (App-to-Web)">
-      For products using Stripe's web checkout (instead of Apple Pay one-tap), configure how the checkout page appears using these properties on `Helium.shared`:
+    <Accordion title="Stripe Web Checkout (App-to-Web)">
+      If you're using Stripe's web checkout (instead of Apple Pay one-tap), configure redirect URLs so Helium can detect when checkout completes or is cancelled.
 
-      - **`stripeCheckoutStyle`** — Controls how the Stripe checkout page displays. Options:
-        - `.webView` — Presents checkout in an embedded WKWebView within your app (default)
-        - `.safariInApp` — Presents checkout using SFSafariViewController
-        - `.externalBrowser` — Opens checkout in the system's default browser (Safari)
+      <Warning>
+        **Required for Stripe web checkout.** If you don't call `enableStripeCheckout`, paywalls with Stripe products show a fallback view instead of the Stripe checkout flow.
+      </Warning>
 
-        ```swift
-        Helium.shared.stripeCheckoutStyle = .safariInApp
-        ```
+      **1. Register a URL scheme for your app**
 
-      - **`stripeCheckoutSuccessURL`** — The URL to redirect to after successful checkout. Set this to handle the success redirect in your app.
+      Add a custom URL scheme to your `Info.plist` so your app can receive checkout redirects:
 
-        ```swift
-        Helium.shared.stripeCheckoutSuccessURL = "myapp://checkout-success"
-        ```
+      ```xml
+      <key>CFBundleURLTypes</key>
+      <array>
+        <dict>
+          <key>CFBundleURLSchemes</key>
+          <array>
+            <string>myapp</string>
+          </array>
+        </dict>
+      </array>
+      ```
 
-      - **`stripeCheckoutCancelURL`** — The URL to redirect to if the user cancels checkout.
+      **2. Enable Stripe checkout with your redirect URLs**
 
-        ```swift
-        Helium.shared.stripeCheckoutCancelURL = "myapp://checkout-cancelled"
-        ```
+      Call `enableStripeCheckout` after Helium initializes:
+
+      ```swift
+      Helium.config.enableStripeCheckout(
+          successURL: "myapp://checkout-success",
+          cancelURL: "myapp://checkout-cancelled"
+      )
+      ```
+
+      Both URLs must use a scheme your app has registered. When the user completes or cancels checkout, Stripe redirects to the appropriate URL and Helium detects this to close the checkout view and fulfill entitlements.
+
+      **3. (Optional) Configure checkout presentation style**
+
+      Control how the Stripe checkout page displays:
+
+      ```swift
+      Helium.config.stripeCheckoutStyle = .safariInApp
+      ```
+
+      Options:
+      - `.externalBrowser` — Opens checkout in the system's default browser (default)
+      - `.safariInApp` — Presents checkout using SFSafariViewController
+      - `.webView` — Presents checkout in an embedded WKWebView within your app
+
+      **4. (Optional) Disable Stripe checkout**
+
+      Disable Stripe web checkout and revert to fallback behavior:
+
+      ```swift
+      Helium.config.disableStripeCheckout()
+      ```
 
       <Note>
         If the app is terminated during a checkout session, Helium automatically recovers and completes any pending checkouts when the app next initializes.

@@ -72,6 +72,37 @@ Don't see your analytics provider here, or have a custom setup you want us to se
 Helium uses a CDP under the hood to route events. It may take several minutes for events you see on device to populate in your analytics backend.
 </Info>
 
+## Syncing User Identity with Your Analytics Provider
+
+You can pass your analytics provider's anonymous ID to Helium so that events are attributed to the same user identity across both systems.
+
+Set `thirdPartyAnalyticsAnonymousId` on the `Helium.identify` object before calling `Helium.shared.initialize()` for best results:
+
+```swift
+// For Amplitude - pass device ID
+Helium.identify.thirdPartyAnalyticsAnonymousId = Amplitude.instance().deviceId
+
+// For Mixpanel - pass anonymous ID
+Helium.identify.thirdPartyAnalyticsAnonymousId = Mixpanel.mainInstance().distinctId
+
+// For PostHog - pass anonymous ID
+Helium.identify.thirdPartyAnalyticsAnonymousId = PostHogSDK.shared.getAnonymousId()
+
+// For Statsig - pass stable ID
+Helium.identify.thirdPartyAnalyticsAnonymousId = Statsig.getStableID()
+```
+
+| Provider  | ID Type      |
+| --------- | ------------ |
+| Amplitude | Device ID    |
+| Mixpanel  | Anonymous ID |
+| PostHog   | Anonymous ID |
+| Statsig   | Stable ID    |
+
+<Tip>
+You can also update this value after initialization if needed.
+</Tip>
+
 ## What events and properties are logged?
 
 All Helium events, along with their parameters and contextual/custom traits, are automatically forwarded to your analytics backend. For a complete list of events, parameters, and additional context sent with each event, see [Logged Events](/guides/helium-events#logged-events).

@@ -172,6 +172,16 @@ description: "Set up Apple Pay with Stripe."
       <Note>
         If the app is terminated during a checkout session, Helium automatically recovers and completes any pending checkouts when the app next initializes.
       </Note>
+
+      **Targeting with `stripeCheckoutEligible`**
+
+      The SDK automatically sets a `stripeCheckoutEligible` targeting parameter that you can use in your workflow audience rules. This parameter is `true` when all of the following conditions are met:
+
+      - Stripe checkout is enabled (you've called `enableStripeCheckout`)
+      - The device has compatible payment cards (Visa, Mastercard, Amex, or Discover)
+      - The device is running iOS 16.4 or later
+
+      Use this parameter to target users who can complete the Stripe web checkout flow. See [Targeting your Stripe Paywall](#workflows-should-target-us-storefront-and-apple-pay-enabled-only) for setup instructions.
     </Accordion>
   </Tab>
   <Tab title="React Native">
@@ -368,6 +378,15 @@ If you use [RevenueCat alongside Stripe](https://www.revenuecat.com/docs/web/int
     <Frame>
       ![Screenshot 2026 03 11 At 1 17 11 PM](/images/Screenshot2026-03-11at1.17.11PM.png)
     </Frame>
+
+    **For Stripe Web Checkout (iOS)**
+
+    If you're using the [Stripe web checkout flow](#stripe-web-checkout-app-to-web) instead of Apple Pay one-tap, you can use the `stripeCheckoutEligible` targeting parameter for more precise targeting. This parameter checks that the user:
+    - Has Stripe checkout enabled in your app configuration
+    - Has compatible payment cards on their device
+    - Is running iOS 16.4 or later (required for the Stripe Apple Pay web flow)
+
+    Add `stripeCheckoutEligible: true` to your audience targeting rules to show Stripe web checkout paywalls only to eligible users.
   </Step>
 </Steps>
 

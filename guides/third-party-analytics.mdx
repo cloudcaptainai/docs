@@ -74,23 +74,60 @@ Helium uses a CDP under the hood to route events. It may take several minutes fo
 
 ## Syncing User Identity with Your Analytics Provider
 
-You can pass your analytics provider's anonymous ID to Helium so that events are attributed to the same user identity across both systems.
+You can pass your analytics provider's anonymous ID to Helium so that events are attributed to the same user identity across both systems. Set this before calling `initialize()` for best results.
 
-Set `thirdPartyAnalyticsAnonymousId` on the `Helium.identify` object before calling `Helium.shared.initialize()` for best results:
+<Tabs>
+  <Tab title="iOS" icon="/images/sdk/logos/swift-svgrepo-com.svg">
+    Set `thirdPartyAnalyticsAnonymousId` on the `Helium.identify` object:
 
-```swift
-// For Amplitude - pass device ID
-Helium.identify.thirdPartyAnalyticsAnonymousId = Amplitude.instance().deviceId
+    ```swift
+    // For Amplitude - pass device ID
+    Helium.identify.thirdPartyAnalyticsAnonymousId = Amplitude.instance().deviceId
 
-// For Mixpanel - pass anonymous ID
-Helium.identify.thirdPartyAnalyticsAnonymousId = Mixpanel.mainInstance().distinctId
+    // For Mixpanel - pass anonymous ID
+    Helium.identify.thirdPartyAnalyticsAnonymousId = Mixpanel.mainInstance().distinctId
 
-// For PostHog - pass anonymous ID
-Helium.identify.thirdPartyAnalyticsAnonymousId = PostHogSDK.shared.getAnonymousId()
+    // For PostHog - pass anonymous ID
+    Helium.identify.thirdPartyAnalyticsAnonymousId = PostHogSDK.shared.getAnonymousId()
 
-// For Statsig - pass stable ID
-Helium.identify.thirdPartyAnalyticsAnonymousId = Statsig.getStableID()
-```
+    // For Statsig - pass stable ID
+    Helium.identify.thirdPartyAnalyticsAnonymousId = Statsig.getStableID()
+    ```
+
+    To clear the anonymous ID, set it to `nil`:
+
+    ```swift
+    Helium.identify.thirdPartyAnalyticsAnonymousId = nil
+    ```
+  </Tab>
+
+  <Tab title="React Native" icon="/images/sdk/logos/react-svgrepo-com.svg">
+    Call `setThirdPartyAnalyticsAnonymousId()` before `initialize()`:
+
+    ```typescript
+    import { setThirdPartyAnalyticsAnonymousId, initialize } from 'expo-helium';
+
+    // For Amplitude - pass device ID
+    setThirdPartyAnalyticsAnonymousId(amplitude.getDeviceId());
+
+    // For Mixpanel - pass anonymous ID
+    setThirdPartyAnalyticsAnonymousId(mixpanel.getDistinctId());
+
+    // For PostHog - pass anonymous ID
+    setThirdPartyAnalyticsAnonymousId(posthog.getAnonymousId());
+
+    await initialize({
+      apiKey: '<your-helium-api-key>',
+    });
+    ```
+
+    To clear the anonymous ID, pass `null`:
+
+    ```typescript
+    setThirdPartyAnalyticsAnonymousId(null);
+    ```
+  </Tab>
+</Tabs>
 
 | Provider  | ID Type      |
 | --------- | ------------ |

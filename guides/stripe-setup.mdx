@@ -112,11 +112,11 @@ description: "Set up Apple Pay with Stripe."
         let hasEntitlement = await Helium.shared.hasActiveStripeEntitlement()
         ```
     </Accordion>
-    <Accordion title="Stripe Web Checkout (App-to-Web)">
-      If you're using Stripe's web checkout (instead of Apple Pay one-tap), configure redirect URLs so Helium can detect when checkout completes or is cancelled.
+    <Accordion title="External Web Checkout (App-to-Web)">
+      If you're using external web checkout (instead of Apple Pay one-tap), configure redirect URLs so Helium can detect when checkout completes or is cancelled. This flow supports Stripe and Paddle products.
 
       <Warning>
-        **Required for Stripe web checkout.** If you don't call `enableStripeCheckout`, paywalls with Stripe products show a fallback view instead of the Stripe checkout flow.
+        **Required for external web checkout.** If you don't call `enableExternalWebCheckout`, paywalls with Stripe or Paddle products show a fallback view instead of the checkout flow.
       </Warning>
 
       **1. Register a URL scheme for your app**
@@ -135,18 +135,18 @@ description: "Set up Apple Pay with Stripe."
       </array>
       ```
 
-      **2. Enable Stripe checkout with your redirect URLs**
+      **2. Enable external web checkout with your redirect URLs**
 
-      Call `enableStripeCheckout` after Helium initializes:
+      Call `enableExternalWebCheckout` after Helium initializes:
 
       ```swift
-      Helium.config.enableStripeCheckout(
+      Helium.config.enableExternalWebCheckout(
           successURL: "myapp://checkout-success",
           cancelURL: "myapp://checkout-cancelled"
       )
       ```
 
-      Both URLs must use a scheme your app has registered. When the user completes or cancels checkout, Stripe redirects to the appropriate URL and Helium detects this to close the checkout view and fulfill entitlements.
+      Both URLs must use a scheme your app has registered. When the user completes or cancels checkout, Helium detects the redirect to close the checkout view and fulfill entitlements.
 
       **3. (Optional) Configure checkout presentation style**
 
@@ -161,12 +161,12 @@ description: "Set up Apple Pay with Stripe."
       - `.safariInApp` — Presents checkout using SFSafariViewController
       - `.webView` — Presents checkout in an embedded WKWebView within your app
 
-      **4. (Optional) Disable Stripe checkout**
+      **4. (Optional) Disable external web checkout**
 
-      Disable Stripe web checkout and revert to fallback behavior:
+      Disable external web checkout and revert to fallback behavior:
 
       ```swift
-      Helium.config.disableStripeCheckout()
+      Helium.config.disableExternalWebCheckout()
       ```
 
       <Note>
@@ -177,11 +177,11 @@ description: "Set up Apple Pay with Stripe."
 
       The SDK automatically sets a `stripeCheckoutEligible` targeting parameter that you can use in your workflow audience rules. This parameter is `true` when all of the following conditions are met:
 
-      - Stripe checkout is enabled (you've called `enableStripeCheckout`)
+      - External web checkout is enabled (you've called `enableExternalWebCheckout`)
       - The device has compatible payment cards (Visa, Mastercard, Amex, or Discover)
       - The device is running iOS 16.4 or later
 
-      Use this parameter to target users who can complete the Stripe web checkout flow. See [Targeting your Stripe Paywall](#workflows-should-target-us-storefront-and-apple-pay-enabled-only) for setup instructions.
+      Use this parameter to target users who can complete the external web checkout flow. See [Targeting your Stripe Paywall](#workflows-should-target-us-storefront-and-apple-pay-enabled-only) for setup instructions.
     </Accordion>
   </Tab>
   <Tab title="React Native">
@@ -379,14 +379,14 @@ If you use [RevenueCat alongside Stripe](https://www.revenuecat.com/docs/web/int
       ![Screenshot 2026 03 11 At 1 17 11 PM](/images/Screenshot2026-03-11at1.17.11PM.png)
     </Frame>
 
-    **For Stripe Web Checkout (iOS)**
+    **For External Web Checkout (iOS)**
 
-    If you're using the [Stripe web checkout flow](#stripe-web-checkout-app-to-web) instead of Apple Pay one-tap, you can use the `stripeCheckoutEligible` targeting parameter for more precise targeting. This parameter checks that the user:
-    - Has Stripe checkout enabled in your app configuration
+    If you're using the [external web checkout flow](#external-web-checkout-app-to-web) instead of Apple Pay one-tap, you can use the `stripeCheckoutEligible` targeting parameter for more precise targeting. This parameter checks that the user:
+    - Has external web checkout enabled in your app configuration
     - Has compatible payment cards on their device
-    - Is running iOS 16.4 or later (required for the Stripe Apple Pay web flow)
+    - Is running iOS 16.4 or later (required for the Apple Pay web flow)
 
-    Add `stripeCheckoutEligible: true` to your audience targeting rules to show Stripe web checkout paywalls only to eligible users.
+    Add `stripeCheckoutEligible: true` to your audience targeting rules to show external web checkout paywalls only to eligible users.
   </Step>
 </Steps>
 

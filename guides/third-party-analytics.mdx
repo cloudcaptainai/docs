@@ -1,212 +1,73 @@
 ---
 title: "Integrate with Your 3rd Party Analytics System"
-description: "Understanding Helium's event forwarding and analytics integration"
+description: "Understanding Helium's event forwarding and analytics integration."
 icon: "chart-mixed"
 ---
 
-## Overview
-
-You can configure Helium to automatically send events to your analytics provider or webhook destination of choice.
-
-## About Helium Events
-
-Visit [Helium Events](/guides/helium-events) to see the full list of events available. We're adding new events often — want support for a new event? Just ask us at support@tryhelium.com
-
-## Automatic event forwarding (recommended)
-
-### Configuration
+## Configure Automatic Event Forwarding
 
 <Note>
-Don't see your analytics provider here, or have a custom setup you want us to send events to? Reach out to founders@tryhelium.com — we might support it under the hood.
+  Don't see your analytics provider here, or have a custom setup you want us to send events to? Reach out to [founders@tryhelium.com](mailto:founders@tryhelium.com) — we might support it under the hood.
 </Note>
 
-<Tabs>
-  <Tab title="Mixpanel">
-    ![](/images/analytics/guide-configure-mixpanel.png)
-    
-    1. Go to [app.tryhelium.com/integrations](https://app.tryhelium.com/integrations). Click **Mixpanel**.
-    2. Give your integration a name. There are a few fields to enter due to what Mixpanel's API needs for event ingestion. 
-    3.  **Make sure that you have at least Admin or Owner level permissions in Mipxanel, for the project and service accounts**.
-    4. That's it! Paywall events (from local testing or production) will now come into Mixpanel, prefixed with `helium_`. You can view live events by going to the **Events** tab in Mixpanel
-
-    ![](/images/analytics/viewing_events/mixpanel_events.png)
-
-    ### User attribution between Helium and Mixpanel
-
-    #### Simplified Identity Merge
-    - Mixpanel has a way to do post/pre-login identity stitching via a few methods — with Simplified Identity Merge being the most 
-    popular. You can read more about it by visiting [Mixpanel's docs](https://docs.mixpanel.com/docs/tracking-methods/id-management/identifying-users-simplified)
-
-    - If you'd like to use simplified identity merge, remember to set the Simplified Identity Merge method to true in the Mixpanel configuration modal.
-
-    #### Overriding the custom user id post login
-
-    - If you're using an anonymous ID pre login, and want to override it to work _post_ login, you can use the `overrideUserId` method (available on all SDKs). View the relevant SDK quickstart for more info!
-
-    - In Mixpanel, Helium events will be prefixed with `helium_`.
-  </Tab>
-
-  <Tab title="Amplitude">
-    1. Go to [app.tryhelium.com/integrations](https://app.tryhelium.com/integrations). Click **Amplitude**.
-    2. Give your integration a name. Enter your API key (you can find it under Settings > Projects > [Your Project Name] and grab an API key from there).
-    3. That's it! Paywall events will now come into Amplitude, prefixed with `helium_`.
-  </Tab>
-
-  <Tab title="PostHog">
-    1. Go to [app.tryhelium.com/integrations](https://app.tryhelium.com/integrations). Click **PostHog**.
-    2. Give your integration a name. Enter your API key (you can find it under Settings > Projects > [Your Project Name] and grab an API key from there).
-    3. That's it! Paywall events will now come into PostHog, prefixed with `helium_`.
-  </Tab>
-
-  <Tab title="Statsig">
-    1. Go to [app.tryhelium.com/integrations](https://app.tryhelium.com/integrations). Click **Statsig**.
-    2. Give your integration a name. Enter your API key (you can find it under Settings > Projects > [Your Project Name] and grab an API key from there).
-    3. That's it! Paywall events will now come into Statsig, prefixed with `helium_`.
-    4. Watch events arrive and enjoy analytics in the Statsig UI.
-  </Tab>
-</Tabs>
-
-
-
-<Info>
-Helium uses a CDP under the hood to route events. It may take several minutes for events you see on device to populate in your analytics backend.
-</Info>
+Visit the [Integrations page](https://app.tryhelium.com/integrations/analytics) of the Helium dashboard and follow the instructions there to configure your analytics provider so Helium will automatically forward [Helium Events](https://docs.tryhelium.com/guides/helium-events).
 
 ## What events and properties are logged?
 
-All Helium events, along with their parameters and contextual/custom traits, are automatically forwarded to your analytics backend. For a complete list of events, parameters, and additional context sent with each event, see [Logged Events](/guides/helium-events#logged-events).
+All Helium events are automatically forwarded to your analytics backend.
 
-## Field Names
+<Info>
+  Helium forward events in batches. It may take several minutes for live events to populate in your analytics provider.
+</Info>
+
+### Event Names
+
+| Event Name | Description |
+| --- | --- |
+| `initialization_started` | SDK initialization began |
+| `initialization_succeeded` | SDK successfully initialized and downloaded paywalls |
+| `initialization_failed` | SDK failed to initialize or download paywalls |
+| `experience_opened` | A paywall was presented to the user |
+| `experience_open_failed` | A paywall failed to open |
+| `experience_view_rendered` | The paywall view finished rendering |
+| `experience_view_render_failed` | The paywall view failed to render |
+| `experience_skipped` | A paywall was skipped (e.g. targeting rules excluded the user) |
+| `experience_dismissed` | The user dismissed the paywall |
+| `experience_view_closed` | The paywall view was closed |
+| `purchase_started` | The user tapped a purchase button |
+| `purchase_pending` | A purchase is pending (e.g. awaiting parental approval) |
+| `purchase_succeeded` | A purchase completed successfully |
+| `purchase_failed` | A purchase failed |
+| `purchase_abandoned` | The user cancelled the purchase flow |
+| `entitlement_restored` | A previous purchase was successfully restored |
+| `entitlement_restore_failed` | A purchase restore attempt failed |
+| `user_experiment_allocated` | The user was allocated to an experiment variant |
+| `custom_event` | A custom analytics event fired from the paywall |
+
+### Field Names
 
 Below is a preview of the key fields that are sent with Helium events to your analytics system. For the complete list of all fields, download the CSV file.
 
-<Card icon="download" href="/files/helium-event-fields.json" title="Download Full Field List">
+<Card title="Download Full Field List" icon="download" href="/files/helium-event-fields.json">
   Download a JSON file containing all event field names, types, and descriptions
 </Card>
 
-### Common Event Fields
+#### Common Event Fields
 
-| Field Name                     | Description                                  |
-| ------------------------------ | -------------------------------------------- |
-| `helium_event_timestamp`       | Timestamp when the event occurred            |
-| `helium_event_name`            | Event type name (see Event Name Mapping tab) |
-| `experiment_id`                | Experiment unique identifier                 |
-| `experiment_chosen_variant_id` | Unique identifier of the assigned variant    |
-| `geo_country_name`             | Country name derived from IP address         |
-| `locale_country`               | Device country code                          |
-| `trigger_name`                 | Name of the trigger that opened the paywall  |
-| `paywall_id`                   | Paywall unique identifier                    |
-| `paywall_name`                 | Human-readable paywall name                  |
+| Field Name | Description |
+| --- | --- |
+| `helium_event_timestamp` | Timestamp when the event occurred |
+| `helium_event_name` | Event type name (see Event Name Mapping tab) |
+| `experiment_id` | Experiment unique identifier |
+| `experiment_chosen_variant_id` | Unique identifier of the assigned variant |
+| `geo_country_name` | Country name derived from IP address |
+| `locale_country` | Device country code |
+| `trigger_name` | Name of the trigger that opened the paywall |
+| `paywall_id` | Paywall unique identifier |
+| `paywall_name` | Human-readable paywall name |
 
-## Event Names
+## Linking & Identifying Users
 
-Below is a preview of the key events that Helium sends to your analytics system. For the complete list of all events, download the CSV file.
+See the **Identifying Users** section of the SDK quickstart guides. Let Helium know the user ID of your users so forwarded analytics events will link up.
 
-<Card icon="download" href="/files/helium-events.json" title="Download Full Event List">
-  Download a JSON file containing all event names and descriptions
-</Card>
-
-### Core Events
-
-| Event Name                      | Description                                                    |
-| ------------------------------- | -------------------------------------------------------------- |
-| `initialization_started`        | SDK initialization began                                       |
-| `initialization_succeeded`      | SDK successfully initialized and downloaded paywalls           |
-| `initialization_failed`         | SDK failed to initialize or download paywalls                  |
-| `experience_opened`             | A paywall was presented to the user                            |
-| `experience_open_failed`        | A paywall failed to open                                       |
-| `experience_view_rendered`      | The paywall view finished rendering                            |
-| `experience_view_render_failed` | The paywall view failed to render                              |
-| `experience_skipped`            | A paywall was skipped (e.g. targeting rules excluded the user) |
-| `experience_dismissed`          | The user dismissed the paywall                                 |
-| `experience_view_closed`        | The paywall view was closed                                    |
-| `purchase_started`              | The user tapped a purchase button                              |
-| `purchase_pending`              | A purchase is pending (e.g. awaiting parental approval)        |
-| `purchase_succeeded`            | A purchase completed successfully                              |
-| `purchase_failed`               | A purchase failed                                              |
-| `purchase_abandoned`            | The user cancelled the purchase flow                           |
-| `entitlement_restored`          | A previous purchase was successfully restored                  |
-| `entitlement_restore_failed`    | A purchase restore attempt failed                              |
-| `user_experiment_allocated`     | The user was allocated to an experiment variant                |
-| `custom_event`                  | A custom analytics event fired from the paywall                |
-
-## Custom forwarding from the SDK
-
-You can also track events from the SDK via the PaywallDelegate or lifecycle methods in each framework. View our SDK quickstarts for more information.
-
-<Tabs>
-  <Tab title="iOS" icon="/images/sdk/logos/swift-svgrepo-com.svg">
-    ```swift
-    // ... rest of your delegate setup ...
-    
-    func onHeliumPaywallEvent(_ event: any HeliumEvent) {
-        if let paywallOpen = event as? PaywallOpenEvent {
-            // e.g., forwarding to mixpanel
-            Mixpanel.mainInstance().track(
-                event: "paywall_open",
-                properties: [
-                    "trigger": paywallOpen.triggerName,
-                    "paywall": paywallOpen.paywallName
-                ]
-            )
-        }
-        // ... other event handling ...
-    }
-    ```
-  </Tab>
-
-  <Tab title="React Native" icon="/images/sdk/logos/react-svgrepo-com.svg">
-    ```typescript
-    // ... rest of your initialize call ...
-    
-    onHeliumPaywallEvent: (event: HeliumPaywallEvent) => {
-      if (event.type === 'paywallOpen') {
-        // Forward to Mixpanel
-        mixpanel.track('paywall_open', {
-          trigger: event.triggerName,
-          paywall: event.paywallName
-        });
-      }
-      // ... other event handling ...
-    }
-    ```
-  </Tab>
-
-  <Tab title="Flutter" icon="/images/sdk/logos/flutter-svgrepo-com.svg">
-    ```dart
-    // ... rest of your delegate setup ...
-    
-    @override
-    Future<void> onPaywallEvent(Map<String, dynamic> event) async {
-      if (event['type'] == 'paywallOpen') {
-        // Forward to Mixpanel
-        mixpanel.track('paywall_open', properties: {
-          'trigger': event['triggerName'],
-          'paywall': event['paywallName'],
-        });
-      }
-      // ... other event handling ...
-    }
-    ```
-  </Tab>
-
-  <Tab title="Android">
-    ```kotlin
-    // ... rest of your delegate setup ...
-    
-    override fun onHeliumPaywallEvent(event: HeliumEvent) {
-        when (event) {
-            is PaywallOpen -> {
-                // Forward to Mixpanel
-                mixpanel.track("paywall_open", JSONObject().apply {
-                    put("trigger", event.triggerName)
-                    put("paywall", event.paywallName)
-                })
-            }
-            // ... other event handling ...
-        }
-    }
-    ```
-  </Tab>
-</Tabs>
-
+If your user starts out anonymous, be sure to set the **third party analytics anonymous ID** on the Helium SDK with the anonymous/device ID from your analytics provider SDK. This will allow events from an anonymous user to link up as well.

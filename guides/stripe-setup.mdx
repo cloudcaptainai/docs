@@ -183,6 +183,21 @@ description: "Set up Apple Pay with Stripe."
 
       Use this parameter to target users who can complete the external web checkout flow. See [Targeting your Stripe Paywall](#workflows-should-target-us-storefront-and-apple-pay-enabled-only) for setup instructions.
     </Accordion>
+    <Accordion title="Paddle Functions">
+      If you're using Paddle products via [external web checkout](#external-web-checkout-app-to-web), the following functions are available on `Helium.shared`:
+
+      - **`resetPaddleEntitlements(clearUserId:)`** — Resets Paddle entitlements and optionally clears the user ID. Use this to "log out" a Paddle user if your app supports multiple Paddle users on the same device.
+
+        ```swift
+        Helium.shared.resetPaddleEntitlements(clearUserId: true)
+        ```
+
+      - **`hasActivePaddleEntitlement()`** — Returns `true` if the user has any active Paddle entitlement (e.g. an active subscription).
+
+        ```swift
+        let hasPaddleEntitlement = await Helium.shared.hasActivePaddleEntitlement()
+        ```
+    </Accordion>
   </Tab>
   <Tab title="React Native">
     <Note>
@@ -295,10 +310,10 @@ description: "Set up Apple Pay with Stripe."
 
 ## Checking Entitlements
 
-The Helium SDK provides entitlement helper methods that work with Stripe purchases. See the entitlements section in the [iOS Quickstart](/sdk/quickstart-ios#checking-subscription-status--entitlements), [React Native Quickstart](/sdk/quickstart-react-native#checking-subscription-status--entitlements), or [Flutter Quickstart](/sdk/quickstart-flutter#checking-subscription-status--entitlements) for the full API reference.
+The Helium SDK provides entitlement helper methods that work with Stripe and Paddle purchases. See the entitlements section in the [iOS Quickstart](/sdk/quickstart-ios#checking-subscription-status--entitlements), [React Native Quickstart](/sdk/quickstart-react-native#checking-subscription-status--entitlements), or [Flutter Quickstart](/sdk/quickstart-flutter#checking-subscription-status--entitlements) for the full API reference.
 
 <Warning>
-  On iOS, some entitlement methods (e.g. `hasActiveSubscriptionFor(subscriptionGroupID:)`, `subscriptionStatusFor(...)`, `activeSubscriptions()`) rely on StoreKit and will **not** reflect Stripe purchases. For Stripe, use `hasEntitlementForPaywall(trigger:)`, `hasActiveEntitlementFor(productId:)`, `hasAnyActiveSubscription()`, and `hasAny()` instead.
+  On iOS, some entitlement methods (e.g. `hasActiveSubscriptionFor(subscriptionGroupID:)`, `subscriptionStatusFor(...)`, `activeSubscriptions()`) rely on StoreKit and will **not** reflect Stripe or Paddle purchases. For Stripe and Paddle, use `hasEntitlementForPaywall(trigger:)`, `hasActiveEntitlementFor(productId:)`, `hasAnyActiveSubscription()`, `hasAny()`, `hasActiveStripeEntitlement()`, and `hasActivePaddleEntitlement()` instead.
 </Warning>
 
 ## RevenueCat + Stripe

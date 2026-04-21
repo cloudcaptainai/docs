@@ -97,7 +97,7 @@ description: "Set up Apple Pay with Stripe."
       These are available on `Helium.shared` after initializing with Stripe:
 
       - **`setUserIdAndSyncStripeIfNeeded(userId:)`** — Sets the user ID and syncs Stripe entitlements if needed. Call this instead of setting `Helium.identify.userId` if Helium is already initialized.
-      - **`resetStripeEntitlements(clearUserId:)`** — Resets Stripe entitlements and optionally clears the user ID. Use this to "log out" a Stripe user if your app supports multiple Stripe users on the same device.
+      - **`resetStripeEntitlements()`** — Resets Stripe entitlements and clears the user ID. Use this to "log out" a Stripe user if your app supports multiple Stripe users on the same device.
       - **`createStripePortalSession(returnUrl:)`** — Creates a Stripe Customer Portal session and returns the portal URL. Open this in a browser or in-app webview to let the user manage their subscriptions.
 
         ```swift
@@ -186,10 +186,17 @@ description: "Set up Apple Pay with Stripe."
     <Accordion title="Paddle Functions">
       If you're using Paddle products via [external web checkout](#external-web-checkout-app-to-web), the following functions are available on `Helium.shared`:
 
-      - **`resetPaddleEntitlements(clearUserId:)`** — Resets Paddle entitlements and optionally clears the user ID. Use this to "log out" a Paddle user if your app supports multiple Paddle users on the same device.
+      - **`createPaddlePortalSession()`** — Creates a Paddle Customer Portal session and returns the portal URL. Open this in a browser or in-app webview to let the user manage their subscriptions.
 
         ```swift
-        Helium.shared.resetPaddleEntitlements(clearUserId: true)
+        let portalURL = try await Helium.shared.createPaddlePortalSession()
+        await UIApplication.shared.open(portalURL)
+        ```
+
+      - **`resetPaddleEntitlements()`** — Resets Paddle entitlements and clears the user ID. Use this to "log out" a Paddle user if your app supports multiple Paddle users on the same device.
+
+        ```swift
+        Helium.shared.resetPaddleEntitlements()
         ```
 
       - **`hasActivePaddleEntitlement()`** — Returns `true` if the user has any active Paddle entitlement (e.g. an active subscription).
@@ -257,7 +264,7 @@ description: "Set up Apple Pay with Stripe."
       The following functions are available from `expo-helium-stripe` (iOS only):
 
       - `setUserIdAndSyncStripeIfNeeded(userId)` — Sets the user ID and syncs Stripe entitlements if needed. Call this instead of `setCustomUserId`.
-      - `resetStripeEntitlements(clearUserId?)` — Resets Stripe entitlements and optionally clears the user ID. Use this to "log out" a Stripe user if your app supports multiple Stripe users on the same device.
+      - `resetStripeEntitlements()` — Resets Stripe entitlements and clears the user ID. Use this to "log out" a Stripe user if your app supports multiple Stripe users on the same device.
       - `await createStripePortalSession(returnUrl)` — Creates a Stripe Customer Portal session and returns the portal URL. Open this in a browser or in-app webview to let the user manage their subscriptions.
       - `await hasActiveStripeEntitlement()` — Returns `true` if the user has any active Stripe entitlement (e.g. an active subscription).
     </Accordion>
@@ -301,7 +308,7 @@ description: "Set up Apple Pay with Stripe."
       The following functions are available from `helium_stripe` (iOS only — no-ops on other platforms):
 
       - `HeliumStripe.setUserIdAndSyncStripeIfNeeded('user-id')` — Sets the user ID and syncs Stripe entitlements if needed. Call this instead of setting `customUserId` directly.
-      - `HeliumStripe.resetStripeEntitlements(clearUserId: false)` — Resets Stripe entitlements and optionally clears the user ID. Use this to "log out" a Stripe user if your app supports multiple Stripe users on the same device.
+      - `HeliumStripe.resetStripeEntitlements()` — Resets Stripe entitlements and clears the user ID. Use this to "log out" a Stripe user if your app supports multiple Stripe users on the same device.
       - `await HeliumStripe.createStripePortalSession('yourapp://return')` — Creates a Stripe Customer Portal session and returns the portal URL (or `null`). Open this in a browser or in-app webview to let the user manage their subscriptions.
       - `await HeliumStripe.hasActiveStripeEntitlement()` — Returns `true` if the user has any active Stripe entitlement (e.g. an active subscription).
     </Accordion>

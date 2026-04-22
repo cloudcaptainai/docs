@@ -55,7 +55,7 @@ description: "Set up Apple Pay with Stripe."
 ## App Integration
 
 <Warning>
-  In order to show paywalls with Stripe or Paddle products, you are **required** to set a custom user ID. This ID will be used to grant entitlements across devices and re-installs.
+  In order to show paywalls with Stripe or Paddle products, you are **required** to set a custom user ID. This ID will be used to grant entitlements across devices and re-installs. If your app supports purchase-before-signup flows, see [Allowing Web Checkout Without User ID](#allowing-web-checkout-without-user-id) for an alternative.
 </Warning>
 
 <Tabs>
@@ -222,6 +222,22 @@ description: "Set up Apple Pay with Stripe."
       ```swift
       Helium.config.disableExternalWebCheckout()
       ```
+
+      **Allowing Web Checkout Without User ID**
+
+      By default, paywalls with Paddle or Stripe products won't show unless you've set a custom user ID via `Helium.identify.userId`. Your fallback paywall (if configured) shows instead.
+
+      If your app supports purchase-before-signup flows, you can enable web checkout without a user ID:
+
+      ```swift
+      Helium.config.allowWebCheckoutWithoutUserId = true
+      ```
+
+      Once you set `Helium.identify.userId` later, Helium automatically links the Paddle or Stripe customer to that user ID.
+
+      <Warning>
+        Use with caution. If a user purchases via web checkout and your app never sets a `userId` (or the user uninstalls before doing so), the purchase may be unrecoverable. Only enable this if your app has a clear path for the user to set `Helium.identify.userId` after purchase.
+      </Warning>
 
       **Targeting with `stripeCheckoutEligible`**
 

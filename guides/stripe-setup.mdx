@@ -308,7 +308,7 @@ description: "Set up Apple Pay with Stripe."
         // Before
         import { initialize } from 'expo-helium';
         await initialize({ apiKey: '...', ... });
-        
+
         // After
         import { initializeWithStripe } from 'expo-helium-stripe';
         await initializeWithStripe({
@@ -327,12 +327,144 @@ description: "Set up Apple Pay with Stripe."
       </Step>
     </Steps>
     <Accordion title="Additional Stripe Functions">
-      The following functions are available from `expo-helium-stripe` (iOS only):
+      The following functions are available (iOS only):
 
-      - `setUserIdAndSyncStripeIfNeeded(userId)` — Sets the user ID and syncs Stripe entitlements if needed. Call this instead of `setCustomUserId`.
-      - `resetStripeEntitlements()` — Resets Stripe entitlements and clears the user ID. Use this to "log out" a Stripe user if your app supports multiple Stripe users on the same device.
-      - `await createStripePortalSession(returnUrl)` — Creates a Stripe Customer Portal session and returns the portal URL. Open this in a browser or in-app webview to let the user manage their subscriptions.
-      - `await hasActiveStripeEntitlement()` — Returns `true` if the user has any active Stripe entitlement (e.g. an active subscription).
+      - `setUserIdAndSyncStripeIfNeeded(userId)` from `expo-helium-stripe` — Sets the user ID and syncs Stripe entitlements if needed. Call this instead of `setCustomUserId`.
+      - `resetStripeEntitlements()` from `expo-helium` — Resets Stripe entitlements and clears the user ID. Use this to "log out" a Stripe user if your app supports multiple Stripe users on the same device.
+      - `await createStripePortalSession(returnUrl)` from `expo-helium` — Creates a Stripe Customer Portal session and returns the portal URL. Open this in a browser or in-app webview to let the user manage their subscriptions.
+      - `await hasActiveStripeEntitlement()` from `expo-helium` — Returns `true` if the user has any active Stripe entitlement (e.g. an active subscription).
+
+      ```typescript
+      import { setUserIdAndSyncStripeIfNeeded } from 'expo-helium-stripe';
+      import {
+        hasActiveStripeEntitlement,
+        createStripePortalSession,
+        resetStripeEntitlements,
+      } from 'expo-helium';
+
+      // Check if user has an active Stripe subscription
+      const hasEntitlement = await hasActiveStripeEntitlement();
+
+      // Open the Stripe Customer Portal
+      const portalUrl = await createStripePortalSession('myapp://settings');
+      if (portalUrl) {
+        await Linking.openURL(portalUrl);
+      }
+
+      // Log out a Stripe user
+      resetStripeEntitlements();
+      ```
+    </Accordion>
+    <Accordion title="External Web Checkout (App-to-Web)">
+      If you're using external web checkout (instead of Apple Pay one-tap), configure redirect URLs so Helium can detect when checkout completes or is cancelled. This flow supports Stripe and Paddle products.
+
+      <Warning>
+        **Required for external web checkout.** If you don't call `enableExternalWebCheckout`, paywalls with Stripe or Paddle products show a fallback view instead of the checkout flow.
+      </Warning>
+
+      **1. Register a URL scheme for your app**
+
+      Add a custom URL scheme to your `app.json`:
+
+      ```json
+      {
+        "expo": {
+          "scheme": "myapp"
+        }
+      }
+      ```
+
+      **2. Enable external web checkout with your redirect URLs**
+
+      Call `enableExternalWebCheckout` after Helium initializes:
+
+      ```typescript
+      import { enableExternalWebCheckout } from 'expo-helium';
+
+      enableExternalWebCheckout({
+        successURL: 'myapp://checkout-success',
+        cancelURL: 'myapp://checkout-cancelled',
+      });
+      ```
+
+      Both URLs must use a scheme your app has registered. When the user completes or cancels checkout, Helium detects the redirect to close the checkout view and fulfill entitlements.
+
+      **Specifying payment processors**
+
+      By default, external web checkout enables both Paddle and Stripe. If your app only uses one payment processor, you can specify which one to enable:
+
+      ```typescript
+      // Enable only Stripe
+      enableExternalWebCheckout({
+        successURL: 'myapp://checkout-success',
+        cancelURL: 'myapp://checkout-cancelled',
+        paymentProcessors: ['stripe'],
+      });
+
+      // Enable only Paddle
+      enableExternalWebCheckout({
+        successURL: 'myapp://checkout-success',
+        cancelURL: 'myapp://checkout-cancelled',
+        paymentProcessors: ['paddle'],
+      });
+      ```
+
+      If you only use one processor, specifying it avoids unnecessary entitlement network calls for the other.
+
+      **3. (Optional) Disable external web checkout**
+
+      Disable external web checkout and revert to fallback behavior:
+
+      ```typescript
+      import { disableExternalWebCheckout } from 'expo-helium';
+
+      disableExternalWebCheckout();
+      ```
+
+      **Allowing Web Checkout Without User ID**
+
+      By default, paywalls with Paddle or Stripe products won't show unless you've set a custom user ID via `setCustomUserId`. Your fallback paywall (if configured) shows instead.
+
+      If your app supports purchase-before-signup flows, you can enable web checkout without a user ID:
+
+      ```typescript
+      import { setAllowWebCheckoutWithoutUserId } from 'expo-helium';
+
+      setAllowWebCheckoutWithoutUserId(true);
+      ```
+
+      Once you call `setCustomUserId` later, Helium automatically links the Paddle or Stripe customer to that user ID.
+
+      <Warning>
+        Use with caution. If a user purchases via web checkout and your app never sets a user ID (or the user uninstalls before doing so), the purchase may be unrecoverable. Only enable this if your app has a clear path for the user to set a custom user ID after purchase.
+      </Warning>
+    </Accordion>
+    <Accordion title="Paddle Functions">
+      If you're using Paddle products via [external web checkout](#external-web-checkout-app-to-web), the following functions are available from `expo-helium` (iOS only):
+
+      - `await hasActivePaddleEntitlement()` — Returns `true` if the user has any active Paddle entitlement (e.g. an active subscription).
+      - `await createPaddlePortalSession()` — Creates a Paddle Customer Portal session and returns the portal URL. Open this in a browser or in-app webview to let the user manage their subscriptions.
+      - `resetPaddleEntitlements()` — Resets Paddle entitlements and clears the user ID. Use this to "log out" a Paddle user if your app supports multiple Paddle users on the same device.
+
+      ```typescript
+      import {
+        hasActivePaddleEntitlement,
+        createPaddlePortalSession,
+        resetPaddleEntitlements,
+      } from 'expo-helium';
+
+      // Check if user has an active Paddle subscription
+      const hasPaddleEntitlement = await hasActivePaddleEntitlement();
+
+      // Open the Paddle Customer Portal
+      const portalUrl = await createPaddlePortalSession();
+      if (portalUrl) {
+        await Linking.openURL(portalUrl);
+      }
+
+      // Log out a Paddle user
+      resetPaddleEntitlements();
+      ```
     </Accordion>
   </Tab>
   <Tab title="Flutter">

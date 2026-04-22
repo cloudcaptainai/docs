@@ -148,6 +148,40 @@ description: "Set up Apple Pay with Stripe."
 
       Both URLs must use a scheme your app has registered. When the user completes or cancels checkout, Helium detects the redirect to close the checkout view and fulfill entitlements.
 
+      **Specifying payment processors**
+
+      By default, external web checkout enables both Paddle and Stripe. If your app only uses one payment processor, you can specify which one to enable:
+
+      ```swift
+      // Enable only Stripe
+      Helium.config.enableExternalWebCheckout(
+          successURL: "myapp://checkout-success",
+          cancelURL: "myapp://checkout-cancelled",
+          paymentProcessors: .stripe
+      )
+
+      // Enable only Paddle
+      Helium.config.enableExternalWebCheckout(
+          successURL: "myapp://checkout-success",
+          cancelURL: "myapp://checkout-cancelled",
+          paymentProcessors: .paddle
+      )
+
+      // Enable both (default)
+      Helium.config.enableExternalWebCheckout(
+          successURL: "myapp://checkout-success",
+          cancelURL: "myapp://checkout-cancelled",
+          paymentProcessors: .all
+      )
+      ```
+
+      The `paymentProcessors` parameter accepts a `WebCheckoutProcessors` OptionSet with these options:
+      - `.paddle` — Enable only Paddle checkout
+      - `.stripe` — Enable only Stripe checkout
+      - `.all` — Enable both Paddle and Stripe (default)
+
+      If you only use one processor, specifying it avoids unnecessary entitlement network calls for the other.
+
       **3. (Optional) Configure checkout presentation style**
 
       Control how the Stripe checkout page displays:

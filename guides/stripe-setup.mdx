@@ -239,15 +239,23 @@ description: "Set up Apple Pay with Stripe."
         Use with caution. If a user purchases via web checkout and your app never sets a `userId` (or the user uninstalls before doing so), the purchase may be unrecoverable. Only enable this if your app has a clear path for the user to set `Helium.identify.userId` after purchase.
       </Warning>
 
-      **Targeting with `stripeCheckoutEligible`**
+      **Targeting with checkout eligibility parameters**
 
-      The SDK automatically sets a `stripeCheckoutEligible` targeting parameter that you can use in your workflow audience rules. This parameter is `true` when all of the following conditions are met:
+      The SDK automatically sets targeting parameters that you can use in your workflow audience rules to show paywalls only to users who can complete the external web checkout flow.
 
-      - External web checkout is enabled (you've called `enableExternalWebCheckout`)
-      - The device has compatible payment cards (Visa, Mastercard, Amex, or Discover)
-      - The device is running iOS 16.4 or later
+      **`stripeCheckoutEligible`** is `true` when:
+      - External web checkout is enabled with Stripe (you've called `enableExternalWebCheckout` with `.stripe` or `.all`)
+      - The device has a credit card configured for Apple Pay (Visa, Mastercard, Amex, or Discover)
 
-      Use this parameter to target users who can complete the external web checkout flow. See [Targeting your Stripe Paywall](#workflows-should-target-us-storefront-and-apple-pay-enabled-only) for setup instructions.
+      **`paddleCheckoutEligible`** is `true` when:
+      - External web checkout is enabled with Paddle (you've called `enableExternalWebCheckout` with `.paddle` or `.all`)
+      - The device has a credit card configured for Apple Pay (Visa, Mastercard, Amex, or Discover)
+
+      <Note>
+        Eligibility checks require a **credit card** specifically. Debit and prepaid cards do not qualify because trial-to-paid conversion rates are materially lower on those card types.
+      </Note>
+
+      Use these parameters in your audience targeting rules to show Stripe or Paddle paywalls only to eligible users. See [Targeting your Stripe Paywall](#workflows-should-target-us-storefront-and-apple-pay-enabled-only) for setup instructions.
     </Accordion>
     <Accordion title="Paddle Functions">
       If you're using Paddle products via [external web checkout](#external-web-checkout-app-to-web), the following functions are available on `Helium.shared`:
@@ -601,12 +609,11 @@ If you use [RevenueCat alongside Stripe](https://www.revenuecat.com/docs/web/int
 
     **For External Web Checkout (iOS)**
 
-    If you're using the [external web checkout flow](#external-web-checkout-app-to-web) instead of Apple Pay one-tap, you can use the `stripeCheckoutEligible` targeting parameter for more precise targeting. This parameter checks that the user:
-    - Has external web checkout enabled in your app configuration
-    - Has compatible payment cards on their device
-    - Is running iOS 16.4 or later (required for the Apple Pay web flow)
+    If you're using the [external web checkout flow](#external-web-checkout-app-to-web) instead of Apple Pay one-tap, you can use `stripeCheckoutEligible` or `paddleCheckoutEligible` targeting parameters for more precise targeting. These parameters check that the user:
+    - Has external web checkout enabled in your app configuration (with the corresponding payment processor)
+    - Has a credit card configured for Apple Pay (debit and prepaid cards do not qualify)
 
-    Add `stripeCheckoutEligible: true` to your audience targeting rules to show external web checkout paywalls only to eligible users.
+    Add `stripeCheckoutEligible: true` or `paddleCheckoutEligible: true` to your audience targeting rules to show external web checkout paywalls only to eligible users.
   </Step>
 </Steps>
 

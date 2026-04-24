@@ -419,7 +419,46 @@ description: "Set up Apple Pay with Stripe."
 
       If you only use one processor, specifying it avoids unnecessary entitlement network calls for the other.
 
-      **3. (Optional) Disable external web checkout**
+      **3. Forward checkout redirect URLs to Helium**
+
+      To detect checkout completion as soon as the user returns to your app, forward incoming URLs to Helium using `heliumHandleURL`. Call this from your Linking event handler:
+
+      ```typescript
+      import { useEffect } from 'react';
+      import * as Linking from 'expo-linking';
+      import { heliumHandleURL } from 'expo-helium';
+
+      function App() {
+        useEffect(() => {
+          const subscription = Linking.addEventListener('url', (event) => {
+            if (!heliumHandleURL(event.url)) {
+              // your own deep link handling
+            }
+          });
+
+          // Handle URL that opened the app
+          Linking.getInitialURL().then((url) => {
+            if (url) {
+              heliumHandleURL(url);
+            }
+          });
+
+          return () => subscription.remove();
+        }, []);
+
+        // ...
+      }
+      ```
+
+      - Returns `true` if the URL is a Helium checkout redirect being processed
+      - Safe to call with any URL—returns `false` if it doesn't match your configured success/cancel URLs
+      - iOS only; returns `false` on Android
+
+      <Note>
+        Calling `heliumHandleURL` lets the SDK react to checkout redirects immediately instead of waiting for the app to foreground. If the app is terminated during checkout, Helium automatically recovers and completes any pending checkouts when the app next initializes.
+      </Note>
+
+      **4. (Optional) Disable external web checkout**
 
       Disable external web checkout and revert to fallback behavior:
 

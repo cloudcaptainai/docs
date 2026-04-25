@@ -393,6 +393,18 @@ abstract class HeliumPurchaseDelegate {
   You can also check if paywalls have been downloaded with `await heliumFlutter.paywallsLoaded()`
 </Accordion>
 
+<Accordion title="Hiding Paywalls Programmatically">
+  You can programmatically hide paywalls using:
+
+  ```dart
+  // Hide the current paywall
+  await HeliumFlutter().hideUpsell();
+
+  // Hide all currently displayed paywalls
+  await HeliumFlutter().hideAllUpsells();
+  ```
+</Accordion>
+
 <Accordion title="Reset Helium">
   Reset Helium entirely so you can call initialize again, for example after changing user traits that can affect the paywalls a user might see via targeting.
 

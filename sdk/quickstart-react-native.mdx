@@ -453,6 +453,18 @@ type HeliumTransactionStatus =
   For the full public API and detailed parameter documentation, see the inline docstrings in the SDK source. Import Helium in your project and use your IDE's autocomplete or jump-to-definition to explore all available methods and types.
 </Note>
 
+<Accordion title="Hiding Paywalls Programmatically">
+  You can programmatically hide paywalls using:
+
+  ```typescript
+  // Hide the current paywall
+  hideUpsell();
+
+  // Hide all currently displayed paywalls
+  hideAllUpsells();
+  ```
+</Accordion>
+
 <Accordion title="Reset Helium">
   Reset Helium entirely so you can call initialize again, for example after changing user traits that can affect the paywalls a user might see via targeting.
 

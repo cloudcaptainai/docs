@@ -6,7 +6,7 @@ icon: "expand"
 
 ## Overview
 
-Most of the time you'll want to use `presentPayall()` (or `presentUpsell()` depending on your SDK version) to show paywalls. This approach is covered in each platform's quickstart guide (see navigation menu on the left). But if you need more control over how and where paywalls appear in your app, there are a few other options.
+Most of the time you'll want to use `presentPaywall()` (or `presentUpsell()` depending on your SDK version) to show paywalls. This approach is covered in each platform's quickstart guide (see navigation menu on the left). But if you need more control over how and where paywalls appear in your app, there are a few other options.
 
 ## iOS
 
@@ -20,6 +20,7 @@ HeliumPaywall(
 }
 ```
 
+<<<<<<< HEAD
 <Note>
   With [external web checkout](/guides/stripe-setup) (Paddle or Stripe), inline and embedded paywalls automatically dismiss after a successful purchase or restore. For in-app purchases, handle dismissal yourself using PaywallEventHandlers.
 </Note>
@@ -27,6 +28,15 @@ HeliumPaywall(
 <Tip>
   `hideAllPaywalls()` only dismisses paywalls shown via `presentPaywall()`. To dismiss an inline or embedded paywall, set your `isPresented` binding to `false` or remove the view from the hierarchy.
 </Tip>
+||||||| 674856b
+<Warning>
+  You'll need to handle dismissal yourself when using this method. You can do so with PaywallEventHandlers.
+</Warning>
+=======
+<Warning>
+  The iOS SDK will attempt to handle dismissal for embedded views but may not be able to depending on where you place it. You can dismissal yourself with PaywallEventHandlers.
+</Warning>
+>>>>>>> main
 
 <Accordion title="Example with PaywallEventHandlers">
   ```swift

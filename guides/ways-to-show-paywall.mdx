@@ -20,9 +20,13 @@ HeliumPaywall(
 }
 ```
 
-<Warning>
-  You'll need to handle dismissal yourself when using this method. You can do so with PaywallEventHandlers.
-</Warning>
+<Note>
+  With [external web checkout](/guides/stripe-setup) (Paddle or Stripe), inline and embedded paywalls automatically dismiss after a successful purchase or restore. For in-app purchases, handle dismissal yourself using PaywallEventHandlers.
+</Note>
+
+<Tip>
+  `hideAllPaywalls()` only dismisses paywalls shown via `presentPaywall()`. To dismiss an inline or embedded paywall, set your `isPresented` binding to `false` or remove the view from the hierarchy.
+</Tip>
 
 <Accordion title="Example with PaywallEventHandlers">
   ```swift
@@ -120,6 +124,6 @@ class ExamplePageWithEmbeddedPaywall extends StatelessWidget {
 }
 ```
 
-<Warning>
-  You will have to handle your own dismissal. You can do so by passing in PaywallEventHandlers and using the `onDismissed` handler.
-</Warning>
+<Note>
+  On iOS, embedded paywalls automatically dismiss after a successful [external web checkout](/guides/stripe-setup) purchase or restore. For in-app purchases, pass in PaywallEventHandlers and use the `onDismissed` handler.
+</Note>

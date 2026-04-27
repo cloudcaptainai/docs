@@ -6,7 +6,7 @@ icon: "expand"
 
 ## Overview
 
-Most of the time you'll want to use `presentPayall()` (or `presentUpsell()` depending on your SDK version) to show paywalls. This approach is covered in each platform's quickstart guide (see navigation menu on the left). But if you need more control over how and where paywalls appear in your app, there are a few other options.
+Most of the time you'll want to use `presentPaywall()` (or `presentUpsell()` depending on your SDK version) to show paywalls. This approach is covered in each platform's quickstart guide (see navigation menu on the left). But if you need more control over how and where paywalls appear in your app, there are a few other options.
 
 ## iOS
 
@@ -21,7 +21,7 @@ HeliumPaywall(
 ```
 
 <Warning>
-  You'll need to handle dismissal yourself when using this method. You can do so with PaywallEventHandlers.
+  The iOS SDK will attempt to handle dismissal for embedded views but may not be able to depending on where you place it. You can dismissal yourself with PaywallEventHandlers.
 </Warning>
 
 <Accordion title="Example with PaywallEventHandlers">

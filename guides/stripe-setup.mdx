@@ -439,12 +439,8 @@ description: "Set up Apple Pay with Stripe."
             }
           });
 
-          // Handle URL that opened the app
-          Linking.getInitialURL().then((url) => {
-            if (url) {
-              heliumHandleURL(url);
-            }
-          });
+          // Handle URL that opened the app (accepts null safely)
+          Linking.getInitialURL().then(heliumHandleURL);
 
           return () => subscription.remove();
         }, []);
@@ -454,8 +450,8 @@ description: "Set up Apple Pay with Stripe."
       ```
 
       - Returns `true` if the URL is a Helium checkout redirect being processed
-      - Safe to call with any URL—returns `false` if it doesn't match your configured success/cancel URLs
-      - iOS only; returns `false` on Android
+      - Accepts `string | null`—safe to call with any URL or `null`
+      - Returns `false` for `null`, non-matching URLs, or on Android
 
       <Note>
         Calling `heliumHandleURL` lets the SDK react to checkout redirects immediately instead of waiting for the app to foreground. If the app is terminated during checkout, Helium automatically recovers and completes any pending checkouts when the app next initializes.

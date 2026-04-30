@@ -241,19 +241,22 @@ description: "Set up Apple Pay with Stripe."
 
       **Targeting with checkout eligibility parameters**
 
-      The SDK automatically sets targeting parameters that you can use in your workflow audience rules to show paywalls only to users who can complete the external web checkout flow.
+      The SDK automatically sets targeting parameters that you can use in your workflow audience rules to control which users see web checkout paywalls.
 
-      **`stripeCheckoutEligible`** is `true` when:
-      - External web checkout is enabled with Stripe (you've called `enableExternalWebCheckout` with `.stripe` or `.all`)
-      - The device has a credit card configured for Apple Pay (Visa, Mastercard, Amex, or Discover)
+      **`stripeCheckoutEligible`** is `true` when external web checkout is enabled with Stripe (you've called `enableExternalWebCheckout` with `.stripe` or `.all`).
 
-      **`paddleCheckoutEligible`** is `true` when:
-      - External web checkout is enabled with Paddle (you've called `enableExternalWebCheckout` with `.paddle` or `.all`)
-      - The device has a credit card configured for Apple Pay (Visa, Mastercard, Amex, or Discover)
+      **`paddleCheckoutEligible`** is `true` when external web checkout is enabled with Paddle (you've called `enableExternalWebCheckout` with `.paddle` or `.all`).
 
-      <Note>
-        Eligibility checks require a **credit card** specifically. Debit and prepaid cards do not qualify because trial-to-paid conversion rates are materially lower on those card types.
-      </Note>
+      **Targeting by Apple Pay card type**
+
+      For finer-grained targeting based on the user's Apple Pay card type, use these additional parameters:
+
+      - **`hasApplePayCreditCard`** — `true` if the user has a credit card configured for Apple Pay (Visa, Mastercard, Amex, or Discover)
+      - **`hasApplePayDebitCard`** — `true` if the user has a debit card configured for Apple Pay
+
+      <Tip>
+        If your subscription includes a free trial, consider targeting users with credit cards using `hasApplePayCreditCard: true`. Trial-to-paid conversion rates tend to be higher for credit card users compared to debit card users.
+      </Tip>
 
       Use these parameters in your audience targeting rules to show Stripe or Paddle paywalls only to eligible users. See [Targeting your Stripe Paywall](#workflows-should-target-us-storefront-and-apple-pay-enabled-only) for setup instructions.
     </Accordion>
@@ -648,11 +651,13 @@ If you use [RevenueCat alongside Stripe](https://www.revenuecat.com/docs/web/int
 
     **For External Web Checkout (iOS)**
 
-    If you're using the [external web checkout flow](#external-web-checkout-app-to-web) instead of Apple Pay one-tap, you can use `stripeCheckoutEligible` or `paddleCheckoutEligible` targeting parameters for more precise targeting. These parameters check that the user:
-    - Has external web checkout enabled in your app configuration (with the corresponding payment processor)
-    - Has a credit card configured for Apple Pay (debit and prepaid cards do not qualify)
+    If you're using the [external web checkout flow](#external-web-checkout-app-to-web) instead of Apple Pay one-tap, you can use these targeting parameters for more precise control:
 
-    Add `stripeCheckoutEligible: true` or `paddleCheckoutEligible: true` to your audience targeting rules to show external web checkout paywalls only to eligible users.
+    - **`stripeCheckoutEligible`** / **`paddleCheckoutEligible`** — `true` when external web checkout is enabled for the corresponding payment processor
+    - **`hasApplePayCreditCard`** — `true` if the user has a credit card in Apple Pay
+    - **`hasApplePayDebitCard`** — `true` if the user has a debit card in Apple Pay
+
+    For example, to target users who have web checkout enabled and a credit card (for better trial-to-paid conversion), combine `stripeCheckoutEligible: true` with `hasApplePayCreditCard: true` in your audience rules.
   </Step>
 </Steps>
 

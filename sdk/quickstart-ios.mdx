@@ -171,7 +171,7 @@ Helium.shared.presentPaywall(
       struct PaywallPresentationConfig {
           // View controller to present from. Defaults to current top view controller
           var presentFromViewController: UIViewController? = nil
-          // Custom traits to send to the paywall
+          // Custom traits to send to the paywall (see note below)
           var customPaywallTraits: HeliumUserTraits? = nil
           // Don't show paywall if user is entitled to a product in paywall
           var dontShowIfAlreadyEntitled: Bool = false
@@ -180,6 +180,10 @@ Helium.shared.presentPaywall(
           var loadingBudget: TimeInterval = DEFAULT_LOADING_BUDGET
       }
       ```
+
+      <Note>
+        User traits from `setUserTraits` and the trigger name are automatically included in `customPaywallTraits`. When keys overlap, explicitly provided `customPaywallTraits` values take precedence over user traits, and user traits take precedence over the trigger.
+      </Note>
     </ResponseField>
     <ResponseField name="eventHandlers" type="PaywallEventHandlers?">
       _(Optional)_ Event handlers for paywall lifecycle events

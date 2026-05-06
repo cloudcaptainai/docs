@@ -1,0 +1,36 @@
+---
+title: "Promotional Offers"
+---
+
+<Card title="Promotional Offer" type="info">
+  An offer on a subscription for users who already have an active subscription in the same subscription group or previously had a subscription in the subscription group.
+</Card>
+
+_This guide is focused on iOS although similar can be achieved with Android._
+
+Helium does not yet officially support promotional offers. However you can implement this by doing the following:
+
+1. Check entitlements of user to determine eligibility for the promotional offer. You can use the Helium SDK to help with this.
+2. Use a paywall trait or targeting to display promotional experience in paywall.
+3. Call an endpoint on your server that can [generate JWS signature](https://developer.apple.com/documentation/StoreKit/generating-jws-to-sign-app-store-requests) for promotional offer.
+4. Override default Helium purchase logic to pass in the promotional offer:
+   ```swift
+   // Override default StoreKitDelegate (executes purchase through StoreKit2)
+   class MyHeliumPurchaseDelegate : StoreKitDelegate {
+       
+       // Available in iOS Helium SDK 4.4.3+
+       override func performPurchase(product: Product, productId: String) async throws -> Product.PurchaseResult {
+           // Determine eligibility based on your business logic (e.g. server check, user state).
+           let isEligible: Bool = true
+           let purchaseOptions: Set<Product.PurchaseOption> = isEligible
+               ? Set(Product.PurchaseOption.promotionalOffer("offer-id-here", compactJWS: "compact-jws-from-your-server"))
+               : []
+           return try await product.heliumPurchase(options: purchaseOptions)
+       }
+       
+   }
+   // end delegate
+   // Make sure to set purchase delegate before your initialize call
+   Helium.config.purchaseDelegate = MyHeliumPurchaseDelegate()
+   Helium.shared.initialize()
+   ```

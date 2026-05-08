@@ -1,0 +1,80 @@
+---
+title: "Paywall Traits"
+icon: "square-sliders"
+---
+
+<Badge color="blue">iOS 4.4.2+</Badge> <Badge color="green">Android 4.4.2+</Badge> <Badge color="orange">React Native 3.4.3+</Badge> <Badge color="purple">Flutter 3.3.3+</Badge>
+
+Paywall traits are values passed into a paywall upon presentation, allowing your paywall to display or behave differently depending on those values.
+
+This must be configured in two places:
+
+1. Your paywall via the paywall editor
+2. Your app by passing in values to the Helium mobile SDK
+
+## Paywall Editor
+
+<Frame>
+  ![Paywall Traits](/images/paywall_traits.jpg)
+</Frame>
+
+Open the paywall editor from the [Helium dashboard](https://app.tryhelium.com/paywalls). Type something like
+
+```text
+add a paywall trait with key "name" and use that value to display a greeting
+```
+
+<Warning>
+  You MUST provide a **default value** or behavior for each trait, in case the app does not pass in a value.
+</Warning>
+
+## Pass in from the SDK
+
+By default, user traits will automatically be included as custom paywall traits in all of your paywalls. (Just make sure your SDK version is higher than what's listed at the top of this page.)
+
+To pass in additional paywall traits during paywall presentation, use the `customPaywallTraits` parameter.
+
+<CodeGroup>
+
+```swift iOS
+Helium.shared.presentPaywall(
+    trigger: "your-trigger",
+    config: PaywallPresentationConfig(
+        customPaywallTraits: HeliumUserTraits(["name": nameValue])
+    )
+) { paywallNotShownReason in }
+```
+
+```text Android
+import com.tryhelium.paywall.core.HeliumUserTraits.Companion.create
+
+Helium.presentPaywall(
+    "your-trigger",
+    config = PaywallPresentationConfig(
+        customPaywallTraits = mapOf(
+            "name" to nameValue,
+        ).create()
+    )
+)
+```
+
+```text React Native
+presentUpsell({
+  triggerName: "your-trigger",
+  customPaywallTraits: { name: nameValue },
+});
+```
+
+```text Flutter
+await _heliumFlutterPlugin.presentUpsell(
+  context: context,
+  trigger: "your-trigger",
+  customPaywallTraits: { "name": nameValue },
+);
+```
+
+</CodeGroup>
+
+## Coming Soon
+
+We are working on adding default traits you can use without passing in from SDK.

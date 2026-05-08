@@ -21,7 +21,7 @@ This must be configured in two places:
 Open the paywall editor from the [Helium dashboard](https://app.tryhelium.com/paywalls). Type something like
 
 ```text
-add a paywall trait with key "name" and use that value to display a greeting
+use a paywall trait with key "name" to display a customized greeting
 ```
 
 <Warning>
@@ -45,7 +45,7 @@ Helium.shared.presentPaywall(
 ) { paywallNotShownReason in }
 ```
 
-```text Android
+```kotlin Android
 import com.tryhelium.paywall.core.HeliumUserTraits.Companion.create
 
 Helium.presentPaywall(
@@ -58,15 +58,15 @@ Helium.presentPaywall(
 )
 ```
 
-```text React Native
+```tsx React Native
 presentUpsell({
   triggerName: "your-trigger",
   customPaywallTraits: { name: nameValue },
 });
 ```
 
-```text Flutter
-await _heliumFlutterPlugin.presentUpsell(
+```dart Flutter
+await HeliumFlutter().presentUpsell(
   context: context,
   trigger: "your-trigger",
   customPaywallTraits: { "name": nameValue },

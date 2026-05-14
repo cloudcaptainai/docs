@@ -1,5 +1,5 @@
 ---
-title: "Loading Speed"
+title: "How Helium Guarantees Performance"
 ---
 
 ## TL:DR
@@ -7,15 +7,18 @@ title: "Loading Speed"
 - **Helium Pre-Loads Paywalls on App Open**:The SDK pulls one payload containing metadata and bundles for every paywall in the current configuration, served from globally distributed edge regions with server-side caching.
 - **Paywalls render almost instantly**: Images are inlined directly into the bundles and the bundles have been heavily optimized for unobservable rendering times. P50 time-to-first-paint is 20ms.
 - **On-device caching:** Paywalls are cached on-device, enabling near-realtime loading for subsequent app opens — Helium just fetches the user’s paywallIDs and downloads any new bundles or updates.
-- **Helium will always show a paywall**: Helium’s fallback system ensures that users will always see a paywall. It lets you configure client-side paywall(s), including native experiences or downloads of Helium paywalls that will show if the paywall hasn’t loaded before presentation.
+- **Helium will <u>always</u> show a paywall**: Helium’s fallback system ensures that users will always see a paywall. It lets you configure client-side paywall(s), including native experiences or downloads of Helium paywalls that will show if the paywall hasn’t loaded before presentation.
 - **Equivalent Conversion to Native**: We run A/A comparison tests during enterprise-scale rollouts and consistently show no degradation when compared to native experiences.
 
 ## Helium Pre-Loads Paywalls on App Open
 
-- When the host app launches, the Helium SDK fetches a single payload containing presentation metadata and the bundles, which are served from the Cloudflare Global CDN with tiered caching, for every paywall in the current configuration. One request gives the app everything it needs to render any paywall for the rest of the session.
-  Requests are served from globally distributed edge regions, so users hit a nearby server regardless of geography. Payloads are cached server-side and invalidated on configuration changes, which keeps origin load low and response times tight: p50 ~300ms, p95 ~700ms (measured globally).
-  The SDK also caches the bundles from the last-known-good payload on-device — This enables us to reduce loading times to near-0 (including for assets) for subsequent app opens, only loading updated or incremental paywalls.
-  Quick blurb on example initialization:
+When the host app launches, the Helium SDK fetches a single payload containing presentation metadata and the bundles, which are served from the Cloudflare Global CDN with tiered caching, for every paywall in the current configuration. One request gives the app everything it needs to render any paywall for the rest of the session.
+
+Requests are served from globally distributed edge regions, so users hit a nearby server regardless of geography. Payloads are cached server-side and invalidated on configuration changes, which keeps origin load low and response times tight: p50 ~300ms, p95 ~700ms (measured globally).
+
+The SDK also caches the bundles from the last-known-good payload on-device — This enables us to reduce loading times to near-0 (including for assets) for subsequent app opens, only loading updated or incremental paywalls.
+
+Quick blurb on example initialization:
 
 ```swift
 @main
@@ -38,7 +41,7 @@ struct MyApp: App {
 }
 ```
 
-→ Learn more about initialization in the [<u>dedicated docs page</u>](https://docs.tryhelium.com/sdk/quickstart-ios#initialize-helium)
+→ Learn more about initialization in the [dedicated docs page](https://docs.tryhelium.com/sdk/quickstart-ios#initialize-helium)
 
 ## Paywall Presentation is Near-Realtime
 
@@ -48,7 +51,7 @@ The bundles themselves are served through Cloudflare with caching configured at 
 
 If a bundle fails to load entirely, the SDK falls back to a specified fallback bundle or fallback behavior. Either way, a user who triggers a paywall sees a paywall.
 
-→ Learn more about rendering in the [dedicated docs page](https://docs.tryhelium.com/guides/ways-to-show-paywall)
+→ Learn more about [paywall presentation](https://docs.tryhelium.com/sdk/quickstart-ios#show-your-first-paywall-)
 
 ## Helium’s Fallback System Ensures Users Always See Paywalls
 
@@ -61,3 +64,5 @@ You can bundle downloaded copies of your actual Helium paywalls into your app to
 If a customer wants to prioritize server-driven paywalls, they can also configure a loading budget. This allows the SDK to present a shimmer loading experience for an SDK-configured time (e.g. 100 to 750ms) to allow the paywalls to load before presentation, or present the fallback if the allotted time completes.
 
 → Learn more about fallbacks in the [dedicated docs page](https://docs.tryhelium.com/guides/fallback-bundle)
+
+Helium is committed to growing customers conversions, and we know that sits on top of being the most performant paywall provider in the world. If you have any other questions, feel free to email [support@tryhelium.com](mailto:support@tryhelium.com)

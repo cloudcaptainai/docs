@@ -45,13 +45,21 @@ struct MyApp: App {
 
 ## Paywall Presentation is Near-Realtime
 
-→ Learn more about [paywall presentation](https://docs.tryhelium.com/sdk/quickstart-ios#show-your-first-paywall-)
+→ Learn more about [paywall presentation](https://docs.tryhelium.com/guides/ways-to-show-paywall)
 
 Paywalls render inside an internal presentation system tuned for fast first paint. Bundles are kept lean and self-contained: images are inlined directly into the bundle wherever feasible, eliminating the post-load flashes and layout shifts that plague typical webview paywalls. Remaining large media including video is served from Cloudinary’s global CDN with aggressive cache headers, so repeat presentations are effectively instant.
 
 The bundles themselves are served through Cloudflare with caching configured at the edge, giving us **p50 ~20ms / p95 ~500ms** time-to-first-paint globally (per Cloudflare's RUM).
 
 If a bundle fails to load entirely, the SDK falls back to a specified fallback bundle or fallback behavior. Either way, a user who triggers a paywall sees a paywall.
+
+```swift
+HeliumPaywall(
+    trigger: "onboarding"
+) { paywallNotShownReason in
+    Text("Your native paywall here")
+}
+```
 
 ## Helium’s Fallback System Ensures Users Always See Paywalls
 

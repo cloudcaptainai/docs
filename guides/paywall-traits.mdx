@@ -77,9 +77,17 @@ await HeliumFlutter().presentUpsell(
 
 ## Targeting and Metrics Considerations
 
-User traits can be used for targeting and can also be used as filters in your metrics. Rely on user traits as paywall traits if you need advanced metrics capabilities.
+If you want to evaluate the effects of different traits in your paywall, utilize user traits in your SDK integration.
 
 Helium does not currently support the use of`customPaywallTraits` (passed during paywall presentation) as metrics filters.
+
+User traits can also be used for targeting.
+
+### **What if I set both?**
+
+If the same key is present in both user traits and `customPaywallTraits`, the paywall will see the value from `customPaywallTraits`.
+
+Metrics still only sees the value from user traits.
 
 ## Coming Soon
 

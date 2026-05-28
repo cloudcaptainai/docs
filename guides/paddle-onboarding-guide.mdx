@@ -83,141 +83,141 @@ The hosted web paywall doesn't have to show the same products as the original �
 
 ### 6. SDK integration
 
-iOS (native) 4.4.7\+
+<Tabs>
+  <Tab title="iOS (native) 4.4.7+">
+    **Enable external web checkout before initializing Helium:**
 
-**Enable external web checkout before initializing Helium:**
+    ```swift
+    Helium.config.enableExternalWebCheckout(
+      successURL: "yourapp://openapp",
+      cancelURL: "yourapp://openapp",
+      paymentProcessors: .paddle
+    )
+    ```
 
-```swift
-Helium.config.enableExternalWebCheckout(
-  successURL: "yourapp://openapp",
-  cancelURL: "yourapp://openapp",
-  paymentProcessors: .paddle
-)
-```
+    The `successURL` and `cancelURL` are set once, globally. Make sure both are registered as deep links in your app (via scheme or universal link).
 
-The `successURL` and `cancelURL` are set once, globally. Make sure both are registered as deep links in your app (via scheme or universal link).
+    **Set your user ID on Helium** before the user reaches a paywall. User IDs are strongly preferred. If one isn't set at purchase time, the SDK falls back to a persistent device ID and reconciles after login. _If you must set user ID after showing paywall, let us know — there is a workaround._
 
-**Set your user ID on Helium** before the user reaches a paywall. User IDs are strongly preferred. If one isn't set at purchase time, the SDK falls back to a persistent device ID and reconciles after login. _If you must set user ID after showing paywall, let us know — there is a workaround._
+    **Handle the post-purchase return.** When checkout completes, the user is deep-linked back to your app via the success URL. For a smoother handoff, call `Helium.shared.handleURL(url)` from your `onOpenURL` / `application(_:open:)` handler.
 
-**Handle the post-purchase return.** When checkout completes, the user is deep-linked back to your app via the success URL. For a smoother handoff, call `Helium.shared.handleURL(url)` from your `onOpenURL` / `application(_:open:)` handler.
+    **Add a "Manage Subscription" button** so users can cancel or update payment methods via Paddle's customer portal:
 
-**Add a "Manage Subscription" button** so users can cancel or update payment methods via Paddle's customer portal:
+    ```swift
+    if await Helium.entitlements.hasActivePaddleEntitlement() {
+        // show the manage subscription button
+    }
+    
+    // when the button is tapped:
+    do {
+        let url = try await Helium.shared.createPaddlePortalSession()
+        UIApplication.shared.open(url)
+    } catch {
+        print("Failed to open customer portal: \\(error)")
+    }
+    ```
 
-```swift
-if await Helium.entitlements.hasActivePaddleEntitlement() {
-    // show the manage subscription button
-}
+    **(Optional) Add Apple Pay Capability** for more advanced targeting options. In Xcode, open your project settings, click the **Signing & Capabilities** tab, and add the **Apple Pay** capability. This requires you [create a merchant ID](https://developer.apple.com/help/account/capabilities/configure-apple-pay#create-a-merchant-identifier).
+  </Tab>
+  <Tab title="Expo 3.4.4+">
+    **Enable external web checkout before initializing Helium:**
 
-// when the button is tapped:
-do {
-    let url = try await Helium.shared.createPaddlePortalSession()
-    UIApplication.shared.open(url)
-} catch {
-    print("Failed to open customer portal: \\(error)")
-}
-```
+    ```tsx
+    enableExternalWebCheckout(
+      successURL: "yourapp://openapp",
+      cancelURL: "yourapp://openapp",
+      paymentProcessors: ["paddle"],
+    )
+    ```
 
-**(Optional) Add Apple Pay Capability** for more advanced targeting options. In Xcode, open your project settings, click the **Signing & Capabilities** tab, and add the **Apple Pay** capability. This requires you [create a merchant ID](https://developer.apple.com/help/account/capabilities/configure-apple-pay#create-a-merchant-identifier).
+    The `successURL` and `cancelURL` are set once, globally. Make sure both are registered as deep links in your app (via scheme or universal link).
 
-Expo 3.4.4\+
+    **Set your user ID on Helium** before the user reaches a paywall. User IDs are strongly preferred. If one isn't set at purchase time, the SDK falls back to a persistent device ID and reconciles after login. _If you must set user ID after showing paywall, let us know — there is a workaround._
 
-**Enable external web checkout before initializing Helium:**
+    **Handle the post-purchase return.** When checkout completes, the user is deep-linked back to your app via the success URL. For a smoother handoff, call `heliumHandleURL(url)` from your deep link handling:
 
-```tsx
-enableExternalWebCheckout(
-  successURL: "yourapp://openapp",
-  cancelURL: "yourapp://openapp",
-  paymentProcessors: ["paddle"],
-)
-```
+    ```tsx
+    useEffect(() => {
+      const sub = Linking.addEventListener('url', (event) => heliumHandleURL(event.url));
+      void Linking.getInitialURL().then(heliumHandleURL);
+      return () => sub.remove();
+    }, []);
+    ```
 
-The `successURL` and `cancelURL` are set once, globally. Make sure both are registered as deep links in your app (via scheme or universal link).
+    **Add a "Manage Subscription" button** so users can cancel or update payment methods via Paddle's customer portal:
 
-**Set your user ID on Helium** before the user reaches a paywall. User IDs are strongly preferred. If one isn't set at purchase time, the SDK falls back to a persistent device ID and reconciles after login. _If you must set user ID after showing paywall, let us know — there is a workaround._
+    ```tsx
+    if (await hasActivePaddleEntitlement()) {
+        // show the manage subscription button
+    }
+    
+    // when the button is tapped:
+    const url = await createPaddlePortalSession();
+    if (url) {
+      await Linking.openURL(url);
+    }
+    ```
 
-**Handle the post-purchase return.** When checkout completes, the user is deep-linked back to your app via the success URL. For a smoother handoff, call `heliumHandleURL(url)` from your deep link handling:
+    **(Optional) Add Apple Pay Capability** for more advanced targeting options. This requires you [create a merchant ID](https://developer.apple.com/help/account/capabilities/configure-apple-pay#create-a-merchant-identifier).
 
-```tsx
-useEffect(() => {
-  const sub = Linking.addEventListener('url', (event) => heliumHandleURL(event.url));
-  void Linking.getInitialURL().then(heliumHandleURL);
-  return () => sub.remove();
-}, []);
-```
+    Add the Apple Pay entitlement to your `app.json` (or `app.config.js`):
 
-**Add a "Manage Subscription" button** so users can cancel or update payment methods via Paddle's customer portal:
-
-```tsx
-if (await hasActivePaddleEntitlement()) {
-    // show the manage subscription button
-}
-
-// when the button is tapped:
-const url = await createPaddlePortalSession();
-if (url) {
-  await Linking.openURL(url);
-}
-```
-
-**(Optional) Add Apple Pay Capability** for more advanced targeting options. This requires you [create a merchant ID](https://developer.apple.com/help/account/capabilities/configure-apple-pay#create-a-merchant-identifier).
-
-Add the Apple Pay entitlement to your `app.json` (or `app.config.js`):
-
-```json
-{
-  "expo": {
-    "ios": {
-      "entitlements": {
-        "com.apple.developer.in-app-payments": [
-          "your-merchant-identifier"
-        ]
+    ```json
+    {
+      "expo": {
+        "ios": {
+          "entitlements": {
+            "com.apple.developer.in-app-payments": [
+              "your-merchant-identifier"
+            ]
+          }
+        }
       }
     }
-  }
-}
-```
+    ```
+  </Tab>
+  <Tab title="Flutter 3.3.4+">
+    **Enable external web checkout before initializing Helium:**
 
-Flutter 3.3.4\+
+    ```dart
+    await HeliumFlutter().enableExternalWebCheckout(
+      successURL: "yourapp://openapp",
+      cancelURL: "yourapp://openapp",
+      paymentProcessors: {HeliumWebCheckoutProcessor.paddle},
+    )
+    ```
 
-**Enable external web checkout before initializing Helium:**
+    The `successURL` and `cancelURL` are set once, globally. Make sure both are registered as deep links in your app (via scheme or universal link).
 
-```dart
-await HeliumFlutter().enableExternalWebCheckout(
-  successURL: "yourapp://openapp",
-  cancelURL: "yourapp://openapp",
-  paymentProcessors: {HeliumWebCheckoutProcessor.paddle},
-)
-```
+    **Set your user ID on Helium** before the user reaches a paywall. User IDs are strongly preferred. If one isn't set at purchase time, the SDK falls back to a persistent device ID and reconciles after login. _If you must set user ID after showing paywall, let us know — there is a workaround._
 
-The `successURL` and `cancelURL` are set once, globally. Make sure both are registered as deep links in your app (via scheme or universal link).
+    **Handle the post-purchase return.** When checkout completes, the user is deep-linked back to your app via the success URL. For a smoother handoff, call `handleURL(url)` from your deep link handling:
 
-**Set your user ID on Helium** before the user reaches a paywall. User IDs are strongly preferred. If one isn't set at purchase time, the SDK falls back to a persistent device ID and reconciles after login. _If you must set user ID after showing paywall, let us know — there is a workaround._
+    ```dart
+    _linkSubscription = AppLinks().uriLinkStream.listen((uri) {
+      HeliumFlutter().handleURL(uri.toString());
+    });
+    ```
 
-**Handle the post-purchase return.** When checkout completes, the user is deep-linked back to your app via the success URL. For a smoother handoff, call `handleURL(url)` from your deep link handling:
+    **Add a "Manage Subscription" button** so users can cancel or update payment methods via Paddle's customer portal:
 
-```dart
-_linkSubscription = AppLinks().uriLinkStream.listen((uri) {
-  HeliumFlutter().handleURL(uri.toString());
-});
-```
+    ```dart
+    final hasPaddle = await HeliumFlutter().hasActivePaddleEntitlement();
+    if (hasPaddle) {
+        // show the manage subscription button
+    }
+    
+    // when the button is tapped:
+    final url = await HeliumFlutter().createPaddlePortalSession();
+    if (url != null) {
+      final Uri url = Uri.parse(url);
+      await launchUrl(url);
+    }
+    ```
 
-**Add a "Manage Subscription" button** so users can cancel or update payment methods via Paddle's customer portal:
-
-```dart
-final hasPaddle = await HeliumFlutter().hasActivePaddleEntitlement();
-if (hasPaddle) {
-    // show the manage subscription button
-}
-
-// when the button is tapped:
-final url = await HeliumFlutter().createPaddlePortalSession();
-if (url != null) {
-  final Uri url = Uri.parse(url);
-  await launchUrl(url);
-}
-```
-
-**(Optional) Add Apple Pay Capability** for more advanced targeting options. Open `ios/Runner.xcodeproj` in Xcode, click the **Signing & Capabilities** tab on the Runner target, and add the **Apple Pay** capability. This requires you [create a merchant ID](https://developer.apple.com/help/account/capabilities/configure-apple-pay#create-a-merchant-identifier).
+    **(Optional) Add Apple Pay Capability** for more advanced targeting options. Open `ios/Runner.xcodeproj` in Xcode, click the **Signing & Capabilities** tab on the Runner target, and add the **Apple Pay** capability. This requires you [create a merchant ID](https://developer.apple.com/help/account/capabilities/configure-apple-pay#create-a-merchant-identifier).
+  </Tab>
+</Tabs>
 
 ### 7. (Optional) Connect RevenueCat
 

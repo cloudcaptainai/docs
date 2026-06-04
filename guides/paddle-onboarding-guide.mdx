@@ -223,10 +223,13 @@ The hosted web paywall doesn't have to show the same products as the original â€
 
 If you use RevenueCat for entitlement management:
 
-1. Create a Paddle web configuration in the RevenueCat dashboard.
-2. Set purchase tracking to **automatic**, with the `rc_user_id` metadata field.
-3. Import your Paddle products into RevenueCat.
-4. Attach those products to the appropriate entitlement(s).
+1. Create a Paddle web configuration in the [RevenueCat dashboard](https://app.revenuecat.com).
+   1. Select your project \> **Web** \> Add web provider \> Paddle
+   2. Paste in your Paddle API key
+   3. Purchase tracking should be **Automatic**
+   4. Under **App user ID matching** select **Use a custom field** with `rc_user_id` as the field key
+2. Go to **Product catalog** \> **Products** and Import your Paddle products into RevenueCat.
+3. Attach those products to desired entitlement(s).
 
 RevenueCat entitlements take a moment to reflect Paddle purchases. For instant post-purchase UX, check Helium entitlements in addition to RevenueCat â€” the SDK will push RevenueCat to sync as quickly as possible, but Helium's own entitlement is always the fastest source of truth.
 

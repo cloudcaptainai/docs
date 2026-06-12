@@ -74,11 +74,7 @@ For Paddle account setup, business review, product creation, API keys, notificat
 
 ## Add Paddle support to the SDK
 
-Add SDK support before launching the App2Web paywall. This does not make Paddle visible by itself; users only see Paddle after the Helium paywall and targeting are configured.
-
-<Note>
-  iOS normally handles entitlement recovery through Apple ID. Paddle App2Web relies on the Helium user ID you provide, plus Apple ID context where available. If users can buy before signing in, allow checkout without a user ID and set the stable user ID immediately after sign-in. After checkout returns, check Helium entitlement state before unlocking access.
-</Note>
+Add this alongside the standard Helium SDK integration. This does not make Paddle visible by itself; users only see Paddle after the Helium paywall and targeting are configured.
 
 <Tabs>
   <Tab title="iOS native">
@@ -87,7 +83,7 @@ Add SDK support before launching the App2Web paywall. This does not make Paddle 
     </Note>
 
     ```swift
-    // If available, set the stable user ID before showing the paywall.
+    // Set the stable user ID before showing the paywall, if available.
     Helium.identify.userId = "user-123"
 
     // Enable Paddle checkout before initializing Helium.
@@ -97,16 +93,9 @@ Add SDK support before launching the App2Web paywall. This does not make Paddle 
       paymentProcessors: .paddle
     )
 
-    // Only if users can check out before signing in.
+    // Only set this if users can buy before signing in.
     Helium.config.allowWebCheckoutWithoutUserId = true
-    ```
 
-    ```swift
-    // If checkout happened before sign-in, set the stable user ID after sign-in.
-    Helium.identify.userId = "user-123"
-    ```
-
-    ```swift
     // Pass returned checkout URLs to Helium.
     func application(
         _ app: UIApplication,
@@ -116,16 +105,16 @@ Add SDK support before launching the App2Web paywall. This does not make Paddle 
         Helium.shared.handleURL(url)
         return true
     }
-    ```
 
-    If your app uses SwiftUI lifecycle APIs, call `Helium.shared.handleURL(url)` from `onOpenURL`.
+    // If checkout happened before sign-in, set the stable user ID after sign-in.
+    Helium.identify.userId = "user-123"
 
-    ```swift
-    // Route Paddle subscribers to Paddle customer portal.
+    // Check Helium entitlement state after checkout returns.
     if await Helium.entitlements.hasActivePaddleEntitlement() {
-        // Show a Manage Subscription button for Paddle subscribers.
+        // Unlock paid access.
     }
 
+    // Route Paddle subscribers to Paddle customer portal.
     do {
         let url = try await Helium.shared.createPaddlePortalSession()
         UIApplication.shared.open(url)
@@ -133,6 +122,8 @@ Add SDK support before launching the App2Web paywall. This does not make Paddle 
         print("Failed to open Paddle customer portal: \(error)")
     }
     ```
+
+    If your app uses SwiftUI lifecycle APIs, call `Helium.shared.handleURL(url)` from `onOpenURL`.
   </Tab>
 
   <Tab title="React Native / Expo">
@@ -141,26 +132,27 @@ Add SDK support before launching the App2Web paywall. This does not make Paddle 
     </Note>
 
     ```tsx
-    // If available, set the stable user ID before showing the paywall.
-    import { setCustomUserId } from "expo-helium";
+    import { useEffect } from "react";
+    import * as Linking from "expo-linking";
+    import {
+      createPaddlePortalSession,
+      enableExternalWebCheckout,
+      hasActivePaddleEntitlement,
+      heliumHandleURL,
+      setCustomUserId,
+    } from "expo-helium";
 
+    // Set the stable user ID before showing the paywall, if available.
     setCustomUserId("user-123");
-    ```
 
-    ```tsx
     // Enable Paddle checkout before initializing Helium.
     enableExternalWebCheckout(
       successURL: "yourapp://helium/paddle/success",
       cancelURL: "yourapp://helium/paddle/cancel",
       paymentProcessors: ["paddle"],
-    )
-    ```
+    );
 
-    ```tsx
     // Pass returned checkout URLs to Helium.
-    import * as Linking from "expo-linking";
-    import { heliumHandleURL } from "expo-helium";
-
     useEffect(() => {
       const subscription = Linking.addEventListener("url", (event) => {
         heliumHandleURL(event.url);
@@ -172,14 +164,13 @@ Add SDK support before launching the App2Web paywall. This does not make Paddle 
 
       return () => subscription.remove();
     }, []);
-    ```
 
-    ```tsx
-    // Route Paddle subscribers to Paddle customer portal.
+    // Check Helium entitlement state after checkout returns.
     if (await hasActivePaddleEntitlement()) {
-      // Show a Manage Subscription button for Paddle subscribers.
+      // Unlock paid access.
     }
 
+    // Route Paddle subscribers to Paddle customer portal.
     const url = await createPaddlePortalSession();
     if (url) {
       await Linking.openURL(url);
@@ -201,30 +192,25 @@ Add SDK support before launching the App2Web paywall. This does not make Paddle 
       cancelURL: "yourapp://helium/paddle/cancel",
       paymentProcessors: {HeliumWebCheckoutProcessor.paddle},
     );
-    ```
 
-    ```dart
-    // If available, set the stable user ID during initialization.
+    // Set the stable user ID during initialization, if available.
     await heliumFlutter.initialize(
       apiKey: "<your-helium-api-key>",
       customUserId: "user-123",
     );
-    ```
 
-    ```dart
     // Pass returned checkout URLs to Helium.
     _linkSubscription = AppLinks().uriLinkStream.listen((uri) {
       heliumFlutter.handleURL(uri.toString());
     });
-    ```
 
-    ```dart
-    // Route Paddle subscribers to Paddle customer portal.
+    // Check Helium entitlement state after checkout returns.
     final hasPaddle = await heliumFlutter.hasActivePaddleEntitlement();
     if (hasPaddle) {
-      // Show a Manage Subscription button for Paddle subscribers.
+      // Unlock paid access.
     }
 
+    // Route Paddle subscribers to Paddle customer portal.
     final portalUrl = await heliumFlutter.createPaddlePortalSession();
     if (portalUrl != null) {
       await launchUrl(Uri.parse(portalUrl));
@@ -232,6 +218,21 @@ Add SDK support before launching the App2Web paywall. This does not make Paddle 
     ```
   </Tab>
 </Tabs>
+
+### Entitlement identity
+
+For in-app purchases, iOS usually handles entitlement recovery through the user's Apple ID. For Paddle App2Web, Helium uses the user ID you provide, plus Apple ID context where available.
+
+| Identity path | What to configure |
+| :-- | :-- |
+| Users have a stable user ID before purchase | Set the user ID before showing the paywall. This is the cleanest path. |
+| Users can buy before signing in | Allow checkout without a user ID, then set the stable user ID as soon as the user signs in. Native iOS uses `Helium.config.allowWebCheckoutWithoutUserId = true`. |
+| The user ID may change after purchase | Send the updated stable user ID to Helium and test that entitlement recovery still works. |
+| You never have a stable user ID | Helium can still use Apple ID context where available, but support, recovery, and cross-device behavior are weaker. |
+
+<Warning>
+  Treat the return URL as a reason to refresh entitlement state, not as proof of purchase. Unlock access only after Helium reports an active entitlement.
+</Warning>
 
 <Accordion title="Optional: Apple Pay capability">
   Add Apple Pay capability only if your rollout uses Apple Pay availability for targeting or fallback logic.

@@ -27,8 +27,8 @@ The App2Web flow has five parts:
 1. Your app shows an in-app Helium paywall.
 2. The user taps a Paddle checkout CTA.
 3. Helium opens a hosted web paywall and Paddle checkout in the browser.
-4. Paddle redirects the user back into your app through a success or cancel URL.
-5. Helium refreshes entitlement state so the app can unlock the user or keep them unentitled.
+4. After a successful purchase or when the user closes checkout, Helium redirects the user back into your app.
+5. Helium refreshes entitlement state so the app can unlock access or keep the user unentitled.
 
 The key idea: the user starts in the app, pays on the web, then returns to the app.
 

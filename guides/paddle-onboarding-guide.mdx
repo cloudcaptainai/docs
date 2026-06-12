@@ -74,26 +74,11 @@ For Paddle account setup, business review, product creation, API keys, notificat
 
 ## Add Paddle support to the SDK
 
-Add this SDK support before you launch the App2Web paywall. The code does not make Paddle visible by itself; users only see Paddle after your Helium paywall and targeting are configured.
+Add SDK support before launching the App2Web paywall. This does not make Paddle visible by itself; users only see Paddle after the Helium paywall and targeting are configured.
 
-### 1. Choose user identity behavior
-
-Helium grants Paddle entitlements from the user ID you provide and, where available, Apple ID context. Choose this before writing the checkout code.
-
-| If your flow has... | Set it up this way |
-| :-- | :-- |
-| Stable account ID before checkout | Set the Helium user ID before showing the paywall. |
-| Checkout before sign-in | Allow web checkout without a user ID, then set the stable user ID immediately after sign-in. |
-| Account ID can change | Update Helium when the stable ID changes and test that the entitlement follows the same person. |
-| No account system | Expect weaker cross-device access, recovery, RevenueCat mapping, and support debugging. |
-
-If your flow allows email changes, test changed-email and duplicate-email cases. Paddle deduplicates customers by email.
-
-<Warning>
-  If people can buy anonymously, sign in after purchase, log out, switch accounts, or use the product without an account, test entitlement recovery before launch.
-</Warning>
-
-### 2. Add platform code
+<Note>
+  iOS normally handles entitlement recovery through Apple ID. Paddle App2Web relies on the Helium user ID you provide, plus Apple ID context where available. If users can buy before signing in, allow checkout without a user ID and set the stable user ID immediately after sign-in. After checkout returns, check Helium entitlement state before unlocking access.
+</Note>
 
 <Tabs>
   <Tab title="iOS native">
@@ -101,39 +86,28 @@ If your flow allows email changes, test changed-email and duplicate-email cases.
       Paddle App2Web requires Helium iOS SDK 4.4.7 or later. If you have not integrated Helium yet, start with the [iOS SDK Quickstart](/sdk/quickstart-ios).
     </Note>
 
-    Set the stable user ID before showing the paywall, if you have one:
-
     ```swift
+    // If available, set the stable user ID before showing the paywall.
     Helium.identify.userId = "user-123"
-    ```
 
-    Enable Paddle checkout before initializing Helium:
-
-    ```swift
+    // Enable Paddle checkout before initializing Helium.
     Helium.config.enableExternalWebCheckout(
       successURL: "yourapp://helium/paddle/success",
       cancelURL: "yourapp://helium/paddle/cancel",
       paymentProcessors: .paddle
     )
-    ```
 
-    If people can check out before signing in, also allow web checkout without a user ID before initializing Helium:
-
-    ```swift
+    // Only if users can check out before signing in.
     Helium.config.allowWebCheckoutWithoutUserId = true
     ```
 
-    When the user signs in later, set the stable user ID as soon as you have it:
-
     ```swift
+    // If checkout happened before sign-in, set the stable user ID after sign-in.
     Helium.identify.userId = "user-123"
     ```
 
-    The URLs are set once globally. Register both as app links through your custom URL scheme or universal link setup.
-
-    Pass returned URLs to Helium:
-
     ```swift
+    // Pass returned checkout URLs to Helium.
     func application(
         _ app: UIApplication,
         open url: URL,
@@ -144,13 +118,10 @@ If your flow allows email changes, test changed-email and duplicate-email cases.
     }
     ```
 
-    If your app uses SwiftUI lifecycle APIs, call `Helium.shared.handleURL(url)` from your `onOpenURL` handler.
-
-    After success, cancel, failed payment, or when checkout is closed, this lets Helium refresh entitlement state. Do not unlock access from the return URL alone.
-
-    Add subscription management for Paddle subscribers:
+    If your app uses SwiftUI lifecycle APIs, call `Helium.shared.handleURL(url)` from `onOpenURL`.
 
     ```swift
+    // Route Paddle subscribers to Paddle customer portal.
     if await Helium.entitlements.hasActivePaddleEntitlement() {
         // Show a Manage Subscription button for Paddle subscribers.
     }
@@ -169,17 +140,15 @@ If your flow allows email changes, test changed-email and duplicate-email cases.
       Paddle App2Web requires expo-helium 3.4.4 or later. If you have not integrated Helium yet, start with the [React Native SDK Quickstart](/sdk/quickstart-react-native).
     </Note>
 
-    Set the stable user ID before showing the paywall, if you have one:
-
     ```tsx
+    // If available, set the stable user ID before showing the paywall.
     import { setCustomUserId } from "expo-helium";
 
     setCustomUserId("user-123");
     ```
 
-    Enable Paddle checkout before initializing Helium:
-
     ```tsx
+    // Enable Paddle checkout before initializing Helium.
     enableExternalWebCheckout(
       successURL: "yourapp://helium/paddle/success",
       cancelURL: "yourapp://helium/paddle/cancel",
@@ -187,9 +156,8 @@ If your flow allows email changes, test changed-email and duplicate-email cases.
     )
     ```
 
-    Pass returned URLs to Helium:
-
     ```tsx
+    // Pass returned checkout URLs to Helium.
     import * as Linking from "expo-linking";
     import { heliumHandleURL } from "expo-helium";
 
@@ -206,11 +174,8 @@ If your flow allows email changes, test changed-email and duplicate-email cases.
     }, []);
     ```
 
-    After success, cancel, failed payment, or when checkout is closed, this lets Helium refresh entitlement state. Do not unlock access from the return URL alone.
-
-    Add subscription management for Paddle subscribers:
-
     ```tsx
+    // Route Paddle subscribers to Paddle customer portal.
     if (await hasActivePaddleEntitlement()) {
       // Show a Manage Subscription button for Paddle subscribers.
     }
@@ -227,11 +192,10 @@ If your flow allows email changes, test changed-email and duplicate-email cases.
       Paddle App2Web requires helium_flutter 3.3.4 or later. If you have not integrated Helium yet, start with the [Flutter SDK Quickstart](/sdk/quickstart-flutter).
     </Note>
 
-    Enable Paddle checkout before initializing Helium:
-
     ```dart
     final heliumFlutter = HeliumFlutter();
 
+    // Enable Paddle checkout before initializing Helium.
     await heliumFlutter.enableExternalWebCheckout(
       successURL: "yourapp://helium/paddle/success",
       cancelURL: "yourapp://helium/paddle/cancel",
@@ -239,28 +203,23 @@ If your flow allows email changes, test changed-email and duplicate-email cases.
     );
     ```
 
-    Set the stable user ID during Helium initialization, if you have one:
-
     ```dart
+    // If available, set the stable user ID during initialization.
     await heliumFlutter.initialize(
       apiKey: "<your-helium-api-key>",
       customUserId: "user-123",
     );
     ```
 
-    Pass returned URLs to Helium:
-
     ```dart
+    // Pass returned checkout URLs to Helium.
     _linkSubscription = AppLinks().uriLinkStream.listen((uri) {
       heliumFlutter.handleURL(uri.toString());
     });
     ```
 
-    After success, cancel, failed payment, or when checkout is closed, this lets Helium refresh entitlement state. Do not unlock access from the return URL alone.
-
-    Add subscription management for Paddle subscribers:
-
     ```dart
+    // Route Paddle subscribers to Paddle customer portal.
     final hasPaddle = await heliumFlutter.hasActivePaddleEntitlement();
     if (hasPaddle) {
       // Show a Manage Subscription button for Paddle subscribers.
@@ -274,10 +233,8 @@ If your flow allows email changes, test changed-email and duplicate-email cases.
   </Tab>
 </Tabs>
 
-### 3. Optional: Apple Pay capability
-
-<Accordion title="Add Apple Pay capability">
-  If you use Apple Pay availability for targeting or fallback logic, add the Apple Pay capability to the iOS build.
+<Accordion title="Optional: Apple Pay capability">
+  Add Apple Pay capability only if your rollout uses Apple Pay availability for targeting or fallback logic.
 
   For native iOS, open your project settings in Xcode, go to **Signing & Capabilities**, and add **Apple Pay**. This requires an Apple [merchant identifier](https://developer.apple.com/help/account/capabilities/configure-apple-pay#create-a-merchant-identifier).
 

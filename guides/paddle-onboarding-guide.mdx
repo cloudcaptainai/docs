@@ -1,27 +1,24 @@
 ---
-title: "Paddle App2Web Guide"
-description: "Set up Paddle App2Web checkout with Helium, from SDK support through paywall QA and launch."
+title: "Integrate Helium App2Web with Paddle"
+description: "How to integrate Helium's custom App2Web experiences with Paddle checkout."
 ---
 
-# Paddle App2Web Guide
+# Integrate Helium App2Web with Paddle
 
-This guide walks through the full setup for launching Paddle App2Web with Helium.
+Helium App2Web with Paddle lets eligible iOS users start in your app, complete checkout on the web, then return to the app with entitlement state refreshed. We are excited about this because moving eligible purchases to web checkout can materially improve proceeds; we have seen many apps improve proceeds by around 40% without growing the user base.
 
-App2Web is not a separate replacement for normal Helium onboarding. It is a web checkout path layered on top of a working Helium app integration and paywall setup.
+Helium and Paddle have partnered on a fully compliant, high-converting flow that connects the hard parts: SDK handoff, Paddle checkout, Helium paywall routing, entitlement recovery, subscription management, and the in-app purchase fallback Apple expects on iOS.
 
-Paddle App2Web is exciting because eligible users can complete checkout on the web while still starting and finishing inside the app. We have seen many apps improve proceeds by around 40% by moving eligible purchases to web checkout, without growing the user base.
+The setup path is: add SDK support, connect Paddle to Helium, configure products and offers, convert your baseline paywall into App2Web, test entitlement handling, and launch.
 
-Previously, App2Web was extremely difficult to ship well. Teams had to coordinate App Store compliance, web checkout, entitlement recovery, subscription management, paywall routing, and fallback behavior at the same time. Helium and Paddle have partnered on a fully compliant, high-converting flow that keeps those pieces connected.
-
-Use this guide when you want a mobile user to see a Helium paywall in your app, complete checkout through Paddle in a browser, return to the app, and receive the correct entitlement.
-
-## Guide map
+## Start here
 
 Jump to the part you are working on.
 
 | If you need to... | Go to |
 | :-- | :-- |
-| Understand the flow and prerequisites | [What you are building](#what-you-are-building) and [Before you start](#before-you-start) |
+| Understand the flow | [What you are building](#what-you-are-building) |
+| Confirm prerequisites | [Before you start](#before-you-start) |
 | Add SDK support and entitlement handling | [Add Paddle support to the SDK](#add-paddle-support-to-the-sdk) |
 | Connect Paddle and set up catalog behavior | [Connect Paddle to Helium](#connect-paddle-to-helium) and [Configure products, trials, and discounts](#configure-products-trials-and-discounts) |
 | Build the in-app and hosted web paywalls | [Build the App2Web paywall](#build-the-app2web-paywall) |
@@ -51,13 +48,15 @@ The key idea: the user starts in the app, pays on the web, then returns to the a
 
 ## Before you start
 
-Before App2Web becomes the production purchase path, have the normal Helium launch path in place.
+Before configuring App2Web with Paddle, have a working iOS in-app purchase flow through Helium. App2Web is an additional purchase path for eligible iOS users, not a replacement for your normal IAP setup.
+
+Helium App2Web with Paddle currently supports iOS only.
 
 Prerequisites:
 
-- The Helium SDK integrated in your app.
-- Your normal in-app purchase products configured.
-- A baseline Helium paywall or paywall plan.
+- The Helium SDK integrated in your iOS app.
+- Working iOS in-app purchase products in Helium.
+- A baseline Helium paywall that can already sell through IAP.
 - Admin access to the Helium dashboard.
 - A Paddle account.
 - An app deep link or universal link that opens your app reliably.

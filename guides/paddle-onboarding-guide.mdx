@@ -18,7 +18,7 @@ Jump to the part you are working on.
 | If you need to... | Go to |
 | :-- | :-- |
 | Understand the flow and prerequisites | [What you are building](#what-you-are-building) and [Before you start](#before-you-start) |
-| Add SDK support, return URLs, and identity handling | [Add Paddle support to the SDK](#add-paddle-support-to-the-sdk) |
+| Add SDK support and entitlement handling | [Add Paddle support to the SDK](#add-paddle-support-to-the-sdk) |
 | Connect Paddle and set up catalog behavior | [Connect Paddle to Helium](#connect-paddle-to-helium) and [Configure products, trials, and discounts](#configure-products-trials-and-discounts) |
 | Build the in-app and hosted web paywalls | [Build the App2Web paywall](#build-the-app2web-paywall) |
 | Target, test, and launch | [Configure targeting and rollout](#configure-targeting-and-rollout), [Test the flow](#test-the-flow), and [Go-live checklist](#go-live-checklist) |
@@ -41,9 +41,9 @@ The key idea: the user starts in the app, pays on the web, then returns to the a
 | Hosted web paywall | The browser-based Helium paywall that backs the Paddle checkout flow. |
 | Paddle product | The item being sold in Paddle, such as a monthly or annual subscription. |
 | Paddle price | The billing configuration for a product, such as monthly, annual, trial, or no-trial. |
-| Success URL | The app link Paddle uses after a completed purchase. |
-| Cancel URL | The app link Paddle uses when checkout does not complete. |
-| Entitlement | The app's understanding that a user should have access to paid features. |
+| Success URL | A link Paddle uses after a completed purchase. |
+| Cancel URL | A link Paddle uses when checkout does not complete. |
+| Entitlement | The access state that says a user should have paid features. |
 
 ## Before you start
 
@@ -61,116 +61,53 @@ Prerequisites:
 - RevenueCat access, if your app uses RevenueCat.
 
 <Tip>
-  Start Paddle account approval and app SDK work early. You can configure most of the system and test with Paddle sandbox before live approval. You cannot accept real live payments until Paddle approves your live account.
+  Start Paddle account review and app SDK work early. You can configure the Helium SDK, paywalls, products, and targeting while Paddle review is in progress. Live payments require an approved Paddle account.
 </Tip>
 
-Typical sequence: start Paddle approval, add SDK support, connect Paddle sandbox, build the linked paywalls, test with a limited audience, then move to live credentials after approval.
-
-### Paddle approval
-
-Paddle approval can take time, so start it before the rest of the build is finished.
-
-<Steps>
-  <Step title="Create or access your Paddle account">
-    Sign up for Paddle or confirm you have admin access to the account that will process payments.
-  </Step>
-  <Step title="Complete business review requirements">
-    Complete Paddle's business, tax, banking, identity, and website review requirements. Live payments are blocked until Paddle approves the live account.
-  </Step>
-  <Step title="Create sandbox products and prices">
-    Use Paddle sandbox for local and staging testing. Paddle sandbox and live environments use separate credentials, products, prices, customers, and notification settings.
-  </Step>
-  <Step title="Prepare the live catalog">
-    When you are ready for live payments, recreate or mirror the required products, prices, discounts, and notification settings in your live Paddle account.
-  </Step>
-  <Step title="Escalate long reviews">
-    If Paddle review is taking longer than expected, contact Helium. We may be able to help expedite the review.
-  </Step>
-</Steps>
-
-Useful Paddle references:
+For Paddle account setup, business review, API keys, notifications, and live launch requirements, use Paddle's docs:
 
 - [Paddle setup checklist](https://developer.paddle.com/build/set-up-checklist)
-- [Paddle sandbox](https://developer.paddle.com/sdks/sandbox)
+- [Paddle authentication](https://developer.paddle.com/api-reference/about/authentication)
+- [Paddle webhooks](https://developer.paddle.com/webhooks)
 - [Paddle go-live checklist](https://developer.paddle.com/build/go-live-checklist)
 
 ## Add Paddle support to the SDK
 
 Adding SDK support does not make Paddle live. It gives your app the ability to send users to web checkout and receive them when they come back, so it is safe to configure before the App2Web paywall is launched.
 
-### What the SDK setup does
+The SDK work has three parts:
 
-When a user taps a Paddle purchase CTA:
+1. Enable external web checkout with Paddle.
+2. Register success and cancel URLs that open your app after checkout.
+3. Pass returned URLs to Helium so it can refresh entitlement state.
 
-1. Helium opens the browser checkout flow.
-2. The user completes checkout, cancels, or fails payment.
-3. Paddle sends the browser to a URL that opens your app.
-4. Your app passes that URL back to Helium.
-5. Helium refreshes entitlement state.
-
-In plain English: your app needs to know how to leave for browser checkout and how to receive the user when they come back.
-
-### Deep links and return URLs
-
-There are two different kinds of links that often get confused:
-
-| Link type | What it is for |
-| :-- | :-- |
-| Helium preview or test deep links | Used to open or debug Helium paywalls from the dashboard during development. |
-| Paddle success and cancel URLs | Used after browser checkout to return the user to your app. |
-
-Both may use your app's custom scheme or universal links, but they solve different problems.
-
-The success URL and cancel URL are return paths into your app. Use URLs that open the app reliably, then pass the opened URL to Helium so the SDK can finish the checkout handoff.
-
-Common pattern:
-
-- Use app links that clearly represent the Paddle return path, such as `yourapp://helium/paddle/success` and `yourapp://helium/paddle/cancel`.
-- Verify both links open the app in every app state: cold start, backgrounded, and already open.
-- Pass both returned URLs to Helium's URL handler.
-
-<Note>
-  If your app already has one reliable app-open deep link, you may be able to reuse it for both success and cancel. Confirm this with Helium before launch. Separate success and cancel paths are usually easier to debug.
-</Note>
-
-### Success URL vs cancel URL
-
-`successURL` is where Paddle sends the user after a completed purchase.
-
-`cancelURL` is where Paddle sends the user when checkout does not complete. This can include explicit cancellation or a failed payment, depending on the checkout state.
-
-Treat the return URL as a signal to refresh state, not as proof by itself that the purchase succeeded.
-
-- On success return: refresh entitlements and unlock only if the entitlement is active.
-- On cancel return: refresh entitlements and keep the user unentitled unless Helium says they now have access.
-- On payment failure: do not unlock the user.
-- On abandoned checkout: do not unlock the user.
+`successURL` is used after completed checkout. `cancelURL` is used when checkout does not complete. In both cases, open the app and ask Helium for the latest entitlement state before unlocking access.
 
 <Warning>
-  Never unlock paid access just because the app received a success URL. Always check entitlement state after the user returns.
+  Do not unlock paid access from the return URL alone. Check entitlement state after the user returns.
 </Warning>
 
 ### User identity and entitlements
 
-Helium grants Paddle entitlements based on the user ID you provide and, where available, Apple ID purchase context. Choose which identity Helium should trust before and after purchase.
+With normal iOS purchases, Apple handles most entitlement recovery through the user's Apple ID. Paddle App2Web moves more of that responsibility into your integration. Helium grants Paddle entitlements based on the user ID you provide and, where available, Apple ID purchase context.
 
-Before launch, choose the path that matches your app.
+If your app already has stable account IDs, this is usually straightforward. If people can buy before signing in, change accounts after buying, or use the app without accounts, test that path directly.
 
-| Path | What to do |
+| Identity path | What to do |
 | :-- | :-- |
-| The user has a stable user ID before purchase | This is the happy path. Set the user ID before the user sees a paywall, keep it stable across app launches, and check Helium entitlements after checkout returns to the app. |
-| The user may purchase before sign-in, but you learn a stable user ID later | Enable Paddle entitlement without a user ID, then set the stable user ID as soon as the user signs in. Test anonymous purchase, login-after-purchase, reinstall, and account switching before launch. |
-| The user ID may change after purchase | Update Helium when the stable user ID changes. Helium should reconcile the purchase from the earlier identity to the later stable identity. Test this exact path before launch. |
-| The app never has a stable user ID | This is not recommended. Helium can still use device and Apple ID context where available, but cross-device behavior, account recovery, RevenueCat mapping, and support debugging will be weaker. |
+| Stable account ID before checkout | Set the user ID before showing the paywall. Keep it stable across launches. |
+| Checkout before sign-in | Enable entitlement without a user ID, then set the stable user ID as soon as the person signs in. |
+| Account ID can change | Update Helium when the stable ID changes, then test that the entitlement follows the same person. |
+| No account system | Helium can use device and Apple ID context where available, but cross-device access, recovery, RevenueCat mapping, and support are weaker. |
 
 Key checks:
 
-- If you allow purchase before sign-in, configure the SDK/dashboard path that allows entitlement without a user ID before testing App2Web.
 - After checkout returns to the app, check Helium entitlement state. Do not unlock based only on the return URL.
-- If the same person may appear under multiple IDs, test that the entitlement follows the right user.
+- If one person may appear under multiple IDs, test that the entitlement follows the right person.
+- If people can buy before sign-in, test purchase, sign-in, reinstall, logout, and account switching.
 
 <Warning>
-  If your app supports anonymous purchase, login-after-purchase, logout, account switching, or no stable user ID at all, entitlement QA is a required launch gate.
+  If people can buy anonymously, sign in after purchase, log out, switch accounts, or use the product without an account, entitlement QA is a required launch gate.
 </Warning>
 
 ### SDK setup by platform
@@ -320,8 +257,8 @@ Key checks:
 After the SDK path is underway, connect Paddle to Helium so products can be synced and used in paywalls.
 
 <Steps>
-  <Step title="Create a Paddle API key">
-    Create an API key in Paddle with the permissions Helium requires to read products, read prices, create transactions, manage subscriptions, read discounts, configure notifications, and create customer portal sessions.
+  <Step title="Create a Paddle API key for Helium">
+    Create an API key in Paddle with the permissions Helium needs to sync products, create transactions, manage subscriptions, configure notifications, and open customer portal sessions.
 
     <Accordion title="Required Paddle API key permissions">
       | Permission | Why Helium needs it |
@@ -348,35 +285,28 @@ After the SDK path is underway, connect Paddle to Helium so products can be sync
   <Step title="Sync products and prices">
     Sync Paddle products into Helium after setup. Sync again after product, price, trial, or discount changes.
   </Step>
-  <Step title="Repeat for live">
-    Sandbox and live Paddle accounts are separate. When moving to production, configure live credentials, live products, live prices, and live notifications.
-  </Step>
 </Steps>
-
-<Warning>
-  Sandbox purchases prove that the integration shape works. They do not prove that your live Paddle account, live products, live notifications, or live approval are ready.
-</Warning>
 
 ## Configure products, trials, and discounts
 
-Paddle catalog setup matters because Helium uses the product and price structure to decide what to show and what entitlement to grant.
+Paddle catalog setup matters because Helium uses products and prices to decide which offers to show and which entitlements to grant.
 
 ### Products and prices
 
-Create the Paddle products and prices you plan to sell, then sync them into Helium. If you use trials, create both the trial and no-trial price paths before building the paywall.
+Create the Paddle products and prices you plan to sell, then sync them into Helium. If you use trials or discounts, create the offer variants before building the paywall.
 
 ### Trials
 
 Helium's trial model is trial/no-trial pairing.
 
-For each offer that needs a trial:
+For each price that needs a trial:
 
-1. Create a trial Paddle price or product.
-2. Create an equivalent no-trial Paddle price or product.
+1. Create a trial Paddle price.
+2. Create an equivalent no-trial Paddle price.
 3. Link the trial and no-trial versions in Helium.
-4. Let Helium route eligible users to the trial version and ineligible users to the no-trial version.
+4. Helium routes eligible users to the trial version and ineligible users to the no-trial version.
 
-Helium currently treats Paddle trials and discounts as new-user acquisition offers. In practice, that means a user should only get a given trial or discount once.
+Helium uses this pairing to replicate iOS intro-offer behavior for Paddle. A person who has already used a trial will not see the trial version again.
 
 <Warning>
   Do not rely on a raw Paddle trial alone unless Helium has confirmed that this is the intended behavior for your launch. A raw trial can behave differently from Helium's trial eligibility logic.
@@ -384,22 +314,19 @@ Helium currently treats Paddle trials and discounts as new-user acquisition offe
 
 ### Discounts
 
-If your launch uses discounts, confirm the discount model with Helium before building the paywall.
+Set up Paddle discounts in Helium. Today, Helium supports new-user acquisition offers: once someone has used a trial or discount, Helium stops showing them trial/discount variants for now.
 
-Current guidance:
+To create a discounted variant of a product:
 
-- Discounts are treated as acquisition offers.
-- A customer receives the acquisition discount once.
-- More flexible offer variations are planned; do not assume them for launch.
+1. Start from the Helium product bucket that uses the base Paddle price.
+2. Create a separate product bucket for the discounted variant.
+3. Reuse the same Paddle price and apply the Paddle discount in Helium.
 
-### Checkout restrictions
+You can reuse the same Paddle price in multiple Helium product buckets and apply different discounts to create different offer variants.
 
-If relevant, configure these per App2Web paywall:
+Helium generally supports Paddle discounts except discount codes. Multi-step offers, such as trial plus discount or multiple discount tiers, do not display correctly today.
 
-- Block prepaid cards.
-- Restrict checkout to specific storefronts or regions.
-- Require a specific payment method.
-- Hide Paddle from users who should stay on in-app purchase.
+We plan to add more flexible offer types shortly.
 
 ## Build the App2Web paywall
 
@@ -463,6 +390,8 @@ If your current product bucket combines iOS and Android products, create an iOS-
 
 The in-app paywall should be based on the approved IAP paywall, with the purchase decision adapted for App2Web.
 
+If you need to block prepaid cards, configure that on the App2Web paywall.
+
 Common structure:
 
 1. First screen: match the approved baseline paywall as closely as possible.
@@ -514,7 +443,7 @@ Rollout path:
 
 1. Create a test audience.
 2. Show App2Web only to test users.
-3. Run sandbox and device QA.
+3. Run device QA.
 4. Run production feature-flag QA if needed.
 5. Launch as an experiment or controlled rollout.
 6. Monitor conversion, checkout completion, entitlement grants, and support tickets.
@@ -583,8 +512,7 @@ Testing should prove the whole path, not just one dashboard screen.
 | In-app paywall opens | The App2Web paywall appears only for the intended test audience. |
 | Primary CTA opens browser | The user leaves the app and reaches the hosted web paywall or Paddle checkout. |
 | Hosted web paywall loads | Copy, products, prices, and CTA are correct on mobile web. |
-| Sandbox purchase succeeds | User returns to the app and Helium entitlement is active. |
-| Live test purchase succeeds | Live Paddle payment works after account approval. |
+| Live test purchase succeeds | User returns to the app and Helium entitlement is active. |
 | Cancel returns to app | User returns through cancel URL and remains unentitled. |
 | Failed payment does not unlock | User is not granted access. |
 | Abandoned checkout does not unlock | User is not granted access. |
@@ -597,21 +525,20 @@ Testing should prove the whole path, not just one dashboard screen.
 | Webhook delivery succeeds | Paddle notifications reach Helium and return successful responses. |
 | Rollout targeting works | Users outside the intended audience do not see App2Web. |
 
-### Testing before live approval
+### Testing before live payments
 
-You can test these before live Paddle approval:
+Before live payments are available, finish the parts that do not require a successful Paddle charge:
 
 - SDK return handling.
-- Deep link behavior.
-- Sandbox checkout.
-- Product and price sync from sandbox.
+- Return URL behavior.
 - Hosted web paywall layout.
-- Basic entitlement handoff in sandbox.
-- RevenueCat mapping in a sandbox-style setup if configured.
+- Product, price, trial, and discount configuration.
+- Audience and experiment targeting.
+- RevenueCat identity mapping, if configured.
 
-### Testing after live approval
+### Testing with live payments
 
-You need live approval for:
+Live payment testing requires:
 
 - Real live Paddle payments.
 - Live webhook validation.
@@ -635,15 +562,12 @@ Apple's App Review Guidelines and external purchase rules can change. Review App
 
 ### Paddle checklist
 
-- Paddle account is approved for live payments.
-- Business, tax, banking, and identity requirements are complete.
-- Live products and prices exist.
+- Paddle's setup and go-live checklists are complete.
 - Live API credentials are configured in Helium.
 - Live notification destination is configured.
+- Products, prices, trials, and discounts are synced into Helium.
 - Subscription management and cancellation path exists.
 - Checkout disclosures and billing terms match the purchase.
-- Trials and discounts match the actual Paddle configuration.
-- Refund, chargeback, and support process is clear.
 
 ## Go-live checklist
 
@@ -651,10 +575,10 @@ Use this as the final launch gate.
 
 | Area | Done when |
 | :-- | :-- |
-| Paddle approval | Live Paddle account is approved. |
+| Paddle live access | Live Paddle account can accept payments. |
 | SDK support | App build includes external web checkout support. |
-| Deep links | Success and cancel URLs open the app in all required app states. |
-| URL handling | The app passes returned URLs to Helium. |
+| Return URLs | Success and cancel URLs open the app in all required app states. |
+| URL handling | Returned URLs are passed to Helium. |
 | User identity | Stable user ID plan is confirmed and tested. |
 | RevenueCat | RevenueCat mapping is configured and tested, if applicable. |
 | Products | Paddle products and prices are synced into Helium. |
@@ -664,8 +588,8 @@ Use this as the final launch gate.
 | Hosted web paywall | Hosted web paywall is built, linked, and published. |
 | Product buckets | Paddle, iOS, and Android products are separated correctly. |
 | Targeting | Only intended users can see App2Web. |
-| Sandbox QA | Full sandbox purchase path passes. |
-| Live QA | Live purchase path passes after approval. |
+| Pre-live QA | SDK return handling, paywall layout, products, offers, targeting, and RevenueCat mapping are checked. |
+| Live QA | Live purchase path passes with live Paddle payments. |
 | Entitlements | Helium entitlement activates correctly after purchase. |
 | Subscription management | Paddle customer portal is reachable for Paddle subscribers. |
 | Compliance | Apple and Paddle launch requirements are reviewed. |
@@ -684,7 +608,7 @@ Important signals:
 - Paddle checkout start rate.
 - Paddle checkout completion rate.
 - Cancel and failure return rate.
-- Deep link return failures.
+- Return URL failures.
 - Entitlement grant delay or failure.
 - RevenueCat sync lag.
 - Paddle webhook failures.
@@ -701,14 +625,14 @@ If something looks wrong:
 
 | Problem | Likely cause | First check |
 | :-- | :-- | :-- |
-| User never returns to app | Deep link or universal link is not configured correctly | Open the success and cancel URLs directly on a device. |
+| Checkout does not return to app | Deep link or universal link is not configured correctly | Open the success and cancel URLs directly on a device. |
 | Purchase succeeds but app stays locked | Entitlement refresh or identity mapping issue | Check Helium entitlement state for the user ID. |
 | RevenueCat does not show purchase | App User ID matching or Paddle notification issue | Check `rc_user_id`, RevenueCat Paddle config, and server notifications. |
 | User sees Paddle when they should not | Targeting/audience issue | Check workflow, experiment, and audience rules. |
 | User sees iOS product in web path | Product bucket setup issue | Confirm hosted web paywall uses Paddle-only products. |
 | Hosted web paywall cannot publish | Missing or invalid product/linking state | Confirm the web paywall has valid Paddle products and is linked correctly. |
 | Trial appears for an ineligible user | Trial/no-trial mapping issue | Confirm Helium trial pairing and eligibility logic. |
-| Sandbox works but live fails | Live account/catalog/credential mismatch | Confirm live approval, live products, live API key, and live notifications. |
+| Pre-live checks pass but live purchase fails | Live account/catalog/credential mismatch | Confirm Paddle account status, live products, live API key, and live notifications. |
 | Manage subscription opens wrong destination | App is routing Paddle subscribers to App Store settings | Use the Paddle portal session for Paddle subscribers. |
 | Checkout fails for some users | Payment method, region, compliance, or Paddle account issue | Check Paddle transaction details and eligibility targeting. |
 
@@ -718,7 +642,7 @@ If something looks wrong:
   This section is for Helium review and should be removed or converted before publishing customer-facing docs.
 </Warning>
 
-### SDK and deep links
+### SDK and return URLs
 
 - Kyle: should we recommend distinct `successURL` and `cancelURL` paths, or is the same app deep link acceptable for both?
 - Kyle: what exact checkout states return through `cancelURL`: explicit cancel, browser close, failed payment, payment method rejected, back navigation?
@@ -729,6 +653,7 @@ If something looks wrong:
 - Team: what is the exact language for user ID changes after purchase? Do both pre-login and post-login identities become entitled?
 - Team: what is the exact Apple ID-level restore behavior, and what iOS version requirement should we state?
 - Team: what should we recommend for logout and account switching?
+- Team: how should we propose customers test Paddle before live payments are available? Does Helium support Paddle sandbox today, and if not, what should replace that path?
 
 ### RevenueCat entitlements
 
@@ -747,9 +672,8 @@ If something looks wrong:
 - What happens if a customer configures a raw Paddle trial and does not link trial/no-trial prices in Helium?
 - Can raw Paddle trials be intentionally used for developer-determined trial logic?
 - Do we support developer-determined trial setup in v1?
-- Confirm v1 discounts: only one discount per customer lifetime and not developer-determined.
+- Confirm v1 discount constraints: discount codes unsupported, trial-plus-discount does not display correctly, and trial/discount eligibility is treated as new-user acquisition logic.
 - What exact dashboard UI does the customer use to link trial and no-trial prices?
-- What product and price naming convention do we want to recommend?
 - Do we support cardless trials? If not, what should the guide say?
 
 ### Paywall builder and dashboard behavior
@@ -768,6 +692,6 @@ If something looks wrong:
 - Should California be excluded in customer-facing docs, or framed only as "confirm your supported regions with Helium/legal"?
 - What is the current status of Apple compliance for App2Web beyond the United States storefront?
 - What Paddle compliance requirements are non-negotiable before live launch?
-- Which tests can happen before Paddle live approval?
+- Which tests can happen before Paddle live approval without relying on Paddle sandbox?
 - Which tests require TestFlight or production feature-flag testing?
 - What monitoring screens should customers and Helium check in the first 24 hours?

@@ -7,6 +7,19 @@ Helium's Paddle App2Web flow lets teams customize and experiment with web checko
 
 Apps often see 30-40% higher proceeds when eligible purchases move to web checkout. Implement the first flow in this order: SDK support, Paddle setup, paywall conversion, entitlement handling, and launch.
 
+## Start here
+
+Jump to the part you are working on.
+
+| If you need to... | Go to |
+| :-- | :-- |
+| Understand the flow | [What you are building](#what-you-are-building) |
+| Confirm prerequisites | [Before you start](#before-you-start) |
+| Add SDK support and entitlement handling | [Add Paddle support to the SDK](#add-paddle-support-to-the-sdk) |
+| Connect Paddle and set up catalog behavior | [Connect Paddle to Helium](#connect-paddle-to-helium) and [Configure products, trials, and discounts](#configure-products-trials-and-discounts) |
+| Build the in-app and hosted web paywalls | [Build the App2Web paywall](#build-the-app2web-paywall) |
+| Target, test, and launch | [Target and launch App2Web](#target-and-launch-app2web) |
+
 ## What you are building
 
 The App2Web flow has five parts:
@@ -523,3 +536,73 @@ After launch, watch checkout start, checkout completion, return URL failures, en
 | Pre-live checks pass but live purchase fails | Live account/catalog/credential mismatch | Confirm Paddle account status, live products, live API key, and live notifications. |
 | Manage subscription opens wrong destination | App is routing Paddle subscribers to App Store settings | Use the Paddle portal session for Paddle subscribers. |
 | Checkout fails for some users | Payment method, region, compliance, or Paddle account issue | Check Paddle transaction details and eligibility targeting. |
+
+## Internal review questions before publishing
+
+<Warning>
+  This section is for Helium review and should be removed or converted before publishing customer-facing docs.
+</Warning>
+
+<Accordion title="SDK and return URLs">
+
+- Kyle: should we recommend distinct `successURL` and `cancelURL` paths, or is the same app deep link acceptable for both?
+- Kyle: what exact checkout states return through `cancelURL`: explicit cancel, browser close, failed payment, payment method rejected, back navigation?
+- Kyle: is `handleURL` required or only recommended for the cleanest handoff?
+- Kyle: can customers safely reuse their normal app-open deep link?
+- Team: what is the exact minimum SDK version by platform for Paddle App2Web?
+- Team: what are the React Native and Flutter equivalents for `Helium.config.allowWebCheckoutWithoutUserId = true`, if exposed?
+- Team: what is the exact language for user ID changes after purchase? Do both pre-login and post-login identities become entitled?
+- Team: what is the exact Apple ID-level restore behavior, and what iOS version requirement should we state?
+- Team: what should we recommend for logout and account switching?
+- Team: how should we propose customers test Paddle before live payments are available? Does Helium support Paddle sandbox today, and if not, what should replace that path?
+
+</Accordion>
+
+<Accordion title="RevenueCat entitlements">
+
+- Does Helium always pass `rc_user_id` to Paddle custom data for RevenueCat mapping?
+- Should customers check Helium immediately after purchase and RevenueCat later, or should we phrase that differently?
+- What exact RevenueCat setup is required when Helium hosts the web paywall rather than RevenueCat?
+- Are RevenueCat registered payment domains needed for Helium-hosted web paywalls?
+- Should abandoned cart emails be disabled for Helium-hosted Paddle flows?
+- Can RevenueCat receive a Paddle notification before the correct App User ID metadata exists?
+- What should customers do if they use RevenueCat anonymous IDs before login?
+- What should customers do if they only use custom App User IDs and never anonymous IDs?
+- Do we need to document RevenueCat restore behavior choices for Paddle purchases?
+
+</Accordion>
+
+<Accordion title="Products, trials, and discounts">
+
+- What happens if a customer configures a raw Paddle trial and does not link trial/no-trial prices in Helium?
+- Can raw Paddle trials be intentionally used for developer-determined trial logic?
+- Do we support developer-determined trial setup in v1?
+- Confirm v1 discount constraints: discount codes unsupported, trial-plus-discount does not display correctly, and trial/discount eligibility is treated as new-user acquisition logic.
+- What exact dashboard UI does the customer use to link trial and no-trial prices?
+- Do we support cardless trials? If not, what should the guide say?
+
+</Accordion>
+
+<Accordion title="Paywall builder and dashboard behavior">
+
+- What happens if someone targets a hosted web paywall directly in a workflow, experiment, or targeting rule?
+- Is direct targeting blocked at save, publish, API, or runtime?
+- What error does the customer see if they try to publish an in-app Paddle paywall without a linked hosted web paywall?
+- What happens if the linked hosted web paywall is unpublished?
+- What happens if the in-app paywall has Paddle products but the hosted web paywall has Stripe products, or vice versa?
+- Can the guide safely tell customers to duplicate an iOS+Android bucket into an iOS-only bucket? What are the exact steps?
+- What are the most common product-bucket mistakes we have seen?
+
+</Accordion>
+
+<Accordion title="Targeting, compliance, and testing">
+
+- What exact Paddle eligibility targeting should customers use today?
+- Should California be excluded in customer-facing docs, or framed only as "confirm your supported regions with Helium/legal"?
+- What is the current status of Apple compliance for App2Web beyond the United States storefront?
+- What Paddle compliance requirements are non-negotiable before live launch?
+- Which tests can happen before Paddle live approval without relying on Paddle sandbox?
+- Which tests require TestFlight or production feature-flag testing?
+- What monitoring screens should customers and Helium check in the first 24 hours?
+
+</Accordion>

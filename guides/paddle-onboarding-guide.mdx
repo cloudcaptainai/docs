@@ -9,6 +9,10 @@ This guide walks through the full setup for launching Paddle App2Web with Helium
 
 App2Web is not a separate replacement for normal Helium onboarding. It is a web checkout path layered on top of a working Helium app integration and paywall setup.
 
+Paddle App2Web is exciting because eligible users can complete checkout on the web while still starting and finishing inside the app. We have seen many apps improve proceeds by around 40% by moving eligible purchases to web checkout, without growing the user base.
+
+Previously, App2Web was extremely difficult to ship well. Teams had to coordinate App Store compliance, web checkout, entitlement recovery, subscription management, paywall routing, and fallback behavior at the same time. Helium and Paddle have partnered on a fully compliant, high-converting flow that keeps those pieces connected.
+
 Use this guide when you want a mobile user to see a Helium paywall in your app, complete checkout through Paddle in a browser, return to the app, and receive the correct entitlement.
 
 ## Guide map
@@ -330,26 +334,28 @@ We plan to add more flexible offer types shortly.
 
 ## Build the App2Web paywall
 
-The most common mistake is treating the hosted web paywall as a normal paywall. It exists to back the browser checkout flow.
+Start from an in-app paywall that already works with normal iOS in-app purchases. App2Web converts that paywall into a forked purchase experience: eligible users can move to web checkout through Paddle, while users who should stay in-app can continue through the normal IAP path.
 
-### The two-paywall model
+For iOS, the in-app path still matters. Apple's external purchase rules can vary by region and app category, but maintaining support for in-app purchases is the consistent requirement to design around. In Helium, that means your App2Web experience should preserve a working IAP route instead of replacing every iOS purchase path with Paddle.
 
-Paddle App2Web requires two paywalls:
+### How the fork works
+
+Paddle App2Web uses two paywalls:
 
 | Paywall | Where it appears | What it does |
 | :-- | :-- | :-- |
-| In-app App2Web paywall | Inside your app | Shows the user the offer and sends eligible users toward Paddle checkout. |
+| In-app App2Web paywall | Inside your app | Shows the offer and gives eligible users a web checkout path plus an in-app purchase path. |
 | Hosted web paywall | In the browser | Presents the web checkout destination and Paddle purchase flow. |
 
-The in-app paywall is targeted through workflows, experiments, and audiences.
+The in-app paywall is the starting point. It is targeted through workflows, experiments, and audiences.
 
-The hosted web paywall should not be targeted directly. It should be linked from the in-app paywall.
+To start a web checkout, configure the in-app paywall CTA to purchase a Paddle product. That purchase event is what tells Helium to open the hosted web paywall and Paddle checkout.
 
-### Start from the baseline paywall
+If the user chooses the in-app path, show the normal iOS IAP purchase path. If the user goes to web checkout and returns without purchasing, show the in-app purchase option quickly instead of sending them back to web checkout again.
 
-Start from a paywall that already works with normal in-app purchases.
+### Convert the baseline paywall
 
-Before converting it to App2Web, confirm:
+Before converting the paywall, confirm:
 
 - The baseline paywall is approved.
 - Product display and pricing are correct.
@@ -357,55 +363,64 @@ Before converting it to App2Web, confirm:
 - The normal in-app purchase path has passed QA.
 - Fallback behavior has been considered for the app.
 
-App2Web should adapt the existing IAP paywall unless the baseline itself needs to change.
+Then adapt the baseline:
 
-### Product bucket rules
+1. Keep the first screen close to the approved baseline paywall.
+2. Add a Paddle web checkout path for eligible users.
+3. Add a clear in-app purchase path, usually labeled `Continue in-app`.
+4. Configure the web checkout CTA to purchase the Paddle product.
+5. Configure `Continue in-app` to show the normal iOS IAP paywall or product.
 
-Keep purchase paths clean.
+Ideally, this is a multi-step paywall. The first step can present the offer and point eligible users toward web checkout. A later step can preserve the in-app purchase path for users who should stay in-app or who return from web checkout without buying.
 
-General rules:
+### Product configuration rules
+
+Keep the product paths clean:
 
 - The Paddle hosted web paywall should contain Paddle products only.
-- Do not put iOS or Android products on the hosted web paywall.
-- Do not mix Paddle and Stripe products on the same hosted web paywall.
-- If the in-app App2Web paywall includes an iOS fallback path, keep the iOS products in the continue-in-app path.
-- Avoid Android products in an iOS App2Web paywall.
+- The in-app App2Web paywall should contain the Paddle product used to start web checkout.
+- The in-app purchase path should use iOS IAP products only.
+- `Continue in-app` should show the normal iOS purchase path, not a generic next step.
+- Android products should stay out of the iOS App2Web flow.
 
 If your current product bucket combines iOS and Android products, create an iOS-only version for the App2Web path.
 
-<Accordion title="How to think about duplicating a product bucket">
-  A normal paywall may use one product bucket for multiple platforms. App2Web is more sensitive because the user can choose between a web purchase path and an in-app purchase path.
+<Accordion title="How to configure your products">
+  A normal paywall may use one product bucket for multiple platforms. App2Web works better when the web and in-app purchase paths are explicit.
 
-  For a clean App2Web setup:
+  Setup:
 
-  1. Keep the Paddle product in a Paddle-only bucket.
-  2. Keep the iOS fallback product in an iOS-only bucket.
-  3. Do not send Android products into the iOS App2Web flow.
-  4. Use the iOS-only bucket for the continue-in-app path.
+  1. Start from the product setup used by the baseline IAP paywall.
+  2. Create or select a Paddle product bucket for the web checkout CTA.
+  3. Create or select an iOS-only product bucket for the `Continue in-app` path.
+  4. Configure the primary web CTA to purchase the Paddle product.
+  5. Configure `Continue in-app` to show the normal iOS IAP product or paywall.
+  6. Keep Android products out of the iOS App2Web path.
 
   Confirm the exact dashboard steps with Helium if your current bucket structure is complex.
 </Accordion>
 
 ### Build the in-app App2Web paywall
 
-The in-app paywall should be based on the approved IAP paywall, with the purchase decision adapted for App2Web.
+The in-app App2Web paywall is where the purchase path is chosen.
 
 If you need to block prepaid cards, configure that on the App2Web paywall.
 
-Common structure:
-
-1. First screen: match the approved baseline paywall as closely as possible.
-2. App2Web decision step: send eligible users to Paddle checkout.
-3. Secondary option: provide a smaller continue-in-app path for the normal IAP purchase flow when appropriate.
-
 Checklist:
 
-- Primary CTA opens the Paddle web checkout path.
-- Secondary CTA says something clear like `or continue in-app`.
-- Continue-in-app uses the normal IAP path.
+- Primary web CTA is configured to purchase the Paddle product.
+- `Continue in-app` shows the normal iOS IAP purchase path.
 - Pricing, trial copy, plan names, and billing periods match actual Paddle configuration.
 - The paywall does not imply that checkout is complete before the user pays.
 - The user can recover if browser checkout is canceled or fails.
+- Users who should stay on IAP can still purchase in-app.
+
+### Tips for the in-app flow
+
+- Use a multi-step paywall when possible. It gives you room to send eligible users to web checkout while still preserving the in-app path.
+- Keep the primary CTA placement stable across steps. If you want more users to convert on web, multiple sequential CTAs in the same location can make the web path feel like the natural next action.
+- After a user returns from web checkout without purchasing, move them quickly to the in-app purchase option instead of sending them back to web checkout again.
+- Avoid changing the offer, price framing, and purchase path all at once. Start from the baseline paywall so testing isolates the App2Web change.
 
 ### Build the hosted web paywall
 
@@ -426,10 +441,9 @@ Checklist:
 
 Limitations to keep in mind:
 
-- Hosted web paywalls are less capable than in-app Helium paywalls.
+- Today, hosted web paywalls are less capable than in-app Helium paywalls.
 - App-only variables, payloads, and localized app context may not be available after the browser handoff.
 - Targeting and audience logic should happen before the user is sent to the hosted web paywall.
-- Do not rely on the hosted web paywall as a standalone acquisition page unless Helium has explicitly confirmed that flow.
 
 ### Target the in-app paywall, not the hosted web paywall
 
@@ -510,13 +524,13 @@ Testing should prove the whole path, not just one dashboard screen.
 | Scenario | Expected result |
 | :-- | :-- |
 | In-app paywall opens | The App2Web paywall appears only for the intended test audience. |
-| Primary CTA opens browser | The user leaves the app and reaches the hosted web paywall or Paddle checkout. |
+| Primary web CTA starts purchase | The CTA is configured to purchase the Paddle product and starts the App2Web checkout flow. |
 | Hosted web paywall loads | Copy, products, prices, and CTA are correct on mobile web. |
 | Live test purchase succeeds | User returns to the app and Helium entitlement is active. |
 | Cancel returns to app | User returns through cancel URL and remains unentitled. |
 | Failed payment does not unlock | User is not granted access. |
 | Abandoned checkout does not unlock | User is not granted access. |
-| Continue-in-app works | User can still purchase through IAP when that path is offered. |
+| Continue-in-app works | User sees the normal iOS IAP paywall or product and can purchase in-app. |
 | Trial-eligible user sees trial | Eligible user sees the trial offer. |
 | Trial-ineligible user sees no-trial offer | Ineligible user does not get another trial. |
 | RevenueCat entitlement updates | RevenueCat shows the right entitlement for the right App User ID. |
@@ -551,8 +565,8 @@ Live payment testing requires:
 ### Apple checklist
 
 - Confirm which storefronts and regions can see App2Web.
-- Confirm the app still behaves correctly for users who should use IAP.
-- Confirm any continue-in-app path is functional if required for your launch.
+- Confirm the iOS IAP path remains available for users who should purchase in-app.
+- Confirm `Continue in-app` opens the normal iOS IAP purchase path.
 - If App Review notes are needed, explain the purchase flow clearly.
 
 Apple's App Review Guidelines and external purchase rules can change. Review Apple's current guidance before launch:
@@ -584,9 +598,9 @@ Use this as the final launch gate.
 | Products | Paddle products and prices are synced into Helium. |
 | Trials | Trial and no-trial versions are linked where required. |
 | Discounts | Discount behavior is confirmed with Helium. |
-| In-app paywall | App2Web in-app paywall is built and approved. |
+| In-app paywall | App2Web in-app paywall has both a Paddle web checkout path and a normal iOS IAP path. |
 | Hosted web paywall | Hosted web paywall is built, linked, and published. |
-| Product buckets | Paddle, iOS, and Android products are separated correctly. |
+| Product buckets | Paddle web products and iOS IAP products are separated correctly. |
 | Targeting | Only intended users can see App2Web. |
 | Pre-live QA | SDK return handling, paywall layout, products, offers, targeting, and RevenueCat mapping are checked. |
 | Live QA | Live purchase path passes with live Paddle payments. |
@@ -603,7 +617,7 @@ Watch the first 24 hours closely.
 Important signals:
 
 - App2Web paywall opens.
-- CTA press to browser open rate.
+- Paddle web CTA press rate.
 - Hosted web paywall load rate.
 - Paddle checkout start rate.
 - Paddle checkout completion rate.

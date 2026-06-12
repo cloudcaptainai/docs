@@ -11,25 +11,17 @@ App2Web is not a separate replacement for normal Helium onboarding. It is a web 
 
 Use this guide when you want a mobile user to see a Helium paywall in your app, complete checkout through Paddle in a browser, return to the app, and receive the correct entitlement.
 
-## Section overview
+## Guide map
 
-You do not need to read this page linearly. Use the sidebar or the links below to jump to the part you are working on.
+Jump to the part you are working on.
 
 | If you need to... | Go to |
 | :-- | :-- |
-| Understand the full App2Web flow | [What you are building](#what-you-are-building) |
-| Check prerequisites | [Before you start](#before-you-start) |
-| Understand the recommended setup order | [Recommended setup order](#recommended-setup-order) |
-| Start Paddle approval | [Start Paddle approval now](#start-paddle-approval-now) |
-| Add SDK support, deep links, and entitlement handling | [Add Paddle support to the SDK](#add-paddle-support-to-the-sdk) |
-| Choose the right user identity path | [User identity and entitlements](#user-identity-and-entitlements) |
-| Connect Paddle to Helium | [Connect Paddle to Helium](#connect-paddle-to-helium) |
-| Set up products, trials, and discounts | [Configure products, trials, and discounts](#configure-products-trials-and-discounts) |
+| Understand the flow and prerequisites | [What you are building](#what-you-are-building) and [Before you start](#before-you-start) |
+| Add SDK support, return URLs, and identity handling | [Add Paddle support to the SDK](#add-paddle-support-to-the-sdk) |
+| Connect Paddle and set up catalog behavior | [Connect Paddle to Helium](#connect-paddle-to-helium) and [Configure products, trials, and discounts](#configure-products-trials-and-discounts) |
 | Build the in-app and hosted web paywalls | [Build the App2Web paywall](#build-the-app2web-paywall) |
-| Configure targeting and rollout | [Configure targeting and rollout](#configure-targeting-and-rollout) |
-| Configure RevenueCat | [RevenueCat setup](#revenuecat-setup) |
-| Run QA before launch | [Test the flow](#test-the-flow) |
-| Review launch requirements | [Compliance checklist](#compliance-checklist) and [Go-live checklist](#go-live-checklist) |
+| Target, test, and launch | [Configure targeting and rollout](#configure-targeting-and-rollout), [Test the flow](#test-the-flow), and [Go-live checklist](#go-live-checklist) |
 
 ## What you are building
 
@@ -55,9 +47,9 @@ The key idea: the user starts in the app, pays on the web, then returns to the a
 
 ## Before you start
 
-You should have a normal Helium launch path in place before App2Web becomes the production purchase path.
+Before App2Web becomes the production purchase path, have the normal Helium launch path in place.
 
-You need:
+Prerequisites:
 
 - The Helium SDK integrated in your app.
 - Your normal in-app purchase products configured.
@@ -72,37 +64,15 @@ You need:
   Start Paddle account approval and app SDK work early. You can configure most of the system and test with Paddle sandbox before live approval. You cannot accept real live payments until Paddle approves your live account.
 </Tip>
 
-## Recommended setup order
+Typical sequence: start Paddle approval, add SDK support, connect Paddle sandbox, build the linked paywalls, test with a limited audience, then move to live credentials after approval.
 
-You can configure most of Paddle App2Web before you actually show it to users. That is usually the best path.
-
-There is no downside to getting the SDK and Paddle configuration done early:
-
-- Adding SDK support does not make Paddle live.
-- Connecting Paddle does not force users into web checkout.
-- You can fix the configuration later if testing exposes an issue.
-- Once setup is complete, you can turn App2Web on whenever the paywall, targeting, and QA are ready.
-
-Recommended order:
-
-1. Start Paddle account approval.
-2. Add SDK support for external web checkout.
-3. Configure success and cancel return URLs.
-4. Decide how Helium should identify users and grant entitlements.
-5. Connect Paddle sandbox to Helium.
-6. Sync products, prices, trials, and discounts.
-7. Build the in-app App2Web paywall and linked hosted web paywall.
-8. Test with a test audience.
-9. Move to live Paddle credentials after approval.
-10. Launch through controlled targeting or an experiment.
-
-## Start Paddle approval now
+### Paddle approval
 
 Paddle approval can take time, so start it before the rest of the build is finished.
 
 <Steps>
   <Step title="Create or access your Paddle account">
-    Sign up for Paddle or make sure you have admin access to the account that will process payments.
+    Sign up for Paddle or confirm you have admin access to the account that will process payments.
   </Step>
   <Step title="Complete business review requirements">
     Complete Paddle's business, tax, banking, identity, and website review requirements. Live payments are blocked until Paddle approves the live account.
@@ -126,7 +96,7 @@ Useful Paddle references:
 
 ## Add Paddle support to the SDK
 
-This is one of the most important sections. It is usually worth adding SDK support early because it does not make anything live by itself. It only gives your app the ability to send users to web checkout and receive them when they come back.
+Adding SDK support does not make Paddle live. It gives your app the ability to send users to web checkout and receive them when they come back, so it is safe to configure before the App2Web paywall is launched.
 
 ### What the SDK setup does
 
@@ -151,12 +121,12 @@ There are two different kinds of links that often get confused:
 
 Both may use your app's custom scheme or universal links, but they solve different problems.
 
-The success URL and cancel URL are not pages the user needs to read. They are return doors back into your app. Use URLs that open the app reliably, then pass the opened URL to Helium so the SDK can finish the checkout handoff.
+The success URL and cancel URL are return paths into your app. Use URLs that open the app reliably, then pass the opened URL to Helium so the SDK can finish the checkout handoff.
 
-Recommended pattern:
+Common pattern:
 
 - Use app links that clearly represent the Paddle return path, such as `yourapp://helium/paddle/success` and `yourapp://helium/paddle/cancel`.
-- Make sure both links open the app in every app state: cold start, backgrounded, and already open.
+- Verify both links open the app in every app state: cold start, backgrounded, and already open.
 - Pass both returned URLs to Helium's URL handler.
 
 <Note>
@@ -169,7 +139,7 @@ Recommended pattern:
 
 `cancelURL` is where Paddle sends the user when checkout does not complete. This can include explicit cancellation or a failed payment, depending on the checkout state.
 
-Your app should treat the return URL as a signal to refresh state, not as proof by itself that the purchase succeeded.
+Treat the return URL as a signal to refresh state, not as proof by itself that the purchase succeeded.
 
 - On success return: refresh entitlements and unlock only if the entitlement is active.
 - On cancel return: refresh entitlements and keep the user unentitled unless Helium says they now have access.
@@ -182,7 +152,7 @@ Your app should treat the return URL as a signal to refresh state, not as proof 
 
 ### User identity and entitlements
 
-Helium grants Paddle entitlements based on the user ID you provide and, where available, Apple ID purchase context. Your setup should make it clear which identity Helium should trust before and after purchase.
+Helium grants Paddle entitlements based on the user ID you provide and, where available, Apple ID purchase context. Choose which identity Helium should trust before and after purchase.
 
 Before launch, choose the path that matches your app.
 
@@ -190,19 +160,14 @@ Before launch, choose the path that matches your app.
 | :-- | :-- |
 | The user has a stable user ID before purchase | This is the happy path. Set the user ID before the user sees a paywall, keep it stable across app launches, and check Helium entitlements after checkout returns to the app. |
 | The user may purchase before sign-in, but you learn a stable user ID later | Enable Paddle entitlement without a user ID, then set the stable user ID as soon as the user signs in. Test anonymous purchase, login-after-purchase, reinstall, and account switching before launch. |
-| The user ID may change after purchase | Update Helium when the stable user ID changes. Helium should reconcile the purchase from the earlier identity to the later stable identity, but you should test this exact path before launch. |
+| The user ID may change after purchase | Update Helium when the stable user ID changes. Helium should reconcile the purchase from the earlier identity to the later stable identity. Test this exact path before launch. |
 | The app never has a stable user ID | This is not recommended. Helium can still use device and Apple ID context where available, but cross-device behavior, account recovery, RevenueCat mapping, and support debugging will be weaker. |
 
-Rules of thumb:
+Key checks:
 
-- Set a stable user ID before purchase whenever possible.
-- Do not use email addresses, IDFA, hardcoded strings, or temporary session IDs as the primary user ID.
 - If you allow purchase before sign-in, configure the SDK/dashboard path that allows entitlement without a user ID before testing App2Web.
-- If the user later signs in, set the stable user ID immediately.
 - After checkout returns to the app, check Helium entitlement state. Do not unlock based only on the return URL.
 - If the same person may appear under multiple IDs, test that the entitlement follows the right user.
-
-Think of your stable user ID as the most controllable entitlement anchor. Apple ID context can help where available, but if both the user ID and Apple ID context change, treat that as an account recovery edge case and make sure your support path can resolve it.
 
 <Warning>
   If your app supports anonymous purchase, login-after-purchase, logout, account switching, or no stable user ID at all, entitlement QA is a required launch gate.
@@ -226,7 +191,7 @@ Think of your stable user ID as the most controllable entitlement anchor. Apple 
     )
     ```
 
-    The URLs are set once globally. Make sure both are registered as app links through your custom URL scheme or universal link setup.
+    The URLs are set once globally. Register both as app links through your custom URL scheme or universal link setup.
 
     Handle the post-checkout return:
 
@@ -346,18 +311,9 @@ Think of your stable user ID as the most controllable entitlement anchor. Apple 
   </Tab>
 </Tabs>
 
-### Why configure SDK support early
-
-Getting the SDK configuration done early does not make App2Web live. Users only see the Paddle path after your dashboard paywall, targeting, and workflow setup show it.
-
-Early SDK setup is useful because it means:
-
-- You can ship the app build while Paddle approval is still in progress.
-- You can test deep links, return handling, and entitlement refresh before launch.
-- You can fix SDK issues without waiting until the day you want to turn App2Web on.
-- You can launch App2Web later from Helium targeting or experiments without needing another app release.
-
-If testing reveals an issue, fix it before enabling App2Web for real users.
+<Tip>
+  It is usually worth shipping this SDK configuration before launch. Users will not see Paddle until the Helium paywall, targeting, and workflow setup point them to the App2Web path.
+</Tip>
 
 ## Connect Paddle to Helium
 
@@ -366,8 +322,6 @@ After the SDK path is underway, connect Paddle to Helium so products can be sync
 <Steps>
   <Step title="Create a Paddle API key">
     Create an API key in Paddle with the permissions Helium requires to read products, read prices, create transactions, manage subscriptions, read discounts, configure notifications, and create customer portal sessions.
-
-    Never paste API keys into chat, email, client-side code, or a public repository.
 
     <Accordion title="Required Paddle API key permissions">
       | Permission | Why Helium needs it |
@@ -409,24 +363,11 @@ Paddle catalog setup matters because Helium uses the product and price structure
 
 ### Products and prices
 
-Use simple, obvious naming. A future teammate should be able to tell what each product and price is without opening five dashboards.
-
-Recommended naming:
-
-- App name or plan name.
-- Billing period.
-- Environment, if useful.
-- Trial or no-trial state, if applicable.
-
-Examples:
-
-- `Pro Monthly - Paddle - No Trial`
-- `Pro Monthly - Paddle - 7 Day Trial`
-- `Pro Annual - Paddle - No Trial`
+Create the Paddle products and prices you plan to sell, then sync them into Helium. If you use trials, create both the trial and no-trial price paths before building the paywall.
 
 ### Trials
 
-Helium's recommended trial model is trial/no-trial pairing.
+Helium's trial model is trial/no-trial pairing.
 
 For each offer that needs a trial:
 
@@ -448,25 +389,21 @@ If your launch uses discounts, confirm the discount model with Helium before bui
 Current guidance:
 
 - Discounts are treated as acquisition offers.
-- A customer should only receive the acquisition discount once.
-- More flexible offer variations are planned, but should not be assumed for launch.
+- A customer receives the acquisition discount once.
+- More flexible offer variations are planned; do not assume them for launch.
 
 ### Checkout restrictions
 
-Some checkout rules are launch decisions, not just dashboard configuration.
-
-Confirm whether your App2Web paywall should:
+If relevant, configure these per App2Web paywall:
 
 - Block prepaid cards.
 - Restrict checkout to specific storefronts or regions.
 - Require a specific payment method.
 - Hide Paddle from users who should stay on in-app purchase.
 
-If Helium exposes these as paywall-level settings, configure them per paywall rather than assuming one global rule fits every launch.
-
 ## Build the App2Web paywall
 
-This is the other high-risk section. The most common mistake is treating the hosted web paywall as a normal paywall. It is not. It exists to back the browser checkout flow.
+The most common mistake is treating the hosted web paywall as a normal paywall. It exists to back the browser checkout flow.
 
 ### The two-paywall model
 
@@ -481,7 +418,7 @@ The in-app paywall is targeted through workflows, experiments, and audiences.
 
 The hosted web paywall should not be targeted directly. It should be linked from the in-app paywall.
 
-### Start from the approved baseline
+### Start from the baseline paywall
 
 Start from a paywall that already works with normal in-app purchases.
 
@@ -493,7 +430,7 @@ Before converting it to App2Web, confirm:
 - The normal in-app purchase path has passed QA.
 - Fallback behavior has been considered for the app.
 
-App2Web should be a controlled adaptation, not a brand-new paywall that changes every variable at once.
+App2Web should adapt the existing IAP paywall unless the baseline itself needs to change.
 
 ### Product bucket rules
 
@@ -517,7 +454,7 @@ If your current product bucket combines iOS and Android products, create an iOS-
   1. Keep the Paddle product in a Paddle-only bucket.
   2. Keep the iOS fallback product in an iOS-only bucket.
   3. Do not send Android products into the iOS App2Web flow.
-  4. Use clear names so it is obvious which bucket belongs to which path.
+  4. Use the iOS-only bucket for the continue-in-app path.
 
   Confirm the exact dashboard steps with Helium if your current bucket structure is complex.
 </Accordion>
@@ -526,7 +463,7 @@ If your current product bucket combines iOS and Android products, create an iOS-
 
 The in-app paywall should be based on the approved IAP paywall, with the purchase decision adapted for App2Web.
 
-Recommended structure:
+Common structure:
 
 1. First screen: match the approved baseline paywall as closely as possible.
 2. App2Web decision step: send eligible users to Paddle checkout.
@@ -541,10 +478,6 @@ Checklist:
 - The paywall does not imply that checkout is complete before the user pays.
 - The user can recover if browser checkout is canceled or fails.
 
-<Tip>
-  If the existing paywall is a one-screen IAP paywall, consider adding a lightweight second step before checkout. This gives the user context before leaving the app for the browser.
-</Tip>
-
 ### Build the hosted web paywall
 
 The hosted web paywall is the browser destination for Paddle checkout.
@@ -557,7 +490,7 @@ Checklist:
 - The CTA starts Paddle checkout.
 - Copy and pricing match the in-app paywall.
 - The layout works in a mobile browser.
-- Dismissal behavior is intentional. Avoid an X button if it makes the flow feel like a modal that can be safely closed without consequence; use a back affordance when that is clearer.
+- Dismissal/back behavior is intentional for the browser handoff.
 - Success return opens the app.
 - Cancel or failure return opens the app and does not unlock the user.
 - Entitlement refresh has been tested after return.
@@ -569,7 +502,7 @@ Limitations to keep in mind:
 - Targeting and audience logic should happen before the user is sent to the hosted web paywall.
 - Do not rely on the hosted web paywall as a standalone acquisition page unless Helium has explicitly confirmed that flow.
 
-### Do not target the hosted web paywall directly
+### Target the in-app paywall, not the hosted web paywall
 
 Add the in-app App2Web paywall to workflows, experiments, and audiences.
 
@@ -577,9 +510,7 @@ Do not add the hosted web paywall directly to a workflow, experiment, or targeti
 
 ## Configure targeting and rollout
 
-App2Web should launch as a controlled rollout, not as a surprise global change.
-
-Recommended rollout:
+Rollout path:
 
 1. Create a test audience.
 2. Show App2Web only to test users.
@@ -588,7 +519,7 @@ Recommended rollout:
 5. Launch as an experiment or controlled rollout.
 6. Monitor conversion, checkout completion, entitlement grants, and support tickets.
 
-Targeting should make sure:
+Targeting needs to cover:
 
 - Only eligible users see Paddle App2Web.
 - Users outside the intended storefronts or regions do not see the Paddle CTA.
@@ -597,16 +528,16 @@ Targeting should make sure:
 - Users who should stay on IAP can still use the normal in-app path.
 
 <Warning>
-  External purchase rules differ by region and app category. Confirm the supported storefronts and legal/App Review position for your launch before exposing App2Web broadly.
+  External purchase rules differ by region and app category. Confirm which storefronts should see App2Web before exposing it broadly.
 </Warning>
 
 ## RevenueCat setup
 
-If your app uses RevenueCat, make sure Paddle purchases are associated with the same RevenueCat App User ID that your app expects.
+If your app uses RevenueCat, associate Paddle purchases with the same RevenueCat App User ID that your app expects.
 
 RevenueCat has its own customer identity called App User ID. Helium, Paddle, and RevenueCat need to agree on which user made the purchase.
 
-### Recommended RevenueCat configuration
+### RevenueCat configuration
 
 Follow RevenueCat's Paddle documentation and confirm the exact setup with Helium for your app.
 
@@ -637,7 +568,7 @@ Test these before launch:
 - Anonymous users, if supported, do not create broken or duplicate entitlement state.
 - Login-after-purchase attaches the purchase to the correct user.
 - Logout and account switching do not leak entitlements between users.
-- Restore behavior is understood and documented for your support team.
+- Restore behavior matches the intended purchase recovery path.
 
 <Note>
   For the fastest post-purchase app experience, check Helium entitlement state immediately after the user returns from Paddle. RevenueCat may be slightly delayed because it depends on server notifications and identity matching.
@@ -690,17 +621,12 @@ You need live approval for:
 
 ## Compliance checklist
 
-This section is a launch checklist, not legal advice. Confirm final requirements with your legal and App Review team.
-
 ### Apple checklist
 
 - Confirm which storefronts and regions can see App2Web.
-- Confirm the app category and external purchase rules that apply to your app.
 - Confirm the app still behaves correctly for users who should use IAP.
-- Do not show external purchase CTAs in unsupported storefronts.
-- Do not mislead users about price, billing period, trial terms, or cancellation.
-- Make sure any continue-in-app path is functional if required for your launch.
-- Make sure App Review notes, if needed, explain the purchase flow clearly.
+- Confirm any continue-in-app path is functional if required for your launch.
+- If App Review notes are needed, explain the purchase flow clearly.
 
 Apple's App Review Guidelines and external purchase rules can change. Review Apple's current guidance before launch:
 
@@ -718,10 +644,6 @@ Apple's App Review Guidelines and external purchase rules can change. Review App
 - Checkout disclosures and billing terms match the purchase.
 - Trials and discounts match the actual Paddle configuration.
 - Refund, chargeback, and support process is clear.
-
-<Tip>
-  If the App Store previously handled something for you, confirm who handles it in the Paddle flow. That includes payment failures, taxes, subscription management, cancellations, refunds, and support escalation.
-</Tip>
 
 ## Go-live checklist
 
@@ -768,7 +690,7 @@ Important signals:
 - Paddle webhook failures.
 - Support tickets about access, payment failure, cancellation, trial eligibility, or subscription management.
 
-If something looks wrong, first protect users:
+If something looks wrong:
 
 1. Pause the App2Web experiment or audience.
 2. Keep the normal IAP path available when possible.

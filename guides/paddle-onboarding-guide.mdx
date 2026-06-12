@@ -74,61 +74,26 @@ For Paddle account setup, business review, product creation, API keys, notificat
 
 ## Add Paddle support to the SDK
 
-Adding SDK support does not make Paddle live. It gives your app the ability to send users to web checkout and receive them when they come back, so it is safe to configure before the App2Web paywall is launched.
+Add this SDK support before you launch the App2Web paywall. The code does not make Paddle visible by itself; users only see Paddle after your Helium paywall and targeting are configured.
 
-The SDK work has three parts:
+### 1. Choose user identity behavior
 
-1. Enable external web checkout with Paddle.
-2. Register success and cancel URLs that open your app after checkout.
-3. Pass returned URLs to Helium so it can refresh entitlement state.
+Helium grants Paddle entitlements from the user ID you provide and, where available, Apple ID context. Choose this before writing the checkout code.
 
-`successURL` is used after completed checkout. `cancelURL` is used when checkout does not complete. In both cases, open the app and ask Helium for the latest entitlement state before unlocking access.
-
-<Warning>
-  Do not unlock paid access from the return URL alone. Check entitlement state after the user returns.
-</Warning>
-
-### User identity and entitlements
-
-With normal iOS purchases, Apple handles most entitlement recovery through the user's Apple ID. Paddle App2Web moves more of that responsibility into your integration. Helium grants Paddle entitlements based on the user ID you provide and, where available, Apple ID purchase context.
-
-Behind the scenes, Helium maps your user ID to Paddle's customer ID. If no user ID exists at checkout, Helium can use a persistent device ID as a temporary stand-in and reconcile once a stable user ID is set.
-
-If your app already has stable account IDs, this is usually straightforward. If people can buy before signing in, change accounts after buying, or use the app without accounts, test that path directly.
-
-| Identity path | What to do |
+| If your flow has... | Set it up this way |
 | :-- | :-- |
-| Stable account ID before checkout | Set the user ID before showing the paywall. Keep it stable across launches. |
-| Checkout before sign-in | Enable web checkout without a user ID, then set the stable user ID as soon as the person signs in. Helium uses a persistent device ID as a stand-in and reconciles after login. |
-| Account ID can change | Update Helium when the stable ID changes, then test that the entitlement follows the same person. |
-| No account system | Helium can use device and Apple ID context where available, but cross-device access, recovery, RevenueCat mapping, and support are weaker. |
+| Stable account ID before checkout | Set the Helium user ID before showing the paywall. |
+| Checkout before sign-in | Allow web checkout without a user ID, then set the stable user ID immediately after sign-in. |
+| Account ID can change | Update Helium when the stable ID changes and test that the entitlement follows the same person. |
+| No account system | Expect weaker cross-device access, recovery, RevenueCat mapping, and support debugging. |
 
-For native iOS apps that allow checkout before sign-in, set this before initializing Helium:
-
-```swift
-Helium.config.allowWebCheckoutWithoutUserId = true
-```
-
-Then set the stable user ID as soon as you have it:
-
-```swift
-Helium.identify.userId = "user-123"
-```
-
-Key checks:
-
-- After checkout returns to the app, check Helium entitlement state. Do not unlock based only on the return URL.
-- If one person may appear under multiple IDs, test that the entitlement follows the right person.
-- If people can buy before sign-in, test purchase, sign-in, reinstall, logout, and account switching.
-- Paddle deduplicates customers by email. If your flow allows email changes, test changed-email and duplicate-email cases.
+If your flow allows email changes, test changed-email and duplicate-email cases. Paddle deduplicates customers by email.
 
 <Warning>
-  If people can buy anonymously, sign in after purchase, log out, switch accounts, or use the product without an account, entitlement QA is a required launch gate.
+  If people can buy anonymously, sign in after purchase, log out, switch accounts, or use the product without an account, test entitlement recovery before launch.
 </Warning>
 
-After a successful purchase, the SDK entitlement cache should update immediately. Helium also processes Paddle webhooks server-side so customer mapping, revenue reporting, and cross-device entitlement checks stay consistent.
-
-### SDK setup by platform
+### 2. Add platform code
 
 <Tabs>
   <Tab title="iOS native">
@@ -136,7 +101,13 @@ After a successful purchase, the SDK entitlement cache should update immediately
       Paddle App2Web requires Helium iOS SDK 4.4.7 or later. If you have not integrated Helium yet, start with the [iOS SDK Quickstart](/sdk/quickstart-ios).
     </Note>
 
-    Enable external web checkout before initializing Helium:
+    Set the stable user ID before showing the paywall, if you have one:
+
+    ```swift
+    Helium.identify.userId = "user-123"
+    ```
+
+    Enable Paddle checkout before initializing Helium:
 
     ```swift
     Helium.config.enableExternalWebCheckout(
@@ -146,15 +117,21 @@ After a successful purchase, the SDK entitlement cache should update immediately
     )
     ```
 
-    If people can check out before signing in, also enable web checkout without a user ID before initializing Helium:
+    If people can check out before signing in, also allow web checkout without a user ID before initializing Helium:
 
     ```swift
     Helium.config.allowWebCheckoutWithoutUserId = true
     ```
 
+    When the user signs in later, set the stable user ID as soon as you have it:
+
+    ```swift
+    Helium.identify.userId = "user-123"
+    ```
+
     The URLs are set once globally. Register both as app links through your custom URL scheme or universal link setup.
 
-    Handle the post-checkout return:
+    Pass returned URLs to Helium:
 
     ```swift
     func application(
@@ -169,7 +146,9 @@ After a successful purchase, the SDK entitlement cache should update immediately
 
     If your app uses SwiftUI lifecycle APIs, call `Helium.shared.handleURL(url)` from your `onOpenURL` handler.
 
-    Add a Paddle subscription management path:
+    After success, cancel, failed payment, or when checkout is closed, this lets Helium refresh entitlement state. Do not unlock access from the return URL alone.
+
+    Add subscription management for Paddle subscribers:
 
     ```swift
     if await Helium.entitlements.hasActivePaddleEntitlement() {
@@ -190,7 +169,15 @@ After a successful purchase, the SDK entitlement cache should update immediately
       Paddle App2Web requires expo-helium 3.4.4 or later. If you have not integrated Helium yet, start with the [React Native SDK Quickstart](/sdk/quickstart-react-native).
     </Note>
 
-    Enable external web checkout before initializing Helium:
+    Set the stable user ID before showing the paywall, if you have one:
+
+    ```tsx
+    import { setCustomUserId } from "expo-helium";
+
+    setCustomUserId("user-123");
+    ```
+
+    Enable Paddle checkout before initializing Helium:
 
     ```tsx
     enableExternalWebCheckout(
@@ -200,7 +187,7 @@ After a successful purchase, the SDK entitlement cache should update immediately
     )
     ```
 
-    Handle the post-checkout return:
+    Pass returned URLs to Helium:
 
     ```tsx
     import * as Linking from "expo-linking";
@@ -219,7 +206,9 @@ After a successful purchase, the SDK entitlement cache should update immediately
     }, []);
     ```
 
-    Add a Paddle subscription management path:
+    After success, cancel, failed payment, or when checkout is closed, this lets Helium refresh entitlement state. Do not unlock access from the return URL alone.
+
+    Add subscription management for Paddle subscribers:
 
     ```tsx
     if (await hasActivePaddleEntitlement()) {
@@ -238,33 +227,46 @@ After a successful purchase, the SDK entitlement cache should update immediately
       Paddle App2Web requires helium_flutter 3.3.4 or later. If you have not integrated Helium yet, start with the [Flutter SDK Quickstart](/sdk/quickstart-flutter).
     </Note>
 
-    Enable external web checkout before initializing Helium:
+    Enable Paddle checkout before initializing Helium:
 
     ```dart
-    await HeliumFlutter().enableExternalWebCheckout(
+    final heliumFlutter = HeliumFlutter();
+
+    await heliumFlutter.enableExternalWebCheckout(
       successURL: "yourapp://helium/paddle/success",
       cancelURL: "yourapp://helium/paddle/cancel",
       paymentProcessors: {HeliumWebCheckoutProcessor.paddle},
     );
     ```
 
-    Handle the post-checkout return:
+    Set the stable user ID during Helium initialization, if you have one:
+
+    ```dart
+    await heliumFlutter.initialize(
+      apiKey: "<your-helium-api-key>",
+      customUserId: "user-123",
+    );
+    ```
+
+    Pass returned URLs to Helium:
 
     ```dart
     _linkSubscription = AppLinks().uriLinkStream.listen((uri) {
-      HeliumFlutter().handleURL(uri.toString());
+      heliumFlutter.handleURL(uri.toString());
     });
     ```
 
-    Add a Paddle subscription management path:
+    After success, cancel, failed payment, or when checkout is closed, this lets Helium refresh entitlement state. Do not unlock access from the return URL alone.
+
+    Add subscription management for Paddle subscribers:
 
     ```dart
-    final hasPaddle = await HeliumFlutter().hasActivePaddleEntitlement();
+    final hasPaddle = await heliumFlutter.hasActivePaddleEntitlement();
     if (hasPaddle) {
       // Show a Manage Subscription button for Paddle subscribers.
     }
 
-    final portalUrl = await HeliumFlutter().createPaddlePortalSession();
+    final portalUrl = await heliumFlutter.createPaddlePortalSession();
     if (portalUrl != null) {
       await launchUrl(Uri.parse(portalUrl));
     }
@@ -272,7 +274,9 @@ After a successful purchase, the SDK entitlement cache should update immediately
   </Tab>
 </Tabs>
 
-<Accordion title="Optional: Apple Pay capability">
+### 3. Optional: Apple Pay capability
+
+<Accordion title="Add Apple Pay capability">
   If you use Apple Pay availability for targeting or fallback logic, add the Apple Pay capability to the iOS build.
 
   For native iOS, open your project settings in Xcode, go to **Signing & Capabilities**, and add **Apple Pay**. This requires an Apple [merchant identifier](https://developer.apple.com/help/account/capabilities/configure-apple-pay#create-a-merchant-identifier).
@@ -295,10 +299,6 @@ After a successful purchase, the SDK entitlement cache should update immediately
 
   For Flutter, open `ios/Runner.xcodeproj` in Xcode, select the Runner target, go to **Signing & Capabilities**, and add **Apple Pay**.
 </Accordion>
-
-<Tip>
-  It is usually worth shipping this SDK configuration before launch. Users will not see Paddle until the Helium paywall, targeting, and workflow setup point them to the App2Web path.
-</Tip>
 
 ## Connect Paddle to Helium
 

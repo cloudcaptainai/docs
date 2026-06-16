@@ -7,7 +7,7 @@ description: "Set up Apple Pay with Stripe."
 
 ## Context
 
-- Stripe **one-click** is a way to invoke the **Apple Pay** flow directly, rather than kicking out to a web view with a stripe portal, and keep track of entitlements all within **Helium**. It works with both native iOS flows and Revenue Cat + iOS.
+- Stripe **one-click** is a way to invoke the **Apple Pay** flow directly, rather than kicking out to a web view with a stripe portal, and keep track of entitlements all within **Helium**. It works with both native iOS flows and Revenue Cat \+ iOS.
 - As of March 2026, we estimate that 79-81% of customers on modern versions of iOS have Apple Pay enabled. In the US, the percentage is higher: close to 82-83%.
 - Currently, all payment processing is handled directly through Stripe so you can trust their infrastructure and security.
 
@@ -21,13 +21,16 @@ description: "Set up Apple Pay with Stripe."
     - Bank account
     - Identity for verification
   </Accordion>
+
   <Accordion title="Add your Products to your Stripe organization">
     Generally this is done through the Stripe dashboard UI.
   </Accordion>
+
   <Accordion title="Import Your Stripe Products into Helium">
     <Warning>
       _Helium currently only ingests products with recurring prices_ 
     </Warning>
+
     - Helium generally expects separate products for different prices
       - We do this to enable trial product creation through the Helium dashboard
     - Caveat, you can create a product with a one-time price, as long as you add a recurring price.
@@ -40,9 +43,11 @@ description: "Set up Apple Pay with Stripe."
       - Trial entitlement is set at a product level in Helium
     - It is generally best practice to sync your products often, and after any changes made on the Stripe dashboard
   </Accordion>
+
   <Accordion title="Register your Apple Merchant ID">
     Better documentation on this step can be found here: [Apple](https://developer.apple.com/help/account/capabilities/configure-apple-pay#create-a-merchant-identifier)
   </Accordion>
+
   <Accordion title="Authenticate Stripe with Certificates">
     Go to the [iOS Certificate Settings](https://dashboard.stripe.com/settings/ios_certificates) in the Stripe Dashboard, click **Add new application**, and follow the guide.
 
@@ -61,8 +66,9 @@ description: "Set up Apple Pay with Stripe."
 <Tabs>
   <Tab title="iOS">
     <Note>
-      Stripe integration requires Helium **4.1.8+**. If you have not integrated Helium yet, follow the [iOS SDK Quickstart](/sdk/quickstart-ios) first.
+      Stripe integration requires Helium **4.5.2\+**. If you have not integrated Helium yet, follow the [iOS SDK Quickstart](/sdk/quickstart-ios) first.
     </Note>
+
     <Steps>
       <Step title="Add Apple Pay Capability to Xcode">
         In Xcode, open your project settings, click the **Signing & Capabilities** tab, and add the **Apple Pay** capability. Select the merchant ID you created earlier.
@@ -93,30 +99,27 @@ description: "Set up Apple Pay with Stripe."
         The `backupPurchaseDelegate` will be used for any non-Stripe products.
       </Step>
     </Steps>
+
     <Accordion title="Additional Stripe Functions">
-      These are available on `Helium.shared` after initializing with Stripe:
-
-      - **`setUserIdAndSyncStripeIfNeeded(userId:)`** — Sets the user ID and syncs Stripe entitlements if needed. Call this instead of setting `Helium.identify.userId` if Helium is already initialized.
-      - **`resetStripeEntitlements(clearUserId:)`** — Resets Stripe entitlements and optionally clears the user ID. Use this to "log out" a Stripe user if your app supports multiple Stripe users on the same device.
-      - **`createStripePortalSession(returnUrl:)`** — Creates a Stripe Customer Portal session and returns the portal URL. Open this in a browser or in-app webview to let the user manage their subscriptions.
-
+      - `Helium.shared.resetStripeEntitlements()` — Resets Stripe entitlements and clears user ID. Use this to "log out" a Stripe user if your app supports multiple Stripe users on the same device.
+      - `createStripePortalSession(returnUrl:)` — Creates a Stripe Customer Portal session and returns the portal URL. Open this in a browser or in-app webview to let the user manage their subscriptions.
         ```swift
         let portalURL = try await Helium.shared.createStripePortalSession(
             returnUrl: "myapp://settings"
         )
         await UIApplication.shared.open(portalURL)
         ```
-      - **`hasActiveStripeEntitlement()`** — Returns `true` if the user has any active Stripe entitlement (e.g. an active subscription).
-
+      - `hasActiveStripeEntitlement()` — Returns `true` if the user has any active Stripe entitlement (e.g. an active subscription).
         ```swift
-        let hasEntitlement = await Helium.shared.hasActiveStripeEntitlement()
+        let hasEntitlement = await Helium.entitlements.hasActiveStripeEntitlement()
         ```
     </Accordion>
   </Tab>
   <Tab title="React Native">
     <Note>
-      Stripe integration requires expo-helium **3.3.4+**. If you have not integrated Helium yet, follow the [React Native SDK Quickstart](/sdk/quickstart-react-native) first.
+      Stripe integration requires expo-helium **3.3.4\+**. If you have not integrated Helium yet, follow the [React Native SDK Quickstart](/sdk/quickstart-react-native) first.
     </Note>
+
     <Steps>
       <Step title="Install Packages">
         ```bash
@@ -167,6 +170,7 @@ description: "Set up Apple Pay with Stripe."
         All other imports (`presentUpsell`, `hasEntitlementForPaywall`, `resetHelium`, etc.) still come from `expo-helium` — only the initialization changes.
       </Step>
     </Steps>
+
     <Accordion title="Additional Stripe Functions">
       The following functions are available from `expo-helium-stripe` (iOS only):
 
@@ -178,8 +182,9 @@ description: "Set up Apple Pay with Stripe."
   </Tab>
   <Tab title="Flutter">
     <Note>
-      Stripe integration requires helium_flutter **3.2.4+**. If you have not integrated Helium yet, follow the [Flutter SDK Quickstart](/sdk/quickstart-flutter) first.
+      Stripe integration requires helium\_flutter **3.2.4\+**. If you have not integrated Helium yet, follow the [Flutter SDK Quickstart](/sdk/quickstart-flutter) first.
     </Note>
+
     <Steps>
       <Step title="Install Package">
         Add `helium_stripe` to your `pubspec.yaml`:
@@ -211,6 +216,7 @@ description: "Set up Apple Pay with Stripe."
         ```
       </Step>
     </Steps>
+
     <Accordion title="Additional Stripe Functions">
       The following functions are available from `helium_stripe` (iOS only — no-ops on other platforms):
 
@@ -230,24 +236,22 @@ The Helium SDK provides entitlement helper methods that work with Stripe purchas
   On iOS, some entitlement methods (e.g. `hasActiveSubscriptionFor(subscriptionGroupID:)`, `subscriptionStatusFor(...)`, `activeSubscriptions()`) rely on StoreKit and will **not** reflect Stripe purchases. For Stripe, use `hasEntitlementForPaywall(trigger:)`, `hasActiveEntitlementFor(productId:)`, `hasAnyActiveSubscription()`, and `hasAny()` instead.
 </Warning>
 
-## RevenueCat + Stripe
+## RevenueCat \+ Stripe
 
 If you use [RevenueCat alongside Stripe](https://www.revenuecat.com/docs/web/integrations/stripe), follow these additional steps so that RevenueCat will be able to track entitlements for Stripe purchases:
 
 <Steps>
   <Step title="Visit your RevenueCat Account Settings and find the Connect Stripe button">
-    
   </Step>
   <Step title="Install the Revenue Cat app to your Stripe account">
-    
   </Step>
   <Step title="Open RevenueCat Dashboard">
-    - Open the dashboard: https://app.revenuecat.com/
+    - Open the dashboard: [https://app.revenuecat.com/](https://app.revenuecat.com/)
     - Select your Project \> Apps & Providers \> Add Web Config
     - Find your Stripe account and complete the flow
   </Step>
   <Step title="Select the Stripe web configuration you just added and configure Stripe webhooks to send to RevenueCat">
-    - Open the dashboard: https://www.revenuecat.com/docs/platform-resources/server-notifications/stripe-server-notifications
+    - Open the dashboard: [https://www.revenuecat.com/docs/platform-resources/server-notifications/stripe-server-notifications](https://www.revenuecat.com/docs/platform-resources/server-notifications/stripe-server-notifications)
     - Make sure to include these events:
       1. customer.subscription.updated
       2. customer.subscription.deleted
@@ -257,7 +261,7 @@ If you use [RevenueCat alongside Stripe](https://www.revenuecat.com/docs/web/int
       6. checkout.session.completed
   </Step>
   <Step title="Enable Track new purchases from server-to-server notifications">
-    Make sure to enter **rc_user_id** as the Metadata field key:
+    Make sure to enter **rc\_user\_id** as the Metadata field key:
 
     <Frame>
       ![Download (4)](/images/download\(4\).png)
@@ -276,12 +280,13 @@ If you use [RevenueCat alongside Stripe](https://www.revenuecat.com/docs/web/int
 <Steps>
   <Step title="In your Helium Dashboard, create a paywall and add your Stripe product buckets">
     <Danger>
-      At the moment, each paywall can include **iOS-only** buckets and **Stripe-only** buckets on the same paywall. However, you cannot mix **Stripe-only** buckets with **iOS+Android** buckets on the same paywall.
+      At the moment, each paywall can include **iOS-only** buckets and **Stripe-only** buckets on the same paywall. However, you cannot mix **Stripe-only** buckets with **iOS\+Android** buckets on the same paywall.
     </Danger>
+
     Once you've done the step above to import your Stripe products to Helium, you can create a paywall and adding your product bucket with the Stripe product. This product will behave the same way as all Helium product buckets (except for the caveat above).
   </Step>
   <Step title="Add Stripe Products and iOS Products as Alternative">
-    When creating a paywall you will add your product buckets, then you will need to direct the editor to make the appropriate visual changes to show the Stripe products at once and the iOS products in another view. 
+    When creating a paywall you will add your product buckets, then you will need to direct the editor to make the appropriate visual changes to show the Stripe products at once and the iOS products in another view.
 
     For example, if you had a `pro_plus` as an iOS product and `pro_plus` as a Stripe product you would:
 
@@ -297,6 +302,7 @@ If you use [RevenueCat alongside Stripe](https://www.revenuecat.com/docs/web/int
     <Warning>
       This is required to make sure that paywalls with Stripe are shown in the US.
     </Warning>
+
     When adding paywalls to a workflow make sure to use a Stripe eligible targeting rule that selects:
 
     - Country Storefront: US

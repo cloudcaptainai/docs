@@ -109,7 +109,7 @@ description: "Set up Apple Pay with Stripe."
       - **`hasActiveStripeEntitlement()`** — Returns `true` if the user has any active Stripe entitlement (e.g. an active subscription).
 
         ```swift
-        let hasEntitlement = await Helium.shared.hasActiveStripeEntitlement()
+        let hasEntitlement = await Helium.entitlements.hasActiveStripeEntitlement()
         ```
     </Accordion>
   </Tab>
@@ -329,5 +329,5 @@ If you use [RevenueCat alongside Stripe](https://www.revenuecat.com/docs/web/int
   - At the moment, yes.
 - How do I handle subscription management?
   - Cancels and subscription management is handled by Stripe. The Helium SDK provides a method to access the Stripe portal.
-  - On iOS the SDK method is `Helum.shared.createStripePortalSession(returnUrl:)`
+  - On iOS the SDK method is `Helium.shared.createStripePortalSession(returnUrl:)`
   - On React Native the SDK method is `await createStripePortalSession(returnUrl)`

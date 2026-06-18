@@ -1,4 +1,6 @@
-# Paddle Onboarding Guide
+---
+title: "Paddle Onboarding Guide"
+---
 
 This guide walks you through integrating Paddle with Helium so you can sell web-based subscriptions alongside (or instead of) your iOS in-app purchases.
 
@@ -118,6 +120,12 @@ The hosted web paywall doesn't have to show the same products as the original �
     ```
 
     **Add Apple Pay Capability** for more advanced targeting options. In Xcode, open your project settings, click the **Signing & Capabilities** tab, and add the **Apple Pay** capability. Not required, but we also recommend that you [create a merchant ID](https://developer.apple.com/help/account/capabilities/configure-apple-pay#create-a-merchant-identifier) and select that in your Apple Pay capability in Xcode.
+
+    <Note>
+      App Store review may ask what the Apple Pay capability is for. Consider adding this to App Store review notes:
+
+      Apple Pay capability is used to call PassKit’s `canMakePayments(usingNetworks:)` to detect whether the user has a card set up in Apple Wallet. No Apple Pay payment sheet is presented and no Apple Pay transactions are processed in the app.
+    </Note>
   </Tab>
   <Tab title="Expo 3.4.4+">
     **Enable external web checkout before initializing Helium:**
@@ -175,6 +183,12 @@ The hosted web paywall doesn't have to show the same products as the original �
       }
     }
     ```
+
+    <Note>
+      App Store review may ask what the Apple Pay capability is for. Consider adding this to App Store review notes:
+
+      Apple Pay capability is used to call PassKit’s `canMakePayments(usingNetworks:)` to detect whether the user has a card set up in Apple Wallet. No Apple Pay payment sheet is presented and no Apple Pay transactions are processed in the app.
+    </Note>
   </Tab>
   <Tab title="Flutter 3.3.4+">
     **Enable external web checkout before initializing Helium:**
@@ -216,6 +230,12 @@ The hosted web paywall doesn't have to show the same products as the original �
     ```
 
     **Add Apple Pay Capability** for more advanced targeting options. Open `ios/Runner.xcodeproj` in Xcode, click the **Signing & Capabilities** tab on the Runner target, and add the **Apple Pay** capability. Not required, but we also recommend that you [create a merchant ID](https://developer.apple.com/help/account/capabilities/configure-apple-pay#create-a-merchant-identifier) and select that in your Apple Pay capability in Xcode.
+
+    <Note>
+      App Store review may ask what the Apple Pay capability is for. Consider adding this to App Store review notes:
+
+      Apple Pay capability is used to call PassKit’s `canMakePayments(usingNetworks:)` to detect whether the user has a card set up in Apple Wallet. No Apple Pay payment sheet is presented and no Apple Pay transactions are processed in the app.
+    </Note>
   </Tab>
 </Tabs>
 

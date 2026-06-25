@@ -18,7 +18,7 @@ sidebarTitle: "iOS"
 ### Install the Helium SDK
 
 <Note>
-  Helium requires a minimum deployment target of iOS 15 and Xcode 14+. (Using the latest Xcode is recommended.)
+  Helium requires a minimum deployment target of iOS 15 and Xcode 14\+. (Using the latest Xcode is recommended.)
 </Note>
 
 We recommend using Swift Package Manager (SPM) but also offer a Cocoapod.
@@ -26,20 +26,16 @@ We recommend using Swift Package Manager (SPM) but also offer a Cocoapod.
 <Tabs>
   <Tab title="Swift Package Manager (SPM)">
     1. In Xcode, navigate to your project's **Package Dependencies:**
-
        ![Spm Add Pn](/images/spmadd.png)
     2. Click the **\+** button and search for the Helium package URL:
-
        ```text
        https://github.com/cloudcaptainai/helium-swift.git
        ```
-
        <Tip>
          For **Dependency Rule** we recommend the default **Up to Next Major Version** to make sure you get non-breaking bug fixes. View the [list of releases](https://github.com/cloudcaptainai/helium-swift/releases) here.
        </Tip>
     3. Click **Add Package**.
     4. In the dialog that appears, make sure to add the **Helium** product to your app's main target:
-
        ![Spm Target Pn](/images/spmtarget.png)
     5. Select **Add Package** in the dialog and Helium should now be ready for import.
   </Tab>
@@ -146,7 +142,7 @@ import Helium
 ### Show Your First Paywall 🎉
 
 <Tip>
-  Set up a trigger and workflow in the [dashboard](https://app.tryhelium.com/workflows) to show your desired paywall
+  Set up a trigger and workflow in the [dashboard](https://app.tryhelium.com/workflows) to show your desired paywall. Create unique triggers for each location a paywall can show in your app! This provides more flexibility with paywall variation and experiments, allowing you to take full advantage of Helium.
 </Tip>
 
 Call `presentPaywall` wherever you want to show a full-screen paywall:
@@ -164,6 +160,7 @@ Helium.shared.presentPaywall(
     <ResponseField name="trigger" type="String" required>
       The trigger name configured in the Helium dashboard
     </ResponseField>
+
     <ResponseField name="config" type="PaywallPresentationConfig?">
       _(Optional)_ Configuration for this paywall presentation
 
@@ -181,12 +178,15 @@ Helium.shared.presentPaywall(
       }
       ```
     </ResponseField>
+
     <ResponseField name="eventHandlers" type="PaywallEventHandlers?">
       _(Optional)_ Event handlers for paywall lifecycle events
     </ResponseField>
+
     <ResponseField name="onEntitled" type="(() -> Void)?">
       _(Optional)_ A handler for when user is entitled to a product in the paywall, via purchase or existing entitlement.
     </ResponseField>
+
     <ResponseField name="onPaywallNotShown" type="(PaywallNotShownReason) -> Void" required>
       Handle any scenario where the paywall does not show. If user is already entitled and `config.dontShowIfAlreadyEntitled` is true, `onPaywallNotShown(.alreadyEntitled)` will be called only if `onEntitled` is not provided.
     </ResponseField>
@@ -319,38 +319,11 @@ It is **highly recommended** that you set up "fallbacks" to handle the rare case
 
 ### Checking Subscription Status & Entitlements
 
-<Tip>
-  Check entitlements before showing paywalls to avoid showing a paywall to a user who should not see it.
-</Tip>
+Helium checks entitlements directly through StoreKit and provides helper methods to make this easier. Consider using entitlements to gate premium features.
 
-<CodeGroup>
-
-```swift Use dontShowIfAlreadyEntitled with presentPaywall
-Helium.shared.presentPaywall(
-    trigger: "my_paywall_trigger",
-    config: PaywallPresentationConfig(
-        dontShowIfAlreadyEntitled: true
-    ),
-    onEntitled: {
-        // handle user with existing entitlement
-        // or new entitlement after they completed/restored a purchase
-    }
-) { paywallNotShownReason in
-    // handle paywall not shown
-}
-```
-
-
-```swift Check before showing paywall
-let hasActiveSubscription = await Helium.entitlements.hasAnyActiveSubscription()
-if hasActiveSubscription {
-    // access premium content
-} else {
-    // show paywall
-}
-```
-
-</CodeGroup>
+<Info>
+  If you have a backend server that manages user entitlements, you may have no use for these helpers.
+</Info>
 
 <Accordion title="List of All Entitlement Helper Methods">
   `hasAny()` Checks if the user has purchased any subscription or non-consumable product.
@@ -374,6 +347,40 @@ if hasActiveSubscription {
   `subscriptionStatusFor(subscriptionGroupID: String)` Gets detailed subscription status for a specific subscription group.
 </Accordion>
 
+If you want to tie premium-feature gating and paywall presentation together, here are a couple ways to do so:
+
+<Note>
+  For paywalls that are user-initiated (e.g. "Upgrade to Premium") and onboarding paywalls, checking entitled status is not recommended. Apps usually want to consistently show a paywall for these locations, and users can still "Restore Purchases" as needed.
+</Note>
+
+<CodeGroup>
+
+```swift Use dontShowIfAlreadyEntitled with presentPaywall
+Helium.shared.presentPaywall(
+    trigger: "my_paywall_trigger",
+    config: PaywallPresentationConfig(
+        dontShowIfAlreadyEntitled: true
+    ),
+    onEntitled: {
+        // handle user with existing entitlement
+        // or new entitlement after they completed/restored a purchase
+    }
+) { paywallNotShownReason in
+    // handle paywall not shown
+}
+```
+
+```swift Check before showing paywall
+let hasActiveSubscription = await Helium.entitlements.hasAnyActiveSubscription()
+if hasActiveSubscription {
+    // access premium content
+} else {
+    // show paywall
+}
+```
+
+</CodeGroup>
+
 # Advanced
 
 ### RevenueCat
@@ -390,7 +397,6 @@ Helium integrates seamlessly with RevenueCat so you can continue to let RevenueC
   <Tab title="Swift Package Manager (SPM)">
     1. In Xcode, navigate to your project's **Package Dependencies**.
     2. Click the **\+** button and search for the **HeliumRevenueCat** package URL:
-
        ```text
        https://github.com/cloudcaptainai/helium-swift-revenuecat.git
        ```
@@ -482,6 +488,7 @@ public protocol HeliumPurchaseDelegate: AnyObject {
   <Tip>
     In most cases there is no need to check download status. Helium will display a loading indication if a paywall is presented before download has completed.
   </Tip>
+
   You can check the status of the paywall configuration download using the `Helium.shared.getDownloadStatus()` method. This method returns a value of type `HeliumFetchedConfigStatus`, which is defined as follows:
 
   ```swift

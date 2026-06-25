@@ -91,7 +91,7 @@ function App() {
 ### Show Your First Paywall 🎉
 
 <Tip>
-  Set up a trigger and workflow in the [dashboard](https://app.tryhelium.com/workflows) to show your desired paywall.
+  Set up a trigger and workflow in the [dashboard](https://app.tryhelium.com/workflows) to show your desired paywall. Create unique triggers for each location a paywall can show in your app! This provides more flexibility with paywall variation and experiments, allowing you to take full advantage of Helium.
 </Tip>
 
 Call `presentUpsell` wherever you want to show a full-screen paywall:
@@ -145,7 +145,7 @@ function YourComponent() {
       _(Optional)_ Custom key/value pairs that you want available to the paywall.
     </ResponseField>
     <ResponseField name="dontShowIfAlreadyEntitled" type="boolean?" default="false">
-      _(Optional)_ If `true`, the paywall will not be shown if the user already has an entitlement for a product in the paywall.
+      _(Optional)_ If `true`, the paywall will not be shown if the user already has an entitlement for a product in the paywall. In most cases the default of `false` is desired — see "Checking Subscription Status & Entitlements" below before enabling this.
     </ResponseField>
     <ResponseField name="onEntitled" type="(() => void)?">
       _(Optional)_ Called upon purchase success or purchase restore. If `dontShowIfAlreadyEntitled` is true, this handler will also be called when the paywall is not shown to users who already have entitlement for a product in the paywall.
@@ -266,9 +266,38 @@ It is **highly recommended** that you set up "fallbacks" to handle the rare case
 
 ### Checking Subscription Status & Entitlements
 
-<Tip>
-  Check entitlements before showing paywalls to avoid showing a paywall to a user who should not see it.
-</Tip>
+Helium checks entitlements directly through the underlying app store (StoreKit on iOS, Google Play Billing on Android) and provides helper methods to make this easier. Consider checking entitlements to gate premium features.
+
+<Info>
+  If you have a backend server that manages user entitlements, you may have no use for these helpers.
+</Info>
+
+<Accordion title="All Entitlement Helper Methods">
+  ```typescript
+  /**
+   * Checks if the user has any active subscription (including non-renewable)
+   */
+  export const hasAnyActiveSubscription = async (): Promise<boolean>;
+  
+  /**
+   * Checks if the user has any entitlement
+   */
+  export const hasAnyEntitlement = async (): Promise<boolean>;
+  
+  /**
+   * Checks if the user has an active entitlement for any product attached to
+   * the paywall that will show for the provided trigger.
+   * Returns undefined if not known (i.e. the paywall is not downloaded yet).
+   */
+  export const hasEntitlementForPaywall = async (trigger: string): Promise<boolean | undefined>;
+  ```
+</Accordion>
+
+If you want to tie premium-feature gating and paywall presentation together, here are a couple ways to do so:
+
+<Note>
+  For paywalls that are user-initiated (e.g. "Upgrade to Premium") and onboarding paywalls, checking entitled status is not recommended. Apps usually want to consistently show a paywall for these locations, and users can still "Restore Purchases" as needed.
+</Note>
 
 <CodeGroup>
 
@@ -297,27 +326,6 @@ if (hasActiveSubscription) {
 ```
 
 </CodeGroup>
-
-<Accordion title="All Entitlement Helper Methods">
-  ```typescript
-  /**
-   * Checks if the user has any active subscription (including non-renewable)
-   */
-  export const hasAnyActiveSubscription = async (): Promise<boolean>;
-  
-  /**
-   * Checks if the user has any entitlement
-   */
-  export const hasAnyEntitlement = async (): Promise<boolean>;
-  
-  /**
-   * Checks if the user has an active entitlement for any product attached to
-   * the paywall that will show for the provided trigger.
-   * Returns undefined if not known (i.e. the paywall is not downloaded yet).
-   */
-  export const hasEntitlementForPaywall = async (trigger: string): Promise<boolean | undefined>;
-  ```
-</Accordion>
 
 # Advanced
 

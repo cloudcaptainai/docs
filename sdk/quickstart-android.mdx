@@ -139,7 +139,7 @@ import com.tryhelium.paywall.core.Helium
 ### Show Your First Paywall 🎉
 
 <Tip>
-  Set up a trigger and workflow in the [dashboard](https://app.tryhelium.com/workflows) to show your desired paywall.
+  Set up a trigger and workflow in the [dashboard](https://app.tryhelium.com/workflows) to show your desired paywall. Create unique triggers for each location a paywall can show in your app! This provides more flexibility with paywall variation and experiments, allowing you to take full advantage of Helium.
 </Tip>
 
 Call `presentPaywall` wherever you want to show a full-screen paywall:
@@ -167,7 +167,9 @@ Helium.presentPaywall(
           val fromActivityContext: Activity? = null,
           // Custom traits to send to the paywall
           val customPaywallTraits: HeliumUserTraits? = null,
-          // Don't show paywall if user is entitled to a product in paywall
+          // Don't show paywall if user is entitled to a product in paywall.
+          // In most cases the default of false is desired -- see "Checking
+          // Subscription Status & Entitlements" below before enabling this.
           val dontShowIfAlreadyEntitled: Boolean = false,
           // Disable system back button closing the paywall
           val disableSystemBackNavigation: Boolean = false,
@@ -305,9 +307,27 @@ It is **highly recommended** that you set up "fallbacks" to handle the rare case
 
 ### Checking Subscription Status & Entitlements
 
-<Tip>
-  Check entitlements before showing paywalls to avoid showing a paywall to a user who should not see it.
-</Tip>
+Helium checks entitlements directly through Google Play Billing and provides helper methods to make this easier. Consider checking entitlements to gate premium features.
+
+<Info>
+  If you have a backend server that manages user entitlements, you may have no use for these helpers.
+</Info>
+
+<Accordion title="All Entitlement Helper Methods">
+  Accessed from `Helium.entitlements`:
+
+  `hasAnyEntitlement()` Checks if the user has purchased any subscription or non-consumable product.
+
+  `hasAnyActiveSubscription()` Checks if the user has any active subscription.
+
+  `hasEntitlementForPaywall(trigger: String)` Checks if the user has entitlements for any product in a specific paywall. Returns `null` if paywall configuration hasn't been downloaded yet.
+</Accordion>
+
+If you want to tie premium-feature gating and paywall presentation together, here are a couple ways to do so:
+
+<Note>
+  For paywalls that are user-initiated (e.g. "Upgrade to Premium") and onboarding paywalls, checking entitled status is not recommended. Apps usually want to consistently show a paywall for these locations, and users can still "Restore Purchases" as needed.
+</Note>
 
 <CodeGroup>
 
@@ -334,14 +354,6 @@ if (hasActiveSubscription) {
 ```
 
 </CodeGroup>
-
-<Accordion title="All Entitlement Helper Methods">
-  `hasAnyEntitlement()` Checks if the user has purchased any subscription or non-consumable product.
-
-  `hasAnyActiveSubscription()` Checks if the user has any active subscription.
-
-  `hasEntitlementForPaywall(trigger: String)` Checks if the user has entitlements for any product in a specific paywall. Returns `null` if paywall configuration hasn't been downloaded yet.
-</Accordion>
 
 # Advanced
 

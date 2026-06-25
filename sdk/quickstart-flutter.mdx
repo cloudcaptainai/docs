@@ -119,7 +119,7 @@ Future<void> main() async {
 ### Show Your First Paywall 🎉
 
 <Tip>
-  Set up a trigger and workflow in the [dashboard](https://app.tryhelium.com/workflows) to show your desired paywall.
+  Set up a trigger and workflow in the [dashboard](https://app.tryhelium.com/workflows) to show your desired paywall. Create unique triggers for each location a paywall can show in your app! This provides more flexibility with paywall variation and experiments, allowing you to take full advantage of Helium.
 </Tip>
 
 Call `presentUpsell` wherever you want to show a full-screen paywall:
@@ -255,9 +255,34 @@ It is **highly recommended** that you set up "fallbacks" to handle the rare case
 
 ### Checking Subscription Status & Entitlements
 
-<Tip>
-  Check entitlements before showing paywalls to avoid showing a paywall to a user who should not see it.
-</Tip>
+Helium checks entitlements directly through the underlying app store (StoreKit on iOS, Google Play Billing on Android) and provides helper methods to make this easier. Consider checking entitlements to gate premium features.
+
+<Info>
+  If you have a backend server that manages user entitlements, you may have no use for these helpers.
+</Info>
+
+<Accordion title="All Entitlement Helper Methods">
+  Called on a `HeliumFlutter` instance:
+
+  ```dart
+  /// Checks if the user has any active subscription (including non-renewable)
+  Future<bool> hasAnyActiveSubscription();
+  
+  /// Checks if the user has any entitlement
+  Future<bool> hasAnyEntitlement();
+  
+  /// Checks if the user has an active entitlement for any product attached to
+  /// the paywall that will show for the provided trigger.
+  /// Returns `null` if not known (i.e. the paywall is not downloaded yet).
+  Future<bool?> hasEntitlementForPaywall(String trigger);
+  ```
+</Accordion>
+
+If you want to check entitlement status before presenting a paywall, here are a couple of ways to do so.
+
+<Note>
+  For paywalls that are user-initiated (e.g. "Upgrade to Premium") and onboarding paywalls, checking entitled status is not recommended. Apps usually want to consistently show a paywall for these locations, and users can still "Restore Purchases" as needed.
+</Note>
 
 <CodeGroup>
 
@@ -289,21 +314,6 @@ if (hasActiveSubscription) {
 ```
 
 </CodeGroup>
-
-<Accordion title="All Entitlement Helper Methods">
-  ```dart
-  /// Checks if the user has any active subscription (including non-renewable)
-  Future<bool> hasAnyActiveSubscription();
-  
-  /// Checks if the user has any entitlement
-  Future<bool> hasAnyEntitlement();
-  
-  /// Checks if the user has an active entitlement for any product attached to
-  /// the paywall that will show for the provided trigger.
-  /// Returns `null` if not known (i.e. the paywall is not downloaded yet).
-  Future<bool?> hasEntitlementForPaywall(String trigger);
-  ```
-</Accordion>
 
 # Advanced
 

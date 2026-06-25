@@ -170,7 +170,9 @@ Helium.shared.presentPaywall(
           var presentFromViewController: UIViewController? = nil
           // Custom traits to send to the paywall
           var customPaywallTraits: HeliumUserTraits? = nil
-          // Don't show paywall if user is entitled to a product in paywall
+          // Don't show paywall if user is entitled to a product in paywall.
+          // In most cases the default of false is desired -- see "Checking
+          // Subscription Status & Entitlements" below before enabling this.
           var dontShowIfAlreadyEntitled: Bool = false
           // How long to allow loading state before switching to fallback logic.
           // Use zero or negative value to disable loading state.
@@ -319,13 +321,15 @@ It is **highly recommended** that you set up "fallbacks" to handle the rare case
 
 ### Checking Subscription Status & Entitlements
 
-Helium checks entitlements directly through StoreKit and provides helper methods to make this easier. Consider using entitlements to gate premium features.
+Helium checks entitlements directly through StoreKit and provides helper methods to make this easier. Consider checking entitlements to gate premium features.
 
 <Info>
   If you have a backend server that manages user entitlements, you may have no use for these helpers.
 </Info>
 
 <Accordion title="List of All Entitlement Helper Methods">
+  Accessed from `Helium.entitlements`:
+
   `hasAny()` Checks if the user has purchased any subscription or non-consumable product.
 
   `hasAnyActiveSubscription()` Checks if the user has any active subscription.

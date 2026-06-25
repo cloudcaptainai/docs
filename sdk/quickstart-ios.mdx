@@ -351,7 +351,7 @@ Helium checks entitlements directly through StoreKit and provides helper methods
   `subscriptionStatusFor(subscriptionGroupID: String)` Gets detailed subscription status for a specific subscription group.
 </Accordion>
 
-If you want to tie premium-feature gating and paywall presentation together, here are a couple ways to do so:
+If you want to check entitlement status before presenting a paywall, here are a couple of ways to do so.
 
 <Note>
   For paywalls that are user-initiated (e.g. "Upgrade to Premium") and onboarding paywalls, checking entitled status is not recommended. Apps usually want to consistently show a paywall for these locations, and users can still "Restore Purchases" as needed.

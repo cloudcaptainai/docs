@@ -285,7 +285,7 @@
     "category": "Locale",
     "required": true,
     "example": "en",
-    "description": "Device language code"
+    "description": "User's preferred language code (from the device's top preferred language, falling back to the device language)"
   },
   {
     "field_name": "locale_code",

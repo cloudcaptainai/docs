@@ -466,10 +466,10 @@ Helium.identify.revenueCatAppUserId = Purchases.shared.appUserID
 
 You can also create a custom delegate and implement your own purchase logic. You can look at our [StoreKitDelegate](https://github.com/cloudcaptainai/helium-swift/blob/main/Sources/Helium/HeliumCore/StoreKitDelegate.swift) and [RevenueCatDelegate](https://github.com/cloudcaptainai/helium-swift/blob/main/Sources/HeliumRevenueCat/HeliumRevenueCat.swift) in the SDK for examples (also linked below).
 
-The `HeliumPurchaseDelegate` is defined as follows:
+The `HeliumPaywallDelegate` is defined as follows:
 
 ```swift
-public protocol HeliumPurchaseDelegate: AnyObject {
+public protocol HeliumPaywallDelegate: AnyObject {
     // Execute the purchase of a product given the product ID.
     func makePurchase(productId: String) async -> HeliumPaywallTransactionStatus
 

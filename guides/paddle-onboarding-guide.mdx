@@ -103,7 +103,9 @@ The hosted web paywall doesn't have to show the same products as the original â€
 
     **Handle the post-purchase return.** When checkout completes, the user is deep-linked back to your app via the success URL. For a smoother handoff, call `Helium.shared.handleURL(url)` from your `onOpenURL` / `application(_:open:)` handler.
 
-    **Add a "Manage Subscription" button** so users can cancel or update payment methods via Paddle's customer portal:
+    **Add a "Manage Subscription" button** so users can cancel or update payment methods through Paddle's customer portal. Call `getPaddleCustomerId()` to get the current user's Paddle customer ID, then send it to your own server. Your server calls Paddle's [create customer portal session](https://developer.paddle.com/api-reference/customer-portals/create-customer-portal-session) endpoint and returns the portal URL for your app to open.
+
+    `getPaddleCustomerId()` returns the cached ID immediately when it's available, and returns `nil` when the user has no Paddle customer ID or Paddle web checkout isn't configured.
 
     ```swift
     if await Helium.entitlements.hasActivePaddleEntitlement() {
@@ -111,13 +113,20 @@ The hosted web paywall doesn't have to show the same products as the original â€
     }
     
     // when the button is tapped:
-    do {
-        let url = try await Helium.shared.createPaddlePortalSession()
-        UIApplication.shared.open(url)
-    } catch {
-        print("Failed to open customer portal: \\(error)")
+    guard let customerId = await Helium.shared.getPaddleCustomerId() else {
+        print("No Paddle customer ID available")
+        return
     }
+    
+    // Send customerId to your server, which creates a Paddle customer portal
+    // session and returns the portal URL, then open it:
+    let url = try await fetchPortalURL(forCustomerId: customerId)
+    UIApplication.shared.open(url)
     ```
+
+    <Note>
+    The SDK's `createPaddlePortalSession()` method is deprecated. Generate portal sessions on your own server from the customer ID instead, so your portal configuration and Paddle API key stay server-side.
+    </Note>
   </Tab>
   <Tab title="Expo 3.4.4+">
     **Enable external web checkout before initializing Helium:**

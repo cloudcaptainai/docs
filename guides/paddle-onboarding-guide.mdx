@@ -153,7 +153,9 @@ The hosted web paywall doesn't have to show the same products as the original â€
     }, []);
     ```
 
-    **Add a "Manage Subscription" button** so users can cancel or update payment methods via Paddle's customer portal:
+    **Add a "Manage Subscription" button** so users can cancel or update payment methods through Paddle's customer portal. Call `getPaddleCustomerId()` to get the current user's Paddle customer ID, then send it to your own server. Your server calls Paddle's [create customer portal session](https://developer.paddle.com/api-reference/customer-portals/create-customer-portal-session) endpoint and returns the portal URL for your app to open.
+
+    `getPaddleCustomerId()` is iOS only. It returns `undefined` when the user has no Paddle customer ID assigned, or when it's called on any other platform.
 
     ```tsx
     if (await hasActivePaddleEntitlement()) {
@@ -161,11 +163,21 @@ The hosted web paywall doesn't have to show the same products as the original â€
     }
     
     // when the button is tapped:
-    const url = await createPaddlePortalSession();
-    if (url) {
-      await Linking.openURL(url);
+    const customerId = await getPaddleCustomerId();
+    if (!customerId) {
+      console.log('No Paddle customer ID available');
+      return;
     }
+    
+    // Send customerId to your server, which creates a Paddle customer portal
+    // session and returns the portal URL, then open it:
+    const url = await fetchPortalURL(customerId);
+    await Linking.openURL(url);
     ```
+
+    <Note>
+    The SDK's `createPaddlePortalSession()` method is deprecated. Generate portal sessions on your own server from the customer ID instead, so your portal configuration and Paddle API key stay server-side.
+    </Note>
   </Tab>
   <Tab title="Flutter 3.3.4+">
     **Enable external web checkout before initializing Helium:**

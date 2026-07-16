@@ -179,7 +179,7 @@ The hosted web paywall doesn't have to show the same products as the original â€
     The SDK's `createPaddlePortalSession()` method is deprecated. Generate portal sessions on your own server from the customer ID instead, so your portal configuration and Paddle API key stay server-side.
     </Note>
   </Tab>
-  <Tab title="Flutter 3.3.4+">
+  <Tab title="Flutter 3.3.5+">
     **Enable external web checkout before initializing Helium:**
 
     ```dart
@@ -202,7 +202,9 @@ The hosted web paywall doesn't have to show the same products as the original â€
     });
     ```
 
-    **Add a "Manage Subscription" button** so users can cancel or update payment methods via Paddle's customer portal:
+    **Add a "Manage Subscription" button** so users can cancel or update payment methods through Paddle's customer portal. Call `getPaddleCustomerId()` to get the current user's Paddle customer ID, then send it to your own server. Your server calls Paddle's [create customer portal session](https://developer.paddle.com/api-reference/customer-portals/create-customer-portal-session) endpoint and returns the portal URL for your app to open.
+
+    `getPaddleCustomerId()` is iOS only. It returns `null` when the user has no Paddle customer ID assigned, or when it's called on any other platform.
 
     ```dart
     final hasPaddle = await HeliumFlutter().hasActivePaddleEntitlement();
@@ -211,12 +213,21 @@ The hosted web paywall doesn't have to show the same products as the original â€
     }
     
     // when the button is tapped:
-    final url = await HeliumFlutter().createPaddlePortalSession();
-    if (url != null) {
-      final Uri url = Uri.parse(url);
-      await launchUrl(url);
+    final customerId = await HeliumFlutter().getPaddleCustomerId();
+    if (customerId == null) {
+      log('No Paddle customer ID available');
+      return;
     }
+    
+    // Send customerId to your server, which creates a Paddle customer portal
+    // session and returns the portal URL, then open it:
+    final url = await fetchPortalURL(customerId);
+    await launchUrl(Uri.parse(url));
     ```
+
+    <Note>
+    The SDK's `createPaddlePortalSession()` method is deprecated. Generate portal sessions on your own server from the customer ID instead, so your portal configuration and Paddle API key stay server-side.
+    </Note>
   </Tab>
 </Tabs>
 

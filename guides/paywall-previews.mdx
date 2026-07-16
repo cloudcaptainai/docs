@@ -20,6 +20,12 @@ Triple tap again or dismiss the paywall to return to the list of paywalls.
   By default, this functionality is only enabled in debug/TestFlight builds for iOS and debug builds for Android.
 </Info>
 
+On Flutter, the triple-tap gesture is enabled by default in dev builds. To turn it off, call `setPaywallPreviewsEnabledInDevBuilds(false)` before showing a paywall.
+
+```dart
+HeliumFlutter().setPaywallPreviewsEnabledInDevBuilds(false);
+```
+
 ## Preview Paywalls from the Helium App (coming soon)
 
 _Not yet available._

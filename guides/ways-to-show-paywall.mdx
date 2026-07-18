@@ -26,7 +26,7 @@ HeliumPaywall(
 
 <Accordion title="Example with PaywallEventHandlers">
   ```swift
-  HeliumPaywallView(
+  HeliumPaywall(
       trigger: "post_onboarding",
       eventHandlers: PaywallEventHandlers()
           .onOpen { event in
@@ -49,6 +49,48 @@ HeliumPaywall(
       Text("Paywall failed to show")
   }
   ```
+</Accordion>
+
+<Accordion title="Keeping customPaywallTraits current when hosting in UIKit">
+  `customPaywallTraits` are captured when the paywall **displays** and then stay fixed for that
+  presentation. In SwiftUI this is handled for you as long as the traits come from state that
+  re-renders the view. This is the normal way you'd pass dynamic values into a view.
+
+  When you host `HeliumPaywall` in UIKit with a `UIHostingController`, UIKit won't refresh the view
+  for you. If you build the hosting controller ahead of time and update traits before showing it,
+  drive the view from an `ObservableObject` so the latest traits reach the paywall before display:
+
+  ```swift
+  final class PaywallTraitsStore: ObservableObject {
+      @Published var traits: HeliumUserTraits?
+  }
+
+  struct PaywallHost: View {
+      @ObservedObject var store: PaywallTraitsStore
+      let trigger: String
+      var body: some View {
+          HeliumPaywall(
+              trigger: trigger,
+              config: PaywallPresentationConfig(customPaywallTraits: store.traits)
+          ) { paywallNotShownReason in
+              Text("Paywall failed to show")
+          }
+      }
+  }
+
+  // UIKit
+  let store = PaywallTraitsStore()
+  store.traits = initialTraits
+  let vc = UIHostingController(rootView: PaywallHost(store: store, trigger: "onboarding"))
+
+  // Later, before the paywall is displayed:
+  store.traits = freshTraits // reaches the paywall via the refreshed config
+  ```
+
+  <Note>
+    This applies before the paywall is on screen. Once displayed, traits are locked for that
+    presentation. Updating the store afterward won't change an already-shown paywall.
+  </Note>
 </Accordion>
 
 #### SwiftUI ViewModifier

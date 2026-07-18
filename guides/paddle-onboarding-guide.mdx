@@ -1,5 +1,6 @@
 ---
 title: "Paddle Onboarding Guide"
+icon: "p"
 ---
 
 This guide walks you through integrating Paddle with Helium so you can sell web-based subscriptions alongside (or instead of) your iOS in-app purchases.
@@ -38,27 +39,33 @@ Before you start, make sure you have:
 
 | Permission | Purpose |
 | :-- | :-- |
-| `product.write` | Create and sync products |
-| `price.write` | Create and sync prices |
-| `customer.write` | Create customers for end users |
-| `transaction.write` | Create transactions for purchases |
-| `subscription.write` | Manage subscription lifecycle |
-| `adjustment.read` | View refunds and chargebacks |
-| `notification_setting.write` | Auto-configure webhooks |
-| `payment_method.read` | List saved payment methods |
-| `client_token.write` | Programmatically create client-side tokens |
-| `discount.read` | Read discount info for paywalls |
-| `customer_portal_session.write` | Generate customer portal links so end users can manage or cancel subscriptions |
+| Adjustments  `READ` | View refunds and chargebacks |
+| Client-side tokens `WRITE` | Programmatically create client-side tokens |
+| Customer portal sessions` WRITE` | Generate customer portal links so end users can manage or cancel subscriptions |
+| Customers` WRITE` | Create customers for end users |
+| Discounts` READ` | Read discount info for paywalls |
+| Notification settings` WRITE` | Auto-configure webhooks |
+| Payment methods` READ` | List saved payment methods |
+| Prices` WRITE` | Create and sync prices |
+| Products` WRITE` | Create and sync products |
+| Subscriptions` WRITE` | Manage subscription lifecycle |
+| Transactions` WRITE` | Create transactions for purchases |
 
 **Add the API key to Helium.** In the Helium dashboard, go to _Settings â†’ Integrations â†’ Paddle_ and paste your key.
 
 **Configure the webhook.** Helium will show you a webhook URL â€” create a matching webhook in Paddle, then copy the webhook's signing secret back into Helium. This powers revenue reporting and entitlement updates.
 
-### 3. Sync your Paddle products
+### 3. Default payment link
+
+1. Go to [Paddle website approval](https://vendors.paddle.com/request-domain-approval) and add a new domain.
+2. Go to [Paddle Checkout Settings](https://vendors.paddle.com/checkout-settings) and paste the same domain into **Default payment link**
+3. At the top of the same page, make sure **Apple Pay** has been selected as a **Payment Method**
+
+### 4. Sync your Paddle products
 
 In the Helium dashboard, click **Sync Products**. Your Paddle products and prices will appear alongside your iOS products and can be added to paywalls.
 
-### 4. (Optional) Add free trials
+### 5. (Optional) Add free trials
 
 To offer a free trial on a Paddle product, configure it on the product in Helium. A few things to know:
 
@@ -66,7 +73,7 @@ To offer a free trial on a Paddle product, configure it on the product in Helium
 - **A payment method is required up front.** Payment is deferred, not skipped.
 - **Intro pricing** (e.g., \$1.99 for the first 3 months, then \$9.99/mo) is **not yet supported.**
 
-### 5. Build your paywalls
+### 6. Build your paywalls
 
 Paddle checkout requires **two paywalls**:
 
@@ -83,7 +90,7 @@ To set this up:
 
 The hosted web paywall doesn't have to show the same products as the original â€” you can use it to customize the checkout experience (e.g., upsell a different plan at purchase time). Hosted web paywalls can't be added to workflows, experiments, or targeting rules; they exist only to back a Paddle paywall.
 
-### 6. SDK integration
+### 7. SDK integration
 
 <Tabs>
   <Tab title="iOS (native) 4.4.7+">
@@ -103,7 +110,7 @@ The hosted web paywall doesn't have to show the same products as the original â€
 
     **Handle the post-purchase return.** When checkout completes, the user is deep-linked back to your app via the success URL. For a smoother handoff, call `Helium.shared.handleURL(url)` from your `onOpenURL` / `application(_:open:)` handler.
 
-    **Add a "Manage Subscription" button** so users can cancel or update payment methods via Paddle's customer portal:
+    **Add a "Manage Subscription" button** so users can cancel or update payment methods via Paddle's customer portal\*\*:
 
     ```swift
     if await Helium.entitlements.hasActivePaddleEntitlement() {
@@ -112,7 +119,7 @@ The hosted web paywall doesn't have to show the same products as the original â€
     
     // when the button is tapped:
     do {
-        let url = try await Helium.shared.createPaddlePortalSession()
+        let  url = try await Helium.shared.createPaddlePortalSession()
         UIApplication.shared.open(url)
     } catch {
         print("Failed to open customer portal: \\(error)")
@@ -144,7 +151,7 @@ The hosted web paywall doesn't have to show the same products as the original â€
     }, []);
     ```
 
-    **Add a "Manage Subscription" button** so users can cancel or update payment methods via Paddle's customer portal:
+    **Add a "Manage Subscription" button** so users can cancel or update payment methods via Paddle's customer portal\*\*:
 
     ```tsx
     if (await hasActivePaddleEntitlement()) {
@@ -181,7 +188,7 @@ The hosted web paywall doesn't have to show the same products as the original â€
     });
     ```
 
-    **Add a "Manage Subscription" button** so users can cancel or update payment methods via Paddle's customer portal:
+    **Add a "Manage Subscription" button** so users can cancel or update payment methods via Paddle's customer portal\*\*:
 
     ```dart
     final hasPaddle = await HeliumFlutter().hasActivePaddleEntitlement();
@@ -199,19 +206,45 @@ The hosted web paywall doesn't have to show the same products as the original â€
   </Tab>
 </Tabs>
 
-### 7. (Optional) Connect RevenueCat
+\*\*The Helium SDK will return an unauthenticated link as Paddle customer portal, so your users will have to provide email and log in. For a smoother experience, we recommend creating a [pre-authenticated link](https://developer.paddle.com/build/customers/integrate-customer-portal/).
+
+### 8. (Optional) Connect RevenueCat
 
 If you use RevenueCat for entitlement management:
 
 1. Create a Paddle web configuration in the [RevenueCat dashboard](https://app.revenuecat.com).
    1. Select your project \> **Web** \> Add web provider \> Paddle
-   2. Paste in your Paddle API key
-   3. Purchase tracking should be **Automatic**
-   4. Under **App user ID matching** select **Use a custom field** with `rc_user_id` as the field key
+   2. Create a new [Paddle API Key](https://vendors.paddle.com/authentication-v2) for RevenueCat. **See permissions below**
+   3. Paste in the new Paddle API key
+   4. Purchase tracking should be **Automatic**
+   5. Under **App user ID matching** select **Use a custom field** with `rc_user_id` as the field key
 2. Go to **Product catalog** \> **Products** and Import your Paddle products into RevenueCat.
 3. Attach those products to desired entitlement(s).
 
-RevenueCat entitlements take a moment to reflect Paddle purchases. For instant post-purchase UX, check Helium entitlements in addition to RevenueCat â€” the SDK will push RevenueCat to sync as quickly as possible, but Helium's own entitlement is always the fastest source of truth.
+<Accordion title="Permissions for Paddle API Key that RevenueCat needs">
+  - Addresses Â `READ`
+  - Adjustments - `READ`
+  - Businesses - `READ`
+  - Client-side tokens - `WRITE`
+  - Customer portal sessions - `WRITE`
+  - Customers - `READ`
+  - Discounts - `READ`
+  - Notification settings - `WRITE`
+  - Notifications - `READ`
+  - Payment methods - `READ`
+  - Prices - `READ`
+  - Products - `READ`
+  - Subscriptions - `READ`
+  - Transactions - `WRITE`
+</Accordion>
+
+RevenueCat entitlements take a couple seconds to reflect Paddle purchases. For instant post-purchase UX, check Helium entitlements in addition to RevenueCat â€” the SDK will push RevenueCat to sync as quickly as possible, but Helium's own entitlement is always the fastest source of truth.
+
+<Accordion title="Troubleshooting RevenueCat Entitlements for Paddle Purchases">
+  - Make sure you have done the above steps and include all of your Paddle products in your RevenueCat entitlements.
+  - Find your Paddle -\> RevenueCat webhook atÂ [https://vendors.paddle.com/notifications-v2](https://vendors.paddle.com/notifications-v2)Â and click on it to see that notifications are being sent successfully. If you see errors, you may need to adjust the permissions on the Paddle API Key you provided to RevenueCat.
+  - If you still have issues, delete the existing Paddle web provider in RevenueCat, revoke the Paddle API Key you created for RevenueCat (leave the Helium one), and run through the above steps again.
+</Accordion>
 
 ## Testing
 
@@ -239,7 +272,7 @@ The original in-app paywall presents your Paddle offerings. The hosted web paywa
 
 ### Why are success/cancel URLs set in the SDK?
 
-Deep links are specific to your app build, so it's cleaner to configure them alongside SDK init than in the dashboard. They're global: set once, applied to every Paddle purchase.
+Deep links are specific to your app build, so it's cleaner to configure them alongside SDK init than in the dashboard. They're global: set once, applied to every Paddle purchase. It's ok if they are the same URL.
 
 ### Known limitations and gotchas
 

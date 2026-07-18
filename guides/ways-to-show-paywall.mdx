@@ -54,7 +54,7 @@ HeliumPaywall(
 <Accordion title="Keeping customPaywallTraits current when hosting in UIKit">
   `customPaywallTraits` are captured when the paywall **displays** and then stay fixed for that
   presentation. In SwiftUI this is handled for you as long as the traits come from state that
-  re-renders the view — the normal way you'd pass dynamic values into a view.
+  re-renders the view. This is the normal way you'd pass dynamic values into a view.
 
   When you host `HeliumPaywall` in UIKit with a `UIHostingController`, UIKit won't refresh the view
   for you. If you build the hosting controller ahead of time and update traits before showing it,
@@ -89,7 +89,7 @@ HeliumPaywall(
 
   <Note>
     This applies before the paywall is on screen. Once displayed, traits are locked for that
-    presentation — updating the store afterward won't change an already-shown paywall.
+    presentation. Updating the store afterward won't change an already-shown paywall.
   </Note>
 </Accordion>
 

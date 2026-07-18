@@ -119,7 +119,7 @@ The hosted web paywall doesn't have to show the same products as the original â€
     
     // when the button is tapped:
     do {
-        let  url = try await Helium.shared.createPaddlePortalSession()
+        let url = try await Helium.shared.createPaddlePortalSession()
         UIApplication.shared.open(url)
     } catch {
         print("Failed to open customer portal: \\(error)")
@@ -150,6 +150,10 @@ The hosted web paywall doesn't have to show the same products as the original â€
       return () => sub.remove();
     }, []);
     ```
+
+    <Note>
+      You do not need to do anything with the links other than forward them to `heliumHandleURL` like shown above. If you are using **Expo Router** you may need to [override the default behavior](https://docs.expo.dev/router/advanced/native-intent/#sending-navigation-events-to-third-party-services).
+    </Note>
 
     **Add a "Manage Subscription" button** so users can cancel or update payment methods via Paddle's customer portal\*\*:
 

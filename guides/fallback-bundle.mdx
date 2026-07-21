@@ -108,6 +108,14 @@ Look at your debug log output when running a debug build of your app to see if f
 
 To see a fallback paywall, you can run your app in airplane mode or use a non-existent trigger when presenting a paywall.
 
+### Fallback banner (iOS, debug builds)
+
+On iOS debug builds, a fallback paywall renders with a full-width banner across the top to make fallbacks easy to spot while testing.
+
+<Note>
+  The banner reads "Fallback Paywall" with a "Tap for details" subtitle, an info icon, and a dismiss (X) button. It only appears in iOS debug builds — it never shows in TestFlight or App Store builds, so your users will never see it. Tapping the banner opens Helium's diagnostic view explaining why the fallback was shown. Because the full-width banner overlays the top corners where a paywall's own close button usually sits, tap the X to dismiss the banner first so you can reach the paywall's close button. Opening diagnostics respects the pre-existing `Helium.config.paywallNotShownDiagnosticDisplayEnabled` setting and a persistent "don't show again" choice — if diagnostics are disabled, tapping does nothing.
+</Note>
+
 ## How to Monitor and Minimize Fallback Rate
 
 You can check your app's fallback rate by going to your [Metrics page](https://app.tryhelium.com/metrics) and clicking on the "Fallback Rate" tab under Monitoring. This rate shows the percentage of paywall opens that use a fallback paywall. If you notice your fallback rate is higher than expected, here are some tips on minimizing it:

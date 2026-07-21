@@ -181,6 +181,16 @@ await heliumFlutter.overrideUserId(
 
 </CodeGroup>
 
+<Note>
+  To clear a previously set custom user id (for example, when a user signs out), call `clearCustomUserId()`. This reverts Helium to its auto-generated anonymous user id.
+
+  ```dart
+  await heliumFlutter.clearCustomUserId();
+  ```
+
+  `resetHelium()` does **not** clear the custom user id, so use `clearCustomUserId()` when you need to unset it.
+</Note>
+
 ### Helium Events
 
 Helium dispatches various events during paywall presentation and purchase flow. You can optionally handle these events in your mobile app. You can also configure Helium to forward them to your [existing analytics provider](/guides/third-party-analytics).

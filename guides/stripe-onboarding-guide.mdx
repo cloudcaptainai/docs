@@ -1,0 +1,255 @@
+---
+title: "Stripe Onboarding Guide"
+icon: "s"
+---
+
+This guide walks you through integrating a Stripe "app2web" flow with Helium.
+
+## What You'll Accomplish
+
+By the end of this guide, you'll have:
+
+- A Stripe account connected to Helium, with products synced and ready to add to paywalls.
+- Paywalls that offer Stripe products — either on their own or alongside iOS IAPs.
+- A hosted web checkout flow that lets users purchase in their browser and deep-links them back into your app.
+- Entitlement tracking across Stripe, the Helium SDK, and (optionally) RevenueCat.
+
+## Prerequisites
+
+Before you start, make sure you have:
+
+- The Helium SDK already integrated in your app.
+- A deep link scheme or universal link configured in your app — users need a way back into your app after purchase.
+- Admin access to your Helium dashboard.
+
+## Implementation Steps
+
+### 1. Connect Stripe to Helium
+
+Go to the Helium [Integrations](https://app.tryhelium.com/integrations/products) page, click the Stripe tab, and **Connect Stripe**.
+
+Create a new account or connect an existing Stripe account.
+
+Sync your products, verify your Apple Pay Domain, and set a publishable key.
+
+<Info>
+  Helium does not yet support Stripe sandbox.
+</Info>
+
+### 2. Adjust Stripe Products
+
+Assign Stripe products to appropriate buckets. Add free/paid trials as needed.
+
+### 3. Build your paywalls
+
+Stripe checkout requires **two paywalls**:
+
+1. **The original paywall**, shown in-app, containing your Stripe products (and optionally iOS products).
+2. **A hosted web paywall**, which runs the actual Stripe checkout in the user's browser on `clickthrough.to`.
+
+When the user taps a CTA on the original paywall, they're kicked out to the hosted web paywall, where they complete the purchase.
+
+To set this up:
+
+1. Create the original paywall and add Stripe products to it.
+2. Create a hosted web paywall (the editor will prompt you).
+3. Link the two. The original paywall can't be published without a linked hosted web paywall.
+
+The hosted web paywall doesn't have to show the same products as the original — you can use it to customize the checkout experience (e.g., upsell a different plan at purchase time). Hosted web paywalls can't be added to workflows, experiments, or targeting rules; they exist only to back a Stripe paywall.
+
+### 7. SDK integration
+
+<Tabs>
+  <Tab title="iOS (native) 4.5.6+">
+    **Enable external web checkout before initializing Helium:**
+
+    ```swift
+    Helium.config.enableExternalWebCheckout(
+      successURL: "yourapp://openapp",
+      cancelURL: "yourapp://openapp",
+      paymentProcessors: .stripe
+    )
+    ```
+
+    The `successURL` and `cancelURL` are set once, globally. Make sure both are registered as deep links in your app (via scheme or universal link).
+
+    **Set your user ID on Helium** before the user reaches a paywall. User IDs are strongly preferred. If one isn't set at purchase time, the SDK falls back to a persistent device ID and reconciles after login. _If you must set user ID after showing paywall, let us know — there is a workaround._
+
+    **Handle the post-purchase return.** When checkout completes, the user is deep-linked back to your app via the success URL. For a smoother handoff, call `Helium.shared.handleURL(url)` from your `onOpenURL` / `application(_:open:)` handler.
+
+    **Add a "Manage Subscription" button** so users can cancel or update payment methods via Paddle's customer portal\*\*:
+
+    ```swift
+    if await Helium.entitlements.hasActiveStripeEntitlement() {
+        // show the manage subscription button
+    }
+    
+    // when the button is tapped:
+    do {
+        let url = try await Helium.shared.createStripePortalSession()
+        UIApplication.shared.open(url)
+    } catch {
+        print("Failed to open customer portal: \\(error)")
+    }
+    ```
+  </Tab>
+  <Tab title="Expo 3.4.4+">
+    **Enable external web checkout before initializing Helium:**
+
+    ```tsx
+    enableExternalWebCheckout(
+      successURL: "yourapp://openapp",
+      cancelURL: "yourapp://openapp",
+      paymentProcessors: ["stripe"],
+    )
+    ```
+
+    The `successURL` and `cancelURL` are set once, globally. Make sure both are registered as deep links in your app (via scheme or universal link).
+
+    **Set your user ID on Helium** before the user reaches a paywall. User IDs are strongly preferred. If one isn't set at purchase time, the SDK falls back to a persistent device ID and reconciles after login. _If you must set user ID after showing paywall, let us know — there is a workaround._
+
+    **Handle the post-purchase return.** When checkout completes, the user is deep-linked back to your app via the success URL. For a smoother handoff, call `heliumHandleURL(url)` from your deep link handling:
+
+    ```tsx
+    useEffect(() => {
+      const sub = Linking.addEventListener('url', (event) => heliumHandleURL(event.url));
+      void Linking.getInitialURL().then(heliumHandleURL);
+      return () => sub.remove();
+    }, []);
+    ```
+
+    <Note>
+      You do not need to do anything with the links other than forward them to `heliumHandleURL` like shown above. If you are using **Expo Router** you may need to [override the default behavior](https://docs.expo.dev/router/advanced/native-intent/#sending-navigation-events-to-third-party-services).
+    </Note>
+
+    **Add a "Manage Subscription" button** so users can cancel or update payment methods via Paddle's customer portal\*\*:
+
+    ```tsx
+    if (await hasActiveStripeEntitlement()) {
+        // show the manage subscription button
+    }
+    
+    // when the button is tapped:
+    const url = await createStripePortalSession();
+    if (url) {
+      await Linking.openURL(url);
+    }
+    ```
+  </Tab>
+  <Tab title="Flutter 3.3.4+">
+    **Enable external web checkout before initializing Helium:**
+
+    ```dart
+    await HeliumFlutter().enableExternalWebCheckout(
+      successURL: "yourapp://openapp",
+      cancelURL: "yourapp://openapp",
+      paymentProcessors: {HeliumWebCheckoutProcessor.stripe},
+    )
+    ```
+
+    The `successURL` and `cancelURL` are set once, globally. Make sure both are registered as deep links in your app (via scheme or universal link).
+
+    **Set your user ID on Helium** before the user reaches a paywall. User IDs are strongly preferred. If one isn't set at purchase time, the SDK falls back to a persistent device ID and reconciles after login. _If you must set user ID after showing paywall, let us know — there is a workaround._
+
+    **Handle the post-purchase return.** When checkout completes, the user is deep-linked back to your app via the success URL. For a smoother handoff, call `handleURL(url)` from your deep link handling:
+
+    ```dart
+    _linkSubscription = AppLinks().uriLinkStream.listen((uri) {
+      HeliumFlutter().handleURL(uri.toString());
+    });
+    ```
+
+    **Add a "Manage Subscription" button** so users can cancel or update payment methods via Stripe's customer portal\*\*:
+
+    ```dart
+    final hasStripe = await HeliumFlutter().hasActiveStripeEntitlement();
+    if (hasStripe) {
+        // show the manage subscription button
+    }
+    
+    // when the button is tapped:
+    final url = await HeliumFlutter().createStripePortalSession();
+    if (url != null) {
+      final Uri url = Uri.parse(url);
+      await launchUrl(url);
+    }
+    ```
+  </Tab>
+</Tabs>
+
+\*\*The Helium SDK will return an unauthenticated link as Stripe customer portal, so your users will have to provide email and log in. For a smoother experience, we recommend creating a [pre-authenticated link](https://developer.paddle.com/build/customers/integrate-customer-portal/).
+
+### 8. (Optional) Connect RevenueCat
+
+If you use [RevenueCat alongside Stripe](https://www.revenuecat.com/docs/web/integrations/stripe), follow these additional steps so that RevenueCat will be able to track entitlements for Stripe purchases:
+
+<Steps>
+  <Step title="Visit your RevenueCat Account Settings and find the Connect Stripe button">
+  </Step>
+  <Step title="Install the Revenue Cat app to your Stripe account">
+  </Step>
+  <Step title="Open RevenueCat Dashboard">
+    - Open the dashboard: [https://app.revenuecat.com/](https://app.revenuecat.com/)
+    - Select your Project \> Apps & Providers \> Add Web Config
+    - Find your Stripe account and complete the flow
+  </Step>
+  <Step title="Select the Stripe web configuration you just added and configure Stripe webhooks to send to RevenueCat">
+    - Open the dashboard: [https://www.revenuecat.com/docs/platform-resources/server-notifications/stripe-server-notifications](https://www.revenuecat.com/docs/platform-resources/server-notifications/stripe-server-notifications)
+    - Make sure to include these events:
+      1. customer.subscription.updated
+      2. customer.subscription.deleted
+      3. charge.refunded
+      4. invoice.updated
+      5. customer.subscription.created
+      6. checkout.session.completed
+  </Step>
+  <Step title="Enable Track new purchases from server-to-server notifications">
+    Make sure to enter **rc\_user\_id** as the Metadata field key:
+
+    <Frame>
+      ![Download (4)](/images/download\(4\).png)
+    </Frame>
+  </Step>
+  <Step title="Configure your Stripe products with RevenueCat">
+    1. Visit **Product catalog** for your desired project in RevenueCat dashboard.
+    2. In the Products tab, find the Stripe section and add Stripe products
+    3. Go to Entitlements tab, select desired entitlement/s, click Attach and add the Stripe products you just created
+    4. If you rely on Offerings in your RevenueCat integration, you can also add the Stripe products there
+  </Step>
+</Steps>
+
+## Testing
+
+Run through these scenarios in Paddle's sandbox before going live:
+
+1. **Happy path purchase.** Open a Paddle paywall in-app, tap a product, complete checkout in the browser, and confirm you're deep-linked back with an active entitlement.
+2. **Entitlement sync.** After purchase, confirm `hasActivePaddleEntitlement()` returns `true` immediately, and that RevenueCat (if connected) updates within a few seconds.
+3. **Free trial.** Purchase a trial product, cancel it, and confirm the trial is no longer offered on re-purchase.
+4. **Cancel flow.** Open the customer portal from your app, cancel a subscription, and confirm the entitlement expires at period end.
+5. **Pre-login purchase.** Make a purchase before setting a user ID. After you set the user ID, confirm the entitlement attaches correctly.
+6. **Abandoned checkout.** Close the browser mid-checkout and confirm the app handles the cancel URL gracefully.
+7. **Webhook delivery.** In the Paddle dashboard, confirm webhooks are reaching Helium with 2xx responses.
+
+## Appendix
+
+### How entitlements work
+
+Helium maps your `user_id` to Paddle's `customer_id`. Paddle deduplicates customers strictly by email, so two Paddle customers can't share an address. If the user isn't logged in at purchase time, we use the `helium_persistent_id` as a stand-in and reconcile once a real user ID is set.
+
+On successful purchase, the SDK's entitlement cache updates immediately. The Helium backend processes Paddle's webhook to update the customer mapping and forward events to your analytics/revenue pipeline. Entitlements are also checked server-side (which ultimately reflects Paddle's transaction state), so they stay consistent across devices.
+
+### Why two paywalls?
+
+The original in-app paywall presents your Paddle offerings. The hosted web paywall — served from `clickthrough.to` — runs the actual Paddle checkout, which has to happen in a browser. The two can be customized independently and don't need to show the same products.
+
+### Why are success/cancel URLs set in the SDK?
+
+Deep links are specific to your app build, so it's cleaner to configure them alongside SDK init than in the dashboard. They're global: set once, applied to every Paddle purchase. It's ok if they are the same URL.
+
+### Known limitations and gotchas
+
+- **Intro pricing** (`$X for first N months, then $Y/mo`) is not yet supported.
+- **California compliance** for subscription cancellation: guidance coming soon.
+- **Publish states:** both the original paywall and its linked hosted web paywall must be published before the flow works end-to-end.
+- **Localizations:** if you support multiple languages in-app, confirm your hosted web paywall's localizations match.
+- **Prepaid card failures / declined payments:** the user is returned via the `cancelURL`. Your app should treat this as "no purchase made."

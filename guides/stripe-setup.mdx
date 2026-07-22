@@ -102,7 +102,12 @@ description: "Set up Apple Pay with Stripe."
 
     <Accordion title="Additional Stripe Functions">
       - `Helium.shared.resetStripeEntitlements()` — Resets Stripe entitlements and clears user ID. Use this to "log out" a Stripe user if your app supports multiple Stripe users on the same device.
-      - `createStripePortalSession(returnUrl:)` — Creates a Stripe Customer Portal session and returns the portal URL. Open this in a browser or in-app webview to let the user manage their subscriptions.
+      - `getStripeCustomerId()` — Returns the current Stripe customer ID as `String?` (async), or `nil` if none is available for the user. Pass the returned ID to your own backend server to generate a Stripe Customer Portal session for subscription management.
+        ```swift
+        let customerId = await Helium.shared.getStripeCustomerId()
+        // Send customerId to your backend to create a Stripe Customer Portal session
+        ```
+      - `createStripePortalSession(returnUrl:)` — Creates a Stripe Customer Portal session and returns the portal URL; open this in a browser or in-app webview to let the user manage their subscriptions. **Deprecated** — the signature is unchanged and it still works, but use `getStripeCustomerId()` instead to generate the portal session from your own backend.
         ```swift
         let portalURL = try await Helium.shared.createStripePortalSession(
             returnUrl: "myapp://settings"
@@ -335,5 +340,5 @@ If you use [RevenueCat alongside Stripe](https://www.revenuecat.com/docs/web/int
   - At the moment, yes.
 - How do I handle subscription management?
   - Cancels and subscription management is handled by Stripe. The Helium SDK provides a method to access the Stripe portal.
-  - On iOS the SDK method is `Helum.shared.createStripePortalSession(returnUrl:)`
+  - On iOS, call `Helium.shared.getStripeCustomerId()` and pass the returned ID to your server to create a Stripe Customer Portal session. The `Helium.shared.createStripePortalSession(returnUrl:)` method still exists but is deprecated.
   - On React Native the SDK method is `await createStripePortalSession(returnUrl)`

@@ -177,7 +177,7 @@ The hosted web paywall doesn't have to show the same products as the original �
   </Tab>
 </Tabs>
 
-\*\*The Helium SDK will return an unauthenticated link as Stripe customer portal, so your users will have to provide email and log in. For a smoother experience, we recommend creating a [pre-authenticated link](https://developer.paddle.com/build/customers/integrate-customer-portal/).
+\*\*The Helium SDK will return an unauthenticated link as Stripe customer portal, so your users will have to provide email and log in. For a smoother experience, we recommend creating a [pre-authenticated link](https://docs.stripe.com/customer-management/integrate-customer-portal).
 
 ### 8. (Optional) Connect RevenueCat
 
@@ -220,36 +220,33 @@ If you use [RevenueCat alongside Stripe](https://www.revenuecat.com/docs/web/int
 
 ## Testing
 
-Run through these scenarios in Paddle's sandbox before going live:
+Run through these scenarios before going live:
 
-1. **Happy path purchase.** Open a Paddle paywall in-app, tap a product, complete checkout in the browser, and confirm you're deep-linked back with an active entitlement.
-2. **Entitlement sync.** After purchase, confirm `hasActivePaddleEntitlement()` returns `true` immediately, and that RevenueCat (if connected) updates within a few seconds.
+1. **Happy path purchase.** Open a Stripe paywall in-app, tap a product, complete checkout in the browser, and confirm you're deep-linked back with an active entitlement.
+2. **Entitlement sync.** After purchase, confirm `hasActiveStripeEntitlement()` returns `true` immediately, and that RevenueCat (if connected) updates within a few seconds.
 3. **Free trial.** Purchase a trial product, cancel it, and confirm the trial is no longer offered on re-purchase.
 4. **Cancel flow.** Open the customer portal from your app, cancel a subscription, and confirm the entitlement expires at period end.
 5. **Pre-login purchase.** Make a purchase before setting a user ID. After you set the user ID, confirm the entitlement attaches correctly.
 6. **Abandoned checkout.** Close the browser mid-checkout and confirm the app handles the cancel URL gracefully.
-7. **Webhook delivery.** In the Paddle dashboard, confirm webhooks are reaching Helium with 2xx responses.
 
 ## Appendix
 
 ### How entitlements work
 
-Helium maps your `user_id` to Stripe's `customer_id`. Paddle deduplicates customers strictly by email, so two Paddle customers can't share an address. If the user isn't logged in at purchase time, we use the `helium_persistent_id` as a stand-in and reconcile once a real user ID is set.
+Helium maps your `user_id` to Stripe's `customer_id`. Stripe deduplicates customers strictly by email, so two Stripe customers can't share an address. If the user isn't logged in at purchase time, we use the `helium_persistent_id` as a stand-in and reconcile once a real user ID is set.
 
-On successful purchase, the SDK's entitlement cache updates immediately. The Helium backend processes Paddle's webhook to update the customer mapping and forward events to your analytics/revenue pipeline. Entitlements are also checked server-side (which ultimately reflects Paddle's transaction state), so they stay consistent across devices.
+On successful purchase, the SDK's entitlement cache updates immediately. The Helium backend processes Stripe's webhook to update the customer mapping and forward events to your analytics/revenue pipeline. Entitlements are also checked server-side (which ultimately reflects Stripe's transaction state), so they stay consistent across devices.
 
 ### Why two paywalls?
 
-The original in-app paywall presents your Paddle offerings. The hosted web paywall — served from `clickthrough.to` — runs the actual Paddle checkout, which has to happen in a browser. The two can be customized independently and don't need to show the same products.
+The original in-app paywall presents your Stripe offerings. The hosted web paywall — served from `clickthrough.to` — runs the actual Stripe checkout, which has to happen in a browser. The two can be customized independently and don't need to show the same products.
 
 ### Why are success/cancel URLs set in the SDK?
 
-Deep links are specific to your app build, so it's cleaner to configure them alongside SDK init than in the dashboard. They're global: set once, applied to every Paddle purchase. It's ok if they are the same URL.
+Deep links are specific to your app build, so it's cleaner to configure them alongside SDK init than in the dashboard. They're global: set once, applied to every Stripe purchase. It's ok if they are the same URL.
 
 ### Known limitations and gotchas
 
-- **Intro pricing** (`$X for first N months, then $Y/mo`) is not yet supported.
-- **California compliance** for subscription cancellation: guidance coming soon.
 - **Publish states:** both the original paywall and its linked hosted web paywall must be published before the flow works end-to-end.
 - **Localizations:** if you support multiple languages in-app, confirm your hosted web paywall's localizations match.
-- **Prepaid card failures / declined payments:** the user is returned via the `cancelURL`. Your app should treat this as "no purchase made."
+- **Declined payments:** the user is returned via the `cancelURL`. Your app should treat this as "no purchase made."

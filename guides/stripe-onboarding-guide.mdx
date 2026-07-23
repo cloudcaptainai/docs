@@ -77,7 +77,7 @@ The hosted web paywall doesn't have to show the same products as the original â€
 
     **Handle the post-purchase return.** When checkout completes, the user is deep-linked back to your app via the success URL. For a smoother handoff, call `Helium.shared.handleURL(url)` from your `onOpenURL` / `application(_:open:)` handler.
 
-    **Add a "Manage Subscription" button** so users can cancel or update payment methods via Paddle's customer portal\*\*:
+    **Add a "Manage Subscription" button** so users can cancel or update payment methods via Stripe's customer portal\*\*:
 
     ```swift
     if await Helium.entitlements.hasActiveStripeEntitlement() {
@@ -122,7 +122,7 @@ The hosted web paywall doesn't have to show the same products as the original â€
       You do not need to do anything with the links other than forward them to `heliumHandleURL` like shown above. If you are using **Expo Router** you may need to [override the default behavior](https://docs.expo.dev/router/advanced/native-intent/#sending-navigation-events-to-third-party-services).
     </Note>
 
-    **Add a "Manage Subscription" button** so users can cancel or update payment methods via Paddle's customer portal\*\*:
+    **Add a "Manage Subscription" button** so users can cancel or update payment methods via Stripe's customer portal\*\*:
 
     ```tsx
     if (await hasActiveStripeEntitlement()) {
@@ -234,7 +234,7 @@ Run through these scenarios in Paddle's sandbox before going live:
 
 ### How entitlements work
 
-Helium maps your `user_id` to Paddle's `customer_id`. Paddle deduplicates customers strictly by email, so two Paddle customers can't share an address. If the user isn't logged in at purchase time, we use the `helium_persistent_id` as a stand-in and reconcile once a real user ID is set.
+Helium maps your `user_id` to Stripe's `customer_id`. Paddle deduplicates customers strictly by email, so two Paddle customers can't share an address. If the user isn't logged in at purchase time, we use the `helium_persistent_id` as a stand-in and reconcile once a real user ID is set.
 
 On successful purchase, the SDK's entitlement cache updates immediately. The Helium backend processes Paddle's webhook to update the customer mapping and forward events to your analytics/revenue pipeline. Entitlements are also checked server-side (which ultimately reflects Paddle's transaction state), so they stay consistent across devices.
 

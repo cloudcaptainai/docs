@@ -44,7 +44,7 @@ Assign Stripe products to appropriate buckets. Add free/paid trials as needed.
 
 Stripe checkout requires **two paywalls**:
 
-1. **The original paywall**, shown in-app, containing your Stripe products (and optionally iOS products).
+1. **The original paywall**, shown in-app, containing your Stripe products (we recommend adding iOS products too as a backup if user decides to not use Stripe).
 2. **A hosted web paywall**, which runs the actual Stripe checkout in the user's browser on `clickthrough.to`.
 
 When the user taps a CTA on the original paywall, they're kicked out to the hosted web paywall, where they complete the purchase.
@@ -93,7 +93,7 @@ The hosted web paywall doesn't have to show the same products as the original â€
     }
     ```
   </Tab>
-  <Tab title="Expo 3.4.4+">
+  <Tab title="Expo 3.5.0+">
     **Enable external web checkout before initializing Helium:**
 
     ```tsx

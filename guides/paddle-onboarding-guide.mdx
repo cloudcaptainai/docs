@@ -110,7 +110,7 @@ The hosted web paywall doesn't have to show the same products as the original â€
 
     **Handle the post-purchase return.** When checkout completes, the user is deep-linked back to your app via the success URL. For a smoother handoff, call `Helium.shared.handleURL(url)` from your `onOpenURL` / `application(_:open:)` handler.
 
-    **Add a "Manage Subscription" button** so users can cancel or update payment methods via Paddle's customer portal\*\*:
+    **Add a "Manage Subscription" button** so users can cancel or update payment methods via Paddle's customer portal:
 
     ```swift
     if await Helium.entitlements.hasActivePaddleEntitlement() {
@@ -124,6 +124,14 @@ The hosted web paywall doesn't have to show the same products as the original â€
     } catch {
         print("Failed to open customer portal: \\(error)")
     }
+    ```
+
+    The portal link opens `paddle.net`, where the user enters the email they purchased with, receives a magic link, and lands in the portal. It's the same portal, just with a secure email verification step in front of it, in line with Paddle's recommended flow.
+
+    **Want a pre-authenticated portal link?** If you'd rather skip the paddle.net email verification step and drop users straight into the customer portal, you can generate an authenticated link yourself. Grab the Paddle customer ID from Helium and pass it to the Paddle API to build the link ([Paddle customer portal docs](https://developer.paddle.com/build/customers/integrate-customer-portal/)):
+
+    ```swift
+    let paddleCustomerId = await Helium.shared.getPaddleCustomerId()
     ```
   </Tab>
   <Tab title="Expo 3.4.4+">
@@ -155,7 +163,7 @@ The hosted web paywall doesn't have to show the same products as the original â€
       You do not need to do anything with the links other than forward them to `heliumHandleURL` like shown above. If you are using **Expo Router** you may need to [override the default behavior](https://docs.expo.dev/router/advanced/native-intent/#sending-navigation-events-to-third-party-services).
     </Note>
 
-    **Add a "Manage Subscription" button** so users can cancel or update payment methods via Paddle's customer portal\*\*:
+    **Add a "Manage Subscription" button** so users can cancel or update payment methods via Paddle's customer portal:
 
     ```tsx
     if (await hasActivePaddleEntitlement()) {
@@ -167,6 +175,14 @@ The hosted web paywall doesn't have to show the same products as the original â€
     if (url) {
       await Linking.openURL(url);
     }
+    ```
+
+    The portal link opens `paddle.net`, where the user enters the email they purchased with, receives a magic link, and lands in the portal. It's the same portal â€” just with a secure email verification step in front of it, in line with Paddle's recommended flow.
+
+    **Want a pre-authenticated portal link?** If you'd rather skip the paddle.net email verification step and drop users straight into the customer portal, you can generate an authenticated link yourself. Grab the Paddle customer ID from Helium and pass it to the Paddle SDK to build the link ([Paddle customer portal docs](https://developer.paddle.com/build/customers/integrate-customer-portal/)):
+
+    ```tsx
+    const paddleCustomerId = await getPaddleCustomerId();
     ```
   </Tab>
   <Tab title="Flutter 3.3.4+">
@@ -192,7 +208,7 @@ The hosted web paywall doesn't have to show the same products as the original â€
     });
     ```
 
-    **Add a "Manage Subscription" button** so users can cancel or update payment methods via Paddle's customer portal\*\*:
+    **Add a "Manage Subscription" button** so users can cancel or update payment methods via Paddle's customer portal:
 
     ```dart
     final hasPaddle = await HeliumFlutter().hasActivePaddleEntitlement();
@@ -207,10 +223,12 @@ The hosted web paywall doesn't have to show the same products as the original â€
       await launchUrl(url);
     }
     ```
+
+    The portal link opens `paddle.net`, where the user enters the email they purchased with, receives a magic link, and lands in the portal. It's the same portal â€” just with a secure email verification step in front of it, in line with Paddle's recommended flow.
+
+    **Want a pre-authenticated portal link?** If you'd rather skip the paddle.net email verification step and drop users straight into the customer portal, you can generate an authenticated link yourself. Grab the Paddle customer ID from Helium and pass it to the Paddle SDK to build the link ([Paddle customer portal docs](https://developer.paddle.com/build/customers/integrate-customer-portal/)).
   </Tab>
 </Tabs>
-
-\*\*The Helium SDK will return an unauthenticated link as Paddle customer portal, so your users will have to provide email and log in. For a smoother experience, we recommend creating a [pre-authenticated link](https://developer.paddle.com/build/customers/integrate-customer-portal/).
 
 ### 8. (Optional) Connect RevenueCat
 

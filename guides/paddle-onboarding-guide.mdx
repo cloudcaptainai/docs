@@ -126,15 +126,17 @@ The hosted web paywall doesn't have to show the same products as the original â€
     }
     ```
   </Tab>
-  <Tab title="Expo 3.4.4+">
+  <Tab title="React Native / Expo">
+    Available in `expo-helium` 3.4.4+ and `@tryheliumai/paywall-sdk-react-native` 3.1.0+.
+
     **Enable external web checkout before initializing Helium:**
 
     ```tsx
-    enableExternalWebCheckout(
+    enableExternalWebCheckout({
       successURL: "yourapp://openapp",
       cancelURL: "yourapp://openapp",
       paymentProcessors: ["paddle"],
-    )
+    });
     ```
 
     The `successURL` and `cancelURL` are set once, globally. Make sure both are registered as deep links in your app (via scheme or universal link).

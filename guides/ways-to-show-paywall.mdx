@@ -137,6 +137,10 @@ HeliumPaywall(
 )
 ```
 
+## React Native
+
+React Native (both `expo-helium` and `@tryheliumai/paywall-sdk-react-native`) currently supports full-screen presentation via `presentUpsell()` only — embedded paywall views are not yet available. Use `eventHandlers`, `onEntitled`, and `onPaywallUnavailable` on `presentUpsell` for fine-grained control, and `hideUpsell()` / `hideAllUpsells()` for programmatic dismissal.
+
 ## Flutter
 
 #### Widget Integration

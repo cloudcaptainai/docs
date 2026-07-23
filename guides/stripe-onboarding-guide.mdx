@@ -170,8 +170,8 @@ The hosted web paywall doesn't have to show the same products as the original â€
     // when the button is tapped:
     final url = await HeliumFlutter().createStripePortalSession();
     if (url != null) {
-      final Uri url = Uri.parse(url);
-      await launchUrl(url);
+      final Uri uri = Uri.parse(url);
+      await launchUrl(uri);
     }
     ```
   </Tab>

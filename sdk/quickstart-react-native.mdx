@@ -41,9 +41,7 @@ npx expo prebuild
 </Tip>
 
 <Info>
-  Both SDKs support **iOS and Android**. The Older Expo / Bare SDK requires React Native 0.71.7+, iOS 15+, and Android minSdk 24.
-
-  Working example apps (Expo 51 and bare React Native) live in the [SDK repo's examples folder](https://github.com/cloudcaptainai/paywall-sdk-react-native/tree/main/examples).
+  The Older Expo / Bare SDK requires React Native 0.71.7+, iOS 15+, and Android minSdk 24.
 </Info>
 
 ### Initialize Helium
@@ -344,7 +342,7 @@ if (hasActiveSubscription) {
 Helium integrates seamlessly with RevenueCat so you can continue to let RevenueCat handle your purchases and entitlements.
 
 <Note>
-  If you haven't already, make sure to [install](https://www.revenuecat.com/docs/getting-started/installation/expo) RevenueCat (for non-Expo see [here](https://www.revenuecat.com/docs/getting-started/installation/reactnative)). The Older Expo / Bare SDK requires `react-native-purchases` 8.0.0+.
+  If you haven't already, make sure to [install](https://www.revenuecat.com/docs/getting-started/installation/expo) RevenueCat (for non-Expo see [here](https://www.revenuecat.com/docs/getting-started/installation/reactnative)).
 
   Make sure to initialize RevenueCat (`Purchases.configure()`) before initializing Helium.
 </Note>
@@ -468,27 +466,6 @@ type HeliumTransactionStatus =
   'purchased' | 'failed' | 'cancelled' | 'pending' | 'restored';
 ```
 
-### Web Checkout (Stripe & Paddle)
-
-Sell web-based subscriptions directly from your paywalls. Enable it **before** `initialize()` and forward incoming deep links so the SDK can react to checkout redirects:
-
-```tsx
-import { enableExternalWebCheckout, heliumHandleURL } from 'expo-helium';
-// or: from '@tryheliumai/paywall-sdk-react-native';
-import { Linking } from 'react-native';
-
-// before initialize()
-enableExternalWebCheckout({
-  successURL: 'yourapp://openapp',
-  cancelURL: 'yourapp://openapp',
-});
-
-// forward returning deep links (requires the URL scheme registered in your app)
-Linking.addEventListener('url', ({ url }) => heliumHandleURL(url));
-```
-
-Set a custom user id before showing web checkout paywalls. Full setup — products, webhook, and the hosted web paywall — is covered in the [Paddle onboarding guide](/guides/paddle-onboarding-guide). Web checkout currently completes on iOS; Android support is coming soon.
-
 ### Testing Purchases
 
 Stub purchase flows for demos, UI tests, and CI — no store configuration needed. Debug builds only; gate the calls so they never run in production:
@@ -567,6 +544,10 @@ npx expo run:ios # or npx expo run:ios --device
 ```
 
 Bare React Native apps always include native code — just run `npx react-native run-ios` / `run-android` as usual.
+
+### Example Apps
+
+Working example apps (Expo 51 and bare React Native) live in the [SDK repo's examples folder](https://github.com/cloudcaptainai/paywall-sdk-react-native/tree/main/examples).
 
 ### Troubleshooting
 

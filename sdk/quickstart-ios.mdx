@@ -177,6 +177,10 @@ Helium.shared.presentPaywall(
           // How long to allow loading state before switching to fallback logic.
           // Use zero or negative value to disable loading state.
           var loadingBudget: TimeInterval = DEFAULT_LOADING_BUDGET
+          // How the paywall animates in via presentPaywall (.slideUp or .slideLeft).
+          // Overrides the dashboard-configured style; nil uses the dashboard default.
+          // Ignored by the embedded HeliumPaywall view and .heliumPaywall modifier.
+          var presentationStyle: HeliumPresentationStyle? = nil
       }
       ```
     </ResponseField>

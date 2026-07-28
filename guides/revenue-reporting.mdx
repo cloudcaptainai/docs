@@ -66,7 +66,7 @@ try {
 // App Router:   const body = await request.json();
 // Pages Router: const body = req.body;
 try {
-  await fetch(
+  const response = await fetch(
     'your-helium-webhook-url-here',
     {
       method: 'POST',
@@ -75,6 +75,7 @@ try {
       signal: AbortSignal.timeout(5000)
     }
   );
+  if (!response.ok) throw new Error(`Helium returned ${response.status}`);
 } catch (error) {
   console.error('Failed to forward webhook to Helium:', error);
 }
@@ -101,7 +102,11 @@ func() {
 		log.Printf("Failed to forward webhook to Helium: %v", err)
 		return
 	}
-	resp.Body.Close()
+	defer resp.Body.Close()
+
+	if resp.StatusCode >= 300 {
+		log.Printf("Failed to forward webhook to Helium: status %d", resp.StatusCode)
+	}
 }()
 ```
 
@@ -109,12 +114,13 @@ func() {
 ```python Python w/ Flask
 # Inside your existing route, near the top:
 try:
-    requests.post(
+    response = requests.post(
         'your-helium-webhook-url-here',
         json=request.json,
         headers={'Content-Type': 'application/json'},
         timeout=5
     )
+    response.raise_for_status()
 except requests.exceptions.RequestException as e:
     print(f'Failed to forward webhook to Helium: {e}')
 ```
@@ -125,12 +131,13 @@ except requests.exceptions.RequestException as e:
 # body = await request.json()
 try:
     async with httpx.AsyncClient(timeout=5.0) as client:
-        await client.post(
+        response = await client.post(
             'your-helium-webhook-url-here',
             json=body,
             headers={'Content-Type': 'application/json'}
         )
-except httpx.RequestError as e:
+        response.raise_for_status()
+except httpx.HTTPError as e:
     print(f'Failed to forward webhook to Helium: {e}')
 ```
 

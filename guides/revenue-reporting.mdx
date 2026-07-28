@@ -40,7 +40,7 @@ In your existing App Store Server Notifications handler, add a snippet that forw
 
 **Don't couple your response to the forward.** Await the forward and wrap it in a `try/catch` that only logs on failure. It should never throw or change the status you return to Apple — otherwise a hiccup forwarding to Helium would make Apple retry the whole notification and re-run your own handling.
 
-Here is some example forwarding code. Reach out to Helium support if you have any questions.
+Forwarding is just a POST — send the request body to your Helium Webhook URL with `Content-Type: application/json`. The examples below cover a few common stacks, but any language works. Reach out to Helium support if you have any questions.
 
 <CodeGroup>
 
@@ -61,27 +61,10 @@ try {
 ```
 
 
-```javascript Next.js Pages Router
-// Inside your existing handler, near the top (req.body is already parsed):
-try {
-  await fetch(
-    'your-helium-webhook-url-here',
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(req.body),
-      signal: AbortSignal.timeout(5000)
-    }
-  );
-} catch (error) {
-  console.error('Failed to forward webhook to Helium:', error);
-}
-```
-
-
-```javascript Next.js App Router
+```javascript Next.js
 // Inside your existing POST handler, right after you read the body:
-// const body = await request.json();
+// App Router:   const body = await request.json();
+// Pages Router: const body = req.body;
 try {
   await fetch(
     'your-helium-webhook-url-here',
@@ -95,6 +78,31 @@ try {
 } catch (error) {
   console.error('Failed to forward webhook to Helium:', error);
 }
+```
+
+
+```go Go
+// Inside your existing handler, after reading the request body into `body`
+// (a []byte holding the raw JSON payload), near the top:
+func() {
+	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost,
+		"your-helium-webhook-url-here", bytes.NewReader(body))
+	if err != nil {
+		log.Printf("Failed to forward webhook to Helium: %v", err)
+		return
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		log.Printf("Failed to forward webhook to Helium: %v", err)
+		return
+	}
+	resp.Body.Close()
+}()
 ```
 
 

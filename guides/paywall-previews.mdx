@@ -20,6 +20,10 @@ Triple tap again or dismiss the paywall to return to the list of paywalls.
   By default, this functionality is only enabled in debug/TestFlight builds for iOS and debug builds for Android.
 </Info>
 
+<Warning>
+  On iOS, the on-device preview can't trigger a paywall's [second-try](/guides/makingpaywalls) flow — it shows a diagnostic titled "Second try flows can't be previewed" instead. To test a second-try flow, add the paywall to a workflow and trigger it there; real users who reach the paywall through a workflow still see it normally.
+</Warning>
+
 ## Preview Paywalls from the Helium App (coming soon)
 
 _Not yet available._

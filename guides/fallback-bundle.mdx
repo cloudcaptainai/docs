@@ -110,10 +110,12 @@ To see a fallback paywall, you can run your app in airplane mode or use a non-ex
 
 ### Fallback banner (iOS)
 
-On iOS debug builds, a fallback paywall renders with a full-width banner across the top to make fallbacks easy to spot while testing.
+By default, on iOS debug builds, a fallback paywall renders with a full-width banner across the top to make fallbacks easy to spot while testing.
 
 <Note>
-  The banner reads "Fallback Paywall" with a "Tap for details" subtitle, an info icon, and a dismiss (X) button. By default, the banner appears only in iOS debug builds — leave this as is and nothing changes. Set `Helium.config.paywallNotShownDiagnosticEnabledInTestFlight = true` (a `Bool`, default `false`) to also permit the banner and its diagnostic in TestFlight and in Xcode-run release and simulator builds, as long as `Helium.config.paywallNotShownDiagnosticDisplayEnabled` remains enabled and Helium has not remotely disabled it. App Store production builds never show it, regardless of this setting, so your users on the App Store never see it. Tapping the banner opens Helium's diagnostic view explaining why the fallback was shown. Because the full-width banner overlays the top corners where a paywall's own close button usually sits, tap the X to dismiss the banner first so you can reach the paywall's close button. Opening diagnostics respects the pre-existing `Helium.config.paywallNotShownDiagnosticDisplayEnabled` setting and a persistent "don't show again" choice — if diagnostics are disabled, tapping does nothing.
+  The banner reads "Fallback Paywall" with a "Tap for details" subtitle, an info icon, and a dismiss (X) button. By default, the banner appears only in iOS debug builds, and no configuration is needed to keep that behavior. Set `Helium.config.paywallNotShownDiagnosticEnabledInTestFlight = true` (a `Bool`, default `false`) to also allow the banner and its diagnostic in TestFlight and in Xcode-run release and simulator builds. This only takes effect while `Helium.config.paywallNotShownDiagnosticDisplayEnabled` remains enabled and Helium has not remotely disabled the banner. App Store production builds never show it, regardless of this setting, so your users never see it there.
+
+  Tapping the banner opens Helium's diagnostic view explaining why the fallback was shown. Because the full-width banner overlays the top corners where a paywall's own close button usually sits, tap the X to dismiss the banner first so you can reach the paywall's close button. Opening diagnostics respects the pre-existing `Helium.config.paywallNotShownDiagnosticDisplayEnabled` setting and a persistent "don't show again" choice — if diagnostics are disabled, tapping does nothing.
 </Note>
 
 ## How to Monitor and Minimize Fallback Rate

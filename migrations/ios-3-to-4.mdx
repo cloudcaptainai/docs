@@ -144,8 +144,8 @@ Helium.shared.presentPaywall(
         .onPurchaseSucceeded { event in
             print("Purchased!")
         },
-    onEntitled: {
-        // User is now entitled (purchased or restored)
+    onEntitled: { entitledEvent in
+        // User is now entitled — inspect entitledEvent for how (purchased, restored, alreadyEntitled, or skipped)
     }
 ) { paywallNotShownReason in
     switch paywallNotShownReason {

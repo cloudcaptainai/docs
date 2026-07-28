@@ -36,12 +36,9 @@ Use RevenueCat webhooks to send revenue events to Helium. Follow the instruction
 
 Grab the **Webhook URL** from the **App Store Server Notifications** section and use that value in your forwarding code.
 
-In your existing App Store Server Notifications handler, add a snippet that forwards the payload to Helium. Place it **as early as possible** — after you've parsed the incoming body, but before any type filtering or early returns — so that Helium receives *every* notification type, not just the subset your own handler acts on.
+In your existing App Store Server Notifications handler, add a snippet that forwards the payload to Helium **unchanged**. Place it as early as possible — after you've parsed the incoming body, but before any type filtering or early returns — so that Helium receives *every* notification type, not just the subset your own handler acts on.
 
-A few things to keep in mind:
-
-- **Don't couple your response to the forward.** Await the forward and wrap it in a `try/catch` that only logs on failure. It should never throw or change the status you return to Apple — otherwise a hiccup forwarding to Helium would make Apple retry the whole notification and re-run your own handling.
-- **Forward the payload intact.** You can forward the already-parsed body as-is; re-serializing it to JSON is fine because Helium verifies Apple's signed payload, not the raw request bytes. Just don't unwrap, extract, or otherwise modify it.
+**Don't couple your response to the forward.** Await the forward and wrap it in a `try/catch` that only logs on failure. It should never throw or change the status you return to Apple — otherwise a hiccup forwarding to Helium would make Apple retry the whole notification and re-run your own handling.
 
 Here is some example forwarding code. Reach out to Helium support if you have any questions.
 

@@ -75,7 +75,9 @@ try {
       signal: AbortSignal.timeout(5000)
     }
   );
-  if (!response.ok) throw new Error(`Helium returned ${response.status}`);
+  if (!response.ok) {
+    console.error(`Failed to forward webhook to Helium: status ${response.status}`);
+  }
 } catch (error) {
   console.error('Failed to forward webhook to Helium:', error);
 }

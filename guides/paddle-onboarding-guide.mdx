@@ -106,7 +106,7 @@ The hosted web paywall doesn't have to show the same products as the original â€
 
     The `successURL` and `cancelURL` are set once, globally. Make sure both are registered as deep links in your app (via scheme or universal link).
 
-    **Set your user ID on Helium** before the user reaches a paywall. User IDs are strongly preferred. If one isn't set at purchase time, the SDK falls back to a persistent device ID and reconciles after login. _If you must set user ID after showing paywall, let us know â€” there is a workaround._
+    **Set your user ID on Helium** before the user reaches a paywall. If you must set user ID after showing a paywall, set the `allowWebCheckoutWithoutUserId` option to true.
 
     **Handle the post-purchase return.** When checkout completes, the user is deep-linked back to your app via the success URL. For a smoother handoff, call `Helium.shared.handleURL(url)` from your `onOpenURL` / `application(_:open:)` handler.
 
@@ -135,20 +135,22 @@ The hosted web paywall doesn't have to show the same products as the original â€
     The SDK's `createPaddlePortalSession()` method is deprecated. Generate portal sessions on your own server from the customer ID instead, so your portal configuration and Paddle API key stay server-side.
     </Note>
   </Tab>
-  <Tab title="Expo 3.4.4+">
+  <Tab title="React Native / Expo">
+    Available in `expo-helium` 3.4.4\+ and `@tryheliumai/paywall-sdk-react-native` 3.1.0\+.
+
     **Enable external web checkout before initializing Helium:**
 
     ```tsx
-    enableExternalWebCheckout(
+    enableExternalWebCheckout({
       successURL: "yourapp://openapp",
       cancelURL: "yourapp://openapp",
       paymentProcessors: ["paddle"],
-    )
+    });
     ```
 
     The `successURL` and `cancelURL` are set once, globally. Make sure both are registered as deep links in your app (via scheme or universal link).
 
-    **Set your user ID on Helium** before the user reaches a paywall. User IDs are strongly preferred. If one isn't set at purchase time, the SDK falls back to a persistent device ID and reconciles after login. _If you must set user ID after showing paywall, let us know â€” there is a workaround._
+    **Set your user ID on Helium** before the user reaches a paywall. If you must set user ID after showing a paywall, make sure to call `setAllowWebCheckoutWithoutUserId(true)`.
 
     **Handle the post-purchase return.** When checkout completes, the user is deep-linked back to your app via the success URL. For a smoother handoff, call `heliumHandleURL(url)` from your deep link handling:
 
@@ -203,7 +205,7 @@ The hosted web paywall doesn't have to show the same products as the original â€
 
     The `successURL` and `cancelURL` are set once, globally. Make sure both are registered as deep links in your app (via scheme or universal link).
 
-    **Set your user ID on Helium** before the user reaches a paywall. User IDs are strongly preferred. If one isn't set at purchase time, the SDK falls back to a persistent device ID and reconciles after login. _If you must set user ID after showing paywall, let us know â€” there is a workaround._
+    **Set your user ID on Helium** before the user reaches a paywall. If you must set user ID after showing a paywall, make sure to call `setAllowWebCheckoutWithoutUserId(true)`.
 
     **Handle the post-purchase return.** When checkout completes, the user is deep-linked back to your app via the success URL. For a smoother handoff, call `handleURL(url)` from your deep link handling:
 
@@ -241,8 +243,6 @@ The hosted web paywall doesn't have to show the same products as the original â€
     </Note>
   </Tab>
 </Tabs>
-
-\*\*The Helium SDK will return an unauthenticated link as Paddle customer portal, so your users will have to provide email and log in. For a smoother experience, we recommend creating a [pre-authenticated link](https://developer.paddle.com/build/customers/integrate-customer-portal/).
 
 ### 8. (Optional) Connect RevenueCat
 

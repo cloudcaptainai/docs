@@ -27,8 +27,11 @@ npm install @tryheliumai/paywall-sdk-react-native
 # or
 yarn add @tryheliumai/paywall-sdk-react-native
 
-# [Bare only] then run the following to install the native dependencies
-npx react-native link @tryheliumai/paywall-sdk-react-native
+# [Bare React Native] the native module autolinks; install pods
+cd ios && pod install
+
+# [Expo 49-51] regenerate the native projects instead
+npx expo prebuild
 ```
 
 </CodeGroup>
@@ -37,11 +40,9 @@ npx react-native link @tryheliumai/paywall-sdk-react-native
   We support Expo 49+ but recommend using Helium with **Expo 53+**.
 </Tip>
 
-<Warning>
-  **The Older Expo / Bare SDK supports iOS only**.
-
-  The Expo 52+ SDK supports both iOS and Android.
-</Warning>
+<Info>
+  The Older Expo / Bare SDK requires React Native 0.71.7+, iOS 15+, and Android minSdk 24.
+</Info>
 
 ### Initialize Helium
 
@@ -191,11 +192,14 @@ await initialize({
 
 ```tsx Update after initialize
 import { setCustomUserId } from 'expo-helium';
+// or: import { setCustomUserId } from '@tryheliumai/paywall-sdk-react-native';
 
 setCustomUserId('your-custom-user-id');
 ```
 
 </CodeGroup>
+
+You can also read or clear the id later with `getCustomUserId()` / `clearCustomUserId()`.
 
 ### Helium Events
 
@@ -374,7 +378,8 @@ const asyncHeliumInit = async () => {
     apiKey: '<your-helium-api-key>',
     purchaseConfig: createRevenueCatPurchaseConfig(
       // (optional) Set if you want Helium to initialize RevenueCat for you.
-      // Otherwise initialize RevenueCat (`Purchases.configure()`) before initializing Helium
+      // Otherwise initialize RevenueCat (`Purchases.configure()`) before initializing Helium.
+      // Platform-specific keys are also supported: { apiKeyIOS, apiKeyAndroid }
       { apiKey: 'revenue_cat_api_key' }
     ),
     revenueCatAppUserId: await Purchases.getAppUserID()
@@ -394,6 +399,7 @@ If you ever [change the appUserID](https://www.revenuecat.com/docs/customers/ide
 
 ```tsx
 import { setRevenueCatAppUserId } from 'expo-helium';
+// or: import { setRevenueCatAppUserId } from '@tryheliumai/paywall-sdk-react-native';
 
 setRevenueCatAppUserId(await Purchases.getAppUserID());
 ```
@@ -436,7 +442,12 @@ import { createCustomPurchaseConfig } from '@tryheliumai/paywall-sdk-react-nativ
 
 // In your initialize call:
 purchaseConfig: createCustomPurchaseConfig({
-  makePurchase: async (productId) => {
+  makePurchaseIOS: async (productId) => {
+    // Your purchase logic here
+    // Return a HeliumTransactionStatus
+    return { status: 'purchased' };
+  },
+  makePurchaseAndroid: async (productId, basePlanId, offerId) => {
     // Your purchase logic here
     // Return a HeliumTransactionStatus
     return { status: 'purchased' };
@@ -453,6 +464,20 @@ purchaseConfig: createCustomPurchaseConfig({
 ```tsx
 type HeliumTransactionStatus =
   'purchased' | 'failed' | 'cancelled' | 'pending' | 'restored';
+```
+
+### Testing Purchases
+
+Stub purchase flows for demos, UI tests, and CI — no store configuration needed. Debug builds only; gate the calls so they never run in production:
+
+```tsx
+import { heliumTesting } from 'expo-helium';
+// or: from '@tryheliumai/paywall-sdk-react-native';
+
+heliumTesting.setPurchaseResult('purchased');
+heliumTesting.setRestoreResult(true);
+heliumTesting.setIntroOfferEligibility(true); // call before initialize()
+heliumTesting.reset();                        // back to real billing
 ```
 
 ### Additional Features
@@ -478,9 +503,36 @@ type HeliumTransactionStatus =
 
   ```typescript
   import { resetHelium } from 'expo-helium';
-  
+  // or: import { resetHelium } from '@tryheliumai/paywall-sdk-react-native';
+
   await resetHelium();
   ```
+</Accordion>
+
+<Accordion title="Customization">
+  ```typescript
+  // Override light/dark appearance for paywalls
+  setLightDarkModeOverride('dark'); // 'light' | 'dark' | 'system'
+
+  // Customize or disable the dialog shown when "Restore Purchases" fails
+  setCustomRestoreFailedStrings('Title', 'Message', 'Close');
+  disableRestoreFailedDialog();
+
+  // Toggle the triple-tap paywall previews gesture in dev builds
+  setPaywallPreviewsEnabledInDevBuilds(false);
+  ```
+</Accordion>
+
+<Accordion title="Checking SDK State">
+  ```typescript
+  // 'downloadSuccess' | 'downloadFailure' | 'inProgress' | 'notDownloadedYet'
+  const status = await getDownloadStatus();
+
+  // { paywallTemplateName, shouldShow } for a trigger
+  const info = await getPaywallInfo('my_trigger');
+  ```
+
+  Native SDK logs are also routed to the JS console prefixed with `[Helium]`, so configuration problems surface in Metro during development.
 </Accordion>
 
 ### Expo Development Build
@@ -490,6 +542,12 @@ Please note that the Helium SDK uses native code, so you must create a [developm
 ```bash
 npx expo run:ios # or npx expo run:ios --device
 ```
+
+Bare React Native apps always include native code — just run `npx react-native run-ios` / `run-android` as usual.
+
+### Example Apps
+
+Working example apps (Expo 51 and bare React Native) live in the [SDK repo's examples folder](https://github.com/cloudcaptainai/paywall-sdk-react-native/tree/main/examples).
 
 ### Troubleshooting
 
@@ -522,8 +580,8 @@ npm install @tryheliumai/paywall-sdk-react-native
 # or
 yarn add @tryheliumai/paywall-sdk-react-native
 
-# then run the following to install the native dependencies
-npx react-native link @tryheliumai/paywall-sdk-react-native
+# [Bare React Native] then reinstall the native pods
+cd ios && pod install
 ```
 
 </CodeGroup>
@@ -547,10 +605,23 @@ grep -E "Helium" ios/Podfile.lock > /dev/null && echo "✅ Helium found in ios/P
 
 If not found, try these commands:
 
-```bash
+<CodeGroup>
+
+```bash Expo
 # regenerate the ios (and android) directories
 npx expo prebuild --clean
 
 # run a development build
 npx expo run:ios # or npx expo run:ios --device
 ```
+
+
+```bash Bare React Native
+# reinstall the native pods
+cd ios && pod install
+
+# rebuild the app
+npx react-native run-ios # or run-android
+```
+
+</CodeGroup>

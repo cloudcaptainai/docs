@@ -20,6 +20,14 @@ Triple tap again or dismiss the paywall to return to the list of paywalls.
   By default, this functionality is only enabled in debug/TestFlight builds for iOS and debug builds for Android.
 </Info>
 
+### Preview the Default Fallback Paywall
+
+On iOS (helium-swift), this same control panel now shows a card above the paywall list for previewing your app's default fallback paywall. Tapping it renders that same fallback paywall directly on device. Because it uses the bundled configuration, it works offline without any fetched remote config. This lets you verify exactly what users see when the network is unavailable or a paywall can't be fetched.
+
+<Info>
+  If no fallback bundle is configured in the app, the card is inert (not tappable). See the [Fallback Paywalls guide](/guides/fallback-bundle) to set one up.
+</Info>
+
 ## Preview Paywalls from the Helium App (coming soon)
 
 _Not yet available._

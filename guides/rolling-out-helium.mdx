@@ -1,0 +1,40 @@
+---
+title: "Rolling Out Helium"
+description: "A simple guide for rolling out Helium and monitoring performance."
+---
+
+Here are our tips for rolling out Helium smoothly. Start small, make sure the basics are working, and ramp up from there.
+
+## Set up the rollout
+
+Use your existing feature flag or experimentation tool to split users between your current paywall and Helium. PostHog, Statsig, Firebase Remote Config, LaunchDarkly, or your own feature flag system all work.
+
+For an A/A comparison, keep the paywall design, products, targeting, and purchase behavior as similar as possible between the two groups.
+
+<Tip>
+  Initialize Helium at app launch for all users. Use the feature flag to decide whether a user sees the current experience or Helium.
+</Tip>
+
+## Start small
+
+First, test with internal or allowlisted users. Confirm the paywall opens and dismisses correctly, the right products appear, purchases work, and analytics are flowing.
+
+Then roll Helium out to a small percentage of users, usually around 5%, for 24-48 hours. This is mostly a check that everything works in production.
+
+## Watch the basics
+
+Loosely monitor:
+
+- Users assigned to each rollout group
+- Paywall views in each group
+- Paywall conversion rate in each group
+- Purchase errors, app errors, and Helium fallback rate
+- Helium Analytics for each paywall and trigger
+
+The numbers do not need to match perfectly. You are looking for obvious gaps, missing events, or a meaningful drop in conversion.
+
+## Ramp up
+
+Once everything looks healthy, you can roll Helium out to everyone.
+
+If you want to confirm conversion is maintained first, move to a 50/50 split between your current experience and Helium. Run it long enough to get a useful amount of conversion data for your traffic level, then complete the rollout.

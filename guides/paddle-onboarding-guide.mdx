@@ -126,13 +126,15 @@ The hosted web paywall doesn't have to show the same products as the original â€
     }
     ```
 
-    The portal link opens `paddle.net`, where the user enters the email they purchased with, receives a magic link, and lands in the portal. It's the same portal, just with a secure email verification step in front of it, in line with Paddle's recommended flow.
+    The portal link opens `paddle.net`, where the user enters the email they purchased with, receives a magic link, and lands in the customer portal. This is Paddle's default, recommended flow: a secure email verification step in front of the portal.
 
-    **Want a pre-authenticated portal link?** If you'd rather skip the paddle.net email verification step and drop users straight into the customer portal, you can generate an authenticated link yourself. Grab the Paddle customer ID from Helium and pass it to the Paddle API to build the link ([Paddle customer portal docs](https://developer.paddle.com/build/customers/integrate-customer-portal/)):
+    **Want a pre-authenticated portal link?** If you'd rather skip the paddle.net email verification step and drop users straight into the customer portal, generate the link from your backend instead. Look up the user's Paddle customer ID with Helium:
 
     ```swift
     let paddleCustomerId = await Helium.shared.getPaddleCustomerId()
     ```
+
+    Send that ID to your server, then call `POST /customers/{customer_id}/portal-sessions` using a Paddle API key with `customer_portal_session.write` and return `urls.general.overview` to the client ([Paddle customer portal docs](https://developer.paddle.com/build/customers/integrate-customer-portal/)). The returned link contains a temporary session token, so generate a fresh one for each request rather than caching it.
   </Tab>
   <Tab title="Expo 3.4.4+">
     **Enable external web checkout before initializing Helium:**
@@ -177,13 +179,15 @@ The hosted web paywall doesn't have to show the same products as the original â€
     }
     ```
 
-    The portal link opens `paddle.net`, where the user enters the email they purchased with, receives a magic link, and lands in the portal. It's the same portal â€” just with a secure email verification step in front of it, in line with Paddle's recommended flow.
+    The portal link opens `paddle.net`, where the user enters the email they purchased with, receives a magic link, and lands in the customer portal. This is Paddle's default, recommended flow: a secure email verification step in front of the portal.
 
-    **Want a pre-authenticated portal link?** If you'd rather skip the paddle.net email verification step and drop users straight into the customer portal, you can generate an authenticated link yourself. Grab the Paddle customer ID from Helium and pass it to the Paddle SDK to build the link ([Paddle customer portal docs](https://developer.paddle.com/build/customers/integrate-customer-portal/)):
+    **Want a pre-authenticated portal link?** If you'd rather skip the paddle.net email verification step and drop users straight into the customer portal, generate the link from your backend instead. Look up the user's Paddle customer ID with Helium:
 
     ```tsx
     const paddleCustomerId = await getPaddleCustomerId();
     ```
+
+    Send that ID to your server, then call `POST /customers/{customer_id}/portal-sessions` using a Paddle API key with `customer_portal_session.write` and return `urls.general.overview` to the client ([Paddle customer portal docs](https://developer.paddle.com/build/customers/integrate-customer-portal/)). The returned link contains a temporary session token, so generate a fresh one for each request rather than caching it.
   </Tab>
   <Tab title="Flutter 3.3.4+">
     **Enable external web checkout before initializing Helium:**
@@ -224,9 +228,9 @@ The hosted web paywall doesn't have to show the same products as the original â€
     }
     ```
 
-    The portal link opens `paddle.net`, where the user enters the email they purchased with, receives a magic link, and lands in the portal. It's the same portal â€” just with a secure email verification step in front of it, in line with Paddle's recommended flow.
+    The portal link opens `paddle.net`, where the user enters the email they purchased with, receives a magic link, and lands in the customer portal. This is Paddle's default, recommended flow: a secure email verification step in front of the portal.
 
-    **Want a pre-authenticated portal link?** If you'd rather skip the paddle.net email verification step and drop users straight into the customer portal, you can generate an authenticated link yourself. Grab the Paddle customer ID from Helium and pass it to the Paddle SDK to build the link ([Paddle customer portal docs](https://developer.paddle.com/build/customers/integrate-customer-portal/)).
+    **Want a pre-authenticated portal link?** If you'd rather skip the paddle.net email verification step and drop users straight into the customer portal, generate the link from your backend instead. Look up the user's Paddle customer ID with Helium's `getPaddleCustomerId()`, send it to your server, then call `POST /customers/{customer_id}/portal-sessions` using a Paddle API key with `customer_portal_session.write` and return `urls.general.overview` to the client ([Paddle customer portal docs](https://developer.paddle.com/build/customers/integrate-customer-portal/)). The returned link contains a temporary session token, so generate a fresh one for each request rather than caching it.
   </Tab>
 </Tabs>
 

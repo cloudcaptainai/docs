@@ -21,20 +21,21 @@ First, test with internal or allowlisted users. Confirm the paywall opens and di
 
 Then roll Helium out to a small percentage of users, usually around 5%, for 24-48 hours. This is mostly a check that everything works in production.
 
-## Watch the basics
+## Validate the data
 
-Loosely monitor:
+At this stage, make sure:
 
-- Users assigned to each rollout group
-- Paywall views in each group
-- Paywall conversion rate in each group
-- Purchase errors, app errors, and Helium fallback rate
-- Helium Analytics for each paywall and trigger
+- Data is showing up in Helium
+- Paywall views and conversions are being recorded
+- Analytics are flowing for each paywall and trigger
+- Error logs do not show any new problems
 
-The numbers do not need to match perfectly. You are looking for obvious gaps, missing events, or a meaningful drop in conversion.
+This step is about confirming the data is working, not comparing aggregate performance yet.
 
 ## Ramp up
 
 Once everything looks healthy, you can roll Helium out to everyone.
 
-If you want to confirm conversion is maintained first, move to a 50/50 split between your current experience and Helium. Run it long enough to get a useful amount of conversion data for your traffic level, then complete the rollout.
+If you want to confirm conversion is maintained first, move to a 50/50 split between your current experience and Helium. At that point, loosely compare the users in each rollout group, paywall views, and paywall conversion rate.
+
+Run it long enough to get a useful amount of conversion data for your traffic level, then complete the rollout.

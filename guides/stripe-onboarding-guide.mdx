@@ -30,13 +30,11 @@ Go to the Helium [Integrations](https://app.tryhelium.com/integrations/products)
 
 Create a new account or connect an existing Stripe account.
 
-Sync your products, verify your Apple Pay Domain, and set a publishable key.
+Sync your products and ensure the APPLE PAY DOMAIN status is Verified.
 
 <Info>
   Helium does not yet support Stripe sandbox.
 </Info>
-
-Visit your [Stripe dashboard](https://dashboard.stripe.com/settings/payment_method_domains) and under **Payment method domains** and make sure you see **bundles.clickthrough.to** listed. If you do not, add it as a new domain.
 
 ### 2. Adjust Stripe Products
 
@@ -62,7 +60,7 @@ The hosted web paywall doesn't have to show the same products as the original â€
 ### 4. SDK integration
 
 <Tabs>
-  <Tab title="iOS (native) 4.5.6+">
+  <Tab title="iOS (native) 4.6.0+">
     **Enable external web checkout before initializing Helium:**
 
     ```swift
@@ -95,7 +93,7 @@ The hosted web paywall doesn't have to show the same products as the original â€
     }
     ```
   </Tab>
-  <Tab title="Expo 3.4.11+">
+  <Tab title="Expo 3.4.13+">
     **Enable external web checkout before initializing Helium:**
 
     ```tsx
@@ -222,14 +220,18 @@ If you use [RevenueCat alongside Stripe](https://www.revenuecat.com/docs/web/int
 
 ## Testing
 
-Run through these scenarios before going live:
+To test without affecting production traffic, create a test targeting group that includes:
 
-1. **Happy path purchase.** Open a Stripe paywall in-app, tap a product, complete checkout in the browser, and confirm you're deep-linked back with an active entitlement.
+- Stripe eligible users
+- `sandbox` or `debug` environment
+
+Target the App2Web paywall to that group, then run through these scenarios before going live:
+
+1. **Happy path purchase.** Open an App2Web paywall in-app, tap a web product, and confirm the app correctly opens the browser. Complete the standard purchase flow, then confirm you're deep-linked back with an active entitlement. Dismiss the paywall before purchasing as well, and confirm the app returns to the expected screen.
 2. **Entitlement sync.** After purchase, confirm `hasActiveStripeEntitlement()` returns `true` immediately, and that RevenueCat (if connected) updates within a few seconds.
-3. **Free trial.** Purchase a trial product, cancel it, and confirm the trial is no longer offered on re-purchase.
-4. **Cancel flow.** Open the customer portal from your app, cancel a subscription, and confirm the entitlement expires at period end.
-5. **Pre-login purchase.** Make a purchase before setting a user ID. After you set the user ID, confirm the entitlement attaches correctly.
-6. **Abandoned checkout.** Close the browser mid-checkout and confirm the app handles the cancel URL gracefully.
+3. **Cancel flow.** Open the customer portal from your app, cancel a subscription, and confirm the entitlement expires at period end.
+4. **Abandoned checkout.** Close the browser mid-checkout and confirm the app handles the cancel URL gracefully.
+5. **Pre-login purchase (if applicable).** If your App2Web paywall can be shown before you set a durable `user_id`, make a purchase before setting it. Set the durable user ID afterwards and confirm the entitlement attaches correctly.
 
 ## Appendix
 
@@ -249,6 +251,11 @@ Deep links are specific to your app build, so it's cleaner to configure them alo
 
 ### Known limitations and gotchas
 
+- **Availability:** Stripe App2Web is currently supported for US storefronts only.
 - **Publish states:** both the original paywall and its linked hosted web paywall must be published before the flow works end-to-end.
-- **Localizations:** if you support multiple languages in-app, confirm your hosted web paywall's localizations match.
-- **Declined payments:** the user is returned via the `cancelURL`. Your app should treat this as "no purchase made."
+- **Localizations:** hosted web paywalls currently support one language.
+- **Testing:** normally, paywalls should be tested with the triple-tap viewer. Triple-tap does not currently support end-to-end App2Web testing, so test the full App2Web flow through a real trigger.
+
+## Before you go live
+
+Run through the [App2Web go-live checklist](/guides/app2web-go-live-checklist) before sending traffic to this flow.

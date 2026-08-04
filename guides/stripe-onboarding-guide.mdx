@@ -30,13 +30,11 @@ Go to the Helium [Integrations](https://app.tryhelium.com/integrations/products)
 
 Create a new account or connect an existing Stripe account.
 
-Sync your products, verify your Apple Pay Domain, and set a publishable key.
+Sync your products and ensure the APPLE PAY DOMAIN status is Verified.
 
 <Info>
   Helium does not yet support Stripe sandbox.
 </Info>
-
-Visit your [Stripe dashboard](https://dashboard.stripe.com/settings/payment_method_domains) and under **Payment method domains** and make sure you see **bundles.clickthrough.to** listed. If you do not, add it as a new domain.
 
 ### 2. Adjust Stripe Products
 
@@ -62,7 +60,7 @@ The hosted web paywall doesn't have to show the same products as the original â€
 ### 4. SDK integration
 
 <Tabs>
-  <Tab title="iOS (native) 4.5.6+">
+  <Tab title="iOS (native) 4.6.0+">
     **Enable external web checkout before initializing Helium:**
 
     ```swift
@@ -95,7 +93,7 @@ The hosted web paywall doesn't have to show the same products as the original â€
     }
     ```
   </Tab>
-  <Tab title="Expo 3.4.11+">
+  <Tab title="Expo 3.4.13+">
     **Enable external web checkout before initializing Helium:**
 
     ```tsx

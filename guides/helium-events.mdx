@@ -161,6 +161,31 @@ This page acts as a reference to what events are available in Helium, and when e
 | **purchaseRestoreFailed**  | Fires when an attempt to restore purchases fails                                                                        | `triggerName` (String) - Associated trigger<br />`paywallName` (String) - Paywall name<br />`isSecondTry` (Boolean) - True if paywall is "second try" flow<br />`timestamp` (Number) - When event occurred                                                                                                                                                                                                                                                                                      |
 | **purchasePending**        | Fires when purchase is in a pending state (e.g. waiting for parental approval)                                          | `productId` (String) - Pending product<br />`triggerName` (String) - Associated trigger<br />`paywallName` (String) - Paywall name<br />`isSecondTry` (Boolean) - True if paywall is "second try" flow<br />`timestamp` (Number) - When event occurred                                                                                                                                                                                                                                          |
 
+### PaywallEntitledEvent
+
+`PaywallEntitledEvent` is the entitling event delivered to the `onEntitled` callback of `presentUpsell` in the React Native SDK (Expo or bare; see the [React Native quickstart](/sdk/quickstart-react-native)).
+
+It is a narrowed alias of the `HeliumPaywallEvent` type shown in the React Native tab of the Event Types section above. It carries the full `HeliumPaywallEvent` property set (`productId`, `triggerName`, `paywallName`, `isSecondTry`, `timestamp`, etc.), with only `type` restricted to the four entitling values.
+
+```typescript
+export type PaywallEntitledEvent = HeliumPaywallEvent & {
+  type: 'purchaseSucceeded' | 'purchaseRestored' | 'purchaseAlreadyEntitled' | 'paywallSkipped';
+};
+```
+
+| `type`                     | Meaning                                                                                                            |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `purchaseSucceeded`        | A new purchase completed the entitlement                                                                           |
+| `purchaseRestored`         | Entitlement gained via restore                                                                                     |
+| `purchaseAlreadyEntitled`  | Purchase attempt resolved to an existing entitlement (**iOS only**)                                                |
+| `paywallSkipped`           | Paywall not shown because the user was already entitled (only when `dontShowIfAlreadyEntitled` is `true`)          |
+
+<Note>
+  For the purchase, restore, and already-entitled cases the event fires when the paywall closes. For the skip case it fires immediately when the paywall is not shown.
+</Note>
+
+Exceptions thrown inside the `onEntitled` callback are caught and logged (`[Helium] onEntitled callback failed`) rather than propagating.
+
 ### System Events
 
 | Event Name                  | Description                                                        | Parameters                                                                                                                                                                                                                                                                                                                                                                                                                                                                |

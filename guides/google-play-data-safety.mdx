@@ -45,7 +45,7 @@ On the client, `Helium.resetHelium()` clears the locally persisted Helium identi
 | Category | Data type | Required? |
 | --- | --- | --- |
 | Location | Approximate location, Precise location | ❌ Helium reads no location APIs and declares no location permission. It collects device locale, currency, and Play store country, which Google does not classify as location. |
-| Personal info | **User IDs** | ✅ Helium generates a persistent installation ID, plus per-session and per-initialization IDs. Includes your own `Helium.identity.userId` if you set one. |
+| Personal info | User IDs | 💡 Only if you set `Helium.identity.userId`, `revenueCatAppUserId`, or `thirdPartyAnalyticsAnonymousId` to a value that relates to an identifiable person, such as your own account ID. If you set none of them, Helium falls back to its generated installation ID, which is covered by Device or other IDs below. |
 | Personal info | Name, Email address, Phone number, Address | 💡 Only if you put them into `HeliumUserTraits`, or if you use the optional Stripe module. |
 | Financial info | **Purchase history** | ✅ Helium collects product IDs, Google Play order IDs and purchase tokens, purchase dates, quantity, and store country. |
 | Financial info | User payment info | 💡 Optional Stripe module only. |
@@ -63,21 +63,28 @@ On the client, `Helium.resetHelium()` clears the locally persisted Helium identi
 | Web browsing | Web browsing history | ❌ Paywalls render inside a WebView that loads Helium-controlled content. Helium does not read browsing history. |
 | App info and performance | **Diagnostics** | ✅ Paywall load and render timings, configuration download outcomes, retry counts, and error descriptions. |
 | App info and performance | Crash logs, Other app performance data | ❌ Helium bundles no crash reporter. |
-| Device or other IDs | **Device or other IDs** | ✅ Helium collects the Android ID (`Settings.Secure.ANDROID_ID`) and its own persistent installation ID. |
+| Device or other IDs | **Device or other IDs** | ✅ The Android ID (`Settings.Secure.ANDROID_ID`), plus Helium's own generated installation, session, and initialization IDs. |
 
 <Tip>
-  Helium declares more than a billing-only SDK would, because paywall interaction data is what powers experiments and optimization rather than being a side effect. The five bolded rows above are the ones you always need.
+  Helium declares more than a billing-only SDK would, because paywall interaction data is what powers experiments and optimization rather than being a side effect. The four bolded rows above are the ones you always need.
 </Tip>
 
 ## Answering the per-data-type questions
 
-For each data type you select, Google asks four follow-up questions. All five required Helium data types (User IDs, Purchase history, App interactions, Diagnostics, and Device or other IDs) get the same answers.
+For each data type you select, Google asks four follow-up questions. All four required Helium data types (Purchase history, App interactions, Diagnostics, and Device or other IDs) get the same answers. Any 💡 rows that apply to your setup generally follow the same pattern, though review the purposes for your own case.
 
 ### Is this data collected, shared, or both?
 
-Select **Collected**.
+Select **Collected** if Helium processes this data solely on your behalf and under your instructions. That is Google's test for a service provider, and sharing does not apply.
 
-Helium processes this data on your behalf, as a service provider under Google's definition, so sharing does not apply by default. If you route Helium events onward to third parties that are not acting as your service providers, you may also need to select **Shared** and declare the purposes of that sharing.
+Select **Collected** and **Shared**, and declare the purposes of that sharing, if either of the following is true:
+
+- Helium uses your app's data for its own cross-customer optimization or experiment purposes rather than solely on your instructions.
+- You forward Helium events to third parties that are not acting as your service providers.
+
+<Warning>
+  Google is explicit that "if an SDK provider is building advertising profiles across multiple customers based on your app data, that would not be considered 'service provider' activity." Confirm which of the above describes your contract and configuration before answering.
+</Warning>
 
 ### Is this data processed ephemerally?
 
@@ -88,8 +95,12 @@ Select **No**. Helium retains this data to power paywall experimentation and rep
 Select **Data collection is required** by default. The Helium SDK does not expose a per-user opt-out, so once you initialize it, collection begins.
 
 <Tip>
-  You can declare this data **optional** instead if you gate `Helium.initialize()` behind your own consent prompt and only call it for users who agree. Google's bar is that all users, regardless of device or region, must be able to opt in or out. This is worth doing if you operate in regions with consent requirements, since it also gives you a clean GDPR and CCPA story.
+  You can declare this data **optional** instead if you gate `Helium.initialize()` behind your own consent prompt and only call it for users who agree. Google's bar is that all users, regardless of device or region, must be able to opt in or out.
 </Tip>
+
+<Note>
+  A consent gate answers this Play Data safety question only. It does not by itself establish compliance with GDPR, CCPA, or other privacy regimes, which impose separate requirements such as having a lawful basis for processing, giving notice at collection, and handling consumer rights requests. Review the jurisdictions you operate in with privacy counsel.
+</Note>
 
 ### Why is this user data collected?
 

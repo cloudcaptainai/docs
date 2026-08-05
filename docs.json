@@ -41,7 +41,8 @@
           "guides/custom-events",
           "guides/storekit-testing",
           "guides/paywall-traits",
-          "guides/paddle-onboarding-guide"
+          "guides/paddle-onboarding-guide",
+          "guides/google-play-data-safety"
         ]
       },
       {

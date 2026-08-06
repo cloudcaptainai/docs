@@ -120,6 +120,19 @@ struct ContentView: View {
   If you are using UIKit, you can use a UIHostingController.
 </Note>
 
+#### Paywall Link Behavior
+
+By default, the SDK opens a paywall's navigate-action `http`/`https` links in an in-app Safari view that slides up over the paywall as a page sheet, keeping the user in your app. The **`Helium.config.openPaywallLinksInApp`** Bool (default `true`) controls this. Set it to `false` before calling `Helium.shared.initialize(...)` to open those links in the external browser instead:
+
+```swift
+// Open paywall links in the external browser instead
+Helium.config.openPaywallLinksInApp = false
+```
+
+<Note>
+  This setting only affects the paywall navigate action for `http`/`https` URLs. Links with non-web schemes (`mailto:`, `tel:`, or custom app schemes) always open externally, regardless of this setting. So do direct HTML anchor (`<a href>`) taps in paywall content.
+</Note>
+
 ## Android
 
 #### Embedded Paywall (Compose)

@@ -97,17 +97,18 @@ The hosted web paywall doesn't have to show the same products as the original �
 
     ```swift
     Helium.config.enableExternalWebCheckout(
-      successURL: "yourapp://openapp",
-      cancelURL: "yourapp://openapp",
+      redirectURL: "yourapp://openapp",
       paymentProcessors: .paddle
     )
     ```
 
-    The `successURL` and `cancelURL` are set once, globally. Make sure both are registered as deep links in your app (via scheme or universal link).
+    The `redirectURL` is set once, globally. Checkout redirects back to it whether the purchase succeeds, is canceled, or fails — the SDK determines the outcome itself. Make sure it's registered as a deep link in your app (via scheme or universal link).
+
+    The older `enableExternalWebCheckout(successURL:cancelURL:paymentProcessors:)` form still works but is deprecated.
 
     **Set your user ID on Helium** before the user reaches a paywall. If you must set user ID after showing a paywall, set the `allowWebCheckoutWithoutUserId` option to true.
 
-    **Handle the post-purchase return.** When checkout completes, the user is deep-linked back to your app via the success URL. For a smoother handoff, call `Helium.shared.handleURL(url)` from your `onOpenURL` / `application(_:open:)` handler.
+    **Handle the checkout return.** Whether checkout succeeds, is canceled, or fails, the user is deep-linked back to your app via the redirect URL. For a smoother handoff, call `Helium.shared.handleURL(url)` from your `onOpenURL` / `application(_:open:)` handler.
 
     **Add a "Manage Subscription" button** so users can cancel or update payment methods via Paddle's customer portal:
 
@@ -285,7 +286,7 @@ Target the App2Web paywall to that group, then run through these scenarios in Pa
 1. **Happy path purchase.** Open an App2Web paywall in-app, tap a web product, and confirm the app correctly opens the browser. Complete the standard purchase flow, then confirm you're deep-linked back with an active entitlement. Dismiss the paywall before purchasing as well, and confirm the app returns to the expected screen.
 2. **Entitlement sync.** After purchase, confirm `hasActivePaddleEntitlement()` returns `true` immediately, and that RevenueCat (if connected) updates within a few seconds.
 3. **Cancel flow.** Open the customer portal from your app, cancel a subscription, and confirm the entitlement expires at period end.
-4. **Abandoned checkout.** Close the browser mid-checkout and confirm the app handles the cancel URL gracefully.
+4. **Abandoned checkout.** Close the browser mid-checkout and confirm the app returns through the deep link without granting an entitlement or displaying a success state.
 5. **Webhook delivery.** In the Paddle dashboard, confirm webhooks are reaching Helium with 2xx responses.
 6. **Pre-login purchase (if applicable).** If your App2Web paywall can be shown before you set a durable `user_id`, make a purchase before setting it. Set the durable user ID afterwards and confirm the entitlement attaches correctly.
 
@@ -301,9 +302,9 @@ On successful purchase, the SDK's entitlement cache updates immediately. The Hel
 
 The original in-app paywall presents your Paddle offerings. The hosted web paywall — served from `clickthrough.to` — runs the actual Paddle checkout, which has to happen in a browser. The two can be customized independently and don't need to show the same products.
 
-### Why are success/cancel URLs set in the SDK?
+### Why is the checkout return URL set in the SDK?
 
-Deep links are specific to your app build, so it's cleaner to configure them alongside SDK init than in the dashboard. They're global: set once, applied to every Paddle purchase. It's ok if they are the same URL.
+Deep links are specific to your app build, so it's cleaner to configure them alongside SDK init than in the dashboard. The URL is global: set once, applied to every Paddle purchase. On iOS a single `redirectURL` covers success, cancel, and failure. React Native and Flutter still take separate `successURL`/`cancelURL` values — it's ok if they are the same URL.
 
 ### Known limitations and gotchas
 

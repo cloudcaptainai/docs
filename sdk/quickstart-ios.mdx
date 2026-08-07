@@ -185,8 +185,15 @@ Helium.shared.presentPaywall(
       _(Optional)_ Event handlers for paywall lifecycle events
     </ResponseField>
 
-    <ResponseField name="onEntitled" type="(() -> Void)?">
-      _(Optional)_ A handler for when user is entitled to a product in the paywall, via purchase or existing entitlement.
+    <ResponseField name="onEntitled" type="((PaywallEntitledEvent) -> Void)?">
+      _(Optional)_ A handler for when user is entitled to a product in the paywall, via purchase or existing entitlement. Receives a `PaywallEntitledEvent` identifying how the user became entitled:
+
+      - `.purchased` — a new purchase completed successfully
+      - `.restored` — an existing entitlement was surfaced via restore
+      - `.alreadyEntitled` — a purchase attempt resolved to an entitlement the user already had
+      - `.skipped` — the paywall was not shown because the user is already entitled (requires `config.dontShowIfAlreadyEntitled`)
+
+      The event's `productId` gives the product involved (`nil` for `.skipped`), and its `event` property exposes the underlying SDK event. Existing no-argument closures keep working (they map to a deprecated overload).
     </ResponseField>
 
     <ResponseField name="onPaywallNotShown" type="(PaywallNotShownReason) -> Void" required>
@@ -365,9 +372,22 @@ Helium.shared.presentPaywall(
     config: PaywallPresentationConfig(
         dontShowIfAlreadyEntitled: true
     ),
-    onEntitled: {
-        // handle user with existing entitlement
-        // or new entitlement after they completed/restored a purchase
+    onEntitled: { entitledEvent in
+        switch entitledEvent {
+        case .purchased:
+            // new purchase completed
+            break
+        case .restored:
+            // entitlement surfaced via restore
+            break
+        case .alreadyEntitled:
+            // purchase attempt resolved to an existing entitlement
+            break
+        case .skipped:
+            // paywall not shown - user already entitled
+            break
+        }
+        // entitledEvent.productId — product involved (nil for .skipped)
     }
 ) { paywallNotShownReason in
     // handle paywall not shown

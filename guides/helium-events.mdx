@@ -39,7 +39,8 @@ This page acts as a reference to what events are available in Helium, and when e
     //            PaywallSkippedEvent, PaywallButtonPressedEvent
     // Purchase:  ProductSelectedEvent, PurchasePressedEvent, PurchaseSucceededEvent,
     //            PurchaseCancelledEvent, PurchaseFailedEvent, PurchaseRestoredEvent,
-    //            PurchaseRestoreFailedEvent, PurchasePendingEvent
+    //            PurchaseRestoreFailedEvent, PurchasePendingEvent,
+    //            PurchaseAlreadyEntitledEvent
     // System:    InitializeStartEvent, PaywallsDownloadSuccessEvent,
     //            PaywallsDownloadErrorEvent, PaywallWebViewRenderedEvent
     // Experiment: UserAllocatedEvent
@@ -85,6 +86,7 @@ This page acts as a reference to what events are available in Helium, and when e
         'paywallOpenFailed' | 'paywallSkipped' | 'paywallButtonPressed' |
         'productSelected' | 'purchasePressed' | 'purchaseSucceeded' |
         'purchaseCancelled' | 'purchaseFailed' | 'purchaseRestored' |
+        'purchaseAlreadyEntitled' |
         'purchaseRestoreFailed' | 'purchasePending' | 'initializeCalled' |
         'paywallsDownloadSuccess' | 'paywallsDownloadError' | 
         'paywallWebViewRendered' | 'userAllocated';
@@ -158,8 +160,51 @@ This page acts as a reference to what events are available in Helium, and when e
 | **purchaseCancelled**      | Fires when the purchase process is cancelled by the user                                                                | `productId` (String) - Product that was cancelled<br />`triggerName` (String) - Associated trigger<br />`paywallName` (String) - Paywall name<br />`isSecondTry` (Boolean) - True if paywall is "second try" flow<br />`timestamp` (Number) - When event occurred                                                                                                                                                                                                                               |
 | **purchaseFailed**         | Fires when the purchase fails for any reason                                                                            | `productId` (String) - Product that failed<br />`triggerName` (String) - Associated trigger<br />`paywallName` (String) - Paywall name<br />`isSecondTry` (Boolean) - True if paywall is "second try" flow<br />`error` (String, optional) - Error message<br />`timestamp` (Number) - When event occurred                                                                                                                                                                                      |
 | **purchaseRestored**       | Fires when a previous purchase is successfully restored                                                                 | `productId` (String) - Restored product ID<br />`triggerName` (String) - Associated trigger<br />`paywallName` (String) - Paywall name<br />`isSecondTry` (Boolean) - True if paywall is "second try" flow<br />`timestamp` (Number) - When event occurred                                                                                                                                                                                                                                      |
+| **purchaseAlreadyEntitled** | Fires when a purchase attempt resolves to an entitlement the user already had (iOS only). Not a new revenue event                | `productId` (String) - Product the user already owns<br />`triggerName` (String) - Associated trigger<br />`paywallName` (String) - Paywall name<br />`isSecondTry` (Boolean) - True if paywall is "second try" flow<br />`storeKitTransactionId` (String, optional) - Existing transaction ID<br />`storeKitOriginalTransactionId` (String, optional) - Original transaction ID<br />`timestamp` (Number) - When event occurred |
 | **purchaseRestoreFailed**  | Fires when an attempt to restore purchases fails                                                                        | `triggerName` (String) - Associated trigger<br />`paywallName` (String) - Paywall name<br />`isSecondTry` (Boolean) - True if paywall is "second try" flow<br />`timestamp` (Number) - When event occurred                                                                                                                                                                                                                                                                                      |
 | **purchasePending**        | Fires when purchase is in a pending state (e.g. waiting for parental approval)                                          | `productId` (String) - Pending product<br />`triggerName` (String) - Associated trigger<br />`paywallName` (String) - Paywall name<br />`isSecondTry` (Boolean) - True if paywall is "second try" flow<br />`timestamp` (Number) - When event occurred                                                                                                                                                                                                                                          |
+
+### PaywallEntitledEvent (onEntitled)
+
+`PaywallEntitledEvent` is not a separate event — it's the entitling event passed to the `onEntitled` callback of `presentUpsell`, narrowed to the events that can entitle a user:
+
+```typescript
+export type PaywallEntitledEvent = HeliumPaywallEvent & {
+  type: 'purchaseSucceeded' | 'purchaseRestored' | 'purchaseAlreadyEntitled' | 'paywallSkipped';
+};
+```
+
+- `purchaseSucceeded` — a new purchase completed successfully
+- `purchaseRestored` — an existing entitlement was surfaced via restore
+- `purchaseAlreadyEntitled` — a purchase attempt resolved to an entitlement the user already had (iOS only)
+- `paywallSkipped` — the paywall was not shown because the user is already entitled (requires `dontShowIfAlreadyEntitled`)
+
+For `purchaseSucceeded`, `purchaseRestored`, and `purchaseAlreadyEntitled`, `onEntitled` fires when the paywall closes. If `dontShowIfAlreadyEntitled` is `true` and the user is already entitled, the paywall is skipped and `onEntitled` fires immediately with a `paywallSkipped` event — skips due to targeting or workflow configuration do not call `onEntitled`. Each event carries the fields listed for its type in the table above (e.g. `productId` on the purchase events, but only `triggerName` and `timestamp` on `paywallSkipped`).
+
+```typescript
+presentUpsell({
+  triggerName: 'premium_feature_press',
+  dontShowIfAlreadyEntitled: true,
+  onEntitled: (event) => {
+    switch (event?.type) {
+      case 'purchaseSucceeded':
+        // new purchase completed
+        break;
+      case 'purchaseRestored':
+        // entitlement surfaced via restore
+        break;
+      case 'purchaseAlreadyEntitled':
+        // purchase attempt resolved to an existing entitlement (iOS only)
+        break;
+      case 'paywallSkipped':
+        // paywall not shown - user already entitled
+        break;
+    }
+  },
+});
+```
+
+The event argument is optional, so existing no-argument `onEntitled` handlers keep working unchanged.
 
 ### System Events
 

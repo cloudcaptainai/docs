@@ -169,3 +169,26 @@ class ExamplePageWithEmbeddedPaywall extends StatelessWidget {
 <Warning>
   You will have to handle your own dismissal. You can do so by passing in PaywallEventHandlers and using the `onDismissed` handler.
 </Warning>
+
+## Paywall Links (iOS & Android)
+
+When a paywall opens a web link (`http`/`https`) via its **navigate** action — for example a terms-of-service or privacy-policy button — the SDK opens it in an in-app browser over the paywall by default, instead of sending the user to the external browser. On iOS this is a Safari page sheet (`SFSafariViewController`); on Android it's a Chrome Custom Tab that slides up over the paywall.
+
+To open navigate links in the external browser instead, set `openPaywallLinksInApp` to `false`:
+
+<Tabs>
+  <Tab title="iOS">
+    ```swift
+    Helium.config.openPaywallLinksInApp = false
+    ```
+  </Tab>
+  <Tab title="Android">
+    ```kotlin
+    Helium.config.openPaywallLinksInApp = false
+    ```
+  </Tab>
+</Tabs>
+
+<Note>
+  Only navigate-action web links are affected. Links with other schemes (e.g. `mailto:`, `tel:`, custom app schemes) always open externally, as does direct HTML navigation (anchor taps) in paywall content.
+</Note>

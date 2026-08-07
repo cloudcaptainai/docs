@@ -231,8 +231,9 @@ Target the App2Web paywall to that group, then run through these scenarios befor
 1. **Happy path purchase.** Open an App2Web paywall in-app, tap a web product, and confirm the app correctly opens the browser. Complete the standard purchase flow, then confirm you're deep-linked back with an active entitlement. Dismiss the paywall before purchasing as well, and confirm the app returns to the expected screen.
 2. **Entitlement sync.** After purchase, confirm `hasActiveStripeEntitlement()` returns `true` immediately, and that RevenueCat (if connected) updates within a few seconds.
 3. **Cancel flow.** Open the customer portal from your app, cancel a subscription, and confirm the entitlement expires at period end.
-4. **Abandoned checkout.** Close the browser mid-checkout and confirm the app returns through the deep link without granting an entitlement or displaying a success state.
-5. **Pre-login purchase (if applicable).** If your App2Web paywall can be shown before you set a durable `user_id`, make a purchase before setting it. Set the durable user ID afterwards and confirm the entitlement attaches correctly.
+4. **Canceled checkout.** Back out of the checkout page without paying and confirm you're deep-linked back to the app with no entitlement granted and no success state shown.
+5. **Abandoned checkout.** Close the browser mid-checkout — no redirect fires in this case — then return to the app manually and confirm it recovers gracefully with no entitlement granted.
+6. **Pre-login purchase (if applicable).** If your App2Web paywall can be shown before you set a durable `user_id`, make a purchase before setting it. Set the durable user ID afterwards and confirm the entitlement attaches correctly.
 
 ## Appendix
 

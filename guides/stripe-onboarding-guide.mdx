@@ -65,17 +65,16 @@ The hosted web paywall doesn't have to show the same products as the original â€
 
     ```swift
     Helium.config.enableExternalWebCheckout(
-      successURL: "yourapp://openapp",
-      cancelURL: "yourapp://openapp",
+      redirectURL: "yourapp://openapp",
       paymentProcessors: .stripe
     )
     ```
 
-    The `successURL` and `cancelURL` are set once, globally. Make sure both are registered as deep links in your app (via scheme or universal link).
+    The `redirectURL` is set once, globally. Make sure it is registered as a deep link in your app (via scheme or universal link).
 
     **Set your user ID on Helium** before the user reaches a paywall. If you must set user ID after showing a paywall, set the `allowWebCheckoutWithoutUserId` option to true.
 
-    **Handle the post-purchase return.** When checkout completes, the user is deep-linked back to your app via the success URL. For a smoother handoff, call `Helium.shared.handleURL(url)` from your `onOpenURL` / `application(_:open:)` handler.
+    **Handle the post-purchase return.** When checkout completes, the user is deep-linked back to your app via the redirect URL. For a smoother handoff, call `Helium.shared.handleURL(url)` from your `onOpenURL` / `application(_:open:)` handler.
 
     **Add a "Manage Subscription" button** so users can cancel or update payment methods via Stripe's customer portal\*\*:
 

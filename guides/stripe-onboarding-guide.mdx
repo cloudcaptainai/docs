@@ -233,7 +233,8 @@ Target the App2Web paywall to that group, then run through these scenarios befor
 3. **Cancel flow.** Open the customer portal from your app, cancel a subscription, and confirm the entitlement expires at period end.
 4. **Canceled checkout.** Back out of the checkout page without paying and confirm you're deep-linked back to the app with no entitlement granted and no success state shown.
 5. **Abandoned checkout.** Close the browser mid-checkout — no redirect fires in this case — then return to the app manually and confirm it recovers gracefully with no entitlement granted.
-6. **Pre-login purchase (if applicable).** If your App2Web paywall can be shown before you set a durable `user_id`, make a purchase before setting it. Set the durable user ID afterwards and confirm the entitlement attaches correctly.
+6. **Failed payment.** Attempt a purchase with a declining test card (e.g. Stripe's `4000 0000 0000 0002`) and confirm you're deep-linked back with no entitlement granted and no success state shown.
+7. **Pre-login purchase (if applicable).** If your App2Web paywall can be shown before you set a durable `user_id`, make a purchase before setting it. Set the durable user ID afterwards and confirm the entitlement attaches correctly.
 
 ## Appendix
 

@@ -104,7 +104,9 @@ The hosted web paywall doesn't have to show the same products as the original �
 
     The `redirectURL` is set once, globally. Checkout redirects back to it whether the purchase succeeds, is canceled, or fails — the SDK determines the outcome itself. Make sure it's registered as a deep link in your app (via scheme or universal link).
 
-    The older `enableExternalWebCheckout(successURL:cancelURL:paymentProcessors:)` form still works but is deprecated.
+    <Note>
+      `redirectURL` requires a helium-swift release newer than 4.6.0. On 4.6.0, use the equivalent two-URL form with the same URL for both: `enableExternalWebCheckout(successURL:cancelURL:paymentProcessors:)`. That form still works on newer versions, but is deprecated.
+    </Note>
 
     **Set your user ID on Helium** before the user reaches a paywall. If you must set user ID after showing a paywall, set the `allowWebCheckoutWithoutUserId` option to true.
 
@@ -306,7 +308,7 @@ The original in-app paywall presents your Paddle offerings. The hosted web paywa
 
 ### Why is the checkout return URL set in the SDK?
 
-Deep links are specific to your app build, so it's cleaner to configure them alongside SDK init than in the dashboard. The URL is global: set once, applied to every Paddle purchase. On iOS a single `redirectURL` covers success, cancel, and failure. React Native and Flutter still take separate `successURL`/`cancelURL` values — it's ok if they are the same URL.
+Deep links are specific to your app build, so it's cleaner to configure them alongside SDK init than in the dashboard. The URL is global: set once, applied to every Paddle purchase. On iOS (helium-swift releases newer than 4.6.0) a single `redirectURL` covers success, cancel, and failure. Earlier iOS versions, React Native, and Flutter take separate `successURL`/`cancelURL` values — it's ok if they are the same URL.
 
 ### Known limitations and gotchas
 

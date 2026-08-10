@@ -138,27 +138,11 @@ Two Helium modules change your answers if you use them.
 
     Using this module means RevenueCat's own data collection applies to your app as well. Refer to [RevenueCat's Data Safety guidance](https://www.revenuecat.com/docs/platform-resources/google-platform-resources/google-plays-data-safety) alongside this page.
   </Tab>
-  <Tab title="Stripe">
-    The `stripe` module collects billing **name**, **email address**, and **full billing address** during checkout, and sends them to Helium to create the payment intent.
-
-    If you use it, add these to your declaration:
-
-    - Personal info → **Name**, **Email address**, **Address**
-    - Financial info → **User payment info**
-
-    Card numbers are handled inside Stripe's SDK and never reach Helium, which receives only a payment method token. Refer to Stripe's own data safety guidance as well.
-  </Tab>
 </Tabs>
 
 ## What's next
 
 <CardGroup cols={2}>
-  <Card title="Events and Fields" icon="chart-mixed" href="/guides/third-party-analytics">
-    The full list of events and fields Helium sends, useful for reviewing exactly what is collected
-  </Card>
-  <Card title="Download Full Field List" icon="download" href="/files/helium-event-fields.json">
-    A JSON file containing every event field name, type, and description
-  </Card>
   <Card title="Identifying Users" icon="android" href="/sdk/quickstart-android">
     How `Helium.identity.userId` and `HeliumUserTraits` work, which drive the conditional rows above
   </Card>

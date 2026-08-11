@@ -144,17 +144,15 @@ Helium.shared.presentPaywall(
         .onPurchaseSucceeded { event in
             print("Purchased!")
         },
-    onEntitled: { entitledEvent in
-        // How the user became entitled: .purchased, .restored,
-        // .alreadyEntitled, or .skipped (requires dontShowIfAlreadyEntitled)
+    onEntitled: {
+        // User is now entitled (purchased or restored)
     }
 ) { paywallNotShownReason in
     switch paywallNotShownReason {
     case .targetingHoldout:
         break
     case .alreadyEntitled:
-        // Only called when onEntitled is not provided;
-        // here the .skipped case of onEntitled handles it
+        // User already has access
         break
     default:
         // Handle rare failure cases
@@ -162,10 +160,6 @@ Helium.shared.presentPaywall(
     }
 }
 ```
-
-<Note>
-  `onEntitled` now receives a `PaywallEntitledEvent` (`.purchased`, `.restored`, `.alreadyEntitled`, or `.skipped`) so you can tell how the user became entitled. Existing no-argument closures still compile against a deprecated overload — no code changes are forced.
-</Note>
 
 ## API Namespace Migration
 

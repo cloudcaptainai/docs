@@ -102,10 +102,10 @@ The hosted web paywall doesn't have to show the same products as the original �
     )
     ```
 
-    The `redirectURL` is set once, globally. Checkout redirects back to it whether the purchase succeeds, is canceled, or fails — the SDK determines the outcome itself. Make sure it's registered as a deep link in your app (via scheme or universal link).
+    The `redirectURL` is set once, globally. Checkout redirects back to it whether the purchase succeeds, is canceled, or fails. Make sure it's registered as a deep link in your app (via scheme or universal link).
 
     <Note>
-      `redirectURL` requires a helium-swift release newer than 4.6.0. On 4.6.0, use the equivalent two-URL form with the same URL for both: `enableExternalWebCheckout(successURL:cancelURL:paymentProcessors:)`. That form still works on newer versions, but is deprecated.
+      `redirectURL` is not in a released SDK version yet — it ships in the next helium-swift release after 4.6.0. Until then, use the equivalent two-URL form with the same URL for both: `enableExternalWebCheckout(successURL:cancelURL:paymentProcessors:)`. That form will keep working, but is deprecated going forward.
     </Note>
 
     **Set your user ID on Helium** before the user reaches a paywall. If you must set user ID after showing a paywall, set the `allowWebCheckoutWithoutUserId` option to true.
@@ -289,10 +289,8 @@ Target the App2Web paywall to that group, then run through these scenarios in Pa
 2. **Entitlement sync.** After purchase, confirm `hasActivePaddleEntitlement()` returns `true` immediately, and that RevenueCat (if connected) updates within a few seconds.
 3. **Cancel flow.** Open the customer portal from your app, cancel a subscription, and confirm the entitlement expires at period end.
 4. **Canceled checkout.** Back out of the checkout page without paying and confirm you're deep-linked back to the app with no entitlement granted and no success state shown.
-5. **Abandoned checkout.** Close the browser mid-checkout — no redirect fires in this case — then return to the app manually and confirm it recovers gracefully with no entitlement granted.
-6. **Failed payment.** Attempt a purchase with a declining test card in Paddle's sandbox and confirm you're deep-linked back with no entitlement granted and no success state shown.
-7. **Webhook delivery.** In the Paddle dashboard, confirm webhooks are reaching Helium with 2xx responses.
-8. **Pre-login purchase (if applicable).** If your App2Web paywall can be shown before you set a durable `user_id`, make a purchase before setting it. Set the durable user ID afterwards and confirm the entitlement attaches correctly.
+5. **Webhook delivery.** In the Paddle dashboard, confirm webhooks are reaching Helium with 2xx responses.
+6. **Pre-login purchase (if applicable).** If your App2Web paywall can be shown before you set a durable `user_id`, make a purchase before setting it. Set the durable user ID afterwards and confirm the entitlement attaches correctly.
 
 ## Appendix
 
@@ -305,10 +303,6 @@ On successful purchase, the SDK's entitlement cache updates immediately. The Hel
 ### Why two paywalls?
 
 The original in-app paywall presents your Paddle offerings. The hosted web paywall — served from `clickthrough.to` — runs the actual Paddle checkout, which has to happen in a browser. The two can be customized independently and don't need to show the same products.
-
-### Why is the checkout return URL set in the SDK?
-
-Deep links are specific to your app build, so it's cleaner to configure them alongside SDK init than in the dashboard. The URL is global: set once, applied to every Paddle purchase. On iOS (helium-swift releases newer than 4.6.0) a single `redirectURL` covers success, cancel, and failure. Earlier iOS versions, React Native, and Flutter take separate `successURL`/`cancelURL` values — it's ok if they are the same URL.
 
 ### Known limitations and gotchas
 

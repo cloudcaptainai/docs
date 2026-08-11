@@ -444,6 +444,16 @@ interface HeliumPaywallDelegate {
   For the full public API and detailed parameter documentation, see the inline docstrings in the SDK source. Import Helium in your project and use your IDE's autocomplete or jump-to-definition to explore all available methods and types.
 </Note>
 
+<Accordion title="In-App Paywall Links">
+  By default, web links (`http`/`https`) opened via a paywall's navigate action open in-app in a Chrome Custom Tab over the paywall. To open them in the external browser instead:
+
+  ```kotlin
+  Helium.config.openPaywallLinksInApp = false
+  ```
+
+  Non-web links (e.g. `mailto:`, `tel:`) and direct HTML anchor taps always open externally.
+</Accordion>
+
 <Accordion title="Checking Download Status">
   <Tip>
     In most cases there is no need to check download status. Helium will display a loading indication if a paywall is presented before download has completed.

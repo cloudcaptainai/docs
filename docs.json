@@ -46,13 +46,6 @@
         ]
       },
       {
-        "group": "SDK REFERENCE",
-        "icon": "book-open",
-        "pages": [
-          "sdk-reference/sdk-features"
-        ]
-      },
-      {
         "group": "MIGRATIONS",
         "icon": "arrow-up-right-dots",
         "pages": [

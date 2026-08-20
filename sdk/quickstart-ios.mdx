@@ -185,8 +185,15 @@ Helium.shared.presentPaywall(
       _(Optional)_ Event handlers for paywall lifecycle events
     </ResponseField>
 
-    <ResponseField name="onEntitled" type="(() -> Void)?">
-      _(Optional)_ A handler for when user is entitled to a product in the paywall, via purchase or existing entitlement.
+    <ResponseField name="onEntitled" type="((PaywallEntitledEvent) -> Void)?">
+      _(Optional)_ A handler for when user is entitled to a product in the paywall, via purchase or existing entitlement. Receives a `PaywallEntitledEvent` identifying how the user became entitled:
+
+      - `.purchased` — a new purchase completed successfully
+      - `.restored` — an existing entitlement was surfaced via restore
+      - `.alreadyEntitled` — a purchase attempt resolved to an entitlement the user already had
+      - `.skipped` — the paywall was not shown because the user is already entitled (requires `config.dontShowIfAlreadyEntitled`)
+
+      Existing no-argument closures keep working (they map to a deprecated overload).
     </ResponseField>
 
     <ResponseField name="onPaywallNotShown" type="(PaywallNotShownReason) -> Void" required>
@@ -365,7 +372,7 @@ Helium.shared.presentPaywall(
     config: PaywallPresentationConfig(
         dontShowIfAlreadyEntitled: true
     ),
-    onEntitled: {
+    onEntitled: { entitledEvent in
         // handle user with existing entitlement
         // or new entitlement after they completed/restored a purchase
     }
@@ -487,6 +494,16 @@ public protocol HeliumPaywallDelegate: AnyObject {
 <Note>
   For the full public API and detailed parameter documentation, see the inline docstrings in the SDK source. Import Helium in your project and use your IDE's autocomplete or jump-to-definition to explore all available methods and types.
 </Note>
+
+<Accordion title="In-App Paywall Links">
+  By default, web links (`http`/`https`) opened via a paywall's navigate action open in the external browser. To open them in-app in a Safari page sheet over the paywall instead:
+
+  ```swift
+  Helium.config.openPaywallLinksInApp = true
+  ```
+
+  Non-web links (e.g. `mailto:`, `tel:`) and direct HTML anchor taps always open externally.
+</Accordion>
 
 <Accordion title="Checking Download Status">
   <Tip>

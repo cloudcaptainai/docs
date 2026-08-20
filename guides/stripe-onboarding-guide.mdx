@@ -60,7 +60,7 @@ The hosted web paywall doesn't have to show the same products as the original â€
 ### 4. SDK integration
 
 <Tabs>
-  <Tab title="iOS (native) 4.6.0+">
+  <Tab title="iOS (native, Helium 4.6.0+)">
     **Enable external web checkout before initializing Helium:**
 
     ```swift
@@ -96,7 +96,7 @@ The hosted web paywall doesn't have to show the same products as the original â€
     }
     ```
   </Tab>
-  <Tab title="Expo 3.4.13+">
+  <Tab title="Expo (Helium 3.4.13+)">
     **Enable external web checkout before initializing Helium:**
 
     ```tsx
@@ -139,7 +139,7 @@ The hosted web paywall doesn't have to show the same products as the original â€
     }
     ```
   </Tab>
-  <Tab title="Flutter 3.3.8+">
+  <Tab title="Flutter (Helium 3.3.8+)">
     **Enable external web checkout before initializing Helium:**
 
     ```dart
@@ -147,7 +147,7 @@ The hosted web paywall doesn't have to show the same products as the original â€
       successURL: "yourapp://openapp",
       cancelURL: "yourapp://openapp",
       paymentProcessors: {HeliumWebCheckoutProcessor.stripe},
-    )
+    );
     ```
 
     The `successURL` and `cancelURL` are set once, globally. Make sure both are registered as deep links in your app (via scheme or universal link).
@@ -170,11 +170,13 @@ The hosted web paywall doesn't have to show the same products as the original â€
         // show the manage subscription button
     }
     
-    // when the button is tapped:
-    final urlString = await HeliumFlutter().createStripePortalSession();
+    // when the button is tapped â€” returnUrl is where Stripe sends the user
+    // back after they're done managing their subscription:
+    final urlString = await HeliumFlutter().createStripePortalSession(
+      returnUrl: "yourapp://openapp",
+    );
     if (urlString != null) {
-      final Uri url = Uri.parse(url);
-      await launchUrl(url);
+      await launchUrl(Uri.parse(urlString));
     }
     ```
   </Tab>

@@ -105,7 +105,7 @@ The hosted web paywall doesn't have to show the same products as the original â€
     The `redirectURL` is set once, globally. Checkout redirects back to it whether the purchase succeeds, is canceled, or fails. Make sure it's registered as a deep link in your app (via scheme or universal link).
 
     <Note>
-      `redirectURL` is not in a released SDK version yet â€” it ships in the next helium-swift release after 4.6.0. Until then, use the equivalent two-URL form with the same URL for both: `enableExternalWebCheckout(successURL:cancelURL:paymentProcessors:)`. That form will keep working, but is deprecated going forward.
+      On older SDK versions that don't have `redirectURL`, use the equivalent two-URL form with the same URL for both: `enableExternalWebCheckout(successURL:cancelURL:paymentProcessors:)`. That form still works, but is deprecated.
     </Note>
 
     **Set your user ID on Helium** before the user reaches a paywall. If you must set user ID after showing a paywall, set the `allowWebCheckoutWithoutUserId` option to true.

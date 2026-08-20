@@ -122,11 +122,11 @@ struct ContentView: View {
 
 #### Paywall Link Behavior
 
-By default, the SDK opens a paywall's navigate-action `http`/`https` links in an in-app Safari view that slides up over the paywall as a page sheet, keeping the user in your app. The **`Helium.config.openPaywallLinksInApp`** Bool (default `true`) controls this. Set it to `false` before calling `Helium.shared.initialize(...)` to open those links in the external browser instead:
+By default, the SDK opens a paywall's navigate-action `http`/`https` links in the external browser. The **`Helium.config.openPaywallLinksInApp`** Bool (default `false`) controls this. Set it to `true` before calling `Helium.shared.initialize(...)` to open those links in an in-app Safari view that slides up over the paywall as a page sheet, keeping the user in your app:
 
 ```swift
-// Open paywall links in the external browser instead
-Helium.config.openPaywallLinksInApp = false
+// Open paywall links in an in-app Safari page sheet over the paywall
+Helium.config.openPaywallLinksInApp = true
 ```
 
 <Note>

@@ -190,22 +190,21 @@ The hosted web paywall doesn't have to show the same products as the original â€
 
     Send that ID to your server and follow [Paddle's guide for generating pre-authenticated customer portal links](https://developer.paddle.com/build/customers/integrate-customer-portal/).
   </Tab>
-  <Tab title="Flutter 3.3.8+">
+  <Tab title="Flutter">
     **Enable external web checkout before initializing Helium:**
 
     ```dart
     await HeliumFlutter().enableExternalWebCheckout(
-      successURL: "yourapp://openapp",
-      cancelURL: "yourapp://openapp",
+      redirectURL: "yourapp://openapp",
       paymentProcessors: {HeliumWebCheckoutProcessor.paddle},
-    )
+    );
     ```
 
-    The `successURL` and `cancelURL` are set once, globally. Make sure both are registered as deep links in your app (via scheme or universal link).
+    The `redirectURL` is set once, globally. Make sure it's registered as a deep link in your app (via scheme or universal link).
 
     **Set your user ID on Helium** before the user reaches a paywall. If you must set user ID after showing a paywall, make sure to call `setAllowWebCheckoutWithoutUserId(true)`.
 
-    **Handle the post-purchase return.** When checkout completes, the user is deep-linked back to your app via the success URL. For a smoother handoff, call `handleURL(url)` from your deep link handling:
+    **Handle the post-purchase return.** When checkout completes, the user is deep-linked back to your app via the redirect URL. For a smoother handoff, call `handleURL(url)` from your deep link handling:
 
     ```dart
     _linkSubscription = AppLinks().uriLinkStream.listen((uri) {

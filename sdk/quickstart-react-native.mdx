@@ -149,7 +149,7 @@ function YourComponent() {
       _(Optional)_ If `true`, the paywall will not be shown if the user already has an entitlement for a product in the paywall. In most cases the default of `false` is desired — see "Checking Subscription Status & Entitlements" below before enabling this.
     </ResponseField>
     <ResponseField name="onEntitled" type="((event?: PaywallEntitledEvent) => void)?">
-      _(Optional)_ Called upon purchase success or purchase restore. If `dontShowIfAlreadyEntitled` is true, this handler will also be called when the paywall is not shown to users who already have entitlement for a product in the paywall. The handler receives an optional entitling event — see [PaywallEntitledEvent](/guides/helium-events#paywallentitledevent) for its shape and possible `type` values.
+      _(Optional)_ Called upon purchase success, purchase restore, or a purchase attempt resolving to an existing entitlement (iOS only). If `dontShowIfAlreadyEntitled` is true, this handler will also be called when the paywall is not shown to users who already have entitlement for a product in the paywall. The handler receives an optional entitling event — see [PaywallEntitledEvent](/guides/helium-events#paywallentitledevent) for its shape and possible `type` values. Existing no-argument handlers keep working.
     </ResponseField>
     <ResponseField name="onPaywallUnavailable" type="(() => void)?">
       _(Optional)_ Called if desired paywall and fallback paywall did not show for any reason. This is uncommon, but best practice to handle it just in case. See [Fallback Paywalls](/guides/fallback-bundle).

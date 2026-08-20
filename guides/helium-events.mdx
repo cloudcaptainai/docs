@@ -39,7 +39,8 @@ This page acts as a reference to what events are available in Helium, and when e
     //            PaywallSkippedEvent, PaywallButtonPressedEvent
     // Purchase:  ProductSelectedEvent, PurchasePressedEvent, PurchaseSucceededEvent,
     //            PurchaseCancelledEvent, PurchaseFailedEvent, PurchaseRestoredEvent,
-    //            PurchaseRestoreFailedEvent, PurchasePendingEvent
+    //            PurchaseRestoreFailedEvent, PurchasePendingEvent,
+    //            PurchaseAlreadyEntitledEvent
     // System:    InitializeStartEvent, PaywallsDownloadSuccessEvent,
     //            PaywallsDownloadErrorEvent, PaywallWebViewRenderedEvent
     // Experiment: UserAllocatedEvent
@@ -85,6 +86,7 @@ This page acts as a reference to what events are available in Helium, and when e
         'paywallOpenFailed' | 'paywallSkipped' | 'paywallButtonPressed' |
         'productSelected' | 'purchasePressed' | 'purchaseSucceeded' |
         'purchaseCancelled' | 'purchaseFailed' | 'purchaseRestored' |
+        'purchaseAlreadyEntitled' |
         'purchaseRestoreFailed' | 'purchasePending' | 'initializeCalled' |
         'paywallsDownloadSuccess' | 'paywallsDownloadError' | 
         'paywallWebViewRendered' | 'userAllocated';
@@ -158,6 +160,7 @@ This page acts as a reference to what events are available in Helium, and when e
 | **purchaseCancelled**      | Fires when the purchase process is cancelled by the user                                                                | `productId` (String) - Product that was cancelled<br />`triggerName` (String) - Associated trigger<br />`paywallName` (String) - Paywall name<br />`isSecondTry` (Boolean) - True if paywall is "second try" flow<br />`timestamp` (Number) - When event occurred                                                                                                                                                                                                                               |
 | **purchaseFailed**         | Fires when the purchase fails for any reason                                                                            | `productId` (String) - Product that failed<br />`triggerName` (String) - Associated trigger<br />`paywallName` (String) - Paywall name<br />`isSecondTry` (Boolean) - True if paywall is "second try" flow<br />`error` (String, optional) - Error message<br />`timestamp` (Number) - When event occurred                                                                                                                                                                                      |
 | **purchaseRestored**       | Fires when a previous purchase is successfully restored                                                                 | `productId` (String) - Restored product ID<br />`triggerName` (String) - Associated trigger<br />`paywallName` (String) - Paywall name<br />`isSecondTry` (Boolean) - True if paywall is "second try" flow<br />`timestamp` (Number) - When event occurred                                                                                                                                                                                                                                      |
+| **purchaseAlreadyEntitled** | Fires when a purchase attempt resolves to an entitlement the user already had (iOS only). Not a new revenue event                | `productId` (String) - Product the user already owns<br />`triggerName` (String) - Associated trigger<br />`paywallName` (String) - Paywall name<br />`isSecondTry` (Boolean) - True if paywall is "second try" flow<br />`storeKitTransactionId` (String, optional) - Existing transaction ID<br />`storeKitOriginalTransactionId` (String, optional) - Original transaction ID<br />`timestamp` (Number) - When event occurred |
 | **purchaseRestoreFailed**  | Fires when an attempt to restore purchases fails                                                                        | `triggerName` (String) - Associated trigger<br />`paywallName` (String) - Paywall name<br />`isSecondTry` (Boolean) - True if paywall is "second try" flow<br />`timestamp` (Number) - When event occurred                                                                                                                                                                                                                                                                                      |
 | **purchasePending**        | Fires when purchase is in a pending state (e.g. waiting for parental approval)                                          | `productId` (String) - Pending product<br />`triggerName` (String) - Associated trigger<br />`paywallName` (String) - Paywall name<br />`isSecondTry` (Boolean) - True if paywall is "second try" flow<br />`timestamp` (Number) - When event occurred                                                                                                                                                                                                                                          |
 

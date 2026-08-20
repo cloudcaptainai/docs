@@ -169,3 +169,11 @@ class ExamplePageWithEmbeddedPaywall extends StatelessWidget {
 <Warning>
   You will have to handle your own dismissal. You can do so by passing in PaywallEventHandlers and using the `onDismissed` handler.
 </Warning>
+
+#### Paywall Link Behavior (iOS)
+
+On iOS, `http`/`https` links from a paywall's navigate action open in the external browser by default; they previously opened in an in-app Safari view. This behavior comes from native iOS — you get it automatically when you upgrade to `helium_flutter` 3.3.10 (which bundles `helium-swift` 4.8.0).
+
+<Note>
+  Unlike the native iOS SDK, which exposes `Helium.config.openPaywallLinksInApp` to restore the in-app view, the Flutter plugin does not currently expose a Dart option to change this. This applies only to `http`/`https` navigate-action links; non-web schemes (`mailto:`, `tel:`, custom app schemes) and direct HTML anchor (`<a href>`) taps always open externally regardless.
+</Note>

@@ -1,0 +1,41 @@
+---
+title: "Helium QA Guide"
+description: "A short checklist for testing your Helium paywalls before launch."
+---
+
+Use this checklist after your paywalls are built and before starting your rollout.
+
+<Note>
+  Complete QA for the normal in-app purchase path first. If you also use App2Web, approve the IAP path before testing the full App2Web flow.
+</Note>
+
+## Check the dashboard
+
+- [ ] Apps and products are synced for each platform, and product IDs match the stores.
+- [ ] The intended products, default selection, and trial states are attached and published.
+- [ ] Each workflow trigger, targeting rule, and fallback points to the intended paywall.
+- [ ] Analytics and revenue integrations are receiving test events.
+
+## Check the paywall
+
+- [ ] Design, copy, products, and pricing match the approved experience.
+- [ ] Purchase, close, restore, and second-tier actions work.
+- [ ] Trial states, variables, user attributes, and custom actions work when used.
+- [ ] Product selection and purchase use separate actions so a user cannot buy the wrong product.
+- [ ] Check a few currencies, every supported language, a small phone, and dark mode when relevant.
+- [ ] The paywall opens without visual flashes or broken animations.
+
+## Test on device
+
+- [ ] Use the intended TestFlight or Android build on a physical device for each platform.
+- [ ] Open every launch-critical trigger and confirm the correct paywall appears.
+- [ ] Complete a sandbox purchase and confirm the correct product is purchased and access unlocks.
+- [ ] Confirm cancel and restore behavior work.
+- [ ] Confirm the purchase and entitlement appear in your analytics or revenue system.
+- [ ] Confirm a current fallback paywall appears when Helium configuration cannot load.
+
+## Ready to launch
+
+- [ ] The release build uses the correct Helium environment and API key.
+- [ ] Open issues are documented and the final paywalls are approved.
+- [ ] Start with a small group of users using the [Helium rollout guide](/guides/rolling-out-helium).

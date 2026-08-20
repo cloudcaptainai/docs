@@ -41,14 +41,8 @@
           "guides/custom-events",
           "guides/storekit-testing",
           "guides/paywall-traits",
-          "guides/paddle-onboarding-guide"
-        ]
-      },
-      {
-        "group": "SDK REFERENCE",
-        "icon": "book-open",
-        "pages": [
-          "sdk-reference/sdk-features"
+          "guides/paddle-onboarding-guide",
+          "guides/google-play-data-safety"
         ]
       },
       {

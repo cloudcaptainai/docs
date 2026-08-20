@@ -1,0 +1,33 @@
+---
+title: "App2Web Go-Live Checklist"
+description: "A short checklist for testing your App2Web flow before launch."
+---
+
+App2Web uses two linked paywalls: one shown in the app and one shown in the browser. Complete QA for your normal in-app purchase path before testing App2Web.
+
+<Note>
+  When the in-app App2Web paywall triggers a purchase action for a web product, Helium opens the linked hosted web paywall in the browser. The purchase is completed on the web, not in the app.
+</Note>
+
+## Check the setup
+
+- [ ] The in-app App2Web paywall and hosted web paywall are linked and published.
+- [ ] The hosted web paywall is reached only through the in-app App2Web flow, not directly from a workflow.
+- [ ] Web products are attached correctly, and the normal IAP path remains available through `continue in-app`.
+- [ ] Targeting includes only eligible users and has been tested with an internal audience.
+- [ ] Checkout redirect URL, user identity, revenue tracking, and subscription management are configured.
+
+## Test the full flow
+
+- [ ] Open App2Web through a real trigger on a physical device. Triple-tap does not test the full flow.
+- [ ] Tapping the web purchase CTA opens the linked hosted web paywall in the browser.
+- [ ] The product selected in the app is the product selected on the hosted web paywall.
+- [ ] Product selection and the web purchase action are separate, so the CTA cannot send the wrong product.
+- [ ] `continue in-app` opens the intended IAP purchase path.
+- [ ] Dismissing or abandoning web checkout returns the user to the expected place without granting access.
+- [ ] Complete a web purchase and confirm the app reopens with an active entitlement.
+- [ ] Confirm the purchase appears in Helium and your connected revenue or entitlement system.
+
+## Launch
+
+- [ ] Start with a small eligible audience and confirm the flow is healthy before expanding traffic.

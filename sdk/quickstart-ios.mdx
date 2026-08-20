@@ -201,6 +201,8 @@ Helium.shared.presentPaywall(
       - `productId: String?` — the product id for `.purchased`, `.restored`, and `.alreadyEntitled`; `nil` for `.skipped`
 
       `.purchased`, `.restored`, and `.alreadyEntitled` are delivered when the paywall closes; `.skipped` fires immediately when the paywall is not shown.
+
+      Existing no-argument closures keep working (they map to a deprecated overload).
     </ResponseField>
 
     <ResponseField name="onPaywallNotShown" type="(PaywallNotShownReason) -> Void" required>
@@ -513,6 +515,16 @@ public protocol HeliumPaywallDelegate: AnyObject {
 <Note>
   For the full public API and detailed parameter documentation, see the inline docstrings in the SDK source. Import Helium in your project and use your IDE's autocomplete or jump-to-definition to explore all available methods and types.
 </Note>
+
+<Accordion title="In-App Paywall Links">
+  By default, web links (`http`/`https`) opened via a paywall's navigate action open in the external browser. To open them in-app in a Safari page sheet over the paywall instead:
+
+  ```swift
+  Helium.config.openPaywallLinksInApp = true
+  ```
+
+  Non-web links (e.g. `mailto:`, `tel:`) and direct HTML anchor taps always open externally.
+</Accordion>
 
 <Accordion title="Checking Download Status">
   <Tip>

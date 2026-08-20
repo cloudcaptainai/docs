@@ -21,7 +21,7 @@ By the end of this guide, you'll have:
 Before you start, make sure you have:
 
 - A Paddle account. If you don't have one, start with Paddle's [setup checklist](https://developer.paddle.com/build/onboarding/set-up-checklist#sign-up) and [onboarding overview](https://developer.paddle.com/build/onboarding/overview).
-- The Helium iOS SDK already integrated in your app.
+- The Helium SDK (iOS native, React Native/Expo, or Flutter) already integrated in your app.
 - A deep link scheme configured in your app â€” users need a way back into your app after purchase.
 - Admin access to your Helium dashboard.
 - (Optional) A RevenueCat account, if you want Paddle purchases to reflect in RevenueCat entitlements.
@@ -92,22 +92,25 @@ The hosted web paywall doesn't have to show the same products as the original â€
 ### 7. SDK integration
 
 <Tabs>
-  <Tab title="iOS (native) 4.6.0+">
+  <Tab title="iOS (native, Helium 4.6.0+)">
     **Enable external web checkout before initializing Helium:**
 
     ```swift
     Helium.config.enableExternalWebCheckout(
-      successURL: "yourapp://openapp",
-      cancelURL: "yourapp://openapp",
+      redirectURL: "yourapp://openapp",
       paymentProcessors: .paddle
     )
     ```
 
-    The `successURL` and `cancelURL` are set once, globally. Make sure both are registered as deep links in your app (via scheme or universal link).
+    The `redirectURL` is set once, globally. Checkout redirects back to it whether the purchase succeeds, is canceled, or fails. Make sure it's registered as a deep link in your app (via scheme or universal link).
+
+    <Note>
+      On older SDK versions that don't have `redirectURL`, use the equivalent two-URL form with the same URL for both: `enableExternalWebCheckout(successURL:cancelURL:paymentProcessors:)`. That form still works, but is deprecated.
+    </Note>
 
     **Set your user ID on Helium** before the user reaches a paywall. If you must set user ID after showing a paywall, set the `allowWebCheckoutWithoutUserId` option to true.
 
-    **Handle the post-purchase return.** When checkout completes, the user is deep-linked back to your app via the success URL. For a smoother handoff, call `Helium.shared.handleURL(url)` from your `onOpenURL` / `application(_:open:)` handler.
+    **Handle the checkout return.** Whether checkout succeeds, is canceled, or fails, the user is deep-linked back to your app via the redirect URL. For a smoother handoff, call `Helium.shared.handleURL(url)` from your `onOpenURL` / `application(_:open:)` handler.
 
     **Add a "Manage Subscription" button** so users can cancel or update payment methods through Paddle's customer portal. Call `getPaddleCustomerId()` to get the current user's Paddle customer ID, then send it to your own server. Your server calls Paddle's [create customer portal session](https://developer.paddle.com/api-reference/customer-portals/create-customer-portal-session) endpoint and returns the portal URL for your app to open.
 
@@ -141,17 +144,20 @@ The hosted web paywall doesn't have to show the same products as the original â€
 
     ```tsx
     enableExternalWebCheckout({
-      successURL: "yourapp://openapp",
-      cancelURL: "yourapp://openapp",
+      redirectURL: "yourapp://openapp",
       paymentProcessors: ["paddle"],
     });
     ```
 
-    The `successURL` and `cancelURL` are set once, globally. Make sure both are registered as deep links in your app (via scheme or universal link).
+    The `redirectURL` is set once, globally. Checkout redirects back to it whether the purchase succeeds, is canceled, or fails. Make sure it's registered as a deep link in your app (via scheme or universal link).
+
+    <Note>
+      On older SDK versions that don't have `redirectURL`, pass the equivalent `successURL` and `cancelURL` parameters with the same URL for both. That form still works, but is deprecated.
+    </Note>
 
     **Set your user ID on Helium** before the user reaches a paywall. If you must set user ID after showing a paywall, make sure to call `setAllowWebCheckoutWithoutUserId(true)`.
 
-    **Handle the post-purchase return.** When checkout completes, the user is deep-linked back to your app via the success URL. For a smoother handoff, call `heliumHandleURL(url)` from your deep link handling:
+    **Handle the checkout return.** Whether checkout succeeds, is canceled, or fails, the user is deep-linked back to your app via the redirect URL. For a smoother handoff, call `heliumHandleURL(url)` from your deep link handling:
 
     ```tsx
     useEffect(() => {
@@ -191,31 +197,57 @@ The hosted web paywall doesn't have to show the same products as the original â€
     The SDK's `createPaddlePortalSession()` method is deprecated. Generate portal sessions on your own server from the customer ID instead, so your portal configuration and Paddle API key stay server-side.
     </Note>
   </Tab>
-  <Tab title="Flutter 3.3.8+">
-
+  <Tab title="Flutter (Helium 3.3.8+)">
     **Enable external web checkout before initializing Helium:**
 
     ```dart
     await HeliumFlutter().enableExternalWebCheckout(
-      successURL: "yourapp://openapp",
-      cancelURL: "yourapp://openapp",
+      redirectURL: "yourapp://openapp",
       paymentProcessors: {HeliumWebCheckoutProcessor.paddle},
-    )
+    );
     ```
 
-    The `successURL` and `cancelURL` are set once, globally. Make sure both are registered as deep links in your app (via scheme or universal link).
+    The `redirectURL` is set once, globally. Checkout redirects back to it whether the purchase succeeds, is canceled, or fails.
+
+    <Note>
+      On older SDK versions that don't have `redirectURL`, pass the equivalent `successURL` and `cancelURL` parameters with the same URL for both. That form still works, but is deprecated.
+    </Note>
+
+    **Register the deep link.** Both URLs must be registered as deep links in your app. For a custom scheme, add a `CFBundleURLTypes` entry to `ios/Runner/Info.plist`:
+
+    ```xml
+    <key>CFBundleURLTypes</key>
+    <array>
+      <dict>
+        <key>CFBundleURLName</key>
+        <string>com.yourcompany.yourapp</string>
+        <key>CFBundleURLSchemes</key>
+        <array>
+          <string>yourapp</string>
+        </array>
+      </dict>
+    </array>
+    ```
+
+    To use a universal link (`https://...`) instead, set up [associated domains](https://docs.flutter.dev/ui/navigation/deep-linking) and use that URL as the `redirectURL`.
 
     **Set your user ID on Helium** before the user reaches a paywall. If you must set user ID after showing a paywall, make sure to call `setAllowWebCheckoutWithoutUserId(true)`.
 
-    **Handle the post-purchase return.** When checkout completes, the user is deep-linked back to your app via the success URL. For a smoother handoff, call `handleURL(url)` from your deep link handling:
+    **Handle the checkout return.** Whether checkout succeeds, is canceled, or fails, the user is deep-linked back to your app via the redirect URL. Forward incoming links to Helium with `handleURL(url)` â€” it's safe to forward every link, since URLs that aren't Helium's are ignored. If you don't already handle deep links, add [app_links](https://pub.dev/packages/app_links) with `flutter pub add app_links`:
 
     ```dart
+    import 'package:app_links/app_links.dart';
+
     _linkSubscription = AppLinks().uriLinkStream.listen((uri) {
       HeliumFlutter().handleURL(uri.toString());
     });
     ```
 
-    **Add a "Manage Subscription" button** so users can cancel or update payment methods through Paddle's customer portal. Call `getPaddleCustomerId()` to get the current user's Paddle customer ID, then send it to your own server. Your server calls Paddle's [create customer portal session](https://developer.paddle.com/api-reference/customer-portals/create-customer-portal-session) endpoint and returns the portal URL for your app to open.
+    <Note>
+      `uriLinkStream` also emits the link that launched the app, so cold starts are covered â€” there is no separate initial-link step. If you use `app_links`, set `FlutterDeepLinkingEnabled` to `false` in `Info.plist` so Flutter's built-in deep-link handling doesn't consume the link first.
+    </Note>
+
+    **Add a "Manage Subscription" button** so users can cancel or update payment methods through Paddle's customer portal. Call `getPaddleCustomerId()` to get the current user's Paddle customer ID, then send it to your own server. Your server calls Paddle's [create customer portal session](https://developer.paddle.com/api-reference/customer-portals/create-customer-portal-session) endpoint and returns the portal URL for your app to open. `launchUrl` comes from the [url_launcher](https://pub.dev/packages/url_launcher) package:
 
     `getPaddleCustomerId()` is iOS only. It returns `null` when the user has no Paddle customer ID assigned, or when it's called on any other platform.
 
@@ -224,7 +256,7 @@ The hosted web paywall doesn't have to show the same products as the original â€
     if (hasPaddle) {
         // show the manage subscription button
     }
-    
+
     // when the button is tapped:
     final customerId = await HeliumFlutter().getPaddleCustomerId();
     if (customerId == null) {
@@ -294,9 +326,13 @@ Target the App2Web paywall to that group, then run through these scenarios in Pa
 1. **Happy path purchase.** Open an App2Web paywall in-app, tap a web product, and confirm the app correctly opens the browser. Complete the standard purchase flow, then confirm you're deep-linked back with an active entitlement. Dismiss the paywall before purchasing as well, and confirm the app returns to the expected screen.
 2. **Entitlement sync.** After purchase, confirm `hasActivePaddleEntitlement()` returns `true` immediately, and that RevenueCat (if connected) updates within a few seconds.
 3. **Cancel flow.** Open the customer portal from your app, cancel a subscription, and confirm the entitlement expires at period end.
-4. **Abandoned checkout.** Close the browser mid-checkout and confirm the app handles the cancel URL gracefully.
+4. **Canceled checkout.** Back out of the checkout page without paying and confirm you're deep-linked back to the app with no entitlement granted and no success state shown.
 5. **Webhook delivery.** In the Paddle dashboard, confirm webhooks are reaching Helium with 2xx responses.
 6. **Pre-login purchase (if applicable).** If your App2Web paywall can be shown before you set a durable `user_id`, make a purchase before setting it. Set the durable user ID afterwards and confirm the entitlement attaches correctly.
+
+<Note>
+  **App2Web paywall not appearing?** Eligibility is checked server-side against the device's locale country, App Store storefront country, and IP location â€” all three must be US, and there is no client-side error when a device is filtered out. If you're testing from the US, disable VPNs. If you're testing from outside the US: set your device region to the United States, sign in with a sandbox Apple account on the US storefront, and connect through a US VPN so your IP resolves to the US.
+</Note>
 
 ## Appendix
 
@@ -310,13 +346,9 @@ On successful purchase, the SDK's entitlement cache updates immediately. The Hel
 
 The original in-app paywall presents your Paddle offerings. The hosted web paywall â€” served from `clickthrough.to` â€” runs the actual Paddle checkout, which has to happen in a browser. The two can be customized independently and don't need to show the same products.
 
-### Why are success/cancel URLs set in the SDK?
-
-Deep links are specific to your app build, so it's cleaner to configure them alongside SDK init than in the dashboard. They're global: set once, applied to every Paddle purchase. It's ok if they are the same URL.
-
 ### Known limitations and gotchas
 
-- **Availability:** Paddle App2Web is currently supported for US storefronts only.
+- **Availability:** Paddle App2Web is currently iOS-only and supported for US storefronts only. iOS-only applies across all SDKs â€” in React Native and Flutter apps, the web-checkout APIs are safe no-ops on Android, so shared code can ship unchanged and Android users keep your regular in-app purchase flow.
 - **California compliance** for subscription cancellation: guidance coming soon.
 - **Publish states:** both the original paywall and its linked hosted web paywall must be published before the flow works end-to-end.
 - **Localizations:** hosted web paywalls currently support one language.

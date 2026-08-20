@@ -145,17 +145,20 @@ The hosted web paywall doesn't have to show the same products as the original â€
 
     ```tsx
     enableExternalWebCheckout({
-      successURL: "yourapp://openapp",
-      cancelURL: "yourapp://openapp",
+      redirectURL: "yourapp://openapp",
       paymentProcessors: ["paddle"],
     });
     ```
 
-    The `successURL` and `cancelURL` are set once, globally. Make sure both are registered as deep links in your app (via scheme or universal link).
+    The `redirectURL` is set once, globally. Checkout redirects back to it whether the purchase succeeds, is canceled, or fails. Make sure it's registered as a deep link in your app (via scheme or universal link).
+
+    <Note>
+      On older SDK versions that don't have `redirectURL`, pass the equivalent `successURL` and `cancelURL` parameters with the same URL for both. That form still works, but is deprecated.
+    </Note>
 
     **Set your user ID on Helium** before the user reaches a paywall. If you must set user ID after showing a paywall, make sure to call `setAllowWebCheckoutWithoutUserId(true)`.
 
-    **Handle the post-purchase return.** When checkout completes, the user is deep-linked back to your app via the success URL. For a smoother handoff, call `heliumHandleURL(url)` from your deep link handling:
+    **Handle the checkout return.** Whether checkout succeeds, is canceled, or fails, the user is deep-linked back to your app via the redirect URL. For a smoother handoff, call `heliumHandleURL(url)` from your deep link handling:
 
     ```tsx
     useEffect(() => {
@@ -198,13 +201,16 @@ The hosted web paywall doesn't have to show the same products as the original â€
 
     ```dart
     await HeliumFlutter().enableExternalWebCheckout(
-      successURL: "yourapp://openapp",
-      cancelURL: "yourapp://openapp",
+      redirectURL: "yourapp://openapp",
       paymentProcessors: {HeliumWebCheckoutProcessor.paddle},
     );
     ```
 
-    The `successURL` and `cancelURL` are set once, globally.
+    The `redirectURL` is set once, globally. Checkout redirects back to it whether the purchase succeeds, is canceled, or fails.
+
+    <Note>
+      On older SDK versions that don't have `redirectURL`, pass the equivalent `successURL` and `cancelURL` parameters with the same URL for both. That form still works, but is deprecated.
+    </Note>
 
     **Register the deep link.** Both URLs must be registered as deep links in your app. For a custom scheme, add a `CFBundleURLTypes` entry to `ios/Runner/Info.plist`:
 
@@ -222,11 +228,11 @@ The hosted web paywall doesn't have to show the same products as the original â€
     </array>
     ```
 
-    To use a universal link (`https://...`) instead, set up [associated domains](https://docs.flutter.dev/ui/navigation/deep-linking) and use that URL as the `successURL`/`cancelURL`.
+    To use a universal link (`https://...`) instead, set up [associated domains](https://docs.flutter.dev/ui/navigation/deep-linking) and use that URL as the `redirectURL`.
 
     **Set your user ID on Helium** before the user reaches a paywall. If you must set user ID after showing a paywall, make sure to call `setAllowWebCheckoutWithoutUserId(true)`.
 
-    **Handle the post-purchase return.** When checkout completes, the user is deep-linked back to your app via the success URL. Forward incoming links to Helium with `handleURL(url)` â€” it's safe to forward every link, since URLs that aren't Helium's are ignored. If you don't already handle deep links, add [app_links](https://pub.dev/packages/app_links) with `flutter pub add app_links`:
+    **Handle the checkout return.** Whether checkout succeeds, is canceled, or fails, the user is deep-linked back to your app via the redirect URL. Forward incoming links to Helium with `handleURL(url)` â€” it's safe to forward every link, since URLs that aren't Helium's are ignored. If you don't already handle deep links, add [app_links](https://pub.dev/packages/app_links) with `flutter pub add app_links`:
 
     ```dart
     import 'package:app_links/app_links.dart';

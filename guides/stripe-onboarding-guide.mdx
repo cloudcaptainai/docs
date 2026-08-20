@@ -60,24 +60,27 @@ The hosted web paywall doesn't have to show the same products as the original â€
 ### 4. SDK integration
 
 <Tabs>
-  <Tab title="iOS (native) 4.6.0+">
+  <Tab title="iOS (native, Helium 4.6.0+)">
     **Enable external web checkout before initializing Helium:**
 
     ```swift
     Helium.config.enableExternalWebCheckout(
-      successURL: "yourapp://openapp",
-      cancelURL: "yourapp://openapp",
+      redirectURL: "yourapp://openapp",
       paymentProcessors: .stripe
     )
     ```
 
-    The `successURL` and `cancelURL` are set once, globally. Make sure both are registered as deep links in your app (via scheme or universal link).
+    The `redirectURL` is set once, globally. Checkout redirects back to it whether the purchase succeeds, is canceled, or fails. Make sure it's registered as a deep link in your app (via scheme or universal link).
+
+    <Note>
+      On older SDK versions that don't have `redirectURL`, use the equivalent two-URL form with the same URL for both: `enableExternalWebCheckout(successURL:cancelURL:paymentProcessors:)`. That form still works, but is deprecated.
+    </Note>
 
     **Set your user ID on Helium** before the user reaches a paywall. If you must set user ID after showing a paywall, set the `allowWebCheckoutWithoutUserId` option to true.
 
-    **Handle the post-purchase return.** When checkout completes, the user is deep-linked back to your app via the success URL. For a smoother handoff, call `Helium.shared.handleURL(url)` from your `onOpenURL` / `application(_:open:)` handler.
+    **Handle the checkout return.** Whether checkout succeeds, is canceled, or fails, the user is deep-linked back to your app via the redirect URL. For a smoother handoff, call `Helium.shared.handleURL(url)` from your `onOpenURL` / `application(_:open:)` handler.
 
-    **Add a "Manage Subscription" button** so users can cancel or update payment methods via Stripe's customer portal\*\*:
+    **Add a "Manage Subscription" button** so users can cancel or update payment methods via Stripe's customer portal:
 
     ```swift
     if await Helium.entitlements.hasActiveStripeEntitlement() {
@@ -93,22 +96,25 @@ The hosted web paywall doesn't have to show the same products as the original â€
     }
     ```
   </Tab>
-  <Tab title="Expo 3.4.13+">
+  <Tab title="Expo (Helium 3.4.13+)">
     **Enable external web checkout before initializing Helium:**
 
     ```tsx
     enableExternalWebCheckout({
-      successURL: "yourapp://openapp",
-      cancelURL: "yourapp://openapp",
+      redirectURL: "yourapp://openapp",
       paymentProcessors: ["stripe"],
     });
     ```
 
-    The `successURL` and `cancelURL` are set once, globally. Make sure both are registered as deep links in your app (via scheme or universal link).
+    The `redirectURL` is set once, globally. Checkout redirects back to it whether the purchase succeeds, is canceled, or fails. Make sure it's registered as a deep link in your app (via scheme or universal link).
+
+    <Note>
+      On older SDK versions that don't have `redirectURL`, pass the equivalent `successURL` and `cancelURL` parameters with the same URL for both. That form still works, but is deprecated.
+    </Note>
 
     **Set your user ID on Helium** before the user reaches a paywall. If you must set user ID after showing a paywall, make sure to call `setAllowWebCheckoutWithoutUserId(true)`.
 
-    **Handle the post-purchase return.** When checkout completes, the user is deep-linked back to your app via the success URL. For a smoother handoff, call `heliumHandleURL(url)` from your deep link handling:
+    **Handle the checkout return.** Whether checkout succeeds, is canceled, or fails, the user is deep-linked back to your app via the redirect URL. For a smoother handoff, call `heliumHandleURL(url)` from your deep link handling:
 
     ```tsx
     useEffect(() => {
@@ -122,7 +128,7 @@ The hosted web paywall doesn't have to show the same products as the original â€
       You do not need to do anything with the links other than forward them to `heliumHandleURL` like shown above. If you are using **Expo Router** you may need to [override the default behavior](https://docs.expo.dev/router/advanced/native-intent/#sending-navigation-events-to-third-party-services).
     </Note>
 
-    **Add a "Manage Subscription" button** so users can cancel or update payment methods via Stripe's customer portal\*\*:
+    **Add a "Manage Subscription" button** so users can cancel or update payment methods via Stripe's customer portal:
 
     ```tsx
     if (await hasActiveStripeEntitlement()) {
@@ -146,11 +152,15 @@ The hosted web paywall doesn't have to show the same products as the original â€
     );
     ```
 
-    The `redirectURL` is set once, globally. Make sure it's registered as a deep link in your app (via scheme or universal link).
+    The `redirectURL` is set once, globally. Checkout redirects back to it whether the purchase succeeds, is canceled, or fails. Make sure it's registered as a deep link in your app (via scheme or universal link).
+
+    <Note>
+      On older SDK versions that don't have `redirectURL`, pass the equivalent `successURL` and `cancelURL` parameters with the same URL for both. That form still works, but is deprecated.
+    </Note>
 
     **Set your user ID on Helium** before the user reaches a paywall. If you must set user ID after showing a paywall, make sure to call `setAllowWebCheckoutWithoutUserId(true)`.
 
-    **Handle the post-purchase return.** When checkout completes, the user is deep-linked back to your app via the redirect URL. For a smoother handoff, call `handleURL(url)` from your deep link handling:
+    **Handle the checkout return.** Whether checkout succeeds, is canceled, or fails, the user is deep-linked back to your app via the redirect URL. For a smoother handoff, call `handleURL(url)` from your deep link handling:
 
     ```dart
     _linkSubscription = AppLinks().uriLinkStream.listen((uri) {
@@ -158,7 +168,7 @@ The hosted web paywall doesn't have to show the same products as the original â€
     });
     ```
 
-    **Add a "Manage Subscription" button** so users can cancel or update payment methods via Stripe's customer portal\*\*:
+    **Add a "Manage Subscription" button** so users can cancel or update payment methods via Stripe's customer portal:
 
     ```dart
     final hasStripe = await HeliumFlutter().hasActiveStripeEntitlement();
@@ -166,11 +176,13 @@ The hosted web paywall doesn't have to show the same products as the original â€
         // show the manage subscription button
     }
     
-    // when the button is tapped:
-    final urlString = await HeliumFlutter().createStripePortalSession();
+    // when the button is tapped â€” returnUrl is where Stripe sends the user
+    // back after they're done managing their subscription:
+    final urlString = await HeliumFlutter().createStripePortalSession(
+      returnUrl: "yourapp://openapp",
+    );
     if (urlString != null) {
-      final Uri url = Uri.parse(url);
-      await launchUrl(url);
+      await launchUrl(Uri.parse(urlString));
     }
     ```
   </Tab>
@@ -229,7 +241,7 @@ Target the App2Web paywall to that group, then run through these scenarios befor
 1. **Happy path purchase.** Open an App2Web paywall in-app, tap a web product, and confirm the app correctly opens the browser. Complete the standard purchase flow, then confirm you're deep-linked back with an active entitlement. Dismiss the paywall before purchasing as well, and confirm the app returns to the expected screen.
 2. **Entitlement sync.** After purchase, confirm `hasActiveStripeEntitlement()` returns `true` immediately, and that RevenueCat (if connected) updates within a few seconds.
 3. **Cancel flow.** Open the customer portal from your app, cancel a subscription, and confirm the entitlement expires at period end.
-4. **Abandoned checkout.** Close the browser mid-checkout and confirm the app handles the cancel URL gracefully.
+4. **Canceled checkout.** Back out of the checkout page without paying and confirm you're deep-linked back to the app with no entitlement granted and no success state shown.
 5. **Pre-login purchase (if applicable).** If your App2Web paywall can be shown before you set a durable `user_id`, make a purchase before setting it. Set the durable user ID afterwards and confirm the entitlement attaches correctly.
 
 ## Appendix
@@ -243,10 +255,6 @@ On successful purchase, the SDK's entitlement cache updates immediately. The Hel
 ### Why two paywalls?
 
 The original in-app paywall presents your Stripe offerings. The hosted web paywall â€” served from `clickthrough.to` â€” runs the actual Stripe checkout, which has to happen in a browser. The two can be customized independently and don't need to show the same products.
-
-### Why are success/cancel URLs set in the SDK?
-
-Deep links are specific to your app build, so it's cleaner to configure them alongside SDK init than in the dashboard. They're global: set once, applied to every Stripe purchase. It's ok if they are the same URL.
 
 ### Known limitations and gotchas
 

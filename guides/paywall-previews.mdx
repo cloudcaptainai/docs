@@ -20,6 +20,47 @@ Triple tap again or dismiss the paywall to return to the list of paywalls.
   By default, this functionality is only enabled in debug/TestFlight builds for iOS and debug builds for Android.
 </Info>
 
+## Preview App2Web Paywalls
+
+<Info>
+  Available starting with the upcoming iOS and Android SDK releases.
+</Info>
+
+If a paywall uses [App2Web](/guides/app2web-go-live-checklist), previewing it exercises the full flow: the in-app paywall opens, the purchase action kicks out to the hosted web checkout, and you can complete a simulated or real purchase — all before the paywall is live and without meeting production targeting.
+
+### Simulated and real purchases
+
+Previews default to a **simulated purchase**: the checkout looks and behaves like the real flow, but no transaction is created, no revenue events fire, and no entitlement is granted. This is the safest way to verify the experience end to end.
+
+You can switch to a **real purchase** when the device is eligible. A real preview purchase charges your card, completes checkout, returns to your app, and grants a real entitlement — useful for verifying webhooks and entitlement delivery.
+
+### Purchase eligibility
+
+Real purchases follow the same regional rules as production. The device's locale, App Store country, and network location must agree:
+
+- **US, outside California** — real purchases available.
+- **US, California** — real purchases available, and the California consent modal is required before a Paddle checkout.
+- **Outside the US, or mixed signals** (for example a VPN with a non-US App Store account) — simulated purchases only.
+
+To test the real purchase path from elsewhere, use a VPN to a US state.
+
+### Preview configuration
+
+Preview settings are reachable from the previews list. You can choose the purchase mode, toggle the California consent modal (shown only for paywalls with a Paddle checkout), and optionally have the configuration screen appear before each App2Web preview. Settings apply for the current session and reset when the app restarts.
+
+### Identifying test purchases
+
+A real preview purchase is tagged end to end so it stays distinguishable from production:
+
+- The purchase runs on a dedicated preview trigger, so preview activity is separable in analytics.
+- `helium_testing: true` is written to the resulting Paddle subscription's `custom_data`, so you can find and clean up test subscriptions in your Paddle dashboard, and any webhook the purchase drives carries the same marker.
+
+### Good to know
+
+- Web paywalls open in the browser after a confirmation, since they are not rendered in-app.
+- If a paywall has a second try offer configured, dismissing the preview shows the second try paywall with its own products and prices.
+- If a paywall was last saved before App2Web preview support, the preview is blocked with a message asking you to re-save it in the dashboard.
+
 ## Preview Paywalls from the Helium App (coming soon)
 
 _Not yet available._

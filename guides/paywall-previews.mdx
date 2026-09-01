@@ -23,16 +23,19 @@ Triple tap again or dismiss the paywall to return to the list of paywalls.
 ## Preview App2Web Paywalls
 
 <Info>
-  Available starting with the upcoming iOS and Android SDK releases.
+  iOS only, starting with the upcoming iOS SDK release. On Android, App2Web checkout APIs are safe no-ops.
 </Info>
 
 If a paywall uses [App2Web](/guides/app2web-go-live-checklist), previewing it exercises the full flow: the in-app paywall opens, the purchase action kicks out to the hosted web checkout, and you can complete a simulated or real purchase — all before the paywall is live and without meeting production targeting.
 
 ### Simulated and real purchases
 
-Previews default to a **simulated purchase**: the checkout looks and behaves like the real flow, but no transaction is created, no revenue events fire, and no entitlement is granted. This is the safest way to verify the experience end to end.
+Previews support two purchase modes:
 
-You can switch to a **real purchase** when the device is eligible. A real preview purchase charges your card, completes checkout, returns to your app, and grants a real entitlement — useful for verifying webhooks and entitlement delivery.
+- **Simulated purchase** — the checkout looks and behaves like the real flow, but no transaction is created, no revenue events fire, and no entitlement is granted. This is the safest way to verify the experience end to end.
+- **Real purchase** — charges your card, completes checkout, returns to your app, and grants a real entitlement. Useful for verifying webhooks and entitlement delivery.
+
+The mode follows the device's purchase eligibility: a device that is not cleared for real purchases always runs simulated, while an eligible device defaults to a real purchase. You can switch an eligible device to simulated in the preview settings.
 
 ### Purchase eligibility
 
@@ -46,7 +49,13 @@ To test the real purchase path from outside the US, all three signals must read 
 
 ### Preview configuration
 
-Preview settings are reachable from the previews list. You can choose the purchase mode, toggle the California consent modal (shown only for paywalls with a Paddle checkout), and optionally have the configuration screen appear before each App2Web preview. Settings apply for the current session and reset when the app restarts.
+Tap the **gear icon** on the previews list to open the App2Web preview settings:
+
+- **Purchase mode** — simulated or real, subject to the device's eligibility.
+- **California consent modal** — shown only for paywalls with a Paddle checkout; on eligible California devices the modal is required and the toggle cannot be turned off.
+- **Configure before each preview** — off by default. When on, the configuration screen appears before each App2Web preview so you can confirm the settings for that launch; when off, previews launch directly with the session settings.
+
+Settings apply to every App2Web preview for the current session and reset when the app restarts.
 
 ### Identifying test purchases
 

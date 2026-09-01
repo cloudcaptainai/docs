@@ -55,6 +55,10 @@ A real preview purchase is tagged end to end so it stays distinguishable from pr
 - The purchase runs on a dedicated preview trigger, so preview activity is separable in analytics.
 - `helium_testing: true` is written to the resulting Paddle subscription's `custom_data`, so you can find and clean up test subscriptions in your Paddle dashboard, and any webhook the purchase drives carries the same marker.
 
+### What previews don't cover
+
+Previews bypass audience targeting and do not exercise paywall traits or your post-purchase handlers. Before launch, also open the flow through a real trigger on a physical device — see the [App2Web go-live checklist](/guides/app2web-go-live-checklist).
+
 ### Good to know
 
 - Web paywalls open in the browser after a confirmation, since they are not rendered in-app.

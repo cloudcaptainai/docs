@@ -16,6 +16,10 @@ Once you are viewing a paywall, **triple tap** anywhere on the paywall to bring 
 
 Triple tap again or dismiss the paywall to return to the list of paywalls.
 
+<Frame>
+  ![Triple tap to open Paywall Previews](/images/paywall-previews-triple-tap.gif)
+</Frame>
+
 <Info>
   By default, this functionality is only enabled in debug/TestFlight builds for iOS and debug builds for Android.
 </Info>
@@ -47,9 +51,21 @@ Real purchases follow the same regional rules as production. The device's locale
 
 To test the real purchase path from outside the US, all three signals must read US: use a US App Store account, set the device region to the US, and connect through a VPN to a US state.
 
+<Frame>
+  ![California consent modal shown before activating a Paddle subscription](/images/paywall-previews-ca-consent-modal.png)
+</Frame>
+
 ### Preview configuration
 
 Tap the **gear icon** on the previews list to open the App2Web preview settings:
+
+<Frame>
+  ![The gear icon on the previews list](/images/paywall-previews-gear-icon.png)
+</Frame>
+
+<Frame>
+  ![App2Web preview settings](/images/paywall-previews-a2w-settings.png)
+</Frame>
 
 - **Purchase mode** — simulated or real, subject to the device's eligibility.
 - **California consent modal** — shown only for paywalls with a Paddle checkout; on eligible California devices the modal is required and the toggle cannot be turned off.

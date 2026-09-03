@@ -61,7 +61,7 @@ There are no API keys to copy. When your client connects for the first time it o
 
   <McpClient name="Grok" group="AI agent CLI" icon="/images/ai-tools/logos/grok.svg">
     ```bash
-    grok mcp add helium https://app.tryhelium.com/api/mcp --transport http
+    grok mcp add --transport http helium https://app.tryhelium.com/api/mcp
     ```
 
     Or add it to `~/.grok/config.toml`:
@@ -71,7 +71,7 @@ There are no API keys to copy. When your client connects for the first time it o
     url = "https://app.tryhelium.com/api/mcp"
     ```
 
-    Run `/mcps` inside Grok to check the connection.
+    Run `/mcps` inside Grok, select **helium**, and press `i` to sign in.
   </McpClient>
 
   <McpClient name="Gemini CLI" group="AI agent CLI" icon="/images/ai-tools/logos/gemini.svg">
@@ -112,7 +112,7 @@ There are no API keys to copy. When your client connects for the first time it o
     }
     ```
 
-    Run `copilot -i /mcp` to sign in.
+    Run `copilot`, then `/mcp show helium` to open the server and authenticate.
   </McpClient>
 
   <McpClient name="OpenCode" group="AI agent CLI" icon="/images/ai-tools/logos/opencode.svg">
@@ -173,17 +173,27 @@ There are no API keys to copy. When your client connects for the first time it o
   </McpClient>
 
   <McpClient name="Claude.ai" group="Web clients" icon="/images/ai-tools/logos/claude.svg">
-    1. Open **Settings > Connectors** in Claude (web or desktop).
-    2. Click **Add custom connector**.
+    1. Open **Customize > Connectors** in Claude (web or desktop).
+    2. Click **+**, then **Add custom connector**.
     3. Name it **Helium** and paste `https://app.tryhelium.com/api/mcp` as the URL.
     4. Click **Add**, then **Connect** and sign in with your Helium account.
+
+    On Team and Enterprise plans an owner adds the connector first under **Organization settings > Connectors**, then each member clicks **Connect**.
   </McpClient>
 
   <McpClient name="ChatGPT" group="Web clients" icon="/images/ai-tools/logos/openai.svg">
-    1. Open **Settings > Connectors** and turn on **Developer mode** under **Advanced**.
-    2. Click **Create** and paste `https://app.tryhelium.com/api/mcp` as the MCP server URL.
-    3. Choose **OAuth** for authentication and save.
-    4. Start a chat, open the **+** menu, and enable **Helium** under Connectors.
+    1. Open **Settings > Security and login** and turn on **Developer mode**.
+    2. Go to **ChatGPT Plugins** at chatgpt.com/plugins and click **+**.
+    3. Paste `https://app.tryhelium.com/api/mcp` as the MCP server URL, name it **Helium**, add a short description, and click **Create**. ChatGPT detects the Helium sign-in on its own.
+    4. Start a new chat, click **+**, open **More**, and enable **Helium**. You are asked to sign in the first time a Helium tool runs.
+
+    Developer mode needs a Plus, Pro, Business, Enterprise or Education plan.
+  </McpClient>
+  <McpClient name="Devin" group="Web clients" icon="/images/ai-tools/logos/devin.svg">
+    1. Open **Settings > Connections > MCP servers** and click **Add a custom MCP**.
+    2. Name it **Helium**, set **Transport** to **HTTP**, and paste `https://app.tryhelium.com/api/mcp` as the server URL.
+    3. Set **Authentication method** to **OAuth**, save, and sign in with your Helium account when the browser prompt opens.
+    4. Click **Test listing tools** to confirm the connection.
   </McpClient>
 
   <McpClient name="Goose" group="Web clients" icon="/images/ai-tools/logos/goose.svg">
@@ -202,6 +212,8 @@ There are no API keys to copy. When your client connects for the first time it o
         enabled: true
         timeout: 300
     ```
+
+    Goose opens the Helium sign-in in your browser the first time the extension connects.
   </McpClient>
 
   <McpClient name="Cursor" group="IDE" icon="/images/ai-tools/logos/cursor.svg">
@@ -217,7 +229,7 @@ There are no API keys to copy. When your client connects for the first time it o
     }
     ```
 
-    Or [install with one click](cursor://anysphere.cursor-deeplink/mcp/install?name=helium\&config=eyJ1cmwiOiJodHRwczovL2FwcC50cnloZWxpdW0uY29tL2FwaS9tY3AifQ==). Then open **Settings > MCP** and click **Login** next to helium.
+    Or [install with one click](cursor://anysphere.cursor-deeplink/mcp/install?name=helium\&config=eyJ1cmwiOiJodHRwczovL2FwcC50cnloZWxpdW0uY29tL2FwaS9tY3AifQ==). Then open **Customize** in the sidebar and sign in next to helium.
   </McpClient>
 
   <McpClient name="VS Code" group="IDE" icon="/images/ai-tools/logos/vscode.svg">
@@ -238,7 +250,7 @@ There are no API keys to copy. When your client connects for the first time it o
   </McpClient>
 
   <McpClient name="Antigravity" group="IDE" icon="/images/ai-tools/logos/antigravity.svg">
-    Add to `~/.gemini/antigravity/mcp_config.json`:
+    Add to `~/.gemini/config/mcp_config.json`, or `.agents/mcp_config.json` in your workspace:
 
     ```json
     {
@@ -250,11 +262,11 @@ There are no API keys to copy. When your client connects for the first time it o
     }
     ```
 
-    Restart Antigravity to start the sign-in. You can also open the **...** menu, choose **MCP Servers > Manage MCP Servers > View raw config** to edit the file.
+    Open **Agent Settings** (`Cmd+,` or `Ctrl+,`), go to the **Customizations** tab, and click **Authenticate** next to helium. You can also open the **...** menu and choose **MCP Servers > Manage MCP Servers > View raw config** to edit the file.
   </McpClient>
 
   <McpClient name="Kiro" group="IDE" icon="/images/ai-tools/logos/kiro.svg">
-    Add to `~/.kiro/settings/mcp.json`:
+    Add to `~/.kiro/settings/mcp.json`, or `.kiro/settings/mcp.json` in your workspace:
 
     ```json
     {
@@ -265,29 +277,28 @@ There are no API keys to copy. When your client connects for the first time it o
       }
     }
     ```
+
+    Kiro opens the Helium sign-in in your browser the first time it connects.
   </McpClient>
 
   <McpClient name="Devin Desktop" group="IDE" icon="/images/ai-tools/logos/devin.svg">
-    Add to `~/.config/devin/mcp_config.json`:
+    Add to `~/.config/devin/mcp_config.json` (macOS and Linux) or `%APPDATA%\devin\mcp_config.json` (Windows):
 
     ```json
     {
       "mcpServers": {
         "helium": {
-          "command": "npx",
-          "args": [
-            "-y",
-            "mcp-remote",
-            "https://app.tryhelium.com/api/mcp"
-          ]
+          "url": "https://app.tryhelium.com/api/mcp"
         }
       }
     }
     ```
+
+    Run `devin mcp login helium` in a terminal, or wait for the sign-in prompt the first time the server is used. Windsurf became Devin Desktop in June 2026 and uses this same configuration.
   </McpClient>
 
   <McpClient name="Kimi Code" group="IDE" icon="/images/ai-tools/logos/kimi.svg">
-    Add to `.kimi-code/mcp.json`:
+    Add to `.kimi-code/mcp.json` in your project, or `~/.kimi-code/mcp.json` for all projects:
 
     ```json
     {
@@ -300,7 +311,7 @@ There are no API keys to copy. When your client connects for the first time it o
     }
     ```
 
-    Run `/mcp-config` inside Kimi Code to sign in.
+    Run `/mcp-config login helium` inside Kimi Code to sign in.
   </McpClient>
 
   <McpClient name="Warp" group="IDE" icon="/images/ai-tools/logos/warp.svg">
@@ -315,6 +326,8 @@ There are no API keys to copy. When your client connects for the first time it o
       }
     }
     ```
+
+    Warp opens the Helium sign-in in your browser the first time it connects to the server.
   </McpClient>
 
   <McpClient name="Zed" group="IDE" icon="/images/ai-tools/logos/zed.svg">
@@ -333,19 +346,6 @@ There are no API keys to copy. When your client connects for the first time it o
     Zed opens the Helium sign-in in your browser the first time the Agent Panel uses the server.
   </McpClient>
 
-  <McpClient name="Windsurf" group="IDE" icon="/images/ai-tools/logos/windsurf.svg">
-    Add to `~/.codeium/windsurf/mcp_config.json`:
-
-    ```json
-    {
-      "mcpServers": {
-        "helium": {
-          "serverUrl": "https://app.tryhelium.com/api/mcp"
-        }
-      }
-    }
-    ```
-  </McpClient>
 
   <McpClient name="JetBrains" group="IDE" icon="/images/ai-tools/logos/jetbrains.svg">
     Open **Settings > Tools > AI Assistant > Model Context Protocol (MCP)**, click **Add**, and paste:
@@ -354,11 +354,14 @@ There are no API keys to copy. When your client connects for the first time it o
     {
       "mcpServers": {
         "helium": {
-          "url": "https://app.tryhelium.com/api/mcp"
+          "command": "npx",
+          "args": ["-y", "mcp-remote", "https://app.tryhelium.com/api/mcp"]
         }
       }
     }
     ```
+
+    JetBrains AI Assistant cannot complete an OAuth sign-in on its own, so the `mcp-remote` bridge opens the Helium sign-in in your browser and keeps the connection. Requires Node.js.
   </McpClient>
 </ClientPicker>
 

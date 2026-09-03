@@ -32,8 +32,8 @@ export const ClientPicker = ({ children }) => {
   };
 
   return (
-    <div className="not-prose">
-      <div ref={ref} className="relative inline-flex items-stretch text-sm rounded-xl border border-gray-950/10 dark:border-white/10 bg-white dark:bg-gray-900">
+    <div>
+      <div ref={ref} className="not-prose relative inline-flex items-stretch text-sm rounded-xl border border-gray-950/10 dark:border-white/10 bg-white dark:bg-gray-900">
         <span className="px-3 py-2 text-gray-500 dark:text-gray-400 border-r border-gray-950/10 dark:border-white/10">Client</span>
         <button type="button" onClick={() => setOpen(!open)} className="flex items-center gap-2 px-3 py-2 font-medium text-gray-900 dark:text-white">
           <img src={current.props.icon} alt="" className="h-4 w-4" />
@@ -60,7 +60,7 @@ export const ClientPicker = ({ children }) => {
           </div>
         )}
       </div>
-      <div className="prose dark:prose-invert mt-4">{current}</div>
+      <div className="mt-4">{current}</div>
     </div>
   );
 };

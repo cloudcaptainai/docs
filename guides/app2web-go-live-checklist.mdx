@@ -1,13 +1,15 @@
 ---
-title: "App2Web Go-Live Checklist"
-description: "A short checklist for testing your App2Web flow before launch."
+title: "Test Paywalls and App2Web Checkout Before Launch"
 ---
 
-App2Web uses two linked paywalls: one shown in the app and one shown in the browser. Complete QA for your normal in-app purchase path before testing App2Web.
+Paywall Previews let you test any paywall — published or draft — on a device, without meeting production targeting. For App2Web paywalls, previews run the full app-to-web checkout flow, including simulated or real purchases.
 
-<Note>
-  When the in-app App2Web paywall triggers a purchase action for a web product, Helium opens the linked hosted web paywall in the browser. The purchase is completed on the web, not in the app.
-</Note>
+## Requirements
+
+- Helium SDK integrated, with a valid workflow set up.
+- Debug/TestFlight builds on iOS; debug builds on Android.
+
+**To open previews:** navigate to any paywall and **triple tap**. A list of all your paywalls appears — published or draft. Triple tap again or dismiss to return to the list.
 
 ## Check the setup
 
@@ -17,10 +19,73 @@ App2Web uses two linked paywalls: one shown in the app and one shown in the brow
 - [ ] Targeting includes only eligible users and has been tested with an internal audience.
 - [ ] Checkout redirect URL, user identity, revenue tracking, and subscription management are configured.
 
-## Test the full flow
+## Previewing App2Web paywalls
 
-- [ ] Test the flow end to end with [Paywall Previews](/guides/paywall-previews) (triple tap). Start with a simulated purchase and confirm no transaction or entitlement is created; if the device is eligible, follow with a real purchase and confirm the entitlement is granted.
-- [ ] Before launch, also open App2Web through a real trigger on a physical device. Previews bypass targeting and do not exercise paywall traits or your post-purchase handlers.
+*iOS only, starting with the upcoming iOS SDK release. On Android, App2Web checkout APIs are safe no-ops.*
+
+An App2Web preview runs the full flow:
+
+1. The in-app paywall opens.
+2. The web purchase action opens hosted checkout in the browser, after a confirmation dialog.
+3. You complete a simulated or real purchase.
+
+### Purchase modes
+
+| Mode | What happens | Use it for |
+|---|---|---|
+| **Simulated** | No transaction, no revenue events, no entitlement | Verifying the experience end to end — safest |
+| **Real** | Charges your card, grants a real entitlement | Verifying webhooks and entitlement delivery |
+
+> ⚠️ **Eligible devices default to real purchases, which charge your card.** Switch to simulated in preview settings — but settings reset on app restart, so check the mode each session.
+
+- [ ] Run a simulated purchase and confirm no transaction or entitlement is created.
+- [ ] If the device is eligible, run a real purchase and confirm the entitlement is granted.
+
+### Purchase eligibility
+
+Three signals must all read US for real purchases: **App Store country**, **device region**, **network location**.
+
+| Location | Real purchases |
+|---|---|
+| US, outside California | ✅ |
+| US, California | ✅ — California consent modal required before Paddle checkout |
+| Outside US, or mixed signals | ❌ Simulated only |
+
+A VPN only supplies the network signal. To test from outside the US, you need all three: US App Store account + US device region + US-based VPN endpoint.
+
+### Preview settings
+
+Tap the gear icon on the previews list.
+
+| Setting | Behavior |
+|---|---|
+| **Purchase mode** | Simulated or real, subject to eligibility |
+| **California consent modal** | Paddle checkouts only; required and locked on eligible California devices |
+| **Configure before each preview** | Off by default. On = settings screen before each launch |
+
+Settings last for the session and reset on app restart.
+
+### Finding and cleaning up test purchases
+
+Real preview purchases are tagged end to end:
+
+- **Dedicated preview trigger** — preview activity is separable in analytics.
+- **`helium_testing: true`** — written to the Paddle subscription's `custom_data` and carried on every webhook.
+
+Cancel or refund test subscriptions in your Paddle dashboard when you're done testing.
+
+### Troubleshooting
+
+| Symptom | Fix |
+|---|---|
+| Preview blocked with a re-save message | Re-save the paywall in the dashboard (last saved before App2Web preview support) |
+| A different paywall appears on dismiss | That's the second try offer, with its own products and prices — expected |
+
+## Test with a real trigger
+
+Previews bypass targeting and skip paywall traits and post-purchase handlers. Before launch, run the flow through a real trigger on a physical device:
+
+- [ ] Open App2Web through a real trigger.
 - [ ] Tapping the web purchase CTA opens the linked hosted web paywall in the browser.
 - [ ] The product selected in the app is the product selected on the hosted web paywall.
 - [ ] Product selection and the web purchase action are separate, so the CTA cannot send the wrong product.

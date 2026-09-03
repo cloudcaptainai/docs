@@ -18,22 +18,35 @@ The server URL is the same for every client:
 https://app.tryhelium.com/api/mcp
 ```
 
-There are no API keys to copy. When your client connects for the first time it opens the Helium login page in your browser. Sign in, choose the organization you want to connect, approve the permissions, and you are done.
+There are no API keys to copy. When your client connects for the first time it opens the Helium login page in your browser. Sign in, choose the organization you want to connect, approve the permissions, and you are done. Pick your client below.
 
 ### AI agent CLIs
 
-<Tabs>
-  <Tab title="Claude Code" icon="/images/ai-tools/logos/claude.svg">
+<AccordionGroup>
+  <Accordion title="Claude Code" icon="/images/ai-tools/logos/claude.svg">
     ```bash
-    claude mcp add --transport http helium https://app.tryhelium.com/api/mcp
+    claude mcp add --scope project --transport http helium https://app.tryhelium.com/api/mcp
     ```
 
-    Then run `/mcp` inside Claude Code and pick **helium** to sign in. Add `--scope project` to share the connection with your team through `.mcp.json`.
-  </Tab>
-  <Tab title="Codex" icon="/images/ai-tools/logos/openai.svg">
+    Or add it to `.mcp.json` in your project:
+
+    ```json
+    {
+      "mcpServers": {
+        "helium": {
+          "type": "http",
+          "url": "https://app.tryhelium.com/api/mcp"
+        }
+      }
+    }
+    ```
+
+    Run `/mcp` inside Claude Code, select **helium**, and choose **Authenticate** to sign in.
+  </Accordion>
+
+  <Accordion title="Codex" icon="/images/ai-tools/logos/openai.svg">
     ```bash
     codex mcp add helium --url https://app.tryhelium.com/api/mcp
-    codex mcp login helium
     ```
 
     Or add it to `~/.codex/config.toml`:
@@ -42,13 +55,31 @@ There are no API keys to copy. When your client connects for the first time it o
     [mcp_servers.helium]
     url = "https://app.tryhelium.com/api/mcp"
     ```
-  </Tab>
-  <Tab title="Gemini CLI" icon="/images/ai-tools/logos/gemini.svg">
+
+    Run `codex mcp login helium` to sign in, or `/mcp` inside Codex.
+  </Accordion>
+
+  <Accordion title="Grok" icon="/images/ai-tools/logos/grok.svg">
     ```bash
-    gemini mcp add --transport http helium https://app.tryhelium.com/api/mcp
+    grok mcp add helium https://app.tryhelium.com/api/mcp --transport http
     ```
 
-    Or add it to `~/.gemini/settings.json`:
+    Or add it to `~/.grok/config.toml`:
+
+    ```toml
+    [mcp_servers.helium]
+    url = "https://app.tryhelium.com/api/mcp"
+    ```
+
+    Run `/mcps` inside Grok to check the connection.
+  </Accordion>
+
+  <Accordion title="Gemini CLI" icon="/images/ai-tools/logos/gemini.svg">
+    ```bash
+    gemini mcp add -t http helium https://app.tryhelium.com/api/mcp
+    ```
+
+    Or add it to `.gemini/settings.json`:
 
     ```json
     {
@@ -59,39 +90,129 @@ There are no API keys to copy. When your client connects for the first time it o
       }
     }
     ```
-  </Tab>
-</Tabs>
 
-### Web and desktop apps
+    Run `/mcp auth helium` inside Gemini CLI to sign in.
+  </Accordion>
 
-<Tabs>
-  <Tab title="Claude" icon="/images/ai-tools/logos/claude.svg">
+  <Accordion title="GitHub Copilot" icon="/images/ai-tools/logos/copilot.svg">
+    ```bash
+    copilot mcp add --transport http helium https://app.tryhelium.com/api/mcp
+    ```
+
+    Or add it to `~/.copilot/mcp-config.json`:
+
+    ```json
+    {
+      "mcpServers": {
+        "helium": {
+          "type": "http",
+          "url": "https://app.tryhelium.com/api/mcp"
+        }
+      }
+    }
+    ```
+
+    Run `copilot -i /mcp` to sign in.
+  </Accordion>
+
+  <Accordion title="OpenCode" icon="/images/ai-tools/logos/opencode.svg">
+    Add to `~/.config/opencode/opencode.json`:
+
+    ```json
+    {
+      "$schema": "https://opencode.ai/config.json",
+      "mcp": {
+        "helium": {
+          "type": "remote",
+          "url": "https://app.tryhelium.com/api/mcp",
+          "enabled": true
+        }
+      }
+    }
+    ```
+
+    Run `opencode mcp auth helium` to sign in.
+  </Accordion>
+
+  <Accordion title="Factory" icon="/images/ai-tools/logos/factory.svg">
+    ```bash
+    droid mcp add helium https://app.tryhelium.com/api/mcp --type http
+    ```
+
+    Or add it to `~/.factory/mcp.json`:
+
+    ```json
+    {
+      "mcpServers": {
+        "helium": {
+          "type": "http",
+          "url": "https://app.tryhelium.com/api/mcp"
+        }
+      }
+    }
+    ```
+
+    Run `/mcp` inside droid to sign in.
+  </Accordion>
+
+  <Accordion title="fx" icon="/images/ai-tools/logos/fx.png">
+    Add to `~/.fx/mcp.json`:
+
+    ```json
+    {
+      "mcp": {
+        "helium": {
+          "type": "http",
+          "url": "https://app.tryhelium.com/api/mcp"
+        }
+      }
+    }
+    ```
+
+    Run `/mcp auth helium --open` inside fx to sign in, then `/mcp list` to check the connection.
+  </Accordion>
+</AccordionGroup>
+
+### Web clients
+
+<AccordionGroup>
+  <Accordion title="Claude.ai" icon="/images/ai-tools/logos/claude.svg">
     1. Open **Settings > Connectors** in Claude (web or desktop).
     2. Click **Add custom connector**.
     3. Name it **Helium** and paste `https://app.tryhelium.com/api/mcp` as the URL.
     4. Click **Add**, then **Connect** and sign in with your Helium account.
+  </Accordion>
 
-    Connectors are available on Pro, Max, Team and Enterprise plans.
-  </Tab>
-  <Tab title="ChatGPT" icon="/images/ai-tools/logos/openai.svg">
+  <Accordion title="ChatGPT" icon="/images/ai-tools/logos/openai.svg">
     1. Open **Settings > Connectors** and turn on **Developer mode** under **Advanced**.
     2. Click **Create** and paste `https://app.tryhelium.com/api/mcp` as the MCP server URL.
     3. Choose **OAuth** for authentication and save.
     4. Start a chat, open the **\+** menu, and enable **Helium** under Connectors.
+  </Accordion>
 
-    Custom connectors require a Plus, Pro, Business or Enterprise plan.
-  </Tab>
-  <Tab title="Devin" icon="/images/ai-tools/logos/devin.svg">
-    1. Open **Settings > MCP Marketplace** in Devin.
-    2. Add a custom server with the URL `https://app.tryhelium.com/api/mcp` and **OAuth** authentication.
-    3. Complete the Helium sign-in when prompted.
-  </Tab>
-</Tabs>
+  <Accordion title="Goose" icon="/images/ai-tools/logos/goose.svg">
+    ```bash
+    goose session --with-streamable-http-extension https://app.tryhelium.com/api/mcp
+    ```
+
+    Or add it to `~/.config/goose/config.yaml`:
+
+    ```yaml
+    extensions:
+      helium:
+        name: Helium
+        type: streamable_http
+        uri: https://app.tryhelium.com/api/mcp
+        enabled: true
+        timeout: 300
+    ```
+  </Accordion>
+</AccordionGroup>
 
 ### IDEs
 
-<Tabs>
-  <Tab title="Cursor" icon="/images/ai-tools/logos/cursor.svg">
+<AccordionGroup>
+  <Accordion title="Cursor" icon="/images/ai-tools/logos/cursor.svg">
     Add to `.cursor/mcp.json` in your project, or `~/.cursor/mcp.json` for all projects:
 
     ```json
@@ -105,8 +226,9 @@ There are no API keys to copy. When your client connects for the first time it o
     ```
 
     Or [install with one click](cursor://anysphere.cursor-deeplink/mcp/install?name=helium&config=eyJ1cmwiOiJodHRwczovL2FwcC50cnloZWxpdW0uY29tL2FwaS9tY3AifQ==). Then open **Settings > MCP** and click **Login** next to helium.
-  </Tab>
-  <Tab title="VS Code" icon="/images/ai-tools/logos/vscode.svg">
+  </Accordion>
+
+  <Accordion title="VS Code" icon="/images/ai-tools/logos/vscode.svg">
     Add to `.vscode/mcp.json`:
 
     ```json
@@ -121,8 +243,89 @@ There are no API keys to copy. When your client connects for the first time it o
     ```
 
     Or [install with one click](https://vscode.dev/redirect/mcp/install?name=helium&config=%7B%22type%22%3A%22http%22%2C%22url%22%3A%22https%3A%2F%2Fapp.tryhelium.com%2Fapi%2Fmcp%22%7D). VS Code prompts you to sign in the first time Copilot uses the server.
-  </Tab>
-  <Tab title="Zed" icon="/images/ai-tools/logos/zed.svg">
+  </Accordion>
+
+  <Accordion title="Antigravity" icon="/images/ai-tools/logos/antigravity.svg">
+    Add to `~/.gemini/antigravity/mcp_config.json`:
+
+    ```json
+    {
+      "mcpServers": {
+        "helium": {
+          "serverUrl": "https://app.tryhelium.com/api/mcp"
+        }
+      }
+    }
+    ```
+
+    Restart Antigravity to start the sign-in. You can also open the **...** menu, choose **MCP Servers > Manage MCP Servers > View raw config** to edit the file.
+  </Accordion>
+
+  <Accordion title="Kiro" icon="/images/ai-tools/logos/kiro.svg">
+    Add to `~/.kiro/settings/mcp.json`:
+
+    ```json
+    {
+      "mcpServers": {
+        "helium": {
+          "url": "https://app.tryhelium.com/api/mcp"
+        }
+      }
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="Devin Desktop" icon="/images/ai-tools/logos/devin.svg">
+    Add to `~/.config/devin/mcp_config.json`:
+
+    ```json
+    {
+      "mcpServers": {
+        "helium": {
+          "command": "npx",
+          "args": [
+            "-y",
+            "mcp-remote",
+            "https://app.tryhelium.com/api/mcp"
+          ]
+        }
+      }
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="Kimi Code" icon="/images/ai-tools/logos/kimi.svg">
+    Add to `.kimi-code/mcp.json`:
+
+    ```json
+    {
+      "mcpServers": {
+        "helium": {
+          "transport": "http",
+          "url": "https://app.tryhelium.com/api/mcp"
+        }
+      }
+    }
+    ```
+
+    Run `/mcp-config` inside Kimi Code to sign in.
+  </Accordion>
+
+  <Accordion title="Warp" icon="/images/ai-tools/logos/warp.svg">
+    Add to `~/.warp/.mcp.json`:
+
+    ```json
+    {
+      "mcpServers": {
+        "helium": {
+          "url": "https://app.tryhelium.com/api/mcp"
+        }
+      }
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="Zed" icon="/images/ai-tools/logos/zed.svg">
     Add to your Zed `settings.json`:
 
     ```json
@@ -136,8 +339,9 @@ There are no API keys to copy. When your client connects for the first time it o
     ```
 
     Zed opens the Helium sign-in in your browser the first time the Agent Panel uses the server.
-  </Tab>
-  <Tab title="Windsurf" icon="/images/ai-tools/logos/windsurf.svg">
+  </Accordion>
+
+  <Accordion title="Windsurf" icon="/images/ai-tools/logos/windsurf.svg">
     Add to `~/.codeium/windsurf/mcp_config.json`:
 
     ```json
@@ -149,8 +353,9 @@ There are no API keys to copy. When your client connects for the first time it o
       }
     }
     ```
-  </Tab>
-  <Tab title="JetBrains" icon="/images/ai-tools/logos/jetbrains.svg">
+  </Accordion>
+
+  <Accordion title="JetBrains" icon="/images/ai-tools/logos/jetbrains.svg">
     Open **Settings > Tools > AI Assistant > Model Context Protocol (MCP)**, click **Add**, and paste:
 
     ```json
@@ -162,10 +367,10 @@ There are no API keys to copy. When your client connects for the first time it o
       }
     }
     ```
-  </Tab>
-</Tabs>
+  </Accordion>
+</AccordionGroup>
 
-Any other client that supports remote MCP servers with OAuth works the same way: give it the URL above and sign in when prompted. Clients that only accept a static token (for example Warp) are not supported yet.
+Any other client that supports remote MCP servers with OAuth works the same way: give it the URL above and sign in when prompted.
 
 ## Permissions
 

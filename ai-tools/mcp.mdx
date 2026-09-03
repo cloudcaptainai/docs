@@ -1,0 +1,251 @@
+---
+title: "Helium MCP Server"
+description: "Connect Claude, ChatGPT, Cursor and other AI tools to your Helium dashboard data."
+icon: "plug"
+---
+
+The [Model Context Protocol](https://modelcontextprotocol.io) (MCP) is a standard for connecting AI tools to external systems. The Helium MCP server gives your AI tool a read-only view of your Helium organization: paywalls, workflows, triggers, targeting, experiments, metrics, and these docs. Ask questions like "which paywall is live on my onboarding trigger?" or "how did trial starts move last week?" and the tool answers from your real dashboard data.
+
+<Info>
+  The Helium MCP server is read-only. It cannot edit, publish, or delete anything in your organization.
+</Info>
+
+## Connect
+
+The server URL is the same for every client:
+
+```text
+https://app.tryhelium.com/api/mcp
+```
+
+There are no API keys to copy. When your client connects for the first time it opens the Helium login page in your browser. Sign in, choose the organization you want to connect, approve the permissions, and you are done.
+
+### AI agent CLIs
+
+<Tabs>
+  <Tab title="Claude Code">
+    ```bash
+    claude mcp add --transport http helium https://app.tryhelium.com/api/mcp
+    ```
+
+    Then run `/mcp` inside Claude Code and pick **helium** to sign in. Add `--scope project` to share the connection with your team through `.mcp.json`.
+  </Tab>
+  <Tab title="Codex">
+    ```bash
+    codex mcp add helium --url https://app.tryhelium.com/api/mcp
+    codex mcp login helium
+    ```
+
+    Or add it to `~/.codex/config.toml`:
+
+    ```toml
+    [mcp_servers.helium]
+    url = "https://app.tryhelium.com/api/mcp"
+    ```
+  </Tab>
+  <Tab title="Gemini CLI">
+    ```bash
+    gemini mcp add --transport http helium https://app.tryhelium.com/api/mcp
+    ```
+
+    Or add it to `~/.gemini/settings.json`:
+
+    ```json
+    {
+      "mcpServers": {
+        "helium": {
+          "httpUrl": "https://app.tryhelium.com/api/mcp"
+        }
+      }
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Web and desktop apps
+
+<Tabs>
+  <Tab title="Claude">
+    1. Open **Settings > Connectors** in Claude (web or desktop).
+    2. Click **Add custom connector**.
+    3. Name it **Helium** and paste `https://app.tryhelium.com/api/mcp` as the URL.
+    4. Click **Add**, then **Connect** and sign in with your Helium account.
+
+    Connectors are available on Pro, Max, Team and Enterprise plans.
+  </Tab>
+  <Tab title="ChatGPT">
+    1. Open **Settings > Connectors** and turn on **Developer mode** under **Advanced**.
+    2. Click **Create** and paste `https://app.tryhelium.com/api/mcp` as the MCP server URL.
+    3. Choose **OAuth** for authentication and save.
+    4. Start a chat, open the **\+** menu, and enable **Helium** under Connectors.
+
+    Custom connectors require a Plus, Pro, Business or Enterprise plan.
+  </Tab>
+  <Tab title="Devin">
+    1. Open **Settings > MCP Marketplace** in Devin.
+    2. Add a custom server with the URL `https://app.tryhelium.com/api/mcp` and **OAuth** authentication.
+    3. Complete the Helium sign-in when prompted.
+  </Tab>
+</Tabs>
+
+### IDEs
+
+<Tabs>
+  <Tab title="Cursor">
+    Add to `.cursor/mcp.json` in your project, or `~/.cursor/mcp.json` for all projects:
+
+    ```json
+    {
+      "mcpServers": {
+        "helium": {
+          "url": "https://app.tryhelium.com/api/mcp"
+        }
+      }
+    }
+    ```
+
+    Or [install with one click](cursor://anysphere.cursor-deeplink/mcp/install?name=helium&config=eyJ1cmwiOiJodHRwczovL2FwcC50cnloZWxpdW0uY29tL2FwaS9tY3AifQ==). Then open **Settings > MCP** and click **Login** next to helium.
+  </Tab>
+  <Tab title="VS Code">
+    Add to `.vscode/mcp.json`:
+
+    ```json
+    {
+      "servers": {
+        "helium": {
+          "type": "http",
+          "url": "https://app.tryhelium.com/api/mcp"
+        }
+      }
+    }
+    ```
+
+    Or [install with one click](https://vscode.dev/redirect/mcp/install?name=helium&config=%7B%22type%22%3A%22http%22%2C%22url%22%3A%22https%3A%2F%2Fapp.tryhelium.com%2Fapi%2Fmcp%22%7D). VS Code prompts you to sign in the first time Copilot uses the server.
+  </Tab>
+  <Tab title="Zed">
+    Add to your Zed `settings.json`:
+
+    ```json
+    {
+      "context_servers": {
+        "helium": {
+          "url": "https://app.tryhelium.com/api/mcp"
+        }
+      }
+    }
+    ```
+
+    Zed opens the Helium sign-in in your browser the first time the Agent Panel uses the server.
+  </Tab>
+  <Tab title="Windsurf">
+    Add to `~/.codeium/windsurf/mcp_config.json`:
+
+    ```json
+    {
+      "mcpServers": {
+        "helium": {
+          "serverUrl": "https://app.tryhelium.com/api/mcp"
+        }
+      }
+    }
+    ```
+  </Tab>
+  <Tab title="JetBrains">
+    Open **Settings > Tools > AI Assistant > Model Context Protocol (MCP)**, click **Add**, and paste:
+
+    ```json
+    {
+      "mcpServers": {
+        "helium": {
+          "url": "https://app.tryhelium.com/api/mcp"
+        }
+      }
+    }
+    ```
+  </Tab>
+</Tabs>
+
+Any other client that supports remote MCP servers with OAuth works the same way: give it the URL above and sign in when prompted. Clients that only accept a static token (for example Warp) are not supported yet.
+
+## Permissions
+
+During sign-in your client asks for these permissions. Each one unlocks the tools listed in [Available tools](#available-tools) below; a tool you have not granted returns a message telling you which permission to add.
+
+| Permission | What it unlocks |
+| --- | --- |
+| `org:read` | Who you are and which organization is connected |
+| `paywalls:read` | Paywalls, their versions, source code, previews and publish history |
+| `workflows:read` | Workflows, triggers and targeting |
+| `experiments:read` | Experiments and their variants |
+
+Metrics and documentation tools are available to every connection. Everything is scoped to the organization you picked at sign-in. To switch organizations, disconnect the server in your client and connect again.
+
+## Available tools
+
+### Paywalls
+
+| Tool | What it returns |
+| --- | --- |
+| `list_paywalls` | Your paywalls, newest first, with optional name search |
+| `get_paywall` | One paywall with the products, product buckets and live version it serves, plus its web paywall link |
+| `get_paywall_preview` | The preview image of a paywall |
+| `list_paywall_versions` | The saved versions of a paywall |
+| `list_paywall_publish_history` | Publish and rollback history of a paywall |
+| `get_paywall_version_code` | The source of one file in a paywall version |
+| `diff_paywall_versions` | A diff of one file between two versions |
+| `find_paywall_usage` | Every workflow, trigger and experiment a paywall appears in |
+
+### Workflows, triggers and targeting
+
+| Tool | What it returns |
+| --- | --- |
+| `list_workflows` | Your workflows with their triggers and targeting rules |
+| `get_workflow` | One workflow with each rule's audience, paywall or experiment |
+| `list_triggers` | Your triggers and the workflow each one belongs to |
+| `list_targeting` | Your saved targeting definitions |
+| `get_targeting` | One targeting definition and its rule |
+
+### Experiments
+
+| Tool | What it returns |
+| --- | --- |
+| `list_experiments` | Your experiments with their variants and traffic split |
+| `get_experiment` | One experiment and the workflows and triggers it is wired into |
+
+### Metrics
+
+| Tool | What it returns |
+| --- | --- |
+| `list_metrics` | Every dashboard metric with a one-line description |
+| `explain_metric` | The full definition of one metric and the filters it accepts |
+| `get_metrics` | Time series for up to a few metrics with the dashboard's defaults |
+
+### Docs and account
+
+| Tool | What it returns |
+| --- | --- |
+| `search_docs` | Search results from docs.tryhelium.com |
+| `get_doc` | A full documentation page |
+| `whoami` | The signed-in user and connected organization |
+
+## Good to know
+
+A few things the tools report exactly as the SDK sees them, which can differ from what a paywall's edit view shows:
+
+- A paywall's products, product buckets and content come from its **published version**. A paywall that has never been published is not served anywhere.
+- A trigger with no workflow attached shows no paywall.
+- Targeting rules are evaluated top to bottom and the first matching rule wins. A rule can point at a paywall, at an experiment, or at "show no paywall".
+- An experiment serves only while a workflow rule points at it and it is not stopped. Its start and end dates are labels, not a schedule.
+- Variant percentages that do not add up to 100 are scaled so that they do.
+
+## Security
+
+- The server is read-only and can only see the organization you connected. There are no tools that change anything.
+- Your client stores a token for the connection; Helium does not store it. Remove the connection from your client to stop access.
+- Treat tool output like any other data you paste into a chat: paywall names and descriptions are your own content, but review before sharing a transcript outside your team.
+
+## Troubleshooting
+
+- **"This tool needs the paywalls:read permission"**: reconnect the server and approve all permissions on the consent screen.
+- **Sign-in loops or 401 errors**: remove the server from your client and add it again; the stored token may belong to an organization you no longer have access to.
+- **Tool results are cut off**: list tools are paged. Ask for the next page or narrow with a name search.

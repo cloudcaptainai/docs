@@ -1,7 +1,8 @@
 export const McpClient = ({ children }) => <>{children}</>;
 
 export const ClientPicker = ({ children }) => {
-  const clients = [].concat(children).filter((c) => c && c.props && c.props.name);
+  const unwrap = (c) => (c && c.props && c.props.children && c.props.children.props && c.props.children.props.group ? c.props.children : c);
+  const clients = [].concat(children).map(unwrap).filter((c) => c && c.props && c.props.group);
   const [selected, setSelected] = useState(clients[0]?.props.name);
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");

@@ -42,7 +42,7 @@ export const ClientPicker = ({ children }) => {
         </button>
         {open && (
           <div className="absolute left-0 top-full z-50 mt-1 w-64 rounded-xl border border-gray-950/10 dark:border-white/10 bg-white dark:bg-gray-900 shadow-lg">
-            <input autoFocus value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search..." className="w-full bg-transparent px-3 py-2 text-sm outline-none border-b border-gray-950/10 dark:border-white/10 text-gray-900 dark:text-white" />
+            <input autoFocus value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search..." style={{ outline: "none", boxShadow: "none" }} className="w-full bg-transparent px-3 py-2 text-sm outline-none focus:outline-none focus:ring-0 border-0 border-b border-gray-950/10 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400" />
             <div className="max-h-96 overflow-y-auto py-1">
               {groups.map((g) => (
                 <div key={g.name}>

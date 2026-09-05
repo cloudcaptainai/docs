@@ -151,8 +151,11 @@ function YourComponent() {
     <ResponseField name="onEntitled" type="((event?: PaywallEntitledEvent) => void)?">
       _(Optional)_ Called upon purchase success, purchase restore, or a purchase attempt resolving to an existing entitlement (iOS only). If `dontShowIfAlreadyEntitled` is true, this handler will also be called when the paywall is not shown to users who already have entitlement for a product in the paywall. The handler receives an optional entitling event — see [PaywallEntitledEvent](/guides/helium-events#paywallentitledevent) for its shape and possible `type` values. Existing no-argument handlers keep working.
     </ResponseField>
+    <ResponseField name="onPaywallSkip" type="((event: PaywallSkippedEvent) => void)?">
+      _(Optional)_ Called when a paywall is intentionally not shown for the trigger — for example, a targeting holdout, or, when `onEntitled` is not provided, an already-entitled user. Receives a `PaywallSkippedEvent` describing why the paywall was skipped — see [PaywallSkippedEvent](/guides/helium-events#paywallskippedevent) for its `skipReason` values.
+    </ResponseField>
     <ResponseField name="onPaywallUnavailable" type="(() => void)?">
-      _(Optional)_ Called if desired paywall and fallback paywall did not show for any reason. This is uncommon, but best practice to handle it just in case. See [Fallback Paywalls](/guides/fallback-bundle).
+      _(Optional)_ Called when the desired paywall and its fallback both fail to display (an error case) — distinct from an intentional skip, which goes to `onPaywallSkip`. This is uncommon, but best practice to handle it just in case. See [Fallback Paywalls](/guides/fallback-bundle).
     </ResponseField>
   </Expandable>
 </ResponseField>

@@ -215,6 +215,24 @@ HeliumFlutter().presentUpsell(
 );
 ```
 
+#### Handling Skipped Paywalls
+
+`onPaywallSkip` fires when a paywall is intentionally not shown for the trigger (for example, a targeting holdout, or an already-entitled user). Add the callback to your `presentUpsell` call:
+
+```dart
+HeliumFlutter().presentUpsell(
+  trigger: 'my_paywall',
+  context: context,
+  onPaywallSkip: (event) {
+    log('Paywall skipped: ${event.skipReason.name}');
+  },
+);
+```
+
+`onPaywallSkip` is a top-level `presentUpsell` parameter passed alongside `eventHandlers` (not nested inside it), so you can use both in the same call.
+
+See [PaywallSkippedEvent](/guides/helium-events#paywallskippedevent) for the `skipReason` values.
+
 #### Global Event Listener
 
 You can also listen for all Helium events globally by implementing `HeliumCallbacks` and passing it to `initialize`:

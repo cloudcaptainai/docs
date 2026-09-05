@@ -20,6 +20,24 @@ Triple tap again or dismiss the paywall to return to the list of paywalls.
   By default, this functionality is only enabled in debug/TestFlight builds for iOS and debug builds for Android.
 </Info>
 
+## App2Web previews
+
+Available on iOS with these minimum SDK versions:
+
+- Expo / React Native using `expo-helium`: **3.6.0+**
+- React Native using `@tryheliumai/paywall-sdk-react-native`: **3.1.10+**
+- Flutter (`helium_flutter`): **3.3.12+**
+- Native iOS: **4.9.0+**
+
+In the triple-tap list, open your in-app App2Web paywall. Its web-product purchase action opens the linked web checkout.
+
+Use the gear icon to choose a purchase mode:
+
+- **Simulated:** no charge, revenue event, or entitlement.
+- **Real:** charges your card and grants an entitlement. Available only on eligible devices.
+
+Eligible devices default to real purchases; switch to simulated if you don't want to charge a card. Previews bypass targeting and post-purchase handlers, so also test through your app's real trigger.
+
 ## Preview Paywalls from the Helium App (coming soon)
 
 _Not yet available._

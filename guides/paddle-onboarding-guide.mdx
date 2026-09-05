@@ -74,6 +74,8 @@ To offer a free trial on a Paddle product, configure it on the product in Helium
 
 ### 6. Build your paywalls
 
+For a short walkthrough, see [Build an App2Web paywall](/guides/build-app2web-paywall).
+
 Paddle checkout requires **two paywalls**:
 
 1. **The original paywall**, shown in-app, containing your Paddle products (and optionally iOS products).
@@ -329,6 +331,8 @@ Target the App2Web paywall to that group, then run through these scenarios in Pa
 
 ### How entitlements work
 
+Testing sign-in, access, or RevenueCat delivery? See [How to test App2Web entitlements](/guides/app2web-faq#test-entitlements).
+
 Helium maps your `user_id` to Paddle's `customer_id`. Paddle deduplicates customers strictly by email, so two Paddle customers can't share an address. If the user isn't logged in at purchase time, we use the `helium_persistent_id` as a stand-in and reconcile once a real user ID is set.
 
 On successful purchase, the SDK's entitlement cache updates immediately. The Helium backend processes Paddle's webhook to update the customer mapping and forward events to your analytics/revenue pipeline. Entitlements are also checked server-side (which ultimately reflects Paddle's transaction state), so they stay consistent across devices.
@@ -343,8 +347,10 @@ The original in-app paywall presents your Paddle offerings. The hosted web paywa
 - **California compliance** for subscription cancellation: guidance coming soon.
 - **Publish states:** both the original paywall and its linked hosted web paywall must be published before the flow works end-to-end.
 - **Localizations:** hosted web paywalls currently support one language.
-- **Testing:** normally, paywalls should be tested with the triple-tap viewer. Triple-tap does not currently support end-to-end App2Web testing, so test the full App2Web flow through a real trigger.
+- **Testing:** [App2Web previews and SDK requirements](/guides/paywall-previews#app2web-previews) cover real and simulated purchases on iOS across native, React Native, Expo, and Flutter SDKs. Also test through a real trigger to verify targeting and your post-purchase handlers.
 
 ## Before you go live
 
 Run through the [App2Web go-live checklist](/guides/app2web-go-live-checklist) before sending traffic to this flow.
+
+See the [App2Web FAQ](/guides/app2web-faq) for attribution, checkout behavior, and evaluating experiment results.

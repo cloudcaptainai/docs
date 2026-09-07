@@ -46,9 +46,9 @@ On the client, `Helium.resetHelium()` clears the locally persisted Helium identi
 | --- | --- | --- |
 | Location | Approximate location, Precise location | ❌ Helium reads no location APIs and declares no location permission. It collects device locale, currency, and Play store country, which Google does not classify as location. |
 | Personal info | User IDs | 💡 Only if you set `Helium.identity.userId`, `revenueCatAppUserId`, or `thirdPartyAnalyticsAnonymousId` to a value that relates to an identifiable person, such as your own account ID. If you set none of them, Helium falls back to its generated installation ID, which is covered by Device or other IDs below. |
-| Personal info | Name, Email address, Phone number, Address | 💡 Only if you put them into `HeliumUserTraits`, or if you use the optional Stripe module. |
+| Personal info | Name, Email address, Phone number, Address | 💡 Only if you put them into `HeliumUserTraits`, or if you use the optional payment-processing module. |
 | Financial info | **Purchase history** | ✅ Helium collects product IDs, Google Play order IDs and purchase tokens, purchase dates, quantity, and store country. |
-| Financial info | User payment info | 💡 Optional Stripe module only. |
+| Financial info | User payment info | 💡 Optional payment-processing module only. |
 | Financial info | Credit score, Other financial info | ❌ |
 | Health and fitness | All types | ❌ |
 | Messages | All types | ❌ |

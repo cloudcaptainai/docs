@@ -1,0 +1,90 @@
+---
+title: "App2Web FAQ"
+description: "Paywalls, attribution, experiments, and entitlements with Paddle and Stripe."
+hidden: true
+noindex: true
+---
+
+{/* Unlisted Paddle + Stripe version, linked only from Stripe documentation.
+    The Paddle-only companion is guides/app2web-faq.mdx. Keep shared answers,
+    question IDs in sync; retain the provider-specific links. SDK minimums live
+    only in guides/paywall-previews.mdx. Do not add this page to navigation or
+    link it from shared or Paddle docs. */}
+
+Integration guides: [Paddle](/guides/paddle-onboarding-guide) / [Stripe](/guides/stripe-onboarding-guide).
+
+[Go-live checklist](/guides/app2web-go-live-checklist).
+
+<AccordionGroup>
+  <Accordion title="How do I add web products to my paywall?" id="build-paywall">
+    It's pretty simple: once you've synced your web products, add them to a standard paywall and link a simple hosted web paywall. A **purchase action on a web product** opens that web paywall in the browser.
+
+    When the user subscribes or dismisses the web paywall, Helium takes them back into your app.
+
+    [Here's the full paywall-building guide](/guides/build-app2web-paywall).
+  </Accordion>
+
+  <Accordion title="How do I test my App2Web paywall in my app?" id="test-paywall">
+    You have two options:
+
+    - **Through your workflow:** target the App2Web paywall to an eligible test audience, then open it through your app's normal trigger.
+    - **Triple-tap previews:** in TestFlight, open any Helium paywall, triple-tap anywhere on it, and select your in-app App2Web paywall.
+
+    Preview settings let you choose simulated or real purchases; real purchases charge your card. Also test through your workflow to check targeting and post-purchase handlers, which previews bypass.
+
+    See the [preview guide and SDK requirements](/guides/paywall-previews#app2web-previews) or the full tests for [Paddle](/guides/paddle-onboarding-guide#testing) / [Stripe](/guides/stripe-onboarding-guide#testing).
+  </Accordion>
+
+  <Accordion title="How do I test that entitlements are granted correctly?" id="test-entitlements">
+    We recommend starting with [App2Web previews](/guides/paywall-previews#app2web-previews). Choose a real purchase to test entitlement delivery; simulated purchases don't charge you or grant entitlements.
+
+    Then make a real purchase through your app's trigger and check that access unlocks when you return. Previews bypass targeting and your post-purchase handlers. See the [Paddle tests](/guides/paddle-onboarding-guide#testing) or [Stripe tests](/guides/stripe-onboarding-guide#testing), plus user-ID setup for [Paddle](/guides/paddle-onboarding-guide#how-entitlements-work) or [Stripe](/guides/stripe-onboarding-guide#how-entitlements-work).
+
+    You can use [Paddle's webhook simulator](https://developer.paddle.com/webhooks/simulator/test-webhooks/) to test delivery separately; it doesn't create a real purchase.
+
+    **Using RevenueCat? Also check that:**
+
+    - Paddle or Stripe webhooks reach RevenueCat for the correct user.
+    - Web products grant the right entitlement tier.
+    - Provider and [RevenueCat webhooks](/guides/revenue-reporting#2-revenuecat-webhooks) reach Helium as configured, and the purchase appears there.
+  </Accordion>
+
+  <Accordion title="Do I need to change my MMP or analytics integration?" id="mmp-and-analytics">
+    We recommend [analytics forwarding](https://app.tryhelium.com/integrations/analytics) for supported analytics destinations: manage your connections in one place, and let Helium forward events with user, product, paywall, and experiment details.
+
+    Already tracking Helium's purchase-success events? That still works when users return to your app. StoreKit-only tracking won't capture web purchases.
+
+    Once your events arrive, you can forward conversions to Meta through destinations such as PostHog or Amplitude. Our setup guide covers each provider and other MMP routes.
+
+    [Here's how to connect your analytics provider or MMP](/guides/analytics-forwarding).
+  </Accordion>
+
+  <Accordion title="What will customers see in checkout?" id="checkout-appearance">
+    We host your web paywall on `clickthrough.to`. Here's what users will see:
+
+    - **Price:** we calculate it from the selected offer. Free trials show $0.00 due today in USD; paid trials show the initial charge.
+    - **Names:** make both product and price names customer-facing. We recommend leaving dollar amounts out; checkout already shows the price. Paddle's Apple Pay title uses the product name.
+  </Accordion>
+
+  <Accordion title="What will users see when they cancel their subscription?" id="cancellation">
+    Your **Manage Subscription** button takes users to the [Paddle](https://developer.paddle.com/build/customers/integrate-customer-portal/) or [Stripe](https://docs.stripe.com/customer-management) customer portal. If they [cancel at the end of the billing period](https://developer.paddle.com/build/subscriptions/cancel-subscriptions/), they keep access until then.
+  </Accordion>
+
+  <Accordion title="How should I evaluate an App2Web experiment?" id="experiment-results">
+    We recommend running App2Web against your current IAP paywall in an experiment. Start with:
+
+    - **Conversion rate:** trial starts or direct purchases per exposed user. Around 500+ conversions is a checkpoint, not proof of significance; check confidence intervals.
+    - **Take-home ARPU:** revenue after fees, taxes, and refunds, divided by all exposed users.
+
+    **Proceeds is still in beta**, so we'd cross-check it with your actual revenue and fees. Incorrect RevenueCat [Small Business Program dates](https://www.revenuecat.com/docs/platform-resources/apple-platform-resources/app-store-small-business-program#informing-revenuecat) can skew its commission data.
+
+    **Example:** $10 gross ARPU, 60% web / 40% IAP revenue, assumed fees of 2% web / 30% IAP:
+
+    - App2Web: `$10 x (0.60 x 0.98 + 0.40 x 0.70) = $8.68` (**24% more**).
+    - IAP-only: `$10 x 0.70 = $7.00`.
+
+    Use your own fees here; these are illustrative rates. Weight by revenue share, not conversion share, unless revenue per conversion is equal.
+
+    This example excludes taxes, refunds, and renewals. Revisit equal-age cohorts as revenue accumulates; stronger web renewals can increase lift.
+  </Accordion>
+</AccordionGroup>

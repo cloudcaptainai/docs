@@ -1,5 +1,7 @@
 ---
 title: "Stripe Onboarding Guide"
+hidden: true
+noindex: true
 icon: "s"
 ---
 
@@ -41,6 +43,8 @@ Sync your products and ensure the APPLE PAY DOMAIN status is Verified.
 Assign Stripe products to appropriate buckets. Add free/paid trials as needed.
 
 ### 3. Build your paywalls
+
+For a short walkthrough, see [Build an App2Web paywall](/guides/build-app2web-paywall).
 
 Stripe checkout requires **two paywalls**:
 
@@ -248,6 +252,8 @@ Target the App2Web paywall to that group, then run through these scenarios befor
 
 ### How entitlements work
 
+Testing sign-in, access, or RevenueCat delivery? See [How to test App2Web entitlements](/guides/app2web-faq-stripe#test-entitlements).
+
 Helium maps your `user_id` to Stripe's `customer_id`. Stripe deduplicates customers strictly by email, so two Stripe customers can't share an address. If the user isn't logged in at purchase time, we use the `helium_persistent_id` as a stand-in and reconcile once a real user ID is set.
 
 On successful purchase, the SDK's entitlement cache updates immediately. The Helium backend processes Stripe's webhook to update the customer mapping and forward events to your analytics/revenue pipeline. Entitlements are also checked server-side (which ultimately reflects Stripe's transaction state), so they stay consistent across devices.
@@ -261,8 +267,10 @@ The original in-app paywall presents your Stripe offerings. The hosted web paywa
 - **Availability:** Stripe App2Web is currently supported for US storefronts only.
 - **Publish states:** both the original paywall and its linked hosted web paywall must be published before the flow works end-to-end.
 - **Localizations:** hosted web paywalls currently support one language.
-- **Testing:** normally, paywalls should be tested with the triple-tap viewer. Triple-tap does not currently support end-to-end App2Web testing, so test the full App2Web flow through a real trigger.
+- **Testing:** [App2Web previews and SDK requirements](/guides/paywall-previews#app2web-previews) cover real and simulated purchases on iOS across native, React Native, Expo, and Flutter SDKs. Also test through a real trigger to verify targeting and your post-purchase handlers.
 
 ## Before you go live
 
 Run through the [App2Web go-live checklist](/guides/app2web-go-live-checklist) before sending traffic to this flow.
+
+See the [App2Web FAQ](/guides/app2web-faq-stripe) for attribution, checkout behavior, and evaluating experiment results.

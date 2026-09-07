@@ -4,8 +4,9 @@ description: "Paywalls, attribution, experiments, and entitlements with Paddle."
 ---
 
 {/* Paddle-only version. The unlisted companion is guides/app2web-faq-stripe.mdx.
-    Keep shared answers, question IDs, and SDK versions in sync. Provider-specific
-    links stay in their respective versions; do not link the companion here. */}
+    Keep shared answers and question IDs in sync. SDK minimums live only in
+    guides/paywall-previews.mdx. Provider-specific links stay in their respective
+    versions; do not link the companion here. */}
 
 [Paddle integration](/guides/paddle-onboarding-guide) / [Go-live checklist](/guides/app2web-go-live-checklist).
 
@@ -24,16 +25,9 @@ description: "Paywalls, attribution, experiments, and entitlements with Paddle."
     - **Through your workflow:** target the App2Web paywall to an eligible test audience, then open it through your app's normal trigger.
     - **Triple-tap previews:** in TestFlight, open any Helium paywall, triple-tap anywhere on it, and select your in-app App2Web paywall.
 
-    **Minimum SDKs for iOS previews:**
-
-    - Expo / React Native using `expo-helium`: **3.6.0+**
-    - React Native using `@tryheliumai/paywall-sdk-react-native`: **3.1.10+**
-    - Flutter (`helium_flutter`): **3.3.12+**
-    - Native iOS: **4.9.0+**
-
     Preview settings let you choose simulated or real purchases; real purchases charge your card. Also test through your workflow to check targeting and post-purchase handlers, which previews bypass.
 
-    [Here's the full testing guide](/guides/paddle-onboarding-guide#testing).
+    See the [preview guide and SDK requirements](/guides/paywall-previews#app2web-previews) or the [full testing guide](/guides/paddle-onboarding-guide#testing).
   </Accordion>
 
   <Accordion title="How do I test that entitlements are granted correctly?" id="test-entitlements">
@@ -61,7 +55,7 @@ description: "Paywalls, attribution, experiments, and entitlements with Paddle."
   </Accordion>
 
   <Accordion title="What will customers see in checkout?" id="checkout-appearance">
-    Your users check out on `clickthrough.to`. Here's what to expect:
+    We host your web paywall on `clickthrough.to`. Here's what users will see:
 
     - **Price:** we calculate it from the selected offer. Free trials show $0.00 due today in USD; paid trials show the initial charge.
     - **Names:** make both product and price names customer-facing. We recommend leaving dollar amounts out; checkout already shows the price. Paddle's Apple Pay title uses the product name.

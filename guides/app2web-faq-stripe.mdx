@@ -7,8 +7,9 @@ noindex: true
 
 {/* Unlisted Paddle + Stripe version, linked only from Stripe documentation.
     The Paddle-only companion is guides/app2web-faq.mdx. Keep shared answers,
-    question IDs, and SDK versions in sync; retain the provider-specific links.
-    Do not add this page to navigation or link it from shared or Paddle docs. */}
+    question IDs in sync; retain the provider-specific links. SDK minimums live
+    only in guides/paywall-previews.mdx. Do not add this page to navigation or
+    link it from shared or Paddle docs. */}
 
 Integration guides: [Paddle](/guides/paddle-onboarding-guide) / [Stripe](/guides/stripe-onboarding-guide).
 
@@ -29,16 +30,9 @@ Integration guides: [Paddle](/guides/paddle-onboarding-guide) / [Stripe](/guides
     - **Through your workflow:** target the App2Web paywall to an eligible test audience, then open it through your app's normal trigger.
     - **Triple-tap previews:** in TestFlight, open any Helium paywall, triple-tap anywhere on it, and select your in-app App2Web paywall.
 
-    **Minimum SDKs for iOS previews:**
-
-    - Expo / React Native using `expo-helium`: **3.6.0+**
-    - React Native using `@tryheliumai/paywall-sdk-react-native`: **3.1.10+**
-    - Flutter (`helium_flutter`): **3.3.12+**
-    - Native iOS: **4.9.0+**
-
     Preview settings let you choose simulated or real purchases; real purchases charge your card. Also test through your workflow to check targeting and post-purchase handlers, which previews bypass.
 
-    [Full testing guides: Paddle](/guides/paddle-onboarding-guide#testing) / [Stripe](/guides/stripe-onboarding-guide#testing).
+    See the [preview guide and SDK requirements](/guides/paywall-previews#app2web-previews) or the full tests for [Paddle](/guides/paddle-onboarding-guide#testing) / [Stripe](/guides/stripe-onboarding-guide#testing).
   </Accordion>
 
   <Accordion title="How do I test that entitlements are granted correctly?" id="test-entitlements">
@@ -66,7 +60,7 @@ Integration guides: [Paddle](/guides/paddle-onboarding-guide) / [Stripe](/guides
   </Accordion>
 
   <Accordion title="What will customers see in checkout?" id="checkout-appearance">
-    Your users check out on `clickthrough.to`. Here's what to expect:
+    We host your web paywall on `clickthrough.to`. Here's what users will see:
 
     - **Price:** we calculate it from the selected offer. Free trials show $0.00 due today in USD; paid trials show the initial charge.
     - **Names:** make both product and price names customer-facing. We recommend leaving dollar amounts out; checkout already shows the price. Paddle's Apple Pay title uses the product name.

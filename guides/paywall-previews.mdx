@@ -5,7 +5,7 @@ description: "Test any paywall you've made in Helium, on your device, in seconds
 
 <Badge color="blue">iOS 4.2.0+</Badge> <Badge color="green">Android 4.4.1+</Badge> <Badge color="orange">React Native 3.4.1+</Badge> <Badge color="purple">Flutter 3.3.1+</Badge>
 
-Testing paywalls and entitlements is one of the most annoying parts of shipping an app — so we made it easy. Paywall Previews let you open any paywall you've made in Helium — published or draft — right on your device, without meeting production targeting or waiting for a release.
+Testing paywalls and entitlements is one of the most annoying parts of shipping an app — so we made it easy.
 
 ## Preview Paywalls from your App
 
@@ -23,14 +23,9 @@ Triple tap again or dismiss the paywall to return to the list of paywalls.
   By default, this functionality is only enabled in debug/TestFlight builds for iOS and debug builds for Android.
 </Info>
 
-## Good to know
+## Second Try Paywalls
 
-- If a paywall has a second try offer configured, dismissing the preview shows the second try paywall with its own products and prices. (Second try is not supported on App2Web paywalls.)
-- Web paywalls can't be triggered directly — they only back an App2Web paywall — but you can still preview any web paywall from here: it opens in the browser after a confirmation, for a **display-only** look. Purchases don't work there; to test the full checkout flow, use [App2Web previews](/guides/app2web-previews).
-
-<Frame>
-  ![Web paywall preview confirmation](/images/paywall-previews-web-confirm.png)
-</Frame>
+If a paywall has a second try offer configured, the preview includes it: the second try paywall shows on dismiss or on purchase cancel, depending on its configuration, with its own products and prices. Second try is not supported on App2Web paywalls.
 
 ## Preview App2Web Paywalls
 

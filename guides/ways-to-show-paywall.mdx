@@ -51,6 +51,37 @@ HeliumPaywall(
   ```
 </Accordion>
 
+**`onEntitled`.** The embedded `HeliumPaywall` also accepts this optional closure. `onEntitled` is a separate parameter on the `HeliumPaywall` initializer, alongside `eventHandlers:` — it is not chained onto `PaywallEventHandlers()`. It gives you one signal for every way a user becomes entitled, instead of reconstructing that from `onPurchaseSucceeded`, an `onAnyEvent` restore branch, and a check for `.alreadyEntitled` in the not-shown closure. The parameter is `((PaywallEntitledEvent) -> Void)?`, optional and defaulting to `nil`. Existing embedded code is unaffected; adopting `onEntitled` is opt-in.
+
+`PaywallEntitledEvent` identifies how the user became entitled:
+
+- `.purchased` — a new purchase completed successfully
+- `.restored` — an existing entitlement was surfaced via restore
+- `.alreadyEntitled` — a purchase attempt resolved to an entitlement the user already had
+- `.skipped` — the paywall was not shown because the user is already entitled (requires `config.dontShowIfAlreadyEntitled`)
+
+On the embedded path, `.skipped` does not replace your not-shown handling: when the paywall is skipped, the not-shown closure still runs with `.alreadyEntitled` (the same `paywallNotShownReason` closure shown above), and `onEntitled` also receives `.skipped`. `onEntitled` does not fire on a user close — `onDismissed` still handles that.
+
+A minimal `onEntitled` closure switches over the four cases (this is illustrative — fill in your own logic):
+
+```swift
+HeliumPaywall(
+    trigger: "onboarding",
+    onEntitled: { event in
+        switch event {
+        case .purchased, .restored, .alreadyEntitled:
+            // user is entitled — advance past the paywall
+            print("entitled via \(event)")
+        case .skipped:
+            // paywall was skipped because the user was already entitled
+            print("skipped — already entitled")
+        }
+    }
+) { paywallNotShownReason in
+    Text("Paywall failed to show")
+}
+```
+
 <Accordion title="Keeping customPaywallTraits current when hosting in UIKit">
   `customPaywallTraits` are captured when the paywall **displays** and then stay fixed for that
   presentation. In SwiftUI this is handled for you as long as the traits come from state that
@@ -132,6 +163,8 @@ struct EmbeddedPaywallView: View {
 
 Under `.manual`, `onDismissed` fires only when the user closes the paywall by tapping the X or swiping; it does not fire on purchase or restore. To remove the view for every outcome, handle each terminal event: a purchase through `onPurchaseSucceeded`, a user close through `onDismissed`, and a restore through `PurchaseRestoredEvent`, which has no dedicated handler and reaches you only through `onAnyEvent`.
 
+Alternatively, supply `onEntitled` to collapse the entitlement-driven removals — `onPurchaseSucceeded`, the `onAnyEvent`/`PurchaseRestoredEvent` restore branch, and the `.alreadyEntitled` case — into one handler that sets `showPaywall = false`, while `onDismissed` still handles a user close. In this manual-dismiss scenario `.skipped` needs no view-removal action, because the paywall was never shown and there is nothing on screen to remove. `onEntitled` fires *in addition to* those handlers — it doesn't replace them. So if you move your removal or navigation logic into `onEntitled`, remove it from `onPurchaseSucceeded` and the `onAnyEvent` restore branch to avoid running it twice (double navigation or duplicated side effects).
+
 Manual dismissal is subject to a few constraints:
 
 - Applies only to the embedded `HeliumPaywall` view; it is ignored for paywalls shown with `presentPaywall()` or the `.heliumPaywall(...)` view modifier.
@@ -165,6 +198,8 @@ struct ContentView: View {
     }
 }
 ```
+
+Both `.heliumPaywall(...)` overloads also accept an optional `onEntitled` closure, with the same `PaywallEntitledEvent` cases described under [Embedded View](#embedded-view) above.
 
 <Note>
   If you are using UIKit, you can use a UIHostingController.

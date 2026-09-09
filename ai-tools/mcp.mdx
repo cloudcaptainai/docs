@@ -411,6 +411,8 @@ Metrics and documentation tools are available to every connection. Everything is
 | --- | --- |
 | `list_experiments` | Your experiments with their variants and traffic split |
 | `get_experiment` | One experiment and the workflows and triggers it is wired into |
+| `get_experiment_metrics` | Per-variant time series for one experiment page metric, with the All Sources / Paywall Variant toggle and filters |
+| `check_experiment_health` | Whether an experiment can declare a winner: verdict, significance per decision metric, users needed per arm and days remaining |
 
 ### Metrics
 
@@ -449,3 +451,4 @@ A few things the tools report exactly as the SDK sees them, which can differ fro
 - **"This tool needs the paywalls:read permission"**: reconnect the server and approve all permissions on the consent screen.
 - **Sign-in loops or 401 errors**: remove the server from your client and add it again; the stored token may belong to an organization you no longer have access to.
 - **Tool results are cut off**: list tools are paged. Ask for the next page or narrow with a name search.
+- **Your client does not show the newest tools**: claude.ai and Claude Code cache the tool list. Refresh the Helium server in your client's connector settings, then start a new chat.

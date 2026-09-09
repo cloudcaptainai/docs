@@ -3,11 +3,7 @@ title: "App2Web Go-Live Checklist"
 description: "A short checklist for testing your App2Web flow before launch."
 ---
 
-App2Web uses two linked paywalls: one shown in the app and one shown in the browser. Complete QA for your normal in-app purchase path before testing App2Web.
-
-<Note>
-  When the in-app App2Web paywall triggers a purchase action for a web product, Helium opens the linked hosted web paywall in the browser. The purchase is completed on the web, not in the app.
-</Note>
+A checklist for testing your App2Web flow before sending traffic to it. The testing tool itself — [Paywall Previews](/guides/paywall-previews) — lets you run the full app-to-web checkout, including simulated or real purchases, without meeting production targeting.
 
 ## Check the setup
 
@@ -17,9 +13,21 @@ App2Web uses two linked paywalls: one shown in the app and one shown in the brow
 - [ ] Targeting includes only eligible users and has been tested with an internal audience.
 - [ ] Checkout redirect URL, user identity, revenue tracking, and subscription management are configured.
 
-## Test the full flow
+## Test with Paywall Previews
 
-- [ ] Open App2Web through a real trigger on a physical device. Triple-tap does not test the full flow.
+Open [Paywall Previews](/guides/paywall-previews#preview-paywalls-from-your-app) (triple tap) and select your App2Web paywall.
+
+- [ ] Check the [purchase mode](/guides/app2web-previews#simulated-and-real-purchases) in the [preview settings](/guides/app2web-previews#preview-settings) before each session — eligible devices default to real purchases, which charge your card.
+- [ ] Run a simulated purchase and confirm no transaction or entitlement is created.
+- [ ] If the device is [eligible](/guides/app2web-previews#purchase-eligibility), run a real purchase and confirm the entitlement is granted.
+- [ ] For Paddle paywalls, verify the California consent modal when it applies.
+- [ ] [Clean up test purchases](/guides/app2web-previews#validating-your-analytics-events) in your Paddle dashboard when done.
+
+## Test with a real trigger
+
+Previews [bypass targeting and skip paywall traits and post-purchase handlers](/guides/app2web-previews#what-app2web-previews-dont-cover). Before launch, run the flow through a real trigger on a physical device:
+
+- [ ] Open App2Web through a real trigger.
 - [ ] Tapping the web purchase CTA opens the linked hosted web paywall in the browser.
 - [ ] The product selected in the app is the product selected on the hosted web paywall.
 - [ ] Product selection and the web purchase action are separate, so the CTA cannot send the wrong product.

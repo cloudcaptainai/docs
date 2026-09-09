@@ -21,7 +21,7 @@ HeliumPaywall(
 ```
 
 <Warning>
-  The iOS SDK will attempt to handle dismissal for embedded views but may not be able to depending on where you place it. You can dismissal yourself with PaywallEventHandlers.
+  By default, the iOS SDK dismisses embedded views for you. Depending on where you place the view, the SDK may not be able to dismiss it automatically. You can handle dismissal yourself with `PaywallEventHandlers`, or disable automatic dismissal entirely with the opt-out below.
 </Warning>
 
 <Accordion title="Example with PaywallEventHandlers">
@@ -92,6 +92,56 @@ HeliumPaywall(
     presentation. Updating the store afterward won't change an already-shown paywall.
   </Note>
 </Accordion>
+
+To keep the embedded paywall on screen and remove it yourself, opt out of automatic dismissal with the `.heliumDismissBehavior(_:)` view modifier on the embedded `HeliumPaywall`. Dismissal then becomes host-owned. It takes a `HeliumPaywallDismissBehavior` and defaults to `.automatic`.
+
+- `.automatic` — the default. The SDK removes the embedded view for you after a purchase, a restore, or a user-initiated close, and fires the event that matches how the paywall closed: `onPurchaseSucceeded` for a purchase and `onDismissed` for a user close. You don't remove the view yourself.
+- `.manual` — the host owns dismissal. The SDK leaves the embedded paywall on screen and does not remove it on purchase, restore, close-button tap, or completion of an external web checkout (Stripe or Paddle). You keep the view on screen and remove it yourself from an event handler.
+
+Gate the embedded `HeliumPaywall` behind your own `@State` and flip it to `false` from a handler for each terminal outcome, mirroring the `isPresented` idiom used with the `.heliumPaywall` modifier below:
+
+```swift
+struct EmbeddedPaywallView: View {
+    @State private var showPaywall = true
+
+    var body: some View {
+        if showPaywall {
+            HeliumPaywall(
+                trigger: "onboarding",
+                eventHandlers: PaywallEventHandlers()
+                    .onPurchaseSucceeded { _ in
+                        showPaywall = false   // remove after a successful purchase
+                    }
+                    .onDismissed { _ in
+                        showPaywall = false   // remove after a user close
+                    }
+                    .onAnyEvent { event in
+                        // restore has no dedicated handler; catch it here
+                        if event is PurchaseRestoredEvent {
+                            showPaywall = false
+                        }
+                    }
+            ) { paywallNotShownReason in
+                Text("Paywall failed to show")
+            }
+            .heliumDismissBehavior(.manual)
+        }
+    }
+}
+```
+
+Under `.manual`, `onDismissed` fires only when the user closes the paywall by tapping the X or swiping; it does not fire on purchase or restore. To remove the view for every outcome, handle each terminal event: a purchase through `onPurchaseSucceeded`, a user close through `onDismissed`, and a restore through `PurchaseRestoredEvent`, which has no dedicated handler and reaches you only through `onAnyEvent`.
+
+Manual dismissal is subject to a few constraints:
+
+- Applies only to the embedded `HeliumPaywall` view; it is ignored for paywalls shown with `presentPaywall()` or the `.heliumPaywall(...)` view modifier.
+- All events still fire under `.manual`; manual mode suppresses only the SDK's view dismissal, not event dispatch. These outcomes are distinct events, so watch the right one for each: a purchase fires `onPurchaseSucceeded`, a user close fires `onDismissed`, and a restore fires `PurchaseRestoredEvent`. Restore has no dedicated handler, so reach it through `onAnyEvent`.
+- Under `.manual`, the paywall's built-in close button no longer dismisses the view. Remove the view yourself, for example from the `onDismissed` handler.
+- The dismiss behavior is read once when the paywall first appears; changing `.heliumDismissBehavior` on an already-visible paywall is not honored, so set it before or at mount.
+
+<Warning>
+  If you set `.manual` and never remove the view in an event handler, the paywall stays on screen indefinitely — even after a successful purchase or restore, since the SDK no longer dismisses it for you.
+</Warning>
 
 #### SwiftUI ViewModifier
 

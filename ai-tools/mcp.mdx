@@ -1,0 +1,454 @@
+---
+title: "Helium MCP Server"
+description: "Connect Claude, ChatGPT, Cursor and other AI tools to your Helium dashboard data."
+icon: "plug"
+---
+
+import { ClientPicker, McpClient } from "/snippets/client-picker.jsx";
+
+The [Model Context Protocol](https://modelcontextprotocol.io) (MCP) is a standard for connecting AI tools to external systems. The Helium MCP server gives your AI tool a read-only view of your Helium organization: paywalls, workflows, triggers, targeting, experiments, metrics, and these docs. Ask questions like "which paywall is live on my onboarding trigger?" or "how did trial starts move last week?" and the tool answers from your real dashboard data.
+
+<Info>
+  The Helium MCP server is read-only. It cannot edit, publish, or delete anything in your organization.
+</Info>
+
+## Connect
+
+The server URL is the same for every client:
+
+```text
+https://app.tryhelium.com/api/mcp
+```
+
+There are no API keys to copy. When your client connects for the first time it opens the Helium login page in your browser. Sign in, choose the organization you want to connect, approve the permissions, and you are done. Pick your client:
+
+<ClientPicker>
+  <McpClient name="Claude Code" group="AI agent CLI" icon="/images/ai-tools/logos/claude.svg">
+    ```bash
+    claude mcp add --scope project --transport http helium https://app.tryhelium.com/api/mcp
+    ```
+
+    Or add it to `.mcp.json` in your project:
+
+    ```json
+    {
+      "mcpServers": {
+        "helium": {
+          "type": "http",
+          "url": "https://app.tryhelium.com/api/mcp"
+        }
+      }
+    }
+    ```
+
+    Run `/mcp` inside Claude Code, select **helium**, and choose **Authenticate** to sign in.
+  </McpClient>
+
+  <McpClient name="Codex" group="AI agent CLI" icon="/images/ai-tools/logos/openai.svg">
+    ```bash
+    codex mcp add helium --url https://app.tryhelium.com/api/mcp
+    ```
+
+    Or add it to `~/.codex/config.toml`:
+
+    ```toml
+    [mcp_servers.helium]
+    url = "https://app.tryhelium.com/api/mcp"
+    ```
+
+    Run `codex mcp login helium` to sign in, or `/mcp` inside Codex.
+  </McpClient>
+
+  <McpClient name="Grok" group="AI agent CLI" icon="/images/ai-tools/logos/grok.svg">
+    ```bash
+    grok mcp add --transport http helium https://app.tryhelium.com/api/mcp
+    ```
+
+    Or add it to `~/.grok/config.toml`:
+
+    ```toml
+    [mcp_servers.helium]
+    url = "https://app.tryhelium.com/api/mcp"
+    ```
+
+    Run `/mcps` inside Grok, select **helium**, and press `i` to sign in.
+  </McpClient>
+
+  <McpClient name="Gemini CLI" group="AI agent CLI" icon="/images/ai-tools/logos/gemini.svg">
+    ```bash
+    gemini mcp add -t http helium https://app.tryhelium.com/api/mcp
+    ```
+
+    Or add it to `.gemini/settings.json`:
+
+    ```json
+    {
+      "mcpServers": {
+        "helium": {
+          "httpUrl": "https://app.tryhelium.com/api/mcp"
+        }
+      }
+    }
+    ```
+
+    Run `/mcp auth helium` inside Gemini CLI to sign in.
+  </McpClient>
+
+  <McpClient name="GitHub Copilot" group="AI agent CLI" icon="/images/ai-tools/logos/copilot.svg">
+    ```bash
+    copilot mcp add --transport http helium https://app.tryhelium.com/api/mcp
+    ```
+
+    Or add it to `~/.copilot/mcp-config.json`:
+
+    ```json
+    {
+      "mcpServers": {
+        "helium": {
+          "type": "http",
+          "url": "https://app.tryhelium.com/api/mcp"
+        }
+      }
+    }
+    ```
+
+    Run `copilot`, then `/mcp show helium` to open the server and authenticate.
+  </McpClient>
+
+  <McpClient name="OpenCode" group="AI agent CLI" icon="/images/ai-tools/logos/opencode.svg">
+    Add to `~/.config/opencode/opencode.json`:
+
+    ```json
+    {
+      "$schema": "https://opencode.ai/config.json",
+      "mcp": {
+        "helium": {
+          "type": "remote",
+          "url": "https://app.tryhelium.com/api/mcp",
+          "enabled": true
+        }
+      }
+    }
+    ```
+
+    Run `opencode mcp auth helium` to sign in.
+  </McpClient>
+
+  <McpClient name="Factory" group="AI agent CLI" icon="/images/ai-tools/logos/factory.svg">
+    ```bash
+    droid mcp add helium https://app.tryhelium.com/api/mcp --type http
+    ```
+
+    Or add it to `~/.factory/mcp.json`:
+
+    ```json
+    {
+      "mcpServers": {
+        "helium": {
+          "type": "http",
+          "url": "https://app.tryhelium.com/api/mcp"
+        }
+      }
+    }
+    ```
+
+    Run `/mcp` inside droid to sign in.
+  </McpClient>
+
+  <McpClient name="fx" group="AI agent CLI" icon="/images/ai-tools/logos/fx.png">
+    Add to `~/.fx/mcp.json`:
+
+    ```json
+    {
+      "mcp": {
+        "helium": {
+          "type": "http",
+          "url": "https://app.tryhelium.com/api/mcp"
+        }
+      }
+    }
+    ```
+
+    Run `/mcp auth helium --open` inside fx to sign in, then `/mcp list` to check the connection.
+  </McpClient>
+
+  <McpClient name="Claude.ai" group="Web clients" icon="/images/ai-tools/logos/claude.svg">
+    1. Open **Customize > Connectors** in Claude (web or desktop).
+    2. Click **+**, then **Add custom connector**.
+    3. Name it **Helium** and paste `https://app.tryhelium.com/api/mcp` as the URL.
+    4. Click **Add**, then **Connect** and sign in with your Helium account.
+
+    On Team and Enterprise plans an owner adds the connector first under **Organization settings > Connectors**, then each member clicks **Connect**.
+  </McpClient>
+
+  <McpClient name="ChatGPT" group="Web clients" icon="/images/ai-tools/logos/openai.svg">
+    1. Open **Settings > Security and login** and turn on **Developer mode**.
+    2. Go to **ChatGPT Plugins** at chatgpt.com/plugins and click **+**.
+    3. Paste `https://app.tryhelium.com/api/mcp` as the MCP server URL, name it **Helium**, add a short description, and click **Create**. ChatGPT detects the Helium sign-in on its own.
+    4. Start a new chat, click **+**, open **More**, and enable **Helium**. You are asked to sign in the first time a Helium tool runs.
+
+    Developer mode needs a Plus, Pro, Business, Enterprise or Education plan.
+  </McpClient>
+  <McpClient name="Devin" group="Web clients" icon="/images/ai-tools/logos/devin.svg">
+    1. Open **Settings > Connections > MCP servers** and click **Add a custom MCP**.
+    2. Name it **Helium**, set **Transport** to **HTTP**, and paste `https://app.tryhelium.com/api/mcp` as the server URL.
+    3. Set **Authentication method** to **OAuth**, save, and sign in with your Helium account when the browser prompt opens.
+    4. Click **Test listing tools** to confirm the connection.
+  </McpClient>
+
+  <McpClient name="Goose" group="Web clients" icon="/images/ai-tools/logos/goose.svg">
+    ```bash
+    goose session --with-streamable-http-extension https://app.tryhelium.com/api/mcp
+    ```
+
+    Or add it to `~/.config/goose/config.yaml`:
+
+    ```yaml
+    extensions:
+      helium:
+        name: Helium
+        type: streamable_http
+        uri: https://app.tryhelium.com/api/mcp
+        enabled: true
+        timeout: 300
+    ```
+
+    Goose opens the Helium sign-in in your browser the first time the extension connects.
+  </McpClient>
+
+  <McpClient name="Cursor" group="IDE" icon="/images/ai-tools/logos/cursor.svg">
+    Add to `.cursor/mcp.json` in your project, or `~/.cursor/mcp.json` for all projects:
+
+    ```json
+    {
+      "mcpServers": {
+        "helium": {
+          "url": "https://app.tryhelium.com/api/mcp"
+        }
+      }
+    }
+    ```
+
+    Or [install with one click](cursor://anysphere.cursor-deeplink/mcp/install?name=helium\&config=eyJ1cmwiOiJodHRwczovL2FwcC50cnloZWxpdW0uY29tL2FwaS9tY3AifQ==). Then open **Customize** in the sidebar and sign in next to helium.
+  </McpClient>
+
+  <McpClient name="VS Code" group="IDE" icon="/images/ai-tools/logos/vscode.svg">
+    Add to `.vscode/mcp.json`:
+
+    ```json
+    {
+      "servers": {
+        "helium": {
+          "type": "http",
+          "url": "https://app.tryhelium.com/api/mcp"
+        }
+      }
+    }
+    ```
+
+    Or [install with one click](https://vscode.dev/redirect/mcp/install?name=helium\&config=%7B%22type%22%3A%22http%22%2C%22url%22%3A%22https%3A%2F%2Fapp.tryhelium.com%2Fapi%2Fmcp%22%7D). VS Code prompts you to sign in the first time Copilot uses the server.
+  </McpClient>
+
+  <McpClient name="Antigravity" group="IDE" icon="/images/ai-tools/logos/antigravity.svg">
+    Add to `~/.gemini/config/mcp_config.json`, or `.agents/mcp_config.json` in your workspace:
+
+    ```json
+    {
+      "mcpServers": {
+        "helium": {
+          "serverUrl": "https://app.tryhelium.com/api/mcp"
+        }
+      }
+    }
+    ```
+
+    Open **Agent Settings** (`Cmd+,` or `Ctrl+,`), go to the **Customizations** tab, and click **Authenticate** next to helium. You can also open the **...** menu and choose **MCP Servers > Manage MCP Servers > View raw config** to edit the file.
+  </McpClient>
+
+  <McpClient name="Kiro" group="IDE" icon="/images/ai-tools/logos/kiro.svg">
+    Add to `~/.kiro/settings/mcp.json`, or `.kiro/settings/mcp.json` in your workspace:
+
+    ```json
+    {
+      "mcpServers": {
+        "helium": {
+          "url": "https://app.tryhelium.com/api/mcp"
+        }
+      }
+    }
+    ```
+
+    Kiro opens the Helium sign-in in your browser the first time it connects.
+  </McpClient>
+
+  <McpClient name="Devin Desktop" group="IDE" icon="/images/ai-tools/logos/devin.svg">
+    Add to `~/.config/devin/mcp_config.json` (macOS and Linux) or `%APPDATA%\devin\mcp_config.json` (Windows):
+
+    ```json
+    {
+      "mcpServers": {
+        "helium": {
+          "url": "https://app.tryhelium.com/api/mcp"
+        }
+      }
+    }
+    ```
+
+    Run `devin mcp login helium` in a terminal, or wait for the sign-in prompt the first time the server is used. Windsurf became Devin Desktop in June 2026 and uses this same configuration.
+  </McpClient>
+
+  <McpClient name="Kimi Code" group="IDE" icon="/images/ai-tools/logos/kimi.svg">
+    Add to `.kimi-code/mcp.json` in your project, or `~/.kimi-code/mcp.json` for all projects:
+
+    ```json
+    {
+      "mcpServers": {
+        "helium": {
+          "transport": "http",
+          "url": "https://app.tryhelium.com/api/mcp"
+        }
+      }
+    }
+    ```
+
+    Run `/mcp-config login helium` inside Kimi Code to sign in.
+  </McpClient>
+
+  <McpClient name="Warp" group="IDE" icon="/images/ai-tools/logos/warp.svg">
+    Add to `~/.warp/.mcp.json`:
+
+    ```json
+    {
+      "mcpServers": {
+        "helium": {
+          "url": "https://app.tryhelium.com/api/mcp"
+        }
+      }
+    }
+    ```
+
+    Warp opens the Helium sign-in in your browser the first time it connects to the server.
+  </McpClient>
+
+  <McpClient name="Zed" group="IDE" icon="/images/ai-tools/logos/zed.svg">
+    Add to your Zed `settings.json`:
+
+    ```json
+    {
+      "context_servers": {
+        "helium": {
+          "url": "https://app.tryhelium.com/api/mcp"
+        }
+      }
+    }
+    ```
+
+    Zed opens the Helium sign-in in your browser the first time the Agent Panel uses the server.
+  </McpClient>
+
+
+  <McpClient name="JetBrains" group="IDE" icon="/images/ai-tools/logos/jetbrains.svg">
+    Open **Settings > Tools > AI Assistant > Model Context Protocol (MCP)**, click **Add**, and paste:
+
+    ```json
+    {
+      "mcpServers": {
+        "helium": {
+          "command": "npx",
+          "args": ["-y", "mcp-remote", "https://app.tryhelium.com/api/mcp"]
+        }
+      }
+    }
+    ```
+
+    JetBrains AI Assistant cannot complete an OAuth sign-in on its own, so the `mcp-remote` bridge opens the Helium sign-in in your browser and keeps the connection. Requires Node.js.
+  </McpClient>
+</ClientPicker>
+
+Any other client that supports remote MCP servers with OAuth works the same way: give it the URL above and sign in when prompted.
+
+## Permissions
+
+During sign-in your client asks for these permissions. Each one unlocks the tools listed in [Available tools](#available-tools) below; a tool you have not granted returns a message telling you which permission to add.
+
+| Permission | What it unlocks |
+| --- | --- |
+| `org:read` | Who you are and which organization is connected |
+| `paywalls:read` | Paywalls, their versions, source code, previews and publish history |
+| `workflows:read` | Workflows, triggers and targeting |
+| `experiments:read` | Experiments and their variants |
+
+Metrics and documentation tools are available to every connection. Everything is scoped to the organization you picked at sign-in. To switch organizations, disconnect the server in your client and connect again.
+
+## Available tools
+
+### Paywalls
+
+| Tool | What it returns |
+| --- | --- |
+| `list_paywalls` | Your paywalls, newest first, with optional name search |
+| `get_paywall` | One paywall with the products, product buckets and live version it serves, plus its web paywall link |
+| `get_paywall_preview` | The preview image of a paywall |
+| `list_paywall_versions` | The saved versions of a paywall |
+| `list_paywall_publish_history` | Publish and rollback history of a paywall |
+| `get_paywall_version_code` | The source of one file in a paywall version |
+| `diff_paywall_versions` | A diff of one file between two versions |
+| `find_paywall_usage` | Every workflow, trigger and experiment a paywall appears in |
+
+### Workflows, triggers and targeting
+
+| Tool | What it returns |
+| --- | --- |
+| `list_workflows` | Your workflows with their triggers and targeting rules |
+| `get_workflow` | One workflow with each rule's audience, paywall or experiment |
+| `list_triggers` | Your triggers and the workflow each one belongs to |
+| `list_targeting` | Your saved targeting definitions |
+| `get_targeting` | One targeting definition and its rule |
+
+### Experiments
+
+| Tool | What it returns |
+| --- | --- |
+| `list_experiments` | Your experiments with their variants and traffic split |
+| `get_experiment` | One experiment and the workflows and triggers it is wired into |
+| `get_experiment_metrics` | Per-variant time series for one experiment page metric, with the All Sources / Paywall Variant toggle and filters |
+| `check_experiment_health` | Whether an experiment can declare a winner: verdict, significance per decision metric, users needed per arm and days remaining |
+
+### Metrics
+
+| Tool | What it returns |
+| --- | --- |
+| `list_metrics` | Every dashboard metric with a one-line description |
+| `explain_metric` | The full definition of one metric and the filters it accepts |
+| `get_metrics` | Time series for up to a few metrics with the dashboard's defaults |
+
+### Docs and account
+
+| Tool | What it returns |
+| --- | --- |
+| `search_docs` | Search results from docs.tryhelium.com |
+| `get_doc` | A full documentation page |
+| `whoami` | The signed-in user and connected organization |
+
+## Good to know
+
+A few things the tools report exactly as the SDK sees them, which can differ from what a paywall's edit view shows:
+
+- A paywall's products, product buckets and content come from its **published version**. A paywall that has never been published is not served anywhere.
+- A trigger with no workflow attached shows no paywall.
+- Targeting rules are evaluated top to bottom and the first matching rule wins. A rule can point at a paywall, at an experiment, or at "show no paywall".
+- An experiment serves only while a workflow rule points at it and it is not stopped. Its start and end dates are labels, not a schedule.
+- Variant percentages that do not add up to 100 are scaled so that they do.
+
+## Security
+
+- The server is read-only and can only see the organization you connected. There are no tools that change anything.
+- Your client stores a token for the connection; Helium does not store it. Remove the connection from your client to stop access.
+- Treat tool output like any other data you paste into a chat: paywall names and descriptions are your own content, but review before sharing a transcript outside your team.
+
+## Troubleshooting
+
+- **"This tool needs the paywalls:read permission"**: reconnect the server and approve all permissions on the consent screen.
+- **Sign-in loops or 401 errors**: remove the server from your client and add it again; the stored token may belong to an organization you no longer have access to.
+- **Tool results are cut off**: list tools are paged. Ask for the next page or narrow with a name search.
+- **Your client does not show the newest tools**: claude.ai and Claude Code cache the tool list. Refresh the Helium server in your client's connector settings, then start a new chat.

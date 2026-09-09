@@ -1,0 +1,93 @@
+---
+title: "Dashboard FAQ"
+description: "Short answers to common questions about paywalls, workflows, triggers and experiments in the Helium dashboard."
+icon: "circle-question"
+---
+
+Answers use the names you see in the dashboard. For the concepts behind them, start with [How Helium Works](/guides/how-does-helium-work).
+
+## Paywalls
+
+<AccordionGroup>
+  <Accordion title="How do I take a paywall live?">
+    A paywall shows to users once it is published and a workflow with a trigger points at it.
+
+    <Steps>
+      <Step title="Publish it">
+        In the paywall editor click **Publish Draft**, or **Save and Publish** if you have unsaved changes. If the warnings dialog appears, fix any errors. Warnings such as "No products detected" can be published past with **Publish Anyway**, but a paywall with no products cannot process purchases.
+      </Step>
+      <Step title="Link products">
+        Open the Products panel in the editor and choose the Product Buckets the paywall should sell. Buckets are managed on the **Products** tab of the Integrations page. Do this before publishing so the published version carries the products.
+      </Step>
+      <Step title="Create a workflow">
+        On the Workflows page click **New Workflow**, give it a title and choose the **Control paywall**. Only published paywalls can be chosen; an unpublished one is greyed out with the reason.
+      </Step>
+      <Step title="Decide who sees it">
+        On the workflow page, **Everyone else sees** is the paywall shown when no rule matches. Click **Add rule** to show a different paywall, run an experiment, or show no paywall to a specific audience.
+      </Step>
+      <Step title="Attach a trigger">
+        In the Triggers card click **Add trigger**, then pick an existing unused trigger or **Create New Trigger** with a key made of letters, numbers and underscores. That key is the string your app passes to the Helium SDK. **Copy trigger** copies it. A workflow with no trigger never serves.
+      </Step>
+      <Step title="Check the Live badge">
+        On the Paywalls page the paywall shows **Live** once it is a workflow's control paywall, is named in a "show paywall" rule, or is a variant in a running experiment. Otherwise it shows **Inactive**.
+      </Step>
+      <Step title="Download fallbacks">
+        On the Workflows page open the **...** menu and click **Download Fallbacks**, set the iOS and Android defaults and add the file to your app. Download it again after every later publish, because the file is a snapshot of the versions published at download time. See [Fallback Paywalls](/guides/fallback-bundle).
+      </Step>
+    </Steps>
+
+    <Note>
+      Published but not Live? No workflow points at the paywall yet, it is only in an experiment that is not running, or the rule that named it was archived. The Live badge checks workflow and experiment wiring only, so also confirm the workflow has a trigger.
+    </Note>
+  </Accordion>
+
+  <Accordion title="How do I turn off a paywall?">
+    There is no Unpublish or Archive button on a paywall. A paywall shows wherever a workflow or running experiment points at it, so you turn it off by changing that.
+
+    1. **Stop it serving.** Open the workflow that uses it. Change **Everyone else sees** to a different paywall, or open the rule that names it and edit it, **Archive** it, or switch it to **show no paywall**. If the paywall is an experiment variant, use **Remove from experiment** on the variant. Once nothing points at it, the Paywalls page shows it as **Inactive**. This takes effect right away and can be undone.
+    2. **Fix the content instead.** In the editor open the **...** menu, choose **Version History**, click **View** on a known-good version, then **Save** and **Publish**. Publishing the older content as a new version replaces what devices get.
+    3. **Delete** removes the paywall for good and cannot be undone. Move workflows off it first.
+  </Accordion>
+</AccordionGroup>
+
+## Workflows and triggers
+
+<AccordionGroup>
+  <Accordion title="How do I move a trigger to a different workflow?">
+    A trigger belongs to one workflow at a time.
+
+    1. Open the workflow that has the trigger today.
+    2. In the Triggers card click the trigger, then **Move to Different Workflow**.
+    3. Pick the destination under **Select Workflow** and click **Move Trigger**.
+
+    Your app code does not change. The trigger key stays the same and starts serving the new workflow's paywalls right away. The old workflow keeps running for any other triggers it has. With none left it shows "No triggers" and serves nothing.
+
+    Also good to know:
+
+    - A trigger cannot be on two workflows at once, and the **Add trigger** picker only lists triggers that are not in use.
+    - A trigger key cannot be renamed, only its description (**Edit**).
+    - **Delete** is only offered for triggers under Unassigned Triggers on the Workflows page. Remove or move a trigger out of its workflow first.
+  </Accordion>
+</AccordionGroup>
+
+## Experiments
+
+<AccordionGroup>
+  <Accordion title="Can I pause an experiment?">
+    No. An experiment is either running or stopped, and **Stop experiment** is final: a stopped experiment cannot be started again. When you stop one, the **Stop Experiment** dialog asks where traffic should go next, one of the variants' paywalls or **Next Matching Audience**, and applies that to the workflow when you click **Stop Experiment & Route Traffic**.
+
+    To take an experiment out of rotation without ending it, change the workflow instead: edit or **Archive** the rule that runs it, or change **Everyone else sees**. The experiment then shows **Not Live** while its status stays running, and you can point a rule back at it later.
+  </Accordion>
+
+  <Accordion title="Can I duplicate an experiment?">
+    No. **Copy Experiment ID** only copies the id. To rerun a test, create a **New Experiment** on the workflow, add the same paywalls as variants, and enter the same traffic allocation. Each variant takes 1 to 100 percent.
+  </Accordion>
+</AccordionGroup>
+
+## Metrics
+
+<AccordionGroup>
+  <Accordion title="What percent of conversions came from the second try flow?">
+    Helium does not report second try conversions as their own metric or filter yet. Paywall Views and Conversions on the Metrics page count the second try paywall together with the paywall it belongs to.
+  </Accordion>
+</AccordionGroup>

@@ -1,0 +1,10 @@
+# Rung: Observed (Observed / suggestion)
+# Source: collection_analyses/cloudcaptainai_docs_8b069419/style-observations.md terminology
+# table — the product is named "Helium" on all 35 pages that name it; the "CloudCaptain"
+# spelling never appears in prose (it is only the GitHub org slug, lowercased).
+extends: substitution
+message: "Observed convention (product named 'Helium' on all 35 pages that name it; 'CloudCaptain' never appears in prose): use '%s' rather than '%s'."
+level: suggestion
+ignorecase: false
+swap:
+  'CloudCaptain': 'Helium'

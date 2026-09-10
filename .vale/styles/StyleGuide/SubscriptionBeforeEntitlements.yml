@@ -1,0 +1,11 @@
+# Rung: Stated, conditional (StyleGuide / warning)
+# Source: style/client_style_guide.md lines 34-35 — "When naming sections that cover
+# both subscriptions and entitlements, put 'Subscription Status' before 'Entitlements'."
+# Conditional because it applies only to a heading that names both.
+extends: existence
+message: "Style guide: in a heading naming both, put 'Subscription Status' before 'Entitlements'."
+level: warning
+scope: heading
+nonword: true
+tokens:
+  - '(?i)\bentitlements?\b.*\bsubscription\b'

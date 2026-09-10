@@ -1,0 +1,12 @@
+# Rung: Observed (Observed / suggestion)
+# Source: collection_analyses/cloudcaptainai_docs_8b069419/style-observations.md —
+# root-relative internal links are the dominant convention: ~17 of 21 pages that carry
+# internal documentation links (about 81 percent) use root-relative paths rather than
+# absolute URLs. scope: raw so the link destination (not just visible prose) is scanned.
+extends: existence
+message: "Observed convention (about 81 percent of pages with internal links use root-relative paths): prefer a root-relative link such as /guides/... over an absolute https://docs.tryhelium.com/... URL."
+level: suggestion
+scope: raw
+nonword: true
+tokens:
+  - 'https?://docs\.tryhelium\.com/(guides|sdk|getting-started|migrations|ai-tools|background)'

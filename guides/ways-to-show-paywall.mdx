@@ -139,7 +139,47 @@ HeliumPaywall(
 
 ## React Native
 
-React Native (both `expo-helium` and `@tryheliumai/paywall-sdk-react-native`) currently supports full-screen presentation via `presentUpsell()` only — embedded paywall views are not yet available.
+#### Embedded View (Expo)
+
+Helium's Expo SDK (`expo-helium`) ships `HeliumPaywallView`, a component that renders a Helium paywall inline in your own UI, such as an onboarding step, an upgrade tab, or a dedicated route, instead of only as a full-screen modal via `presentUpsell()`. If you use the bare `@tryheliumai/paywall-sdk-react-native` package instead, present paywalls with `presentUpsell()`.
+
+<Warning>
+  `HeliumPaywallView` is iOS only in this release. On Android the component renders nothing and logs a one-time warning.
+</Warning>
+
+```tsx
+import { HeliumPaywallView } from 'expo-helium';
+import { Text } from 'react-native';
+
+function PaywallScreen() {
+  return (
+    <HeliumPaywallView
+      triggerName="onboarding"
+      style={{ flex: 1 }}
+      onEntitled={() => {/* hide the paywall, for example by navigating away */}}
+      eventHandlers={{
+        onDismissed: () => {/* user dismissed — hide the paywall */},
+      }}
+      paywallNotShownReplacement={<Text>Paywall failed to show</Text>}
+    />
+  );
+}
+```
+
+Place `HeliumPaywallView` as its own screen or a full-bleed region, and don't nest it inside a `ScrollView`. The paywall loads once, when the view mounts. Later changes to `triggerName` or `customPaywallTraits` are ignored. To show or hide the paywall, mount or unmount the view — prop changes after mount don't apply. Each mount counts as a paywall impression, so only remount to show the paywall again, not just to change a prop.
+
+<Warning>
+  `HeliumPaywallView` does not dismiss itself. A dismiss tap or a completed purchase fires an event but leaves the view on screen — hide it yourself, inside your `onEntitled` or `eventHandlers.onDismissed` callback. Don't rely on `onClose`, which fires as the view unmounts.
+</Warning>
+
+| Prop | Type | Required | Description |
+| --- | --- | --- | --- |
+| `triggerName` | `string` | Yes | The trigger configured in the Helium dashboard. |
+| `paywallNotShownReplacement` | `ReactNode` | Yes | Rendered in place of the paywall when it can't be shown (for example, the trigger is in a targeting holdout, or the desired paywall and its [fallback](/guides/fallback-bundle) both fail to load) or when the native view can't be resolved. |
+| `eventHandlers` | `PaywallEventHandlers` | No | Paywall event callbacks scoped to this view, independent of any `presentUpsell` handlers — the same shape as `presentUpsell`, including `onDismissed`. See [Helium Events](/guides/helium-events). |
+| `onEntitled` | callback | No | Called when the user becomes entitled: a purchase succeeds, a purchase is restored, or the user is already entitled. |
+| `customPaywallTraits` | object | No | Custom traits passed to the paywall. |
+| `style` | view style | No | The native paywall fills its frame, so give the view a size, such as `flex: 1`. |
 
 ## Flutter
 

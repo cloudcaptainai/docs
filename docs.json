@@ -29,6 +29,13 @@
         ]
       },
       {
+        "group": "AI TOOLS",
+        "icon": "robot",
+        "pages": [
+          "ai-tools/mcp"
+        ]
+      },
+      {
         "group": "GUIDES",
         "icon": "compass",
         "pages": [

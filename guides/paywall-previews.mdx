@@ -1,14 +1,13 @@
 ---
 title: "Paywall Previews On Device"
+description: "Test any paywall you've made in Helium, on your device, in seconds."
 ---
 
 <Badge color="blue">iOS 4.2.0+</Badge> <Badge color="green">Android 4.4.1+</Badge> <Badge color="orange">React Native 3.4.1+</Badge> <Badge color="purple">Flutter 3.3.1+</Badge>
 
-## Preview Paywalls from your App
+Testing paywalls and entitlements is one of the most annoying parts of shipping an app — so we made it easy.
 
-<Frame>
-  ![Paywall Previews](/images/paywall_previews.jpeg)
-</Frame>
+## Preview Paywalls from your App
 
 **Requirements:** Integrate the Helium SDK into your app and navigate to any existing Helium paywall. You will need to have already set up a valid workflow.
 
@@ -16,9 +15,19 @@ Once you are viewing a paywall, **triple tap** anywhere on the paywall to bring 
 
 Triple tap again or dismiss the paywall to return to the list of paywalls.
 
+<Frame>
+  ![Triple tap to open Paywall Previews](/images/paywall-previews-triple-tap.gif)
+</Frame>
+
 <Info>
   By default, this functionality is only enabled in debug/TestFlight builds for iOS and debug builds for Android.
 </Info>
+
+## Second Try Paywalls
+
+If a paywall has a second try offer configured, the preview includes it: the second try paywall shows on dismiss or on purchase cancel, depending on its configuration, with its own products and prices. Second try is not supported on App2Web paywalls.
+
+<a id="preview-app2web-paywalls" />
 
 ## App2Web previews
 
@@ -29,14 +38,7 @@ Available on iOS with these minimum SDK versions:
 - Flutter (`helium_flutter`): **3.3.12+**
 - Native iOS: **4.9.0+**
 
-In the triple-tap list, open your in-app App2Web paywall. Its web-product purchase action opens the linked web checkout.
-
-Use the gear icon to choose a purchase mode:
-
-- **Simulated:** no charge, revenue event, or entitlement.
-- **Real:** charges your card and grants an entitlement. Available only on eligible devices.
-
-Eligible devices default to real purchases; switch to simulated if you don't want to charge a card. Previews bypass targeting and post-purchase handlers, so also test through your app's real trigger.
+Previewing an App2Web paywall runs the full app-to-web checkout flow, including simulated or real purchases. See [App2Web Paywall Previews](/guides/app2web-previews).
 
 ## Preview Paywalls from the Helium App (coming soon)
 

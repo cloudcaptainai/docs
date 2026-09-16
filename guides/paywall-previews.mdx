@@ -27,9 +27,18 @@ Triple tap again or dismiss the paywall to return to the list of paywalls.
 
 If a paywall has a second try offer configured, the preview includes it: the second try paywall shows on dismiss or on purchase cancel, depending on its configuration, with its own products and prices. Second try is not supported on App2Web paywalls.
 
-## Preview App2Web Paywalls
+<a id="preview-app2web-paywalls" />
 
-Previewing an App2Web paywall runs the full app-to-web checkout flow, including simulated or real purchases. See [App2Web Paywall Previews](/guides/app2web-previews).
+## App2Web previews
+
+Available on iOS with these minimum SDK versions:
+
+- Expo / React Native using `expo-helium`: **3.6.0+**
+- React Native using `@tryheliumai/paywall-sdk-react-native`: **3.1.10+**
+- Flutter (`helium_flutter`): **3.3.12+**
+- Native iOS: **4.9.0+**
+
+Previewing an App2Web paywall runs the full app-to-web checkout flow. Real purchases require an [eligible US device](/guides/app2web-previews#purchase-eligibility); other devices simulate purchases. See [App2Web Paywall Previews](/guides/app2web-previews).
 
 ## Preview Paywalls from the Helium App (coming soon)
 

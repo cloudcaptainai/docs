@@ -1,0 +1,29 @@
+---
+title: "Build an App2Web Paywall"
+description: "Add web checkout to an existing in-app purchase paywall."
+---
+
+App2Web links an in-app paywall to a browser checkout. Start with a working IAP paywall and your web products synced to Helium.
+
+## Adapt the in-app paywall
+
+1. Duplicate your paywall. Offer web checkout and **Continue in-app** in a multi-step flow.
+2. Add web products. Use iOS-only buckets for the IAP path; duplicate mixed-platform buckets if needed.
+3. Set the web CTA to **purchase the web product**, not just select it or open a URL. Keep product selection separate from purchase.
+4. Route **Continue in-app** to IAP. After opening web checkout, also move the in-app screen to IAP for users returning without purchasing.
+
+## Link the hosted web paywall
+
+1. Create and link the hosted paywall. Use your web provider's products, with matching initial selections on both screens.
+2. Match your IAP layout, leaving space for browser controls and disclosures. Use **Back** to dismiss; keep restore actions in-app.
+3. Publish both paywalls. Target the **in-app** paywall to eligible users; hosted paywalls cannot be targeted or added to experiments directly.
+
+Dismissing the hosted web paywall or completing a subscription returns the user to your app.
+
+<Accordion title="Design tips" id="design-tips">
+  - Keep the primary CTA in the same position across screens.
+  - Keep custom logic in-app; hosted paywalls have limited variable, payload, and localization support.
+  - Check [names and pricing](/guides/app2web-faq#checkout-appearance) in the payment sheet.
+</Accordion>
+
+Next: [Go-live checklist](/guides/app2web-go-live-checklist) / [Evaluate your experiment](/guides/app2web-faq#experiment-results).

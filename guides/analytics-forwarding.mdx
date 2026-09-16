@@ -1,0 +1,44 @@
+---
+title: "Connect Analytics and MMPs"
+description: "Forward paywall events and subscription activity."
+---
+
+## Forward Helium events
+
+1. Open [Integrations > Analytics](https://app.tryhelium.com/integrations/analytics) and select a provider.
+2. Name the integration, enter the requested credentials, and select **Save Configuration**.
+3. Complete a purchase. Find the test user's events in your provider; batches can take a few minutes.
+
+| Provider | What you'll need |
+| --- | --- |
+| Mixpanel | Project ID, project token, and service-account credentials. Match **Simplified Identity Merge** to your project. |
+| Amplitude | API key and matching US/EU data residency. |
+| PostHog | Project token and instance address. |
+| Statsig | Server secret key. |
+
+Helium forwards paywall views, purchase attempts, and successes server-to-server, with user, product, paywall, and experiment context. [Event reference](/guides/third-party-analytics#what-events-and-properties-are-logged).
+
+In Mixpanel, build an `experience_opened` to `purchase_succeeded` funnel, grouped by `experiment_chosen_variant_id`.
+
+## Match events to users
+
+Use the same user ID in Helium and your provider. For anonymous users, pass the provider's anonymous/device ID to Helium. [Identity setup](/guides/third-party-analytics#linking-%26-identifying-users).
+
+## Send conversions to Meta
+
+Once Helium events arrive in your analytics provider, connect its outbound destination:
+
+- **PostHog:** open **Data pipeline > Destinations > Meta Ads Conversions**, add your Pixel ID and access token, then select your conversion events. [Setup](https://posthog.com/docs/cdp/destinations/meta-ads).
+- **Amplitude:** open **Data > Catalog > Destinations > Meta Pixel**, add your Pixel ID and access token, map events and user identifiers, then enable the sync. [Setup](https://amplitude.com/docs/data/destination-catalog/meta-pixel).
+- **Mixpanel:** its [Facebook Ads integration](https://mixpanel.com/partners/integrations/facebook-ads) syncs cohorts for audience targeting, not purchase events. For conversion reporting, use your server or CDP's Meta connection.
+- **Statsig:** enable an [outgoing event webhook](https://docs.statsig.com/integrations/event_webhook#outgoing) to your server or CDP, which maps the events to Meta's Conversions API.
+
+Map trial starts separately from paid purchases, include the destination's required identifiers, and check a test conversion in Meta. Deduplicate if you also report the same event client-side.
+
+## Other MMPs and renewals
+
+Forward Helium's [purchase-success event](/guides/helium-events#paywall-and-purchase-events) through your existing MMP SDK or server integration. Client-side delivery requires the app to receive the result and doesn't cover renewals.
+
+For renewals without an app open, connect billing-provider webhooks to your MMP through your backend or a supported service. Already using RevenueCat? Its [MMP integrations](https://www.revenuecat.com/docs/integrations/attribution) are another option; follow the destination's identifier and billing-source requirements.
+
+Other destinations? [Contact Helium](mailto:founders@tryhelium.com).

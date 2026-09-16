@@ -30,13 +30,13 @@ Integration guides: [Paddle](/guides/paddle-onboarding-guide) / [Stripe](/guides
     - **Through your workflow:** target the App2Web paywall to an eligible test audience, then open it through your app's normal trigger.
     - **Triple-tap previews:** in TestFlight, open any Helium paywall, triple-tap anywhere on it, and select your in-app App2Web paywall.
 
-    Preview settings let you choose simulated or real purchases; real purchases charge your card. Also test through your workflow to check targeting and post-purchase handlers, which previews bypass.
+    On an [eligible US device](/guides/app2web-previews#purchase-eligibility), previews default to real purchases, which charge your card; switch to simulated in preview settings if needed. Ineligible devices always simulate purchases. Also test through your workflow to check targeting and post-purchase handlers, which previews bypass.
 
     See the [preview guide and SDK requirements](/guides/paywall-previews#app2web-previews) or the full tests for [Paddle](/guides/paddle-onboarding-guide#testing) / [Stripe](/guides/stripe-onboarding-guide#testing).
   </Accordion>
 
   <Accordion title="How do I test that entitlements are granted correctly?" id="test-entitlements">
-    We recommend starting with [App2Web previews](/guides/paywall-previews#app2web-previews). Choose a real purchase to test entitlement delivery; simulated purchases don't charge you or grant entitlements.
+    We recommend starting with [App2Web previews](/guides/paywall-previews#app2web-previews). Use a real purchase on an [eligible US device](/guides/app2web-previews#purchase-eligibility) to test entitlement delivery; simulated purchases don't charge you or grant entitlements.
 
     Then make a real purchase through your app's trigger and check that access unlocks when you return. Previews bypass targeting and your post-purchase handlers. See the [Paddle tests](/guides/paddle-onboarding-guide#testing) or [Stripe tests](/guides/stripe-onboarding-guide#testing), plus user-ID setup for [Paddle](/guides/paddle-onboarding-guide#how-entitlements-work) or [Stripe](/guides/stripe-onboarding-guide#how-entitlements-work).
 

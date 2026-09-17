@@ -139,6 +139,22 @@ The hosted web paywall doesn't have to show the same products as the original �
     ```
 
     Send that ID to your server and follow [Paddle's guide for generating pre-authenticated customer portal links](https://developer.paddle.com/build/customers/integrate-customer-portal/).
+
+    **Want to catch users who can't pay with Apple Pay?** Paddle's web checkout offers Apple Pay as its only payment method, so a user whose browser Wallet holds no usable Apple Pay card reaches that checkout with no way to finish the purchase. Turn on web Apple Pay readiness to catch them with a Helium Workflow. Set the flag before you initialize Helium, alongside `enableExternalWebCheckout`:
+
+    ```swift
+    Helium.config.enableWebApplePayReadiness = true
+    ```
+
+    <Note>
+      Requires a Helium iOS SDK version that includes web Apple Pay readiness (confirm the minimum version on release).
+    </Note>
+
+    The flag defaults to `false`: no measurement runs, and the SDK reports every user to Helium as Apple Pay ready, so a Workflow rule keyed on readiness does nothing. Set it to `true` and the SDK measures whether the browser used for App2Web web checkout has a usable Apple Pay card, then reports that measurement to Helium. It runs the check in an app-owned offscreen `WKWebView`, not the handoff browser that runs checkout. Set it back to `false` at any time to return to the default — no measurement, and every user reported Apple Pay ready.
+
+    Paywall presentation never waits on this measurement, and readiness doesn't change which paywall the SDK shows on the device — routing stays server-driven through Workflow Targeting. On the first launch after install, the SDK delays the config request by up to about 2 seconds so it can report a first measurement. Later launches report the stored measurement immediately and re-measure in the background.
+
+    To act on the signal, configure a Helium Workflow that routes users the SDK measured as not ready for Apple Pay to an in-app purchase paywall. Until you add that Workflow, the measurement changes nothing: those users still reach the Apple Pay–only web checkout with no way to pay. See [How Helium Works](/guides/how-does-helium-work) for Workflow and Targeting concepts.
   </Tab>
   <Tab title="React Native / Expo">
     Available in `expo-helium` 3.4.13\+ and `@tryheliumai/paywall-sdk-react-native` 3.1.2\+.

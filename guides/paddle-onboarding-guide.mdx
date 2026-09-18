@@ -214,7 +214,7 @@ The hosted web paywall doesn't have to show the same products as the original â€
 
     The setter only reports the signal. After enabling it, configure a [dashboard Workflow](https://app.tryhelium.com/workflows) to act on the signal, for example routing users reported as not ready to an in-app purchase paywall.
 
-    `setEnableWebApplePayReadiness` requires a newer `expo-helium` release than the web-checkout APIs above. Confirm your installed SDK exposes the setter before relying on it.
+    Available in `expo-helium` 3.6.1\+ (which pins the native Helium iOS SDK 4.11.0\+, the release that adds the underlying readiness measurement). On the older `@tryheliumai/paywall-sdk-react-native` package, confirm your installed SDK exposes the setter before relying on it.
   </Tab>
   <Tab title="Flutter (Helium 3.3.8+)">
     **Enable external web checkout before initializing Helium:**

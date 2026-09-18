@@ -280,14 +280,13 @@ iOS only, off by default. Requires Helium iOS 4.11.0+ or `expo-helium` 3.6.1+.
   <Tab title="Expo (expo-helium 3.6.1+)">
     ```tsx
     setEnableWebApplePayReadiness(true);
-    await initialize({ apiKey });
     ```
 
     The setter is a no-op on Android.
   </Tab>
 </Tabs>
 
-Set it before `initialize`, otherwise the first launch is already measured. On the first launch after install, the launch request waits up to two seconds for the measurement; later launches send the stored measurement immediately and re-measure in the background, so there is no launch delay.
+Set it before you initialize Helium, otherwise the first launch is already measured. On the first launch after install, the launch request waits up to two seconds for the measurement; later launches send the stored measurement immediately and re-measure in the background, so there is no launch delay.
 
 Reported values are `ready`, `notReady`, and `unknown:<reason>` when the measurement has not happened yet, the browser exposes no Apple Pay API, or it timed out.
 

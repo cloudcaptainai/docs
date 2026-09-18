@@ -290,7 +290,7 @@ Set it before you initialize Helium, otherwise the first launch is already measu
 
 Reported values are `ready`, `notReady`, and `unknown:<reason>` when the measurement has not happened yet, the browser exposes no Apple Pay API, or it timed out.
 
-**Rolling it out:** ship the flag in one release and confirm readiness is arriving for your users before you target on it. Targeting on `webApplePayReadiness` is rolling out to the dashboard, so ask Helium to enable it for your account.
+**Rolling it out:** drive the setter from your own remote flag rather than a hardcoded `true`, so you can turn the measurement off for everyone without shipping a build if you see any regression. Ship it in one release, ramp it up, and confirm readiness is arriving for your users before you target on it. Targeting on `webApplePayReadiness` is rolling out to the dashboard, so ask Helium to enable it for your account.
 
 ### Known limitations and gotchas
 

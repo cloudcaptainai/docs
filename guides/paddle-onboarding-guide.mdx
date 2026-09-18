@@ -197,6 +197,24 @@ The hosted web paywall doesn't have to show the same products as the original â€
     ```
 
     Send that ID to your server and follow [Paddle's guide for generating pre-authenticated customer portal links](https://developer.paddle.com/build/customers/integrate-customer-portal/).
+
+    **Web Apple Pay readiness (optional).** Paddle web checkout offers Apple Pay as its only payment method, so a user with no usable Apple Pay card saved in their device's Wallet reaches the checkout unable to pay. Enable readiness to have the SDK measure whether the checkout browser can complete an Apple Pay payment and report that signal to Helium. Call `setEnableWebApplePayReadiness(true)` before `initialize`:
+
+    ```tsx
+    import { setEnableWebApplePayReadiness, initialize } from 'expo-helium';
+
+    setEnableWebApplePayReadiness(true);
+    await initialize({ apiKey /* your existing Helium API key */ });
+    ```
+
+    - **Off by default.** The setter defaults to `false`. While off, the SDK runs no measurement and adds no launch delay.
+    - **Order matters.** The measurement runs inside the prefetch that `initialize` starts, so call the setter before `initialize` â€” a call made afterward misses the launch it would measure.
+    - **iOS only.** The measurement runs on iOS. On Android the call is a safe no-op, so shared React Native / Expo code can ship unchanged.
+    - **First launch is delayed.** When enabled, the first launch after install waits up to about 2 seconds so the measurement can be sent. Later launches send the stored value immediately and re-measure in the background. Paywall presentation never blocks on the measurement.
+
+    The setter only reports the signal. After enabling it, configure a [dashboard Workflow](https://app.tryhelium.com/workflows) to act on the signal, for example routing users reported as not ready to an in-app purchase paywall.
+
+    `setEnableWebApplePayReadiness` requires a newer `expo-helium` release than the web-checkout APIs above. Confirm your installed SDK exposes the setter before relying on it.
   </Tab>
   <Tab title="Flutter (Helium 3.3.8+)">
     **Enable external web checkout before initializing Helium:**

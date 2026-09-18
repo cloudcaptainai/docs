@@ -341,6 +341,37 @@ On successful purchase, the SDK's entitlement cache updates immediately. The Hel
 
 The original in-app paywall presents your Paddle offerings. The hosted web paywall — served from `clickthrough.to` — runs the actual Paddle checkout, which has to happen in a browser. The two can be customized independently and don't need to show the same products.
 
+### Apple Pay readiness (beta)
+
+Web checkout on iOS is Apple Pay only, so a user whose browser cannot complete an Apple Pay payment reaches checkout and gets stuck there.
+
+Opting in lets the SDK measure, in the browser, whether Apple Pay can actually complete a payment, and report the result as the `webApplePayReadiness` targeting variable. The SDK never changes routing on its own: targeting decides whether a user who is not ready sees web checkout or your in-app paywall.
+
+iOS only, off by default. Requires Helium iOS 4.11.0+ or `expo-helium` 3.6.1+.
+
+<Tabs>
+  <Tab title="iOS (native, Helium 4.11.0+)">
+    ```swift
+    Helium.config.enableWebApplePayReadiness = true
+    Helium.initialize(...)
+    ```
+  </Tab>
+  <Tab title="Expo (expo-helium 3.6.1+)">
+    ```tsx
+    setEnableWebApplePayReadiness(true);
+    await initialize({ apiKey });
+    ```
+
+    The setter is a no-op on Android.
+  </Tab>
+</Tabs>
+
+Set it before `initialize`, otherwise the first launch is already measured. On the first launch after install, the launch request waits up to two seconds for the measurement; later launches send the stored measurement immediately and re-measure in the background, so there is no launch delay.
+
+Reported values are `ready`, `notReady`, and `unknown:<reason>` when the measurement has not happened yet, the browser exposes no Apple Pay API, or it timed out.
+
+**Rolling it out:** ship the flag in one release and confirm readiness is arriving for your users before you target on it. Targeting on `webApplePayReadiness` is rolling out to the dashboard, so ask Helium to enable it for your account.
+
 ### Known limitations and gotchas
 
 - **Availability:** Paddle App2Web is currently iOS-only and supported for US storefronts only. iOS-only applies across all SDKs — in React Native and Flutter apps, the web-checkout APIs are safe no-ops on Android, so shared code can ship unchanged and Android users keep your regular in-app purchase flow.

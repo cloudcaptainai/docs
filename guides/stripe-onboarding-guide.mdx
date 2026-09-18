@@ -264,7 +264,7 @@ The original in-app paywall presents your Stripe offerings. The hosted web paywa
 
 ### Apple Pay readiness (beta)
 
-Web checkout on iOS is Apple Pay only, so a user whose browser cannot complete an Apple Pay payment reaches checkout and gets stuck there.
+An optimization on top of the flow above. Web checkout on iOS is Apple Pay only, and a small share of users reach it from a browser that cannot complete an Apple Pay payment. Sending those users to your in-app paywall instead recovers conversion you would otherwise leave on the table.
 
 Opting in lets the SDK measure, in the browser, whether Apple Pay can actually complete a payment, and report the result as the `webApplePayReadiness` targeting variable. The SDK never changes routing on its own: targeting decides whether a user who is not ready sees web checkout or your in-app paywall.
 

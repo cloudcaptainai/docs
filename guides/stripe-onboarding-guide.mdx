@@ -288,8 +288,6 @@ iOS only, off by default. Requires Helium iOS 4.11.0+ or `expo-helium` 3.6.1+.
 
 Set it before you initialize Helium, otherwise the first launch is already measured. On the first launch after install, the launch request waits up to two seconds for the measurement; later launches send the stored measurement immediately and re-measure in the background, so there is no launch delay.
 
-In targeting you pick from `ready`, `notReady`, and `unknown:<reason>` for the cases where the measurement could not answer. Excluding `notReady` is the rule you want; `unknown` users are usually still payable.
-
 **Rolling it out:** drive the setter from your own remote flag rather than a hardcoded `true`, and turn that flag on for 100% of users. If you see any degradation you flip the flag off and remove `webApplePayReadiness` from your targeting rule, with no new build. Confirm readiness is arriving for your users before you target on it.
 
 ### Known limitations and gotchas

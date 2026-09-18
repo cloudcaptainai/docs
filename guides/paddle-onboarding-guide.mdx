@@ -147,7 +147,7 @@ The hosted web paywall doesn't have to show the same products as the original â€
     ```
 
     <Note>
-      Requires a Helium iOS SDK version that includes web Apple Pay readiness (confirm the minimum version on release).
+      Requires Helium iOS SDK 4.11.0 or later.
     </Note>
 
     The flag defaults to `false`: no measurement runs, and the SDK reports every user to Helium as Apple Pay ready, so a Workflow rule keyed on readiness does nothing. Set it to `true` and the SDK measures whether the browser used for App2Web web checkout has a usable Apple Pay card, then reports that measurement to Helium. It runs the check in an app-owned offscreen `WKWebView`, not the handoff browser that runs checkout. Set it back to `false` at any time to return to the default â€” no measurement, and every user reported Apple Pay ready.

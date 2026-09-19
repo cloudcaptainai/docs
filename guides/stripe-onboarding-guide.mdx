@@ -262,6 +262,36 @@ On successful purchase, the SDK's entitlement cache updates immediately. The Hel
 
 The original in-app paywall presents your Stripe offerings. The hosted web paywall — served from `clickthrough.to` — runs the actual Stripe checkout, which has to happen in a browser. The two can be customized independently and don't need to show the same products.
 
+### Apple Pay readiness (beta)
+
+An optimization on top of the flow above. Web checkout on iOS is Apple Pay only, and a small share of users reach it from a browser that cannot complete an Apple Pay payment. Sending those users to your in-app paywall instead recovers conversion you would otherwise leave on the table.
+
+Opting in lets the SDK measure, in the browser, whether Apple Pay can actually complete a payment, and report the result as the `webApplePayReadiness` targeting variable. The SDK never changes routing on its own: targeting decides whether a user who is not ready sees web checkout or your in-app paywall.
+
+iOS only, off by default. Requires Helium iOS 4.11.0+ or `expo-helium` 3.6.1+.
+
+<Tabs>
+  <Tab title="iOS (native, Helium 4.11.0+)">
+    ```swift
+    Helium.config.enableWebApplePayReadiness = true
+    Helium.initialize(...)
+    ```
+  </Tab>
+  <Tab title="Expo (expo-helium 3.6.1+)">
+    ```tsx
+    setEnableWebApplePayReadiness(true);
+    ```
+
+    The setter is a no-op on Android.
+  </Tab>
+</Tabs>
+
+Set it before you initialize Helium, otherwise the first launch is already measured. On the first launch after install, the launch request waits up to two seconds for the measurement; later launches send the stored measurement immediately and re-measure in the background, so there is no launch delay.
+
+In targeting you pick from `ready`, `notReady`, and `unknown:<reason>` for the cases where the measurement could not answer. Excluding `notReady` is the rule you want; `unknown` users are usually still payable.
+
+**Rolling it out:** drive the setter from your own remote flag rather than a hardcoded `true`, and turn that flag on for 100% of users. If you see any degradation you flip the flag off and remove `webApplePayReadiness` from your targeting rule, with no new build. Confirm readiness is arriving for your users before you target on it.
+
 ### Known limitations and gotchas
 
 - **Availability:** Stripe App2Web is currently supported for US storefronts only.

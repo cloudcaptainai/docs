@@ -10,7 +10,7 @@ Answers use the names you see in the dashboard. For the concepts behind them, st
 
 <AccordionGroup>
   <Accordion title="How do I take a paywall live?">
-    A paywall shows to users once it is published and a workflow with a trigger points at it.
+    A paywall shows to users once it is published and a workflow with a trigger points at it, and your app calls the Helium SDK with that trigger. Allow a few minutes after publishing for devices to start receiving it.
 
     <Steps>
       <Step title="Link products">
@@ -20,13 +20,13 @@ Answers use the names you see in the dashboard. For the concepts behind them, st
         In the paywall editor click **Publish Draft**, or **Save and Publish** if you have unsaved changes.
       </Step>
       <Step title="Create a workflow">
-        On the Workflows page click **New Workflow**, give it a title and choose the **Control paywall**. Only published paywalls can be chosen; an unpublished one is greyed out with the reason.
+        On the Workflows page click **New Workflow**, give it a title and choose the **Control paywall**. Only published paywalls can be chosen. An unselectable paywall is greyed out; hover over it to see the reason.
       </Step>
       <Step title="Decide who sees it">
         On the workflow page, **Everyone else sees** is the paywall shown when no rule matches. Click **Add rule** to show a different paywall, run an experiment, or show no paywall to a specific audience.
       </Step>
       <Step title="Attach a trigger">
-        In the Triggers card click **Add trigger**, then pick an existing unused trigger or **Create New Trigger** with a key made of letters, numbers and underscores. That key is the string your app passes to the Helium SDK. **Copy trigger** copies it. A workflow with no trigger never serves.
+        In the Triggers card click **Add trigger**, then pick an existing unused trigger or **Create New Trigger** using letters, numbers and underscores. This trigger is the string your app passes to the Helium SDK. **Copy trigger** copies it. A workflow with no trigger never serves.
       </Step>
       <Step title="Check the Live badge">
         On the Paywalls page the paywall shows **Live** once it is a workflow's control paywall, is named in a "show paywall" rule, or is a variant in a running experiment. Otherwise it shows **Inactive**.
@@ -60,12 +60,12 @@ Answers use the names you see in the dashboard. For the concepts behind them, st
     2. In the Triggers card click the trigger, then **Move to Different Workflow**.
     3. Pick the destination under **Select Workflow** and click **Move Trigger**.
 
-    Your app code does not change. The trigger key stays the same and starts serving the new workflow's paywalls right away. The old workflow keeps running for any other triggers it has. With none left it shows "No triggers" and serves nothing.
+    Your app code does not change. The trigger stays the same and starts serving the new workflow's paywalls right away. The old workflow keeps running for any other triggers it has. With none left it shows "No triggers" and serves nothing.
 
     Also good to know:
 
     - A trigger cannot be on two workflows at once, and the **Add trigger** picker only lists triggers that are not in use.
-    - A trigger key cannot be renamed, only its description (**Edit**).
+    - A trigger cannot be renamed, only its description (**Edit**).
     - **Delete** is only offered for triggers under Unassigned Triggers on the Workflows page. Remove or move a trigger out of its workflow first.
   </Accordion>
 </AccordionGroup>

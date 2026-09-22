@@ -40,7 +40,6 @@
         "icon": "compass",
         "pages": [
           "guides/how-does-helium-work",
-          "guides/dashboard-faq",
           "guides/revenue-reporting",
           "guides/fallback-bundle",
           "guides/ways-to-show-paywall",
@@ -60,6 +59,14 @@
           "migrations/ios-3-to-4",
           "migrations/android-0-to-4",
           "migrations/ios-2-to-3"
+        ]
+      },
+      {
+        "group": "AGENT CONTEXT",
+        "hidden": true,
+        "searchable": true,
+        "pages": [
+          "guides/dashboard-faq"
         ]
       }
     ]

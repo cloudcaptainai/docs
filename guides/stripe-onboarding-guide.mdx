@@ -254,7 +254,7 @@ Target the App2Web paywall to that group, then run through these scenarios befor
 
 Testing sign-in, access, or RevenueCat delivery? See [How to test App2Web entitlements](/guides/app2web-faq-stripe#test-entitlements).
 
-Helium maps your `user_id` to Stripe's `customer_id`. Stripe deduplicates customers strictly by email, so two Stripe customers can't share an address. If the user isn't logged in at purchase time, we use the `helium_persistent_id` as a stand-in and reconcile once a real user ID is set.
+Helium maps your `user_id` to Stripe's `customer_id`. If the user isn't logged in at purchase time, we use the `helium_persistent_id` as a stand-in and reconcile once a real user ID is set.
 
 On successful purchase, the SDK's entitlement cache updates immediately. The Helium backend processes Stripe's webhook to update the customer mapping and forward events to your analytics/revenue pipeline. Entitlements are also checked server-side (which ultimately reflects Stripe's transaction state), so they stay consistent across devices.
 

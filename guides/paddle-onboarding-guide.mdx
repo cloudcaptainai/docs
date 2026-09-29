@@ -114,6 +114,14 @@ The hosted web paywall doesn't have to show the same products as the original â€
 
     **Handle the checkout return.** Whether checkout succeeds, is canceled, or fails, the user is deep-linked back to your app via the redirect URL. For a smoother handoff, call `Helium.shared.handleURL(url)` from your `onOpenURL` / `application(_:open:)` handler.
 
+    **Handle already-owned products.** In Helium iOS releases after 4.11.0, if a user selects a web product they already own, Helium skips checkout and shows an "Already Purchased" alert over the paywall. In debug and TestFlight builds, the alert also lists the product the user selected and the prices they own, with subscription start and end dates, to help you diagnose test accounts. After the user dismisses the alert, Helium fires `PurchaseRestoredEvent` with `restoreOrigin` set to `.duringPurchase`. If your app closes the paywall while the alert is showing, Helium doesn't fire the event.
+
+    To avoid this state, check entitlements before you show the paywall. To show your own UI instead, disable the alert and listen for `PurchaseRestoredEvent`:
+
+    ```swift
+    Helium.config.webCheckoutAlreadyPurchasedDialogConfig.disable()
+    ```
+
     **Add a "Manage Subscription" button** so users can cancel or update payment methods via Paddle's customer portal:
 
     ```swift

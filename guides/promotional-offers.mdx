@@ -8,7 +8,72 @@ title: "Promotional Offers"
 
 _This guide is focused on iOS although similar can be achieved with Android._
 
-Helium does not yet officially support promotional offers. However you can implement this by doing the following:
+## How Helium handles promotional offers on iOS
+
+A paywall can pair an App Store promotional offer with a product. Helium identifies the pairing with a product key in the form `<productId>:<offerId>`, where `offerId` is the offer identifier configured on the product in App Store Connect.
+
+For each paired offer, the iOS SDK:
+
+1. Loads the offer's localized price and checks eligibility. Following Apple's rule, a user is eligible if they hold or have ever held an auto-renewable subscription in the product's subscription group.
+2. Shows the promotional price only when the user is eligible _and_ your purchase delegate supports promotional offers. Otherwise, the paywall shows the regular price.
+3. Passes the plain App Store product ID and the offer ID to your purchase delegate when the user purchases.
+4. Reports the offer ID in the `offerIdentifier` field of purchase events. See [Helium Events](/guides/helium-events).
+
+Which purchase delegate you use determines how the offer is purchased:
+
+| Purchase delegate | Promotional offer support |
+| --- | --- |
+| `RevenueCatDelegate` | Built in. Helium signs and applies the offer through RevenueCat. |
+| `StoreKitDelegate` (default) | Not built in. The paywall shows the regular price. To apply offers, [override the purchase](#use-storekitdelegate). |
+| Custom `HeliumPaywallDelegate` | [Implement the promotional offer purchase](#use-a-custom-purchase-delegate). |
+
+## Use RevenueCatDelegate
+
+If you use `RevenueCatDelegate`, no extra code is needed. When the user purchases a product with a paired offer, `RevenueCatDelegate`:
+
+- Requests a signed promotional offer from RevenueCat and purchases the product with it.
+- Purchases the product without the offer if RevenueCat reports the user as ineligible. Apple still applies an introductory offer if the user is eligible for one.
+- Returns a failed purchase, rather than charging full price, if the offer isn't found on the product or signing fails.
+
+To change how the offer is looked up or how ineligibility is handled, subclass `RevenueCatDelegate` and override `promotionalOffer(for:product:)`. Return `nil` to purchase without the offer:
+
+```swift
+import HeliumRevenueCat
+import RevenueCat
+
+class MyRevenueCatDelegate: RevenueCatDelegate {
+    override func promotionalOffer(for promoOfferId: String, product: StoreProduct) async throws -> PromotionalOffer? {
+        // Custom lookup or eligibility logic, then fall back to Helium's default
+        return try await super.promotionalOffer(for: promoOfferId, product: product)
+    }
+}
+```
+
+## Use a custom purchase delegate
+
+If you implement your own `HeliumPaywallDelegate`, add two members to support promotional offers:
+
+- **`makePurchase(productId:promoOfferId:)`**: Purchases `productId` (the plain App Store product ID) with the promotional offer `promoOfferId` applied. By default, this calls `makePurchase(productId:)` and ignores the offer.
+- **`supportsPromotionalOffers`**: Return `true` once `makePurchase(productId:promoOfferId:)` applies the offer. Defaults to `false`, which makes Helium report paired offers as ineligible so the paywall shows the regular price.
+
+```swift
+class MyPurchaseDelegate: HeliumPaywallDelegate {
+    var supportsPromotionalOffers: Bool { true }
+
+    func makePurchase(productId: String) async -> HeliumPaywallTransactionStatus {
+        // Regular purchase
+    }
+
+    func makePurchase(productId: String, promoOfferId: String) async -> HeliumPaywallTransactionStatus {
+        // Get a signed offer (for example, a JWS from your server) and purchase
+        // productId with the promotional offer applied
+    }
+}
+```
+
+## Use StoreKitDelegate
+
+`StoreKitDelegate` doesn't apply promotional offers on its own. To apply one, subclass it and pass the offer to the StoreKit purchase:
 
 1. Check entitlements of user to determine eligibility for the promotional offer. You can use the Helium SDK to help with this.
 2. Use a paywall trait or targeting to display promotional experience in paywall.
@@ -34,3 +99,13 @@ Helium does not yet officially support promotional offers. However you can imple
    Helium.config.purchaseDelegate = MyHeliumPurchaseDelegate()
    Helium.shared.initialize()
    ```
+
+## Test promotional offer eligibility
+
+To test both the eligible and ineligible paywall states without real subscription history, stub eligibility with `Helium.testing.promoOfferEligibility`. Set it before you call `Helium.shared.initialize()`. Helium ignores it in production.
+
+```swift
+Helium.testing.promoOfferEligibility = { productId in
+    return true // Treat the user as eligible for every paired offer
+}
+```

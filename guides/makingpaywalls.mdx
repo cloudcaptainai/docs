@@ -91,7 +91,13 @@ The top bar gives you fast access to the most common actions for configuring you
    - **Dismisses** the paywall (closes it), or
    - **Cancels** at the system purchase sheet (closes it after initiating).
 
-   Use this to present a lighter variant, alternate framing, or a different offer on the second attempt. Pick the trigger(s), choose the follow-up paywall, and save.
+   On a hosted web paywall (App2Web), the second try is another web paywall, shown on the same page if the user:
+   - **Dismisses** the page (✕ or a cancel link),
+   - **Closes** the Apple Pay sheet without paying,
+   - **Declines** the California consent modal (Paddle only), or
+   - **Returns** to the page after leaving it, for example after switching apps.
+
+   Use this to present a lighter variant, alternate framing, or a different offer on the second attempt. Pick the trigger(s), choose the follow-up paywall, and save. For App2Web publishing order and limitations, see [Add a second try](/guides/build-app2web-paywall#add-a-second-try).
 4. **Save / Save as copy**
    - **Save** updates the server version and pushes the changes OTA via the SDK.
    - **Save as copy** creates a new **Variant** (ideal for experiments).

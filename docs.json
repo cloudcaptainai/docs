@@ -50,6 +50,9 @@
           "guides/storekit-testing",
           "guides/paywall-traits",
           "guides/paddle-onboarding-guide",
+          "guides/build-app2web-paywall",
+          "guides/app2web-previews",
+          "guides/app2web-go-live-checklist",
           "guides/app2web-faq",
           "guides/google-play-data-safety"
         ]

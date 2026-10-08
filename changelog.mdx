@@ -1,0 +1,24 @@
+---
+title: "Changelog"
+description: "New features and fixes across the Helium SDKs, dashboard and web paywalls."
+icon: "clock-rotate-left"
+---
+
+<Update label="October 2026" description="Second try on hosted web paywalls" tags={["Web paywalls", "Dashboard", "iOS SDK"]}>
+  {/* TODO: confirm the release date in the label, and replace X.Y.Z with the iOS SDK version that ships these changes. */}
+
+  **Web paywalls**
+
+  - A hosted web paywall can now show a [second try](/guides/build-app2web-paywall#add-a-second-try) on the checkout page itself, without a reload, when the user taps ✕ or a cancel link, closes the Apple Pay sheet, declines the California consent modal (Paddle), or comes back to the page after leaving it.
+  - The second try shows at most once per page load, and never to a user who already has an active subscription. See the [requirements and limitations](/guides/paddle-onboarding-guide#known-limitations-and-gotchas).
+
+  **Dashboard**
+
+  - A web paywall can use another web paywall on the same provider as its second try, and choose which of the moments above show it.
+  - Fixed: saving a paywall with a new second try could publish a version without it, until the next save.
+
+  **iOS SDK X.Y.Z**
+
+  - Required for the second try on hosted web paywalls. Older app builds show the hosted web paywall without it.
+  - Fixed: the events iOS logs to Helium and forwards to your analytics now carry [`isSecondTry`](/guides/helium-events#paywall-and-purchase-events). Earlier versions reported it as `false`.
+</Update>

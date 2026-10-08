@@ -67,6 +67,13 @@
         ]
       },
       {
+        "group": "CHANGELOG",
+        "icon": "clock-rotate-left",
+        "pages": [
+          "changelog"
+        ]
+      },
+      {
         "group": "AGENT CONTEXT",
         "hidden": true,
         "searchable": true,

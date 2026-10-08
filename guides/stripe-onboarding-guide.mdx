@@ -299,9 +299,9 @@ In targeting you pick from `ready`, `notReady`, and `unknown:<reason>` for the c
 - **Localizations:** hosted web paywalls currently support one language.
 - **Testing:** [App2Web previews and SDK requirements](/guides/paywall-previews#app2web-previews) cover simulated purchases and real purchases on [eligible US devices](/guides/app2web-previews#purchase-eligibility). Also test through a real trigger to verify targeting and your post-purchase handlers.
 - **Second try** on the [hosted web paywall](/guides/build-app2web-paywall#add-a-second-try):
-  - **Requirements:** the second try is another Stripe web paywall. Publish it before the hosted web paywall, and republish the hosted web paywall after you change its second try. Users need an app build with Helium iOS SDK X.Y.Z or later; older builds show the hosted web paywall without it. {/* TODO: min SDK version. Replace X.Y.Z, and add the expo-helium, React Native and Flutter minimums once they ship. */}
+  - **Requirements:** the second try is another Stripe web paywall. Publish it before the hosted web paywall, and republish the hosted web paywall every time you publish the second try; until you do, the page shows no second try. Users need the [minimum iOS SDK version](/guides/build-app2web-paywall#requirements-and-limits).
   - **When it shows:** at most once per page load, never during a purchase, and never to a user who already has an active subscription.
-  - **Apple Pay only:** Apple Pay is the only payment method. If the browser can't use Apple Pay, there's no second try.
+  - **Apple Pay:** the second try is Apple Pay only too, so if the browser can't use Apple Pay, there's no second try.
   - **Exits the page can't catch:** the browser's back button and closing the tab don't show a second try.
   - **Previews:** App2Web previews don't show it yet. Test it through a real trigger with the [go-live checklist](/guides/app2web-go-live-checklist#test-the-second-try).
 

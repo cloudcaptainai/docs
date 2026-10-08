@@ -19,7 +19,7 @@ App2Web links an in-app paywall to a browser checkout. Start with a working IAP 
 3. Optional: [add a second try](#add-a-second-try) to the hosted web paywall.
 4. Publish both paywalls. Target the **in-app** paywall to eligible users; hosted paywalls cannot be targeted or added to experiments directly.
 
-Dismissing the hosted web paywall (and its second try, if it has one) or completing a subscription returns the user to your app.
+Dismissing the hosted web paywall or completing a subscription returns the user to your app; a [second try](#add-a-second-try) can show first.
 
 <Accordion title="Design tips" id="design-tips">
   - Keep the primary CTA in the same position across screens.
@@ -33,24 +33,33 @@ A second try is a backup offer the hosted web paywall shows when the user backs 
 
 1. Build the second try as another web paywall on the same web provider as the hosted web paywall, for example by duplicating the hosted web paywall (**⋮** > **Duplicate**) and editing the copy. Publish it.
 2. In the hosted web paywall's editor, open the **⋮** menu and select **Add Second Try Flow**.
-3. Choose the second try and the moments that show it:
-   - The user taps ✕, **Back** or a cancel link on the page.
-   - The user closes the Apple Pay sheet without paying.
-   - The user declines the California consent modal (Paddle only).
-   - The user comes back to the page after leaving it, for example after switching apps.
-4. Publish the hosted web paywall after the second try. Republish it whenever you change its second try or publish a new version of the second try, so the page carries the latest one.
+3. Choose the second try paywall and the **Trigger Actions** that show it, then select **Apply**:
+   - **On ✕ / cancel link**: the user dismisses the page.
+   - **On Apple Pay sheet closed**: the user closes the Apple Pay sheet without paying.
+   - **On California consent declined**: the user declines the California consent modal (Paddle only).
+   - **On return to the page**: the user leaves the page, for example for another app, and comes back.
+4. **Save and Publish** the hosted web paywall.
 
-The second try shows at most once per page load, and never to a user who already has an active subscription. Check the [requirements and limitations](/guides/paddle-onboarding-guide#known-limitations-and-gotchas) before you rely on it. Previews don't show it yet, so test it with the [go-live checklist](/guides/app2web-go-live-checklist#test-the-second-try).
+Whenever you publish a new version of the second try, republish the hosted web paywall too. Until you do, the page shows no second try.
+
+### Requirements and limits
+
+- The second try is a published web paywall on the same web provider as the hosted web paywall.
+- Users need an app build with Helium iOS SDK X.Y.Z or later; older builds show the hosted web paywall without it. {/* TODO: min SDK version. Replace X.Y.Z, and add the expo-helium, React Native and Flutter minimums once they ship. */}
+- It shows at most once per page load, never during a purchase, and never to a user who already has an active subscription.
+- Apple Pay is the only payment method. If the browser can't use Apple Pay, there's no second try.
+- The browser's back button and closing the tab can't show a second try.
+- Paywall Previews don't show it yet. Test it through a real trigger with the [go-live checklist](/guides/app2web-go-live-checklist#test-the-second-try).
 
 ## Replace a hand-coded exit offer
 
 If your hosted web paywall already shows its own exit offer, such as a discount screen that opens when the user taps ✕, take it out when you add a second try. Otherwise users can get both offers, one after the other.
 
 1. Rebuild the offer as its own web paywall, using the same web provider, and publish it.
-2. In the hosted web paywall, remove or turn off the custom offer, so ✕, **Back** and the cancel link dismiss the page again.
-3. [Add the new paywall as the second try](#add-a-second-try). Publish the hosted web paywall once with both changes, so no user gets two offers.
+2. In the hosted web paywall, remove or turn off the custom offer, so the page's ✕ and cancel link dismiss it again.
+3. [Add the new paywall as the second try](#add-a-second-try), then **Save and Publish** the hosted web paywall once with both changes, so no user gets two offers.
 4. Run the [second try checks](/guides/app2web-go-live-checklist#test-the-second-try) and confirm each exit shows one offer, not two.
 
-Users on app builds older than the [minimum SDK version](/guides/paddle-onboarding-guide#known-limitations-and-gotchas) don't get the second try, so after the switch they see no exit offer.
+Users on app builds older than the [minimum SDK version](#requirements-and-limits) don't get the second try, so after the switch they see no exit offer.
 
 Next: [Go-live checklist](/guides/app2web-go-live-checklist) / [Evaluate your experiment](/guides/app2web-faq#experiment-results).

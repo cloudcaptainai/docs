@@ -266,31 +266,36 @@ The original in-app paywall presents your Stripe offerings. The hosted web paywa
 
 An optimization on top of the flow above. Web checkout on iOS is Apple Pay only, and a small share of users reach it from a browser that cannot complete an Apple Pay payment. Sending those users to your in-app paywall instead recovers conversion you would otherwise leave on the table.
 
-Opting in lets the SDK measure, in the browser, whether Apple Pay can actually complete a payment, and report the result as the `webApplePayReadiness` targeting variable. The SDK never changes routing on its own: targeting decides whether a user who is not ready sees web checkout or your in-app paywall.
+The SDK measures, in the browser, whether Apple Pay can actually complete a payment, and reports the result as the `webApplePayReadiness` targeting variable. The SDK never changes routing on its own: targeting decides whether a user who is not ready sees web checkout or your in-app paywall.
 
-iOS only, off by default. Requires Helium iOS 4.11.0+ or `expo-helium` 3.6.1+.
+iOS only. Starting in Helium iOS 4.13.0, measurement is on by default for every app with web checkout configured. Helium iOS 4.11.0 through 4.12.x measure only after you opt in. In Expo apps (`expo-helium` 3.6.1+), the default follows the Helium iOS version that your `expo-helium` release bundles.
+
+To turn measurement off, or to opt in on an earlier version, set the flag before you initialize Helium:
 
 <Tabs>
-  <Tab title="iOS (native, Helium 4.11.0+)">
+  <Tab title="iOS (native)">
     ```swift
-    Helium.config.enableWebApplePayReadiness = true
+    // false turns measurement off; true opts in on Helium 4.11.0–4.12.x
+    Helium.config.enableWebApplePayReadiness = false
     Helium.initialize(...)
     ```
   </Tab>
   <Tab title="Expo (expo-helium 3.6.1+)">
     ```tsx
-    setEnableWebApplePayReadiness(true);
+    setEnableWebApplePayReadiness(false);
     ```
 
     The setter is a no-op on Android.
   </Tab>
 </Tabs>
 
-Set it before you initialize Helium, otherwise the first launch is already measured. On the first launch after install, the launch request waits up to two seconds for the measurement; later launches send the stored measurement immediately and re-measure in the background, so there is no launch delay.
+On the first launch after install, the launch request waits up to two seconds for the measurement. Later launches send the stored measurement immediately and re-measure in the background, so there is no launch delay. When the app launches into the background, the SDK skips the measurement and the wait, and measures the next time the app becomes active.
 
-In targeting you pick from `ready`, `notReady`, and `unknown:<reason>` for the cases where the measurement could not answer. Excluding `notReady` is the rule you want; `unknown` users are usually still payable.
+If your app declares `WKAppBoundDomains` in its `Info.plist`, add `bundles.clickthrough.to` to the list. Otherwise the measurement fails and reports `unknown:probeFailed`.
 
-**Rolling it out:** drive the setter from your own remote flag rather than a hardcoded `true`, and turn that flag on for 100% of users. If you see any degradation you flip the flag off and remove `webApplePayReadiness` from your targeting rule, with no new build. Confirm readiness is arriving for your users before you target on it.
+In targeting you pick from `ready`, `notReady`, and `unknown:<reason>` for the cases where the measurement could not answer. Users report `unknown:notMeasured` when measurement is off or web checkout isn't configured. Excluding `notReady` is the rule you want: `unknown` users are usually still payable, so they keep seeing web checkout.
+
+Drive the flag from your own remote config rather than hardcoding it, so it works as a kill switch. If you see any degradation, turn measurement off and remove `webApplePayReadiness` from your targeting rule, with no new build. Confirm readiness is arriving for your users before you target on it.
 
 ### Known limitations and gotchas
 

@@ -44,6 +44,7 @@ Whenever you publish a new version of the second try, republish the hosted web p
 
 ### Requirements and limits
 
+- The web second try is being rolled out and is off until Helium turns it on for your app. [Contact Helium](mailto:founders@tryhelium.com) to turn it on.
 - The second try is a published web paywall on the same web provider as the hosted web paywall.
 - Users need an app build with Helium iOS SDK X.Y.Z or later; older builds show the hosted web paywall without it. {/* TODO: min SDK version. Replace X.Y.Z, and add the expo-helium, React Native and Flutter minimums once they ship. */}
 - It shows at most once per page load, never during a purchase, and never to a user who already has an active subscription.
@@ -56,9 +57,10 @@ Whenever you publish a new version of the second try, republish the hosted web p
 If your hosted web paywall already shows its own exit offer, such as a discount screen that opens when the user taps ✕, take it out when you add a second try. Otherwise users can get both offers, one after the other.
 
 1. Rebuild the offer as its own web paywall, using the same web provider, and publish it.
-2. In the hosted web paywall, remove or turn off the custom offer, so the page's ✕ and cancel link dismiss it again.
-3. [Add the new paywall as the second try](#add-a-second-try), then **Save and Publish** the hosted web paywall once with both changes, so no user gets two offers.
-4. Run the [second try checks](/guides/app2web-go-live-checklist#test-the-second-try) and confirm each exit shows one offer, not two.
+2. [Confirm with Helium](mailto:founders@tryhelium.com) that the web second try is on for your app, so users aren't left without an exit offer.
+3. In the hosted web paywall, remove or turn off the custom offer, so the page's ✕ and cancel link dismiss it again.
+4. [Add the new paywall as the second try](#add-a-second-try), then **Save and Publish** the hosted web paywall once with both changes, so no user gets two offers.
+5. Run the [second try checks](/guides/app2web-go-live-checklist#test-the-second-try) and confirm each exit shows one offer, not two.
 
 Users on app builds older than the [minimum SDK version](#requirements-and-limits) don't get the second try, so after the switch they see no exit offer.
 

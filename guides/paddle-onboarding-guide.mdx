@@ -345,9 +345,11 @@ The original in-app paywall presents your Paddle offerings. The hosted web paywa
 
 An optimization on top of the flow above. Web checkout on iOS is Apple Pay only, and a small share of users reach it from a browser that cannot complete an Apple Pay payment. Sending those users to your in-app paywall instead recovers conversion you would otherwise leave on the table.
 
-The SDK measures, in the browser, whether Apple Pay can actually complete a payment, and reports the result as the `webApplePayReadiness` targeting variable. The SDK never changes routing on its own: targeting decides whether a user who is not ready sees web checkout or your in-app paywall.
+The SDK checks whether Apple Pay has a card it can pay with on the web checkout domain. It reports the result as the `webApplePayReadiness` targeting variable. The SDK never changes routing on its own: targeting decides whether a user who is not ready sees web checkout or your in-app paywall.
 
-iOS only. Starting in Helium iOS 4.13.0, measurement is on by default for every app with web checkout configured. Helium iOS 4.11.0 through 4.12.x measure only after you opt in. In Expo apps (`expo-helium` 3.6.1+), the default follows the Helium iOS version that your `expo-helium` release bundles.
+Treat the result as an optimization signal, not a guarantee. The SDK measures in an offscreen web view inside your app, not in the browser that runs checkout. The user's Wallet can also change before they check out. Paywall presentation never waits for the measurement.
+
+iOS only. Measurement is on by default for every app with web checkout configured, starting in Helium iOS 4.13.0 and `expo-helium` 3.6.3. Helium iOS 4.11.0 through 4.12.x and `expo-helium` 3.6.1 through 3.6.2 measure only after you opt in.
 
 To turn measurement off, or to opt in on an earlier version, set the flag before you initialize Helium:
 

@@ -39,12 +39,13 @@ Previews [bypass targeting and skip paywall traits and post-purchase handlers](/
 
 ## Test the second try
 
-If the hosted web paywall has a [second try](/guides/build-app2web-paywall#add-a-second-try), test it through a real trigger: previews don't show it yet. It shows once per page load, so reopen the flow from the app before each check.
+If the hosted web paywall has a [second try](/guides/build-app2web-paywall#add-a-second-try), test it through a real trigger: previews don't show it yet. ✕ and returning to the page show it once per page load, so reopen the flow from the app before checking each of those.
 
 - [ ] Each trigger action you picked shows the second try instead of returning to the app: tapping ✕ or the cancel link, closing the Apple Pay sheet without paying, or coming back to the page.
 - [ ] The second try shows the right products, prices and trial, on the page and in the Apple Pay sheet.
 - [ ] Buying from the second try completes, and the app reopens with an active entitlement.
-- [ ] Dismissing the second try returns the user to the app, and it doesn't appear again on that page.
+- [ ] Closing the second try goes back to the hosted web paywall. ✕ there returns the user to the app, without showing the second try again.
+- [ ] If you picked **On Apple Pay sheet closed**: closing the sheet again on the hosted web paywall shows the second try again.
 - [ ] After a completed purchase, the second try never appears, even if you switch back to the browser tab.
 
 If it doesn't appear, check the [requirements](/guides/build-app2web-paywall#requirements-and-limits), and republish the hosted web paywall if you published the second try after it.

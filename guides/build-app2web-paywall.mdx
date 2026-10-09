@@ -39,6 +39,8 @@ A second try is a backup offer the hosted web paywall shows when the user backs 
    - **On return to the page**: the user leaves the page, for example for another app, and comes back.
 4. **Save and Publish** the hosted web paywall.
 
+Closing the second try (its ✕ or cancel link) goes back to the hosted web paywall on the same page, as closing an in-app second try does. From there, ✕ returns the user to your app.
+
 Whenever you publish a new version of the second try, republish the hosted web paywall too. Until you do, the page shows no second try.
 
 ### Requirements and limits
@@ -47,7 +49,8 @@ Whenever you publish a new version of the second try, republish the hosted web p
 - The second try is a published web paywall on the same web provider as the hosted web paywall.
 - On Paddle, give the second try's discounted offer its own Paddle price. Don't apply the discount to a price the hosted web paywall already uses, or it won't take effect.
 - Users need an app build with Helium iOS SDK X.Y.Z or later; older builds show the hosted web paywall without it. {/* TODO: min SDK version. Replace X.Y.Z, and add the expo-helium, React Native and Flutter minimums once they ship. */}
-- It shows at most once per page load, never during a purchase, and never to a user who already has an active subscription.
+- **On Apple Pay sheet closed** shows it every time the user closes the sheet without paying, like a cancelled in-app purchase. **On ✕ / cancel link** and **On return to the page** show it once per page load: after the second try has shown, ✕ returns the user to your app.
+- It never shows during a purchase, after one completes, or to a user who already has an active subscription.
 - Apple Pay is the only payment method. If the browser can't use Apple Pay, there's no second try.
 - The browser's back button and closing the tab can't show a second try.
 - Paywall Previews don't show it yet. Test it through a real trigger with the [go-live checklist](/guides/app2web-go-live-checklist#test-the-second-try).

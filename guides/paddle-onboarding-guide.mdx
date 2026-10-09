@@ -381,7 +381,7 @@ In targeting you pick from `ready`, `notReady`, and `unknown:<reason>` for the c
 - **Second try** on the [hosted web paywall](/guides/build-app2web-paywall#add-a-second-try):
   - **Requirements:** the second try is another Paddle web paywall. Publish it before the hosted web paywall, and republish the hosted web paywall every time you publish the second try; until you do, the page shows no second try. Users need the [minimum iOS SDK version](/guides/build-app2web-paywall#requirements-and-limits).
   - **Discounts:** give the second try's discounted offer its own Paddle price. Don't apply the discount to a price the hosted web paywall already uses, or it won't take effect.
-  - **When it shows:** at most once per page load, never during a purchase, and never to a user who already has an active subscription.
+  - **When it shows:** every time the user closes the Apple Pay sheet without paying, and once per page load when they tap ✕ or come back to the page. Closing the second try goes back to the hosted web paywall. It never shows during a purchase, or to a user who already has an active subscription.
   - **Apple Pay:** the second try is Apple Pay only too, so if the browser can't use Apple Pay, there's no second try.
   - **Exits the page can't catch:** the browser's back button and closing the tab don't show a second try.
   - **Previews:** Paywall Previews don't show it yet. Test it through a real trigger with the [go-live checklist](/guides/app2web-go-live-checklist#test-the-second-try).

@@ -300,7 +300,7 @@ In targeting you pick from `ready`, `notReady`, and `unknown:<reason>` for the c
 - **Testing:** [App2Web previews and SDK requirements](/guides/paywall-previews#app2web-previews) cover simulated purchases and real purchases on [eligible US devices](/guides/app2web-previews#purchase-eligibility). Also test through a real trigger to verify targeting and your post-purchase handlers.
 - **Second try** on the [hosted web paywall](/guides/build-app2web-paywall#add-a-second-try):
   - **Requirements:** the second try is another Stripe web paywall. Publish it before the hosted web paywall, and republish the hosted web paywall every time you publish the second try; until you do, the page shows no second try. Users need the [minimum iOS SDK version](/guides/build-app2web-paywall#requirements-and-limits).
-  - **When it shows:** at most once per page load, never during a purchase, and never to a user who already has an active subscription.
+  - **When it shows:** every time the user closes the Apple Pay sheet without paying, and once per page load when they tap ✕ or come back to the page. Closing the second try goes back to the hosted web paywall. It never shows during a purchase, or to a user who already has an active subscription.
   - **Apple Pay:** the second try is Apple Pay only too, so if the browser can't use Apple Pay, there's no second try.
   - **Exits the page can't catch:** the browser's back button and closing the tab don't show a second try.
   - **Previews:** App2Web previews don't show it yet. Test it through a real trigger with the [go-live checklist](/guides/app2web-go-live-checklist#test-the-second-try).

@@ -1,4 +1,4 @@
-Web checkout on iOS pays with Apple Pay. A small share of users open it from a browser that cannot complete an Apple Pay payment, and they come back to the app without buying. Apple Pay readiness keeps those users out of web checkout so they can still purchase in-app.
+Web checkout on iOS pays with Apple Pay. A small share of users open it from a browser that cannot complete an Apple Pay payment, and they come back to the app without buying. Apple Pay readiness keeps those users out of web checkout so you can route them to an in-app purchase paywall instead.
 
 **How it works.** On launch, the SDK checks whether Apple Pay can pay on the checkout domain and reports the result to Helium as the `webApplePayReadiness` targeting variable. The **{preset}** targeting preset excludes users whose result is `notReady`. Those users no longer match your App2Web audience, so give them an IAP-only rule later in the same workflow, or they get no paywall. Everyone else keeps seeing web checkout, including users on older SDKs and users whose result is `unknown`.
 

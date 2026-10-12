@@ -1,0 +1,49 @@
+Web checkout on iOS pays with Apple Pay. A small share of users open it from a browser that cannot complete an Apple Pay payment, and they come back to the app without buying. Apple Pay readiness keeps those users out of web checkout so you can route them to an in-app purchase paywall instead.
+
+**How it works.** On launch, the SDK checks whether Apple Pay can pay on the checkout domain and reports the result to Helium as the `webApplePayReadiness` targeting variable. The **{preset}** targeting preset excludes users whose result is `notReady`. Those users no longer match your App2Web audience, so give them an IAP-only rule later in the same workflow, or they get no paywall. Everyone else keeps seeing web checkout, including users on older SDKs and users whose result is `unknown`.
+
+The result is an optimization signal, not a guarantee, since the user's Wallet can change between the check and checkout. Presenting a paywall does not wait for it, apart from the first-launch wait described under Launch timing.
+
+**Versions.** iOS only. Measurement is on by default from Helium iOS 4.13.0, `expo-helium` 3.6.3, `@tryheliumai/paywall-sdk-react-native` 3.1.13, and `helium_flutter` 3.3.14. Earlier versions report `ready` without measuring, unless you opted in during the beta.
+
+Measurement runs only when external web checkout is already configured when the launch request is sent. Call `enableExternalWebCheckout` before you initialize Helium, as shown above. If you configure it later, users report `unknown:notMeasured` and the readiness rule excludes no one.
+
+**Turning it off.** Set the flag before you initialize Helium. Users then report `unknown:notMeasured` and keep seeing web checkout.
+
+<Tabs>
+  <Tab title="iOS (native)">
+    ```swift
+    Helium.config.enableWebApplePayReadiness = false
+    Helium.initialize(...)
+    ```
+  </Tab>
+  <Tab title="Expo">
+    ```tsx
+    setEnableWebApplePayReadiness(false);
+    ```
+
+    The setter is a no-op on Android.
+  </Tab>
+  <Tab title="React Native">
+    ```tsx
+    setEnableWebApplePayReadiness(false);
+    ```
+
+    Available from `@tryheliumai/paywall-sdk-react-native` 3.1.14. The setter is a no-op on Android. On 3.1.13, set `Helium.config.enableWebApplePayReadiness = false` in your iOS `AppDelegate` before your JavaScript code initializes Helium.
+  </Tab>
+  <Tab title="Flutter">
+    ```dart
+    await HeliumFlutter().setEnableWebApplePayReadiness(false);
+    ```
+
+    Available from `helium_flutter` 3.3.15. The setter is a no-op on Android. On 3.3.14, set `Helium.config.enableWebApplePayReadiness = false` in your iOS `AppDelegate` before your Dart code initializes Helium.
+  </Tab>
+</Tabs>
+
+If you drive the flag from remote config, read the value cached from the previous session and default to `true`. A value fetched after initialization only takes effect on the next launch.
+
+**Launch timing.** On the first launch with measurement on, after install or after updating to a version that measures by default, the SDK waits up to two seconds for the measurement before it requests your paywall configuration. Later launches send the stored result immediately and re-measure in the background. A launch into the background skips the measurement and the wait, and the SDK measures once the app becomes active.
+
+**Apps that declare `WKAppBoundDomains`.** Add `bundles.clickthrough.to` to that list in your `Info.plist`. Without it, iOS blocks the check: users report `unknown:probeFailed` on that first launch and `unknown:notMeasured` afterwards. Checkout still works and users still see web checkout, but users who are not ready are no longer excluded. Apps that don't declare `WKAppBoundDomains` need no change.
+
+**Targeting.** `webApplePayReadiness` is `ready`, `notReady`, or `unknown:<reason>` when the measurement could not answer. The {preset} preset already handles it. If you built a {processor} audience without the preset, add a rule that `webApplePayReadiness` is not `notReady`. If an audience uses the standalone **Browser Apple Pay ready** preset from the beta, keep it unless you also add the {preset} preset to that audience, since it may be the only readiness rule there.

@@ -24,14 +24,19 @@ Measurement runs only when external web checkout is already configured when the 
 
     The setter is a no-op on Android.
   </Tab>
-  <Tab title="React Native / Flutter">
-    A `setEnableWebApplePayReadiness` setter is coming to both SDKs. Until then, set the native flag in your iOS `AppDelegate` before your JavaScript or Dart code initializes Helium:
-
-    ```swift
-    import Helium
-
-    Helium.config.enableWebApplePayReadiness = false
+  <Tab title="React Native">
+    ```tsx
+    setEnableWebApplePayReadiness(false);
     ```
+
+    Available from `@tryheliumai/paywall-sdk-react-native` 3.1.14. The setter is a no-op on Android. On 3.1.13, set `Helium.config.enableWebApplePayReadiness = false` in your iOS `AppDelegate` before your JavaScript code initializes Helium.
+  </Tab>
+  <Tab title="Flutter">
+    ```dart
+    await HeliumFlutter().setEnableWebApplePayReadiness(false);
+    ```
+
+    Available from `helium_flutter` 3.3.15. The setter is a no-op on Android. On 3.3.14, set `Helium.config.enableWebApplePayReadiness = false` in your iOS `AppDelegate` before your Dart code initializes Helium.
   </Tab>
 </Tabs>
 

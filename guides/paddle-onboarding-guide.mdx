@@ -349,7 +349,7 @@ The SDK checks whether Apple Pay has a card it can pay with on the web checkout 
 
 Treat the result as an optimization signal, not a guarantee. The SDK measures in an offscreen web view inside your app, not in the browser that runs checkout. The user's Wallet can also change before they check out. Paywall presentation never waits for the measurement.
 
-iOS only. Measurement is on by default for every app with web checkout configured, starting in Helium iOS 4.13.0 and `expo-helium` 3.6.3. Helium iOS 4.11.0 through 4.12.x and `expo-helium` 3.6.1 through 3.6.2 measure only after you opt in.
+iOS only. Measurement is on by default for every app with web checkout configured. This default starts with Helium iOS 4.13.0, `expo-helium` 3.6.3, and `helium_flutter` 3.3.14. Helium iOS 4.11.0 through 4.12.x and `expo-helium` 3.6.1 through 3.6.2 measure only after you opt in.
 
 To turn measurement off, or to opt in on an earlier version, set the flag before you initialize Helium:
 
@@ -367,6 +367,14 @@ To turn measurement off, or to opt in on an earlier version, set the flag before
     ```
 
     The setter is a no-op on Android.
+  </Tab>
+  <Tab title="Flutter (helium_flutter 3.3.15+)">
+    ```dart
+    await HeliumFlutter().setEnableWebApplePayReadiness(false);
+    await HeliumFlutter().initialize(...);
+    ```
+
+    The setter is a no-op on Android. `helium_flutter` 3.3.14 measures by default but has no setter, so upgrade to 3.3.15 to turn measurement off.
   </Tab>
 </Tabs>
 

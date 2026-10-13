@@ -8,6 +8,7 @@ A checklist for testing your App2Web flow before sending traffic to it. The test
 ## Check the setup
 
 - [ ] The in-app App2Web paywall and hosted web paywall are linked and published.
+- [ ] If you use a [second try](/guides/build-app2web-paywall#add-a-second-try), it's a web paywall on the same provider, and the hosted web paywall was republished after the second try's latest publish.
 - [ ] The hosted web paywall is reached only through the in-app App2Web flow, not directly from a workflow.
 - [ ] Web products are attached correctly, and the normal IAP path remains available through `continue in-app`.
 - [ ] Targeting includes only eligible users and has been tested with an internal audience.
@@ -35,6 +36,19 @@ Previews [bypass targeting and skip paywall traits and post-purchase handlers](/
 - [ ] Dismissing or abandoning web checkout returns the user to the expected place without granting access.
 - [ ] Complete a web purchase and confirm the app reopens with an active entitlement.
 - [ ] Confirm the purchase appears in Helium and your connected revenue or entitlement system.
+
+## Test the second try
+
+If the hosted web paywall has a [second try](/guides/build-app2web-paywall#add-a-second-try), test it through a real trigger: previews don't show it yet. ✕ and returning to the page show it once per page load, so reopen the flow from the app before checking each of those.
+
+- [ ] Each trigger action you picked shows the second try instead of returning to the app: tapping ✕ or the cancel link, closing the Apple Pay sheet without paying, or coming back to the page.
+- [ ] The second try shows the right products, prices and trial, on the page and in the Apple Pay sheet.
+- [ ] Buying from the second try completes, and the app reopens with an active entitlement.
+- [ ] Closing the second try goes back to the hosted web paywall. ✕ there returns the user to the app, without showing the second try again.
+- [ ] If you picked **On Apple Pay sheet closed**: closing the sheet again on the hosted web paywall shows the second try again.
+- [ ] After a completed purchase, the second try never appears, even if you switch back to the browser tab.
+
+If it doesn't appear, check the [requirements](/guides/build-app2web-paywall#requirements-and-limits), and republish the hosted web paywall if you published the second try after it.
 
 ## Launch
 

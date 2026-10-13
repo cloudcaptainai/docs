@@ -16,14 +16,55 @@ App2Web links an in-app paywall to a browser checkout. Start with a working IAP 
 
 1. Create and link the hosted paywall. Use your web provider's products, with matching initial selections on both screens.
 2. Match your IAP layout, leaving space for browser controls and disclosures. Use **Back** to dismiss; keep restore actions in-app.
-3. Publish both paywalls. Target the **in-app** paywall to eligible users; hosted paywalls cannot be targeted or added to experiments directly.
+3. Optional: [add a second try](#add-a-second-try) to the hosted web paywall.
+4. Publish both paywalls. Target the **in-app** paywall to eligible users; hosted paywalls cannot be targeted or added to experiments directly.
 
-Dismissing the hosted web paywall or completing a subscription returns the user to your app.
+Dismissing the hosted web paywall or completing a subscription returns the user to your app; a [second try](#add-a-second-try) can show first.
 
 <Accordion title="Design tips" id="design-tips">
   - Keep the primary CTA in the same position across screens.
   - Keep custom logic in-app; hosted paywalls have limited variable, payload, and localization support.
   - Check [names and pricing](/guides/app2web-faq#checkout-appearance) in the payment sheet.
 </Accordion>
+
+## Add a second try
+
+A second try is a backup offer the hosted web paywall shows when the user backs out of checkout. It replaces the hosted web paywall on the same page, without a reload. Set it on the hosted web paywall itself: the in-app paywall's second try doesn't carry over to the web.
+
+1. Build the second try as another web paywall on the same web provider as the hosted web paywall, for example by duplicating the hosted web paywall (**⋮** > **Duplicate**) and editing the copy. Publish it.
+2. In the hosted web paywall's editor, open the **⋮** menu and select **Add Second Try Flow**.
+3. Choose the second try paywall and the **Trigger Actions** that show it, then select **Apply**:
+   - **On ✕ / cancel link**: the user dismisses the page.
+   - **On Apple Pay sheet closed**: the user closes the Apple Pay sheet without paying.
+   - **On return to the page**: the user leaves the page, for example for another app, and comes back.
+4. **Save and Publish** the hosted web paywall.
+
+Closing the second try (its ✕ or cancel link) goes back to the hosted web paywall on the same page, as closing an in-app second try does. From there, ✕ returns the user to your app.
+
+Whenever you publish a new version of the second try, republish the hosted web paywall too. Until you do, the page shows no second try.
+
+### Requirements and limits
+
+- The web second try is being rolled out and is off until Helium turns it on for your app. [Contact Helium](mailto:founders@tryhelium.com) to turn it on.
+- The second try is a published web paywall on the same web provider as the hosted web paywall.
+- On Paddle, give the second try's discounted offer its own Paddle price. Don't apply the discount to a price the hosted web paywall already uses, or it won't take effect.
+- Users need an app build with Helium iOS SDK X.Y.Z or later; older builds show the hosted web paywall without it. {/* TODO: min SDK version. Replace X.Y.Z, and add the expo-helium, React Native and Flutter minimums once they ship. */}
+- **On Apple Pay sheet closed** shows it every time the user closes the sheet without paying, like a cancelled in-app purchase. **On ✕ / cancel link** and **On return to the page** show it once per page load: after the second try has shown, ✕ returns the user to your app.
+- It never shows during a purchase, after one completes, or to a user who already has an active subscription.
+- Apple Pay is the only payment method. If the browser can't use Apple Pay, there's no second try.
+- The browser's back button and closing the tab can't show a second try.
+- Paywall Previews don't show it yet. Test it through a real trigger with the [go-live checklist](/guides/app2web-go-live-checklist#test-the-second-try).
+
+## Replace a hand-coded exit offer
+
+If your hosted web paywall already shows its own exit offer, such as a discount screen that opens when the user taps ✕, take it out when you add a second try. Otherwise users can get both offers, one after the other.
+
+1. Rebuild the offer as its own web paywall, using the same web provider, and publish it.
+2. [Confirm with Helium](mailto:founders@tryhelium.com) that the web second try is on for your app, so users aren't left without an exit offer.
+3. In the hosted web paywall, remove or turn off the custom offer, so the page's ✕ and cancel link dismiss it again.
+4. [Add the new paywall as the second try](#add-a-second-try), then **Save and Publish** the hosted web paywall once with both changes, so no user gets two offers.
+5. Run the [second try checks](/guides/app2web-go-live-checklist#test-the-second-try) and confirm each exit shows one offer, not two.
+
+Users on app builds older than the [minimum SDK version](#requirements-and-limits) don't get the second try, so after the switch they see no exit offer.
 
 Next: [Go-live checklist](/guides/app2web-go-live-checklist) / [Evaluate your experiment](/guides/app2web-faq#experiment-results).

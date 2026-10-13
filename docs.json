@@ -50,6 +50,9 @@
           "guides/storekit-testing",
           "guides/paywall-traits",
           "guides/paddle-onboarding-guide",
+          "guides/build-app2web-paywall",
+          "guides/app2web-previews",
+          "guides/app2web-go-live-checklist",
           "guides/app2web-faq",
           "guides/google-play-data-safety"
         ]
@@ -61,6 +64,13 @@
           "migrations/ios-3-to-4",
           "migrations/android-0-to-4",
           "migrations/ios-2-to-3"
+        ]
+      },
+      {
+        "group": "CHANGELOG",
+        "icon": "clock-rotate-left",
+        "pages": [
+          "changelog"
         ]
       },
       {

@@ -259,9 +259,16 @@ See [Build an App2Web paywall](/guides/build-app2web-paywall) for the walkthroug
   </Tab>
 </Tabs>
 
-## Optional setup
+## 7. Configure your entitlements
 
-<Accordion title="Connect RevenueCat">
+Choose how your app checks whether a user has paid access.
+
+<AccordionGroup>
+<Accordion title="Use Helium for entitlements">
+  Use Helium’s SDK entitlement checks to unlock access after a web purchase. For details on user identity, purchase access, and entitlement updates, see [Paddle App2Web entitlements](/guides/paddle-entitlements).
+</Accordion>
+
+<Accordion title="Use RevenueCat for entitlements">
 If you use RevenueCat for entitlement management:
 
 1. Create a Paddle web configuration in the [RevenueCat dashboard](https://app.revenuecat.com).
@@ -300,7 +307,14 @@ RevenueCat entitlements take a couple seconds to reflect Paddle purchases. For i
 
 </Accordion>
 
-## Testing
+<Accordion title="Use your own entitlement system">
+  Keep your backend as the source of truth. Connect Paddle webhooks to your system, link the Paddle customer and subscription to your app user, and update access when the subscription changes.
+
+  Follow [Paddle’s guide to provisioning access](https://developer.paddle.com/build/subscriptions/provision-access-webhooks/). Keep the Helium webhook configured in step 2 as well.
+</Accordion>
+</AccordionGroup>
+
+## 8. Test everything
 
 Create a test audience with **Paddle eligible users** and the **`sandbox` or `debug` app environment**. Target your in-app App2Web paywall to it.
 
@@ -320,16 +334,12 @@ Use Paddle's sandbox before going live.
   The device locale country, App Store storefront, and IP location must all be US. From the US, disable VPNs. From outside the US, use a US device region, a US sandbox Apple storefront, and a US VPN.
 </Accordion>
 
-## How entitlements work
-
-For details on entitlements, user identity, and purchase access, see [Paddle App2Web entitlements](/guides/paddle-entitlements).
-
-<ApplePayReadiness />
-
-## Before you go live
+### Before you go live
 
 App2Web is iOS-only and limited to US storefronts. On Android, the React Native and Flutter web-checkout APIs are safe no-ops; keep your regular IAP flow.
 
 Run the [App2Web go-live checklist](/guides/app2web-go-live-checklist), including a real-trigger test: previews bypass targeting, paywall traits, and post-purchase handlers.
 
 See the [App2Web FAQ](/guides/app2web-faq) for attribution, checkout behavior, and experiment results.
+
+<ApplePayReadiness />

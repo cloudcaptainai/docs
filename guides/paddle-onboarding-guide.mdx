@@ -111,10 +111,10 @@ Choose your SDK, then enable checkout, identify your user, handle the return lin
     }
     ```
 
-    The portal opens `paddle.net`; users verify with their [checkout billing email](/guides/app2web-faq#billing-email).
+    The portal opens `paddle.net` for subscription management. Cancellation emails use the [checkout billing email](/guides/app2web-faq#billing-email).
 
     <Accordion title="Optional: pre-authenticated portal links">
-    If you'd rather skip the paddle.net email verification step and drop users straight into the customer portal, generate the link from your backend instead. Look up the user's Paddle customer ID with Helium:
+    To open a pre-authenticated customer portal session, generate the link from your backend instead. Look up the user's Paddle customer ID with Helium:
 
     ```swift
     let paddleCustomerId = await Helium.shared.getPaddleCustomerId()
@@ -175,10 +175,10 @@ Choose your SDK, then enable checkout, identify your user, handle the return lin
     }
     ```
 
-    The portal opens `paddle.net`; users verify with their [checkout billing email](/guides/app2web-faq#billing-email).
+    The portal opens `paddle.net` for subscription management. Cancellation emails use the [checkout billing email](/guides/app2web-faq#billing-email).
 
     <Accordion title="Optional: pre-authenticated portal links">
-    If you'd rather skip the paddle.net email verification step and drop users straight into the customer portal, generate the link from your backend instead. Look up the user's Paddle customer ID with Helium:
+    To open a pre-authenticated customer portal session, generate the link from your backend instead. Look up the user's Paddle customer ID with Helium:
 
     ```tsx
     const paddleCustomerId = await getPaddleCustomerId();
@@ -258,10 +258,10 @@ Choose your SDK, then enable checkout, identify your user, handle the return lin
     }
     ```
 
-    The portal opens `paddle.net`; users verify with their [checkout billing email](/guides/app2web-faq#billing-email).
+    The portal opens `paddle.net` for subscription management. Cancellation emails use the [checkout billing email](/guides/app2web-faq#billing-email).
 
     <Accordion title="Optional: pre-authenticated portal links">
-    If you'd rather skip the paddle.net email verification step and drop users straight into the customer portal, generate the link from your backend instead. Look up the user's Paddle customer ID with Helium's `getPaddleCustomerId()`, send it to your server, and follow [Paddle's guide for generating pre-authenticated customer portal links](https://developer.paddle.com/build/customers/integrate-customer-portal/).
+    To open a pre-authenticated customer portal session, generate the link from your backend instead. Look up the user's Paddle customer ID with Helium's `getPaddleCustomerId()`, send it to your server, and follow [Paddle's guide for generating pre-authenticated customer portal links](https://developer.paddle.com/build/customers/integrate-customer-portal/).
     </Accordion>
   </Tab>
 </Tabs>

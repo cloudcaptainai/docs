@@ -56,12 +56,18 @@ description: "Paywalls, attribution, experiments, and entitlements with Paddle."
     - **Names:** make both product and price names customer-facing. We recommend leaving dollar amounts out; checkout already shows the price. Paddle's Apple Pay title uses the product name.
   </Accordion>
 
+  <Accordion title="What should my sales tax settings be?" id="sales-tax">
+    We recommend Paddle’s [automatic regional tax pricing](https://developer.paddle.com/changelog/2025/default-automatic-tax-setting/), which adds sales tax to US purchases where applicable.
+
+    If you don’t offer trials, consider **Include tax** so the payment sheet’s main total matches the price users saw on your paywall. Tax comes out of that price instead of being added on top.
+  </Accordion>
+
   <Accordion title="What will users see when they cancel their subscription?" id="cancellation">
     Your **Manage Subscription** button takes users to the [Paddle customer portal](https://developer.paddle.com/build/customers/integrate-customer-portal/). If they [cancel at the end of the billing period](https://developer.paddle.com/build/subscriptions/cancel-subscriptions/), they keep access until then.
   </Accordion>
 
-  <Accordion title="Which email is used for cancellation and email verification?" id="billing-email">
-    Paddle uses the **billing email captured at checkout** for customer-portal verification and subscription management. With Apple Pay, this comes from the user’s Apple Pay billing information, so **you don’t need to collect an email in your app**. Users should check that address for verification emails; it may differ from their app login email.
+  <Accordion title="Which email is used for cancellation, retention, and win-back emails?" id="billing-email">
+    Use the **billing email captured by Paddle at checkout** for cancellation, retention, and win-back emails. With Apple Pay, this comes from the user’s Apple Pay billing information, so **you don’t need to collect an email in your app**. It may differ from their app login email.
   </Accordion>
 
   <Accordion title="How do I roll out App2Web?" id="rollout">

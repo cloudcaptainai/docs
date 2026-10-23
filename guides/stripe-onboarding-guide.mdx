@@ -7,28 +7,11 @@ icon: "s"
 
 import ApplePayReadiness from "/snippets/apple-pay-readiness.mdx";
 
-This guide walks you through integrating a Stripe "app2web" flow with Helium.
+Connect Stripe, build your checkout, and add the SDK calls below.
 
-## What You'll Accomplish
+**Before you start:** have the Helium SDK integrated, admin access to Helium, and a registered deep link or universal link to return users to your app.
 
-By the end of this guide, you'll have:
-
-- A Stripe account connected to Helium, with products synced and ready to add to paywalls.
-- Paywalls that offer Stripe products.
-- A hosted web checkout flow that lets users purchase in their browser and deep-links them back into your app.
-- Entitlement tracking across Stripe, the Helium SDK, and (optionally) RevenueCat.
-
-## Prerequisites
-
-Before you start, make sure you have:
-
-- The Helium SDK already integrated in your app.
-- A deep link scheme or universal link configured in your app â€” users need a way back into your app after purchase.
-- Admin access to your Helium dashboard.
-
-## Implementation Steps
-
-### 1. Connect Stripe to Helium
+## 1. Connect Stripe to Helium
 
 Go to the Helium [Integrations](https://app.tryhelium.com/integrations/products) page, click the Stripe tab, and **Connect Stripe**.
 
@@ -40,30 +23,19 @@ Sync your products and ensure the APPLE PAY DOMAIN status is Verified.
   Helium does not yet support Stripe sandbox.
 </Info>
 
-### 2. Adjust Stripe Products
+## 2. Adjust Stripe Products
 
 Assign Stripe products to appropriate buckets. Add free/paid trials as needed.
 
-### 3. Build your paywalls
+## 3. Build your paywalls
 
-For a short walkthrough, see [Build an App2Web paywall](/guides/build-app2web-paywall).
+1. Add Stripe products to your in-app paywall. Include iOS products for the in-app purchase option.
+2. Create and link a hosted web paywall for browser checkout on `clickthrough.to`.
+3. Publish both paywalls. Target the **in-app paywall** to eligible users; the hosted paywall cannot be added directly to workflows or experiments.
 
-Stripe checkout requires **two paywalls**:
+See [Build an App2Web paywall](/guides/build-app2web-paywall) for the walkthrough. Hosted paywalls currently support one language.
 
-1. **The original paywall**, shown in-app, containing your Stripe products (we recommend adding iOS products too as a backup if user decides to not use Stripe).
-2. **A hosted web paywall**, which runs the actual Stripe checkout in the user's browser on `clickthrough.to`.
-
-When the user taps a CTA on the original paywall, they're kicked out to the hosted web paywall, where they complete the purchase.
-
-To set this up:
-
-1. Create the original paywall and add Stripe products to it.
-2. Create a hosted web paywall (the editor will prompt you).
-3. Link the two. The original paywall can't be published without a linked hosted web paywall.
-
-The hosted web paywall doesn't have to show the same products as the original â€” you can use it to customize the checkout experience (e.g., upsell a different plan at purchase time). Hosted web paywalls can't be added to workflows, experiments, or targeting rules; they exist only to back a Stripe paywall.
-
-### 4. SDK integration
+## 4. Add web checkout to your app
 
 <Tabs>
   <Tab title="iOS (native, Helium 4.6.0+)">
@@ -76,13 +48,17 @@ The hosted web paywall doesn't have to show the same products as the original â€
     )
     ```
 
-    The `redirectURL` is set once, globally. Checkout redirects back to it whether the purchase succeeds, is canceled, or fails. Make sure it's registered as a deep link in your app (via scheme or universal link).
+    Use your registered deep link as `redirectURL`. Checkout returns here after success, cancellation, or failure.
 
-    <Note>
+    <Accordion title="Using an older SDK?">
       On older SDK versions that don't have `redirectURL`, use the equivalent two-URL form with the same URL for both: `enableExternalWebCheckout(successURL:cancelURL:paymentProcessors:)`. That form still works, but is deprecated.
-    </Note>
+    </Accordion>
 
-    **Set your user ID on Helium** before the user reaches a paywall. If you must set user ID after showing a paywall, set the `allowWebCheckoutWithoutUserId` option to true.
+    **Set your user ID on Helium** before showing a paywall.
+
+    <Accordion title="Purchases before sign-in">
+      If you must set the user ID after showing a paywall, set `allowWebCheckoutWithoutUserId` to `true`.
+    </Accordion>
 
     **Handle the checkout return.** Whether checkout succeeds, is canceled, or fails, the user is deep-linked back to your app via the redirect URL. For a smoother handoff, call `Helium.shared.handleURL(url)` from your `onOpenURL` / `application(_:open:)` handler.
 
@@ -112,13 +88,17 @@ The hosted web paywall doesn't have to show the same products as the original â€
     });
     ```
 
-    The `redirectURL` is set once, globally. Checkout redirects back to it whether the purchase succeeds, is canceled, or fails. Make sure it's registered as a deep link in your app (via scheme or universal link).
+    Use your registered deep link as `redirectURL`. Checkout returns here after success, cancellation, or failure.
 
-    <Note>
+    <Accordion title="Using an older SDK?">
       On older SDK versions that don't have `redirectURL`, pass the equivalent `successURL` and `cancelURL` parameters with the same URL for both. That form still works, but is deprecated.
-    </Note>
+    </Accordion>
 
-    **Set your user ID on Helium** before the user reaches a paywall. If you must set user ID after showing a paywall, make sure to call `setAllowWebCheckoutWithoutUserId(true)`.
+    **Set your user ID on Helium** before showing a paywall.
+
+    <Accordion title="Purchases before sign-in">
+      If you must set the user ID after showing a paywall, call `setAllowWebCheckoutWithoutUserId(true)`.
+    </Accordion>
 
     **Handle the checkout return.** Whether checkout succeeds, is canceled, or fails, the user is deep-linked back to your app via the redirect URL. For a smoother handoff, call `heliumHandleURL(url)` from your deep link handling:
 
@@ -158,13 +138,17 @@ The hosted web paywall doesn't have to show the same products as the original â€
     );
     ```
 
-    The `redirectURL` is set once, globally. Checkout redirects back to it whether the purchase succeeds, is canceled, or fails. Make sure it's registered as a deep link in your app (via scheme or universal link).
+    Use your registered deep link as `redirectURL`. Checkout returns here after success, cancellation, or failure.
 
-    <Note>
+    <Accordion title="Using an older SDK?">
       On older SDK versions that don't have `redirectURL`, pass the equivalent `successURL` and `cancelURL` parameters with the same URL for both. That form still works, but is deprecated.
-    </Note>
+    </Accordion>
 
-    **Set your user ID on Helium** before the user reaches a paywall. If you must set user ID after showing a paywall, make sure to call `setAllowWebCheckoutWithoutUserId(true)`.
+    **Set your user ID on Helium** before showing a paywall.
+
+    <Accordion title="Purchases before sign-in">
+      If you must set the user ID after showing a paywall, call `setAllowWebCheckoutWithoutUserId(true)`.
+    </Accordion>
 
     **Handle the checkout return.** Whether checkout succeeds, is canceled, or fails, the user is deep-linked back to your app via the redirect URL. For a smoother handoff, call `handleURL(url)` from your deep link handling:
 
@@ -194,10 +178,15 @@ The hosted web paywall doesn't have to show the same products as the original â€
   </Tab>
 </Tabs>
 
-\*\*The Helium SDK will return an unauthenticated link as Stripe customer portal, so your users will have to provide email and log in. For a smoother experience, we recommend creating a [pre-authenticated link](https://docs.stripe.com/customer-management/integrate-customer-portal).
+The customer portal requires email sign-in.
 
-### 5. (Optional) Connect RevenueCat
+<Accordion title="Optional: pre-authenticated portal links">
+  To skip email sign-in, create a [pre-authenticated link](https://docs.stripe.com/customer-management/integrate-customer-portal) from your backend.
+</Accordion>
 
+## Optional setup
+
+<Accordion title="Connect RevenueCat">
 If you use [RevenueCat alongside Stripe](https://www.revenuecat.com/docs/web/integrations/stripe), follow these additional steps so that RevenueCat will be able to track entitlements for Stripe purchases:
 
 <Steps>
@@ -235,48 +224,33 @@ If you use [RevenueCat alongside Stripe](https://www.revenuecat.com/docs/web/int
   </Step>
 </Steps>
 
+</Accordion>
+
 ## Testing
 
-To test without affecting production traffic, create a test targeting group that includes:
+Create a test audience with **Stripe eligible users** and the **`sandbox` or `debug` app environment**. Target your in-app App2Web paywall to it.
 
-- Stripe eligible users
-- `sandbox` or `debug` environment
+**Stripe sandbox is not supported:** an app's `sandbox` or `debug` environment does not make the payment a test transaction.
 
-Target the App2Web paywall to that group, then run through these scenarios before going live:
+- **Purchase:** open a real trigger â†’ browser checkout â†’ purchase â†’ return to the app with an active entitlement. Confirm `hasActiveStripeEntitlement()` returns `true`.
+- **Dismiss or cancel checkout:** return to the expected screen without granting access or showing success.
+- **Manage subscription:** open the customer portal, cancel, and confirm access lasts until period end.
 
-1. **Happy path purchase.** Open an App2Web paywall in-app, tap a web product, and confirm the app correctly opens the browser. Complete the standard purchase flow, then confirm you're deep-linked back with an active entitlement. Dismiss the paywall before purchasing as well, and confirm the app returns to the expected screen.
-2. **Entitlement sync.** After purchase, confirm `hasActiveStripeEntitlement()` returns `true` immediately, and that RevenueCat (if connected) updates within a few seconds.
-3. **Cancel flow.** Open the customer portal from your app, cancel a subscription, and confirm the entitlement expires at period end.
-4. **Canceled checkout.** Back out of the checkout page without paying and confirm you're deep-linked back to the app with no entitlement granted and no success state shown.
-5. **Pre-login purchase (if applicable).** If your App2Web paywall can be shown before you set a durable `user_id`, make a purchase before setting it. Set the durable user ID afterwards and confirm the entitlement attaches correctly.
+<Accordion title="If you use RevenueCat or allow purchases before sign-in">
+  - Confirm RevenueCat updates within a few seconds of purchase, if connected.
+  - If users can buy before you set a durable user ID, purchase first, then set the ID and confirm the entitlement attaches correctly.
+</Accordion>
 
-## Appendix
+## How entitlements work
 
-### How entitlements work
+For details on entitlements, user identity, and purchase access, see [Stripe App2Web entitlements](/guides/stripe-entitlements).
 
-Testing sign-in, access, or RevenueCat delivery? See [How to test App2Web entitlements](/guides/app2web-faq-stripe#test-entitlements).
-
-Helium maps your `user_id` to Stripe's `customer_id`. If the user isn't logged in at purchase time, we use the `helium_persistent_id` as a stand-in and reconcile once a real user ID is set.
-
-On successful purchase, the SDK's entitlement cache updates immediately. The Helium backend processes Stripe's webhook to update the customer mapping and forward events to your analytics/revenue pipeline. Entitlements are also checked server-side (which ultimately reflects Stripe's transaction state), so they stay consistent across devices.
-
-### Why two paywalls?
-
-The original in-app paywall presents your Stripe offerings. The hosted web paywall â€” served from `clickthrough.to` â€” runs the actual Stripe checkout, which has to happen in a browser. The two can be customized independently and don't need to show the same products.
-
-### Apple Pay readiness
-
-<ApplePayReadiness processor="Stripe" preset="Stripe A2W Eligible" />
-
-### Known limitations and gotchas
-
-- **Availability:** Stripe App2Web is currently supported for US storefronts only.
-- **Publish states:** both the original paywall and its linked hosted web paywall must be published before the flow works end-to-end.
-- **Localizations:** hosted web paywalls currently support one language.
-- **Testing:** [App2Web previews and SDK requirements](/guides/paywall-previews#app2web-previews) cover simulated purchases and real purchases on [eligible US devices](/guides/app2web-previews#purchase-eligibility). Also test through a real trigger to verify targeting and your post-purchase handlers.
+<ApplePayReadiness />
 
 ## Before you go live
 
-Run through the [App2Web go-live checklist](/guides/app2web-go-live-checklist) before sending traffic to this flow.
+App2Web is limited to US storefronts.
 
-See the [App2Web FAQ](/guides/app2web-faq-stripe) for attribution, checkout behavior, and evaluating experiment results.
+Run the [App2Web go-live checklist](/guides/app2web-go-live-checklist), including a real-trigger test: previews bypass targeting, paywall traits, and post-purchase handlers.
+
+See the [App2Web FAQ](/guides/app2web-faq-stripe) for attribution, checkout behavior, and experiment results.

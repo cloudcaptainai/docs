@@ -20,14 +20,7 @@ description: "Paywalls, attribution, experiments, and entitlements with Paddle."
   </Accordion>
 
   <Accordion title="How do I test my App2Web paywall in my app?" id="test-paywall">
-    You have two options:
-
-    - **Through your workflow:** target the App2Web paywall to an eligible test audience, then open it through your app's normal trigger.
-    - **Triple-tap previews:** in TestFlight, open any Helium paywall, triple-tap anywhere on it, and select your in-app App2Web paywall.
-
-    On an [eligible US device](/guides/app2web-previews#purchase-eligibility), previews default to real purchases, which charge your card; switch to simulated in preview settings if needed. Ineligible devices always simulate purchases. Also test through your workflow to check targeting and post-purchase handlers, which previews bypass.
-
-    See the [preview guide and SDK requirements](/guides/paywall-previews#app2web-previews) or the [full testing guide](/guides/paddle-onboarding-guide#8-test-everything).
+    Follow the [on-device testing guide](/guides/paywall-previews#app2web-previews) to test App2Web using Helium’s triple-tap flow.
   </Accordion>
 
   <Accordion title="How do I test that entitlements are granted correctly?" id="test-entitlements">
@@ -63,6 +56,20 @@ description: "Paywalls, attribution, experiments, and entitlements with Paddle."
 
   <Accordion title="What will users see when they cancel their subscription?" id="cancellation">
     Your **Manage Subscription** button takes users to the [Paddle customer portal](https://developer.paddle.com/build/customers/integrate-customer-portal/). If they [cancel at the end of the billing period](https://developer.paddle.com/build/subscriptions/cancel-subscriptions/), they keep access until then.
+  </Accordion>
+
+  <Accordion title="Which email is used for cancellation and email verification?" id="billing-email">
+    Paddle uses the **billing email captured at checkout** for customer-portal verification and subscription management. With Apple Pay, this comes from the user’s Apple Pay billing information, so **you don’t need to collect an email in your app**. Users should check that address for verification emails; it may differ from their app login email.
+  </Accordion>
+
+  <Accordion title="How do I roll out App2Web?" id="rollout">
+    Launch an experiment comparing **App2Web against your current IAP paywall**:
+
+    1. Create an audience with the **Paddle eligibility preset** AND `user_id_bucket <= 10`.
+    2. Monitor conversions, proceeds, and checkout/access issues for **24 hours**.
+    3. If the data looks good, create an audience with **just the Paddle eligibility preset** and expand the same experiment to it, replacing the initial audience targeting.
+
+    Keep your IAP control in both stages so you can compare results closely. See the [rollout steps](/guides/paddle-onboarding-guide#9-roll-out-your-experiment).
   </Accordion>
 
   <Accordion title="How should I evaluate an App2Web experiment?" id="experiment-results">

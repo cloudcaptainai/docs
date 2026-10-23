@@ -113,7 +113,7 @@ Choose your SDK, then enable checkout, identify your user, handle the return lin
     }
     ```
 
-    The portal opens `paddle.net`; users sign in with their purchase email.
+    The portal opens `paddle.net`; verification goes to the billing email captured at checkout. With Apple Pay, this is the email provided with the user’s Apple Pay billing information—you don’t need to collect it in your app.
 
     <Accordion title="Optional: pre-authenticated portal links">
     If you'd rather skip the paddle.net email verification step and drop users straight into the customer portal, generate the link from your backend instead. Look up the user's Paddle customer ID with Helium:
@@ -177,7 +177,7 @@ Choose your SDK, then enable checkout, identify your user, handle the return lin
     }
     ```
 
-    The portal opens `paddle.net`; users sign in with their purchase email.
+    The portal opens `paddle.net`; verification goes to the billing email captured at checkout. With Apple Pay, this is the email provided with the user’s Apple Pay billing information—you don’t need to collect it in your app.
 
     <Accordion title="Optional: pre-authenticated portal links">
     If you'd rather skip the paddle.net email verification step and drop users straight into the customer portal, generate the link from your backend instead. Look up the user's Paddle customer ID with Helium:
@@ -260,7 +260,7 @@ Choose your SDK, then enable checkout, identify your user, handle the return lin
     }
     ```
 
-    The portal opens `paddle.net`; users sign in with their purchase email.
+    The portal opens `paddle.net`; verification goes to the billing email captured at checkout. With Apple Pay, this is the email provided with the user’s Apple Pay billing information—you don’t need to collect it in your app.
 
     <Accordion title="Optional: pre-authenticated portal links">
     If you'd rather skip the paddle.net email verification step and drop users straight into the customer portal, generate the link from your backend instead. Look up the user's Paddle customer ID with Helium's `getPaddleCustomerId()`, send it to your server, and follow [Paddle's guide for generating pre-authenticated customer portal links](https://developer.paddle.com/build/customers/integrate-customer-portal/).
@@ -366,8 +366,14 @@ You can also test via **[Helium’s triple-tap flow](/guides/paywall-previews#pr
   The device locale country, App Store storefront, and IP location must all be US. From the US, disable VPNs. From outside the US, use a US device region, a US sandbox Apple storefront, and a US VPN.
 </Accordion>
 
-### Before you go live
+## 9. Roll out your experiment
 
-Finish the [App2Web go-live checklist](/guides/app2web-go-live-checklist), then start with a small eligible audience. Test through a real trigger before launch—previews bypass targeting, paywall traits, and post-purchase handlers.
+Finish the [App2Web go-live checklist](/guides/app2web-go-live-checklist), including a test through a real trigger. Then launch **App2Web versus your current IAP paywall** as an experiment:
+
+1. **Start small:** create an audience with the **Paddle eligibility preset** AND `user_id_bucket <= 10`. Run the experiment for this audience; keep your current IAP paywall for users outside it.
+2. **Monitor for 24 hours:** compare conversions and proceeds between variants, and check checkout errors, returns to the app, and entitlement delivery. This is a rollout health check, not a final verdict on performance.
+3. **Expand when the data looks good:** create an audience with **just the Paddle eligibility preset** and expand the experiment to it. Replace the initial audience targeting so the two audiences don’t overlap in separate experiments.
+
+Keep the IAP control in the experiment after expansion so you can continue to [compare results](/guides/app2web-faq#experiment-results) closely. Expanding eligibility does not mean sending everyone to the App2Web variant.
 
 See the [App2Web FAQ](/guides/app2web-faq) for attribution, checkout behavior, and experiment results.

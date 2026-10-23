@@ -26,7 +26,7 @@ description: "Paywalls, attribution, experiments, and entitlements with Paddle."
   <Accordion title="How do I test that entitlements are granted correctly?" id="test-entitlements">
     We recommend starting with [App2Web previews](/guides/paywall-previews#app2web-previews). Use a real purchase on an [eligible US device](/guides/app2web-previews#purchase-eligibility) to test entitlement delivery; simulated purchases don't charge you or grant entitlements.
 
-    Then make a real purchase through your app's trigger and check that access unlocks when you return. Previews bypass targeting and your post-purchase handlers. See the [Paddle tests](/guides/paddle-onboarding-guide#8-test-everything) and [user-ID setup](/guides/paddle-entitlements).
+    Then make a real purchase through your app's trigger and check that access unlocks when you return. Previews bypass targeting and your post-purchase handlers. See the [Paddle tests](/guides/paddle-onboarding-guide#7-test-everything) and [user-ID setup](/guides/paddle-entitlements).
 
     You can use [Paddle's webhook simulator](https://developer.paddle.com/webhooks/simulator/test-webhooks/) to test delivery separately; it doesn't create a real purchase.
 
@@ -63,13 +63,13 @@ description: "Paywalls, attribution, experiments, and entitlements with Paddle."
   </Accordion>
 
   <Accordion title="How do I roll out App2Web?" id="rollout">
-    Launch an experiment comparing **App2Web against your current IAP paywall**:
+    Create a **50/50 experiment: your current IAP paywall versus App2Web**:
 
     1. Create an audience with the **Paddle eligibility preset** AND `user_id_bucket <= 10`.
     2. Monitor conversions, proceeds, and checkout/access issues for **24 hours**.
-    3. If the data looks good, create an audience with **just the Paddle eligibility preset** and expand the same experiment to it, replacing the initial audience targeting.
+    3. If the data looks good, use the same experiment and change its audience to **just the Paddle eligibility preset**.
 
-    Keep your IAP control in both stages so you can compare results closely. See the [rollout steps](/guides/paddle-onboarding-guide#9-roll-out-your-experiment).
+    See the [rollout steps](/guides/paddle-onboarding-guide#8-roll-out-your-experiment).
   </Accordion>
 
   <Accordion title="How should I evaluate an App2Web experiment?" id="experiment-results">

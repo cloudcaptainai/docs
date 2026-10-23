@@ -12,7 +12,13 @@ Take users from your paywall to web checkout—and back to your app with access 
 1. Complete Paddle’s [account setup](https://developer.paddle.com/build/onboarding/set-up-checklist#sign-up), including identity verification, banking, and tax details, to enable live payments.
 2. [Create your products and prices](https://developer.paddle.com/build/products/create-products-prices) in Paddle.
 
-## 2. Connect Paddle to Helium
+## 2. Set up the payment link
+
+1. Go to [Paddle website approval](https://vendors.paddle.com/request-domain-approval) and add a new domain.
+2. Go to [Paddle Checkout Settings](https://vendors.paddle.com/checkout-settings) and find the **Default payment link** section. Paste in the same domain you just added for **Paddle website approval**.
+3. On the same page, enable **Apple Pay** under **Payment Methods**.
+
+## 3. Connect Paddle to Helium
 
 **Create an API key in Paddle** with the following permissions:
 
@@ -34,15 +40,7 @@ Take users from your paywall to web checkout—and back to your app with access 
 
 **Configure the webhook.** Helium will show you a webhook URL — create a matching webhook in Paddle, then copy the webhook's signing secret back into Helium. This powers revenue reporting and entitlement updates.
 
-## 3. Set up the payment link
-
-1. Go to [Paddle website approval](https://vendors.paddle.com/request-domain-approval) and add a new domain.
-2. Go to [Paddle Checkout Settings](https://vendors.paddle.com/checkout-settings) and find the **Default payment link** section. Paste in the same domain you just added for **Paddle website approval**.
-3. On the same page, enable **Apple Pay** under **Payment Methods**.
-
-## 4. Sync your Paddle products
-
-In the Helium dashboard, click **Sync Products**. Your Paddle products and prices will appear alongside your iOS products and can be added to paywalls.
+**Sync your products.** In the Helium dashboard, click **Sync Products**. Your Paddle products and prices will appear alongside your iOS products and can be added to paywalls.
 
 <Accordion title="Optional: add free trials">
 **Each trial price needs a linked non-trial price.**
@@ -54,7 +52,7 @@ In the Helium dashboard, click **Sync Products**. Your Paddle products and price
 Helium limits trials to one per customer, including after cancellation. Trials require a payment method up front.
 </Accordion>
 
-## 5. Build your paywalls
+## 4. Build your paywalls
 
 Your in-app paywall opens a linked web paywall when the user purchases a Paddle product. The user completes payment in the browser, then returns to your app.
 
@@ -68,7 +66,7 @@ See [Build an App2Web paywall](/guides/build-app2web-paywall) for the walkthroug
   App2Web is iOS-only and limited to US storefronts. Hosted paywalls currently support one language. On Android, the React Native and Flutter web-checkout APIs are safe no-ops; keep your regular IAP flow.
 </Accordion>
 
-## 6. Add web checkout to your app
+## 5. Add web checkout to your app
 
 Choose your SDK, then enable checkout, identify your user, handle the return link, and add subscription management.
 
@@ -113,7 +111,7 @@ Choose your SDK, then enable checkout, identify your user, handle the return lin
     }
     ```
 
-    The portal opens `paddle.net`; verification goes to the billing email captured at checkout. With Apple Pay, this is the email provided with the user’s Apple Pay billing information—you don’t need to collect it in your app.
+    The portal opens `paddle.net`; users verify with their [checkout billing email](/guides/app2web-faq#billing-email).
 
     <Accordion title="Optional: pre-authenticated portal links">
     If you'd rather skip the paddle.net email verification step and drop users straight into the customer portal, generate the link from your backend instead. Look up the user's Paddle customer ID with Helium:
@@ -177,7 +175,7 @@ Choose your SDK, then enable checkout, identify your user, handle the return lin
     }
     ```
 
-    The portal opens `paddle.net`; verification goes to the billing email captured at checkout. With Apple Pay, this is the email provided with the user’s Apple Pay billing information—you don’t need to collect it in your app.
+    The portal opens `paddle.net`; users verify with their [checkout billing email](/guides/app2web-faq#billing-email).
 
     <Accordion title="Optional: pre-authenticated portal links">
     If you'd rather skip the paddle.net email verification step and drop users straight into the customer portal, generate the link from your backend instead. Look up the user's Paddle customer ID with Helium:
@@ -260,7 +258,7 @@ Choose your SDK, then enable checkout, identify your user, handle the return lin
     }
     ```
 
-    The portal opens `paddle.net`; verification goes to the billing email captured at checkout. With Apple Pay, this is the email provided with the user’s Apple Pay billing information—you don’t need to collect it in your app.
+    The portal opens `paddle.net`; users verify with their [checkout billing email](/guides/app2web-faq#billing-email).
 
     <Accordion title="Optional: pre-authenticated portal links">
     If you'd rather skip the paddle.net email verification step and drop users straight into the customer portal, generate the link from your backend instead. Look up the user's Paddle customer ID with Helium's `getPaddleCustomerId()`, send it to your server, and follow [Paddle's guide for generating pre-authenticated customer portal links](https://developer.paddle.com/build/customers/integrate-customer-portal/).
@@ -270,9 +268,9 @@ Choose your SDK, then enable checkout, identify your user, handle the return lin
 
 <ApplePayReadiness />
 
-## 7. Configure your entitlements
+## 6. Configure your entitlements
 
-**Use Helium—the simplest way to unlock access after a web purchase.** Check the user’s Paddle entitlement in one line:
+Helium can check web subscription access in one line:
 
 <Tabs>
   <Tab title="iOS">
@@ -292,7 +290,7 @@ Choose your SDK, then enable checkout, identify your user, handle the return lin
   </Tab>
 </Tabs>
 
-Use this result alongside your existing in-app purchase checks to unlock paid features. Helium updates the entitlement after purchase and tracks subsequent subscription changes through the webhook you connected in step 2.
+Use this result alongside your existing in-app purchase checks to unlock paid features. Helium updates the entitlement after purchase and tracks subsequent subscription changes through the webhook you connected in step 3.
 
 For details on identity and entitlement updates, see [Paddle App2Web entitlements](/guides/paddle-entitlements).
 
@@ -342,11 +340,11 @@ RevenueCat can take a few seconds to reflect a purchase. Check Helium entitlemen
 <Accordion title="Use your own entitlement system">
   Keep your backend as the source of truth. Connect Paddle webhooks to your system, link the Paddle customer and subscription to your app user, and update access when the subscription changes.
 
-  Follow [Paddle’s guide to provisioning access](https://developer.paddle.com/build/subscriptions/provision-access-webhooks/). Keep the Helium webhook configured in step 2 as well.
+  Follow [Paddle’s guide to provisioning access](https://developer.paddle.com/build/subscriptions/provision-access-webhooks/). Keep the Helium webhook configured in step 3 as well.
 </Accordion>
 </AccordionGroup>
 
-## 8. Test everything
+## 7. Test everything
 
 Create a test audience with **Paddle eligible users** and the **`sandbox` or `debug` app environment**. Target your in-app App2Web paywall to it.
 
@@ -366,14 +364,14 @@ You can also test via **[Helium’s triple-tap flow](/guides/paywall-previews#pr
   The device locale country, App Store storefront, and IP location must all be US. From the US, disable VPNs. From outside the US, use a US device region, a US sandbox Apple storefront, and a US VPN.
 </Accordion>
 
-## 9. Roll out your experiment
+## 8. Roll out your experiment
 
-Finish the [App2Web go-live checklist](/guides/app2web-go-live-checklist), including a test through a real trigger. Then launch **App2Web versus your current IAP paywall** as an experiment:
+Finish the [App2Web go-live checklist](/guides/app2web-go-live-checklist), including a test through a real trigger. Create a **50/50 experiment: your current IAP paywall versus App2Web**.
 
-1. **Start small:** create an audience with the **Paddle eligibility preset** AND `user_id_bucket <= 10`. Run the experiment for this audience; keep your current IAP paywall for users outside it.
-2. **Monitor for 24 hours:** compare conversions and proceeds between variants, and check checkout errors, returns to the app, and entitlement delivery. This is a rollout health check, not a final verdict on performance.
-3. **Expand when the data looks good:** create an audience with **just the Paddle eligibility preset** and expand the experiment to it. Replace the initial audience targeting so the two audiences don’t overlap in separate experiments.
+1. **Start small:** create an audience with the **Paddle eligibility preset** AND `user_id_bucket <= 10`. Run your experiment for this audience.
+2. **Monitor for 24 hours:** compare conversions and proceeds, and check checkout errors, returns to the app, and entitlement delivery.
+3. **Expand when the data looks good:** use the same experiment and change its audience to **just the Paddle eligibility preset**.
 
-Keep the IAP control in the experiment after expansion so you can continue to [compare results](/guides/app2web-faq#experiment-results) closely. Expanding eligibility does not mean sending everyone to the App2Web variant.
+Keep monitoring [experiment results](/guides/app2web-faq#experiment-results) as data comes in. The first 24 hours are a rollout health check, not a final verdict on performance.
 
 See the [App2Web FAQ](/guides/app2web-faq) for attribution, checkout behavior, and experiment results.

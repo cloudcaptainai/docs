@@ -45,10 +45,13 @@ Take users from your paywall to web checkout—and back to your app with access 
 In the Helium dashboard, click **Sync Products**. Your Paddle products and prices will appear alongside your iOS products and can be added to paywalls.
 
 <Accordion title="Optional: add free trials">
-Configure free trials on the product in Helium:
+**Each trial price needs a linked non-trial price.**
 
-- **One trial per customer.** Helium prevents repeat trials, including after cancellation.
-- **A payment method is required up front.** Payment is deferred, not skipped.
+1. Create a trial price and a matching non-trial price in Paddle, then sync them to Helium.
+2. Link the trial and non-trial prices in Helium so the paywall can offer the appropriate purchase option.
+3. Use a **separate non-trial price for every trial offer** you launch—even if the amount is the same. This lets you identify which offer a non-trial purchase came from.
+
+Helium limits trials to one per customer, including after cancellation. Trials require a payment method up front.
 </Accordion>
 
 ## 5. Build your paywalls
@@ -269,12 +272,33 @@ Choose your SDK, then enable checkout, identify your user, handle the return lin
 
 ## 7. Configure your entitlements
 
-Use the option that matches how your app manages access today.
+**Use Helium—the simplest way to unlock access after a web purchase.** Check the user’s Paddle entitlement in one line:
+
+<Tabs>
+  <Tab title="iOS">
+    ```swift
+    let hasWebAccess = await Helium.entitlements.hasActivePaddleEntitlement()
+    ```
+  </Tab>
+  <Tab title="React Native / Expo">
+    ```tsx
+    const hasWebAccess = await hasActivePaddleEntitlement();
+    ```
+  </Tab>
+  <Tab title="Flutter">
+    ```dart
+    final hasWebAccess = await HeliumFlutter().hasActivePaddleEntitlement();
+    ```
+  </Tab>
+</Tabs>
+
+Use this result alongside your existing in-app purchase checks to unlock paid features. Helium updates the entitlement after purchase and tracks subsequent subscription changes through the webhook you connected in step 2.
+
+For details on identity and entitlement updates, see [Paddle App2Web entitlements](/guides/paddle-entitlements).
+
+Already have an entitlement system? You can connect it instead:
 
 <AccordionGroup>
-<Accordion title="Use Helium for entitlements">
-  Use Helium’s SDK entitlement checks to unlock access after a web purchase. For details on user identity, purchase access, and entitlement updates, see [Paddle App2Web entitlements](/guides/paddle-entitlements).
-</Accordion>
 
 <Accordion title="Use RevenueCat for entitlements">
 Connect Paddle purchases to your existing RevenueCat entitlements:
@@ -326,7 +350,7 @@ RevenueCat can take a few seconds to reflect a purchase. Check Helium entitlemen
 
 Create a test audience with **Paddle eligible users** and the **`sandbox` or `debug` app environment**. Target your in-app App2Web paywall to it.
 
-Use Paddle's sandbox before going live.
+You can also test via **[Helium’s triple-tap flow](/guides/paywall-previews#preview-paywalls-from-your-app)**: open a Helium paywall in your test build, triple-tap it, and select your App2Web paywall. [App2Web previews](/guides/app2web-previews) support simulated checkout to check the flow without a charge; simulated purchases do not grant entitlements. Real checkout charges the payment method and lets you verify access.
 
 - **Purchase:** open a real trigger → browser checkout → purchase → return to the app. Confirm access unlocks in your chosen entitlement system and `hasActivePaddleEntitlement()` returns `true`.
 - **Dismiss or cancel checkout:** return to the expected screen without granting access or showing success.

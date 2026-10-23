@@ -47,8 +47,10 @@ description: "Paywalls, attribution, experiments, and entitlements with Paddle."
     [Here's how to connect your analytics provider or MMP](/guides/analytics-forwarding).
   </Accordion>
 
-  <Accordion title="What will customers see in checkout?" id="checkout-appearance">
-    We host your web paywall on `clickthrough.to`. Here's what users will see:
+  <Accordion title="What will customers see in the web paywall?" id="checkout-appearance">
+    We make the browser experience look as similar to your app as possible. Your hosted paywall opens in a browser, with `clickthrough.to` visible in the address bar. After checkout, users return to your app.
+
+    **Payment sheet:** we’ve optimized the payment sheet to keep checkout simple. Here’s what users will see:
 
     - **Price:** we calculate it from the selected offer. Free trials show $0.00 due today in USD; paid trials show the initial charge.
     - **Names:** make both product and price names customer-facing. We recommend leaving dollar amounts out; checkout already shows the price. Paddle's Apple Pay title uses the product name.
@@ -63,20 +65,20 @@ description: "Paywalls, attribution, experiments, and entitlements with Paddle."
   </Accordion>
 
   <Accordion title="How do I roll out App2Web?" id="rollout">
-    Create a **50/50 experiment: your current IAP paywall versus App2Web**:
-
-    1. Create an audience with the **Paddle eligibility preset** AND `user_id_bucket <= 10`.
-    2. Monitor conversions, proceeds, and checkout/access issues for **24 hours**.
-    3. If the data looks good, use the same experiment and change its audience to **just the Paddle eligibility preset**.
+    1. **Create both audiences:** one with the **Paddle eligibility preset** AND `user_id_bucket <= 10`, and one with **just the Paddle eligibility preset**.
+    2. Select the smaller audience and launch a **50/50 experiment: your current IAP paywall versus App2Web**.
+    3. Monitor conversion rates and checkout/access issues for **24 hours**.
+    4. If the data looks good, use the same experiment and change its audience to the full eligible audience.
 
     See the [rollout steps](/guides/paddle-onboarding-guide#8-roll-out-your-experiment).
   </Accordion>
 
   <Accordion title="How should I evaluate an App2Web experiment?" id="experiment-results">
-    We recommend running App2Web against your current IAP paywall in an experiment. Start with:
+    **Start with conversion rate:** compare trial starts or direct purchases per exposed user. This is your early signal that the flow is working and users are converting.
 
-    - **Conversion rate:** trial starts or direct purchases per exposed user. Around 500+ conversions is a checkpoint, not proof of significance; check confidence intervals.
-    - **Take-home ARPU:** revenue after fees, taxes, and refunds, divided by all exposed users.
+    **Once trials have converted and enough paid-purchase data is in, evaluate take-home ARPU:** revenue after fees, taxes, and refunds, divided by all exposed users. Compare cohorts of the same age so both variants have had the same time to convert and generate revenue. For offers without trials, wait for enough paid purchases to make a meaningful comparison.
+
+    Check confidence intervals before calling a winner; a conversion count alone does not establish significance.
 
     **Proceeds is still in beta**, so we'd cross-check it with your actual revenue and fees. Incorrect RevenueCat [Small Business Program dates](https://www.revenuecat.com/docs/platform-resources/apple-platform-resources/app-store-small-business-program#informing-revenuecat) can skew its commission data.
 

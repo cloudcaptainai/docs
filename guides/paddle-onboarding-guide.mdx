@@ -57,7 +57,7 @@ Helium limits trials to one per customer, including after cancellation. Trials r
 Your in-app paywall opens a linked web paywall when the user purchases a Paddle product. The user completes payment in the browser, then returns to your app.
 
 1. Add Paddle products to your in-app paywall. Include iOS products for the in-app purchase option.
-2. Create and link a hosted web paywall for browser checkout on `clickthrough.to`.
+2. Create a hosted web paywall and link it to your in-app paywall.
 3. Publish both paywalls. Target the **in-app paywall** to eligible users; the hosted paywall cannot be added directly to workflows or experiments.
 
 See [Build an App2Web paywall](/guides/build-app2web-paywall) for the walkthrough.
@@ -366,11 +366,12 @@ You can also test via **[Helium’s triple-tap flow](/guides/paywall-previews#pr
 
 ## 8. Roll out your experiment
 
-Finish the [App2Web go-live checklist](/guides/app2web-go-live-checklist), including a test through a real trigger. Create a **50/50 experiment: your current IAP paywall versus App2Web**.
+Finish the [App2Web go-live checklist](/guides/app2web-go-live-checklist), including a test through a real trigger.
 
-1. **Start small:** create an audience with the **Paddle eligibility preset** AND `user_id_bucket <= 10`. Run your experiment for this audience.
-2. **Monitor for 24 hours:** compare conversions and proceeds, and check checkout errors, returns to the app, and entitlement delivery.
-3. **Expand when the data looks good:** use the same experiment and change its audience to **just the Paddle eligibility preset**.
+1. **Create both audiences:** a small rollout audience with the **Paddle eligibility preset** AND `user_id_bucket <= 10`, and a full eligible audience with **just the Paddle eligibility preset**.
+2. **Start the experiment:** select the small rollout audience and launch a **50/50 experiment: your current IAP paywall versus App2Web**.
+3. **Monitor for 24 hours:** compare conversion rates and check checkout errors, returns to the app, and entitlement delivery.
+4. **Expand when the data looks good:** use the same experiment and change its audience to the full eligible audience.
 
 Keep monitoring [experiment results](/guides/app2web-faq#experiment-results) as data comes in. The first 24 hours are a rollout health check, not a final verdict on performance.
 

@@ -5,7 +5,7 @@ icon: "p"
 
 import ApplePayReadiness from "/snippets/apple-pay-readiness.mdx";
 
-Take users from your paywall to web checkout—and back to your app with access unlocked.
+Take users from your paywall to web checkout, then back to your app with access unlocked.
 
 ## 1. Set up your Paddle account
 
@@ -20,25 +20,7 @@ Take users from your paywall to web checkout—and back to your app with access 
 
 ## 3. Connect Paddle to Helium
 
-**Create an API key in Paddle** with the following permissions:
-
-| Permission | Purpose |
-| :-- | :-- |
-| Adjustments  `READ` | View refunds and chargebacks |
-| Client-side tokens `WRITE` | Create checkout tokens |
-| Customer portal sessions `WRITE` | Create subscription management links |
-| Customers `WRITE` | Create customers for end users |
-| Discounts `READ` | Read discount info for paywalls |
-| Notification settings `WRITE` | Auto-configure webhooks |
-| Payment methods `READ` | List saved payment methods |
-| Prices `WRITE` | Create and sync prices |
-| Products `WRITE` | Create and sync products |
-| Subscriptions `WRITE` | Manage subscription lifecycle |
-| Transactions `WRITE` | Create transactions for purchases |
-
-**Add the API key to Helium.** In the Helium dashboard, go to _Settings → Integrations → Paddle_ and paste your key.
-
-**Configure the webhook.** Helium will show you a webhook URL — create a matching webhook in Paddle, then copy the webhook's signing secret back into Helium. This powers revenue reporting and entitlement updates.
+Go to **Settings → Integrations → Paddle** in the [Helium dashboard](https://app.tryhelium.com/integrations) and follow the instructions there to connect your account. Helium configures the webhook automatically.
 
 **Sync your products.** In the Helium dashboard, click **Sync Products**. Your Paddle products and prices will appear alongside your iOS products and can be added to paywalls.
 
@@ -56,7 +38,7 @@ Helium limits trials to one per customer, including after cancellation. Trials r
 
 Your in-app paywall opens a linked web paywall when the user purchases a Paddle product. The user completes payment in the browser, then returns to your app.
 
-1. Add Paddle products to your in-app paywall. Include iOS products for the in-app purchase option.
+1. Add your Paddle product(s) to your in-app paywall. Include iOS products for the in-app purchase option.
 2. Create a hosted web paywall and link it to your in-app paywall.
 3. Publish both paywalls. Target the **in-app paywall** to eligible users; the hosted paywall cannot be added directly to workflows or experiments.
 
@@ -68,7 +50,7 @@ See [Build an App2Web paywall](/guides/build-app2web-paywall) for the walkthroug
 
 ## 5. Add web checkout to your app
 
-Choose your SDK, then enable checkout, identify your user, handle the return link, and add subscription management.
+Choose your SDK, then enable checkout, identify your user, handle the return link, and add subscription management. Your app needs a [custom URL scheme](https://developer.apple.com/documentation/xcode/defining-a-custom-url-scheme-for-your-app) or [universal link](https://developer.apple.com/documentation/xcode/allowing-apps-and-websites-to-link-to-your-content) so checkout can return users to it.
 
 <Tabs>
   <Tab title="iOS (native, Helium 4.6.0+)">
@@ -81,11 +63,7 @@ Choose your SDK, then enable checkout, identify your user, handle the return lin
     )
     ```
 
-    Use your registered deep link as `redirectURL`. Checkout returns here after success, cancellation, or failure.
-
-    <Accordion title="Using an older SDK?">
-      On older SDK versions that don't have `redirectURL`, use the equivalent two-URL form with the same URL for both: `enableExternalWebCheckout(successURL:cancelURL:paymentProcessors:)`. That form still works, but is deprecated.
-    </Accordion>
+    Set up a deep link in your app, then use it as `redirectURL`. Checkout returns here after success, cancellation, or failure.
 
     **Set your user ID on Helium** before showing a paywall.
 
@@ -135,11 +113,7 @@ Choose your SDK, then enable checkout, identify your user, handle the return lin
     });
     ```
 
-    Use your registered deep link as `redirectURL`. Checkout returns here after success, cancellation, or failure.
-
-    <Accordion title="Using an older SDK?">
-      On older SDK versions that don't have `redirectURL`, pass the equivalent `successURL` and `cancelURL` parameters with the same URL for both. That form still works, but is deprecated.
-    </Accordion>
+    Set up a deep link in your app, then use it as `redirectURL`. Checkout returns here after success, cancellation, or failure.
 
     **Set your user ID on Helium** before showing a paywall.
 
@@ -197,11 +171,7 @@ Choose your SDK, then enable checkout, identify your user, handle the return lin
     );
     ```
 
-    Use your registered deep link as `redirectURL`. Checkout returns here after success, cancellation, or failure.
-
-    <Accordion title="Using an older SDK?">
-      On older SDK versions that don't have `redirectURL`, pass the equivalent `successURL` and `cancelURL` parameters with the same URL for both. That form still works, but is deprecated.
-    </Accordion>
+    Set up a deep link in your app, then use it as `redirectURL`. Checkout returns here after success, cancellation, or failure.
 
     <Accordion title="Register a Flutter deep link">
     For a custom scheme, add a `CFBundleURLTypes` entry to `ios/Runner/Info.plist`:
@@ -290,9 +260,7 @@ Helium can check web subscription access in one line:
   </Tab>
 </Tabs>
 
-Use this result alongside your existing in-app purchase checks to unlock paid features. Helium updates the entitlement after purchase and tracks subsequent subscription changes through the webhook you connected in step 3.
-
-For details on identity and entitlement updates, see [Paddle App2Web entitlements](/guides/paddle-entitlements).
+Use this result alongside your existing in-app purchase checks to unlock paid features. Helium updates the entitlement after purchase and tracks subsequent subscription changes through the automatically configured webhook.
 
 Already have an entitlement system? You can connect it instead:
 
@@ -340,7 +308,7 @@ RevenueCat can take a few seconds to reflect a purchase. Check Helium entitlemen
 <Accordion title="Use your own entitlement system">
   Keep your backend as the source of truth. Connect Paddle webhooks to your system, link the Paddle customer and subscription to your app user, and update access when the subscription changes.
 
-  Follow [Paddle’s guide to provisioning access](https://developer.paddle.com/build/subscriptions/provision-access-webhooks/). Keep the Helium webhook configured in step 3 as well.
+  Follow [Paddle’s guide to provisioning access](https://developer.paddle.com/build/subscriptions/provision-access-webhooks/).
 </Accordion>
 </AccordionGroup>
 

@@ -25,7 +25,7 @@ Open [Paywall Previews](/guides/paywall-previews#preview-paywalls-from-your-app)
 
 ## Test with a real trigger
 
-Previews [bypass targeting and skip paywall traits and post-purchase handlers](/guides/app2web-previews#what-app2web-previews-dont-cover). Before launch, run the flow through a real trigger on a physical device:
+Previews [bypass targeting and skip paywall traits](/guides/app2web-previews#what-app2web-previews-dont-cover). Before launch, run the flow through a real trigger on a physical device:
 
 - [ ] Open App2Web through a real trigger.
 - [ ] Tapping the web purchase CTA opens the linked hosted web paywall in the browser.
@@ -39,4 +39,4 @@ Previews [bypass targeting and skip paywall traits and post-purchase handlers](/
 ## Launch
 
 - [ ] Start with a small eligible audience and confirm the flow is healthy before expanding traffic.
-- [ ] Apple Pay readiness is on by default from the SDK versions listed in the [Paddle](/guides/paddle-onboarding-guide#apple-pay-readiness) and [Stripe](/guides/stripe-onboarding-guide#apple-pay-readiness) guides. If your audience doesn't use the Paddle A2W Eligible or Stripe A2W Eligible preset, confirm `webApplePayReadiness` is arriving for your users before you add your own rule.
+- [ ] Use your provider’s App2Web eligibility targeting preset and route users outside that audience to an IAP paywall.

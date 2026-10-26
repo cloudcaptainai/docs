@@ -20,20 +20,13 @@ description: "Paywalls, attribution, experiments, and entitlements with Paddle."
   </Accordion>
 
   <Accordion title="How do I test my App2Web paywall in my app?" id="test-paywall">
-    You have two options:
-
-    - **Through your workflow:** target the App2Web paywall to an eligible test audience, then open it through your app's normal trigger.
-    - **Triple-tap previews:** in TestFlight, open any Helium paywall, triple-tap anywhere on it, and select your in-app App2Web paywall.
-
-    On an [eligible US device](/guides/app2web-previews#purchase-eligibility), previews default to real purchases, which charge your card; switch to simulated in preview settings if needed. Ineligible devices always simulate purchases. Also test through your workflow to check targeting and post-purchase handlers, which previews bypass.
-
-    See the [preview guide and SDK requirements](/guides/paywall-previews#app2web-previews) or the [full testing guide](/guides/paddle-onboarding-guide#testing).
+    Follow the [on-device testing guide](/guides/paywall-previews#app2web-previews) to test App2Web using Helium’s triple-tap flow.
   </Accordion>
 
   <Accordion title="How do I test that entitlements are granted correctly?" id="test-entitlements">
     We recommend starting with [App2Web previews](/guides/paywall-previews#app2web-previews). Use a real purchase on an [eligible US device](/guides/app2web-previews#purchase-eligibility) to test entitlement delivery; simulated purchases don't charge you or grant entitlements.
 
-    Then make a real purchase through your app's trigger and check that access unlocks when you return. Previews bypass targeting and your post-purchase handlers. See the [Paddle tests](/guides/paddle-onboarding-guide#testing) and [user-ID setup](/guides/paddle-onboarding-guide#how-entitlements-work).
+    Then make a real purchase through your app's trigger and check that access unlocks when you return. See the [Paddle tests](/guides/paddle-onboarding-guide#7-test-everything).
 
     You can use [Paddle's webhook simulator](https://developer.paddle.com/webhooks/simulator/test-webhooks/) to test delivery separately; it doesn't create a real purchase.
 
@@ -54,22 +47,42 @@ description: "Paywalls, attribution, experiments, and entitlements with Paddle."
     [Here's how to connect your analytics provider or MMP](/guides/analytics-forwarding).
   </Accordion>
 
-  <Accordion title="What will customers see in checkout?" id="checkout-appearance">
-    We host your web paywall on `clickthrough.to`. Here's what users will see:
+  <Accordion title="What will customers see in the web paywall?" id="checkout-appearance">
+    We make the browser experience look as similar to your app as possible. Your hosted paywall opens in a browser, with `clickthrough.to` visible in the address bar. After checkout, users return to your app.
+
+    **Payment sheet:** we’ve optimized the payment sheet to keep checkout simple. Here’s what users will see:
 
     - **Price:** we calculate it from the selected offer. Free trials show $0.00 due today in USD; paid trials show the initial charge.
     - **Names:** make both product and price names customer-facing. We recommend leaving dollar amounts out; checkout already shows the price. Paddle's Apple Pay title uses the product name.
+  </Accordion>
+
+  <Accordion title="What should my sales tax settings be?" id="sales-tax">
+    We recommend Paddle’s [automatic regional tax pricing](https://developer.paddle.com/changelog/2025/default-automatic-tax-setting/), which adds sales tax to US purchases where applicable.
   </Accordion>
 
   <Accordion title="What will users see when they cancel their subscription?" id="cancellation">
     Your **Manage Subscription** button takes users to the [Paddle customer portal](https://developer.paddle.com/build/customers/integrate-customer-portal/). If they [cancel at the end of the billing period](https://developer.paddle.com/build/subscriptions/cancel-subscriptions/), they keep access until then.
   </Accordion>
 
-  <Accordion title="How should I evaluate an App2Web experiment?" id="experiment-results">
-    We recommend running App2Web against your current IAP paywall in an experiment. Start with:
+  <Accordion title="Which email is used for cancellation, retention, and win-back emails?" id="billing-email">
+    The **billing email captured by Paddle at checkout** is used for cancellation, retention, and win-back emails. With Apple Pay, this comes from the user’s Apple Pay billing information, so **you don’t need to collect an email in your app**. It may differ from their app login email.
+  </Accordion>
 
-    - **Conversion rate:** trial starts or direct purchases per exposed user. Around 500+ conversions is a checkpoint, not proof of significance; check confidence intervals.
-    - **Take-home ARPU:** revenue after fees, taxes, and refunds, divided by all exposed users.
+  <Accordion title="How do I roll out App2Web?" id="rollout">
+    1. **Create both audiences:** one with the **Paddle eligibility preset** AND `user_id_bucket <= 10`, and one with **just the Paddle eligibility preset**.
+    2. Select the smaller audience and launch a **50/50 experiment: your current IAP paywall versus App2Web**.
+    3. Monitor conversion rates and checkout/access issues for **24 hours**.
+    4. If the data looks good, use the same experiment and change its audience to the full eligible audience.
+
+    See the [rollout steps](/guides/paddle-onboarding-guide#8-roll-out-your-experiment).
+  </Accordion>
+
+  <Accordion title="How should I evaluate an App2Web experiment?" id="experiment-results">
+    **Start with conversion rate:** compare trial starts or direct purchases per exposed user. This is your early signal that the flow is working and users are converting.
+
+    **Once trials have converted and enough paid-purchase data is in, evaluate take-home ARPU:** revenue after fees, taxes, and refunds, divided by all exposed users. Compare cohorts of the same age so both variants have had the same time to convert and generate revenue. For offers without trials, wait for enough paid purchases to make a meaningful comparison.
+
+    Check confidence intervals before calling a winner; a conversion count alone does not establish significance.
 
     **Proceeds is still in beta**, so we'd cross-check it with your actual revenue and fees. Incorrect RevenueCat [Small Business Program dates](https://www.revenuecat.com/docs/platform-resources/apple-platform-resources/app-store-small-business-program#informing-revenuecat) can skew its commission data.
 

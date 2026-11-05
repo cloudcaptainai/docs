@@ -89,6 +89,23 @@ If the same key is present in both user traits and `customPaywallTraits`, the pa
 
 Metrics still only sees the value from user traits.
 
-## Coming Soon
+## Built-in Traits
 
-We are working on adding default traits you can use without passing in from SDK.
+The iOS SDK passes built-in traits into every paywall. Your paywall can use them to react to what the user already owns, with no extra code in your app. For example, a plan-change paywall can highlight the user's current plan or hide products they already have.
+
+To use a built-in trait, reference its key in the paywall editor the same way you reference a custom trait:
+
+| Key | Type | Value |
+| --- | --- | --- |
+| `hlm_hasActiveAppStoreSubscription` | Boolean | `true` when the user has an active auto-renewable App Store subscription. |
+| `hlm_activeAppStoreProductIds` | Array of strings | App Store product IDs of the user's active purchases, including non-consumables and active subscriptions. |
+| `hlm_hasActivePaddleSubscription` | Boolean | `true` when the user has an active Paddle subscription. Only included when Paddle is set up. |
+| `hlm_activePaddleProductIds` | Array of strings | Active Paddle purchases, each in `productId:priceId` format. Only included when Paddle is set up. |
+
+The SDK reads these values from the entitlements it has already cached, so they don't add network requests or delay the paywall. Before StoreKit finishes loading on a new launch, the App Store values come from the entitlements saved during the previous session.
+
+If a user trait or `customPaywallTraits` uses the same key as a built-in trait, the paywall sees your value instead of the built-in one.
+
+<Note>
+  Built-in traits are available in the iOS SDK only.
+</Note>

@@ -1,0 +1,116 @@
+---
+title: "customer_v1 schema"
+description: "Tables and columns you can query with the Data Access API."
+icon: "table"
+---
+
+`customer_v1` has four tables. Each one only returns your organization's rows, and each has an `organization_id` column with your organization's ID.
+
+New columns may be added to `customer_v1` at any time, so select columns by name instead of relying on `SELECT *` column order. Removing or renaming a column, or changing what it means, only happens in a new schema version. See the [schema changelog](/data-access/changelog).
+
+## events
+
+One row per SDK event from your apps. This is the same event stream described in [Helium events](/guides/helium-events).
+
+`event_name` uses the same names as analytics forwarding:
+
+| `event_name` | Meaning |
+| --- | --- |
+| `initialization_started`, `initialization_succeeded`, `initialization_failed` | SDK setup and paywall download |
+| `experience_opened`, `experience_open_failed` | A paywall was presented, or failed to present |
+| `experience_view_rendered`, `experience_view_render_failed` | The paywall finished rendering, or failed to |
+| `experience_skipped`, `experience_dismissed`, `experience_view_closed` | The paywall was skipped by targeting, dismissed, or closed |
+| `purchase_started`, `purchase_pending`, `purchase_succeeded`, `purchase_failed`, `purchase_abandoned` | Purchase flow |
+| `entitlement_restored`, `entitlement_restore_failed` | Restore purchases |
+| `user_experiment_allocated` | The user was assigned to an experiment variant |
+| `custom_event` | A custom paywall action (see `custom_paywall_action_name`) |
+
+Columns:
+
+- **Event:** `event_id`, `event_name`, `event_timestamp`, `error_description`
+- **User and session:** `user_id`, `persistent_id`, `helium_device_id`, `session_id`, `paywall_session_id`, `revenuecat_app_user_id`, `custom_user_traits_json`
+- **Paywall:** `trigger_name`, `paywall_id`, `paywall_name`, `paywall_presentation_type`, `is_fallback`, `is_second_try`, `custom_paywall_action_name`, `custom_paywall_action_params`
+- **Experiment:** `experiment_id`, `experiment_name`, `experiment_type`, `experiment_chosen_variant_id`, `experiment_chosen_variant_name`
+- **Purchase:** `product_id`, `storekit_transaction_id`, `app_transaction_id`, `google_play_order_id`, `google_play_purchase_token`, `canonical_transaction_id`, `attribution_token`, `currency_code`
+- **App and device:** `app_bundle_id`, `app_version`, `app_build`, `app_environment`, `helium_sdk_version`, `platform`, `os_name`, `os_version`, `device_manufacturer`, `device_model`, `device_idiom`, `device_orientation`, `screen_width_points`, `screen_height_points`, `is_system_dark_mode`
+- **Location and locale:** `geo_country_name`, `geo_continent_code`, `geo_continent_name`, `geo_region_name`, `geo_region_code`, `geo_city`, `locale_language`, `locale_code`, `locale_country`
+
+## revenue
+
+One row per store revenue event (purchase, renewal, refund and so on) from the App Store, Google Play, Stripe, Paddle or RevenueCat. Store webhooks that were delivered more than once appear once.
+
+Columns:
+
+- **Event:** `notification_id`, `event_type`, `timestamp`, `event_timestamp`, `store_notification_type`, `store_notification_subtype`, `source`, `app_store`, `environment`
+- **Transaction:** `transaction_id`, `original_transaction_id`, `app_transaction_id`, `app_account_token`, `quantity`, `family_shared`
+- **Money:** `revenue_usd`, `proceeds_usd`, `revenue_local`, `currency`, `storefront`
+- **Product and offer:** `product_id`, `product_type`, `subscription_group_id`, `renewal_date`, `recent_subscription_start_date`, `offer_id`, `offer_type`, `offer_code`, `ios_offer_type`, `ios_offer_period`
+- **User:** `rc_app_user_id`, `idfv`, `helium_persistent_id`
+
+## subscriptions
+
+One row per subscription or purchase, with its revenue to date and the paywall, experiment and variant it is attributed to.
+
+`has_access` is `1` when the subscription currently grants access: it has a renewal date in the future or a pending trial, and its latest event is not a refund, revocation or expiration. Use `has_access` instead of `subscription_status` to count active subscribers. `subscription_status` only changes when a store event arrives, so it can lag behind.
+
+Columns:
+
+- **Subscription:** `subscription_id`, `product_id`, `product_type`, `store`, `webhook_source`, `environment`, `storefront`, `currency`, `family_shareable`, `has_access`, `subscription_status`
+- **Lifecycle:** `trial_start_timestamp`, `trial_end_timestamp`, `is_trial_pending`, `is_trial_resolved`, `first_paid_timestamp`, `conversion_timestamp`, `conversion_type`, `last_renewal_timestamp`, `latest_renewal_date`, `latest_subscription_start_date`, `last_cancellation_timestamp`, `expiration_timestamp`, `first_event_type`, `latest_event_type`, `first_revenue_event_type`, `transaction_type`, `earliest_revenue_event_timestamp`, `latest_revenue_event_timestamp`, `last_updated`
+- **Revenue:** `total_revenue_usd`, `net_revenue_usd`, `num_payments`, `renewal_count`, `has_paid_revenue`, `has_refund`, `num_refunds`, `total_refund_amount_usd`
+- **Offer:** `offer_type`, `offer_id`, `store_offer_id`, `event_offer_id`
+- **User:** `rc_app_user_id`, `rc_app_id`, `app_transaction_id`, `app_account_id`, `idfv`, `helium_persistent_id`, `helium_session_id`, `app_session_id`, `attributed_user_id`, `user_country`
+- **Attribution:** `is_helium_attributed`, `attributed_paywall_id`, `attributed_paywall_name`, `attributed_paywall_template_name`, `attributed_paywall_session_id`, `attributed_trigger_name`, `attributed_experiment_id`, `attributed_experiment_name`, `attributed_experiment_type`, `attributed_experiment_audience_id`, `attributed_variant_allocation_id`, `attributed_variant_allocation_name`, `attributed_custom_traits_json`, `attributed_event_store_transaction_id`, `attributed_event_app_transaction_id`
+- **Attributed SDK event:** `event_timestamp`, `event_is_fallback`, `event_product_id`, `event_app_build`, `event_app_name`, `event_os_name`, `event_sdk_version`, `event_device_type`, `event_device_model`, `event_country`, `event_city`, `event_environment`
+
+## users
+
+One row per Helium user (`helium_persistent_id`), with their latest device details and lifetime counts.
+
+Columns:
+
+- **Identity:** `helium_persistent_id`, `observed_user_ids`, `observed_rc_user_ids`, `observed_app_attribution_tokens`, `observed_transaction_ids`, `canonical_rc_app_user_id`, `canonical_app_attribution_token`
+- **Activity:** `first_seen_timestamp`, `last_seen_timestamp`, `num_sessions`, `num_paywall_sessions`, `num_paywall_opens`, `num_conversions`, `last_updated`
+- **Firsts:** `first_paywall_seen`, `first_paywall_seen_timestamp`, `first_experiment_allocated`, `first_experiment_allocated_timestamp`, `first_product_purchased`, `first_product_purchased_timestamp`
+- **Latest device:** `latest_country`, `latest_city`, `latest_app_store`, `latest_app_name`, `latest_device_build`, `latest_device_model`, `latest_device_type`, `latest_sdk_version`, `latest_environment`
+- **Attributes:** `latest_custom_traits_json`, `latest_rc_subscriber_attributes_json`
+
+## Example queries
+
+Paywall conversion by trigger over the last 30 days:
+
+```sql
+SELECT
+    trigger_name,
+    countIf(event_name = 'experience_opened') AS opens,
+    countIf(event_name = 'purchase_succeeded') AS purchases,
+    round(purchases / nullIf(opens, 0), 4) AS conversion_rate
+FROM events
+WHERE event_timestamp > now() - INTERVAL 30 DAY
+GROUP BY trigger_name
+ORDER BY opens DESC
+```
+
+Active subscribers and lifetime net revenue by experiment variant:
+
+```sql
+SELECT
+    attributed_experiment_name,
+    attributed_variant_allocation_name,
+    countIf(has_access = 1) AS active_subscribers,
+    round(sum(net_revenue_usd), 2) AS net_revenue_usd
+FROM subscriptions
+WHERE attributed_experiment_id NOT IN ('', 'Unknown')
+GROUP BY attributed_experiment_name, attributed_variant_allocation_name
+ORDER BY attributed_experiment_name, net_revenue_usd DESC
+```
+
+Daily revenue for the last 14 days:
+
+```sql
+SELECT toDate(timestamp) AS day, round(sum(revenue_usd), 2) AS revenue_usd
+FROM revenue
+WHERE timestamp > now() - INTERVAL 14 DAY
+GROUP BY day
+ORDER BY day
+```

@@ -36,6 +36,15 @@
         ]
       },
       {
+        "group": "DATA ACCESS",
+        "icon": "database",
+        "pages": [
+          "data-access/overview",
+          "data-access/schema",
+          "data-access/changelog"
+        ]
+      },
+      {
         "group": "GUIDES",
         "icon": "compass",
         "pages": [

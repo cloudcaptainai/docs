@@ -1,0 +1,94 @@
+---
+title: "Data Access API"
+description: "Query your organization's Helium events, revenue, subscriptions and users with SQL."
+icon: "database"
+---
+
+<Warning>
+  Data Access is in private beta. Ask your Helium contact to turn it on for your organization.
+</Warning>
+
+The Data Access API lets you run read-only SQL against your Helium data. Use it to load Helium data into your warehouse, build your own reports, or join paywall activity with your own product data.
+
+Every query runs against the [`customer_v1` schema](/data-access/schema). Each query only ever sees your organization's rows, whatever SQL you send.
+
+## Turn it on
+
+1. In the Helium dashboard, open **Settings** and scroll to **Data Access**. Only organization Admins see this section.
+2. Read and accept the terms, then click **Enable Data Access**.
+3. Enter a name for your key and click **Create key**. Copy the key right away: it is shown only once.
+
+## Send a query
+
+Send a `POST` request with your key as a bearer token and the SQL in the body:
+
+```bash
+curl -X POST https://app.tryhelium.com/api/metrics-query \
+  -H "Authorization: Bearer $HELIUM_DATA_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"sql": "SELECT event_name, count() AS events FROM events WHERE event_timestamp > now() - INTERVAL 7 DAY GROUP BY event_name ORDER BY events DESC"}'
+```
+
+Queries use [ClickHouse SQL](https://clickhouse.com/docs/sql-reference). Table names resolve to `customer_v1`, so `events` and `customer_v1.events` are the same table.
+
+A successful response is ClickHouse JSON:
+
+```json
+{
+  "meta": [{ "name": "event_name", "type": "String" }, { "name": "events", "type": "UInt64" }],
+  "data": [{ "event_name": "experience_opened", "events": "18234" }],
+  "rows": 1,
+  "statistics": { "elapsed": 0.041, "rows_read": 52110, "bytes_read": 1834211 }
+}
+```
+
+64-bit integers come back as strings so they keep full precision.
+
+Every response has an `X-Request-Id` header. Include it when you contact support about a query.
+
+## Keys
+
+- Keys belong to your organization, not to the person who created them. Admins can see and revoke every key in **Settings → Data Access**.
+- A key expires 30 days after it was last used. Each day you use it, the 30 days start over, so a key in regular use does not expire.
+- A revoked key stops working within a minute.
+- Turning off Data Access revokes every key at once.
+- Only Data Access keys work with this API. Your other Helium API keys do not.
+
+## Limits
+
+| Limit | Value |
+| --- | --- |
+| Query run time | 300 seconds |
+| Data read per query | 20 GB |
+| Memory per query | 8 GB |
+| Rows returned per query | 1,000,000 |
+| Queries running at once | 4 per organization |
+| SQL length | 100,000 characters |
+
+Queries are read-only. You cannot change these limits from your query.
+
+For large exports, query one day or one week at a time, and filter on `event_timestamp` or `timestamp` so less data is read.
+
+## Errors
+
+Errors return a JSON body with a type and a message:
+
+```json
+{ "error": { "type": "TOO_MANY_BYTES", "message": "Limit for rows or bytes to read exceeded..." } }
+```
+
+| Status | When | What to do |
+| --- | --- | --- |
+| `400` | Invalid request body, or invalid SQL (for example `SYNTAX_ERROR`, `UNKNOWN_IDENTIFIER`). | Fix the request or query. |
+| `401` | Missing, expired, revoked or wrong-type key. | Create a new key in **Settings → Data Access**. |
+| `403` | Data Access is turned off for your organization. | An Admin can turn it back on. |
+| `422` | The query hit a limit: `TIMEOUT_EXCEEDED`, `TOO_MANY_BYTES`, `TOO_MANY_ROWS`, `TOO_MANY_ROWS_OR_BYTES` or `MEMORY_LIMIT_EXCEEDED`. | Narrow the date range, select fewer columns, or aggregate. |
+| `429` | Four of your queries are already running. | Wait for one to finish, then retry. |
+| `502` | The query service is unavailable. | Retry with backoff. |
+
+## Data use and privacy
+
+- Queries can only read your organization's data. Other organizations' data is never visible, and you cannot read Helium's internal tables.
+- For each query, Helium records the time, the key used, the SQL, the status, how long it took and how much data it read, to run and debug the service. Helium does not store your results.
+- Admins can see the last 30 days of usage in **Settings → Data Access**.
+- Your data may include personal data about your app's users, such as device IDs, user IDs and location. You are responsible for handling the data you export in line with your own privacy policy and the law that applies to you.

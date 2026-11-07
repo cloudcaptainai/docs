@@ -15,8 +15,7 @@ Every query runs against the [`customer_v1` schema](/data-access/schema). Each q
 ## Turn it on
 
 1. In the Helium dashboard, open **Settings** and scroll to **Data Access**. Only organization Admins see this section.
-2. Read and accept the terms, then click **Enable Data Access**.
-3. Enter a name for your secret key and click **Create secret key**. Copy the key right away: it is shown only once.
+2. Enter a name for your secret key and click **Create secret key**. Copy the key right away: it is shown only once.
 
 <Note>
   Your Data Access secret key is not the Helium API key you use in your app's SDK setup. The API key cannot query data, and the secret key does not work in the SDK. Keep the secret key on your server: never put it in an app, a website or a public repository.
@@ -55,7 +54,7 @@ Every response has an `X-Request-Id` header. Include it when you contact support
 - Secret keys belong to your organization, not to the person who created them. Admins can see and revoke every key in **Settings → Data Access**.
 - A key expires 30 days after it was last used. Each day you use it, the 30 days start over, so a key in regular use does not expire.
 - A revoked key stops working within a minute.
-- Turning off Data Access revokes every key at once.
+- Revoking your last key turns off Data Access for your organization. Queries stop right away.
 - Only Data Access secret keys work with this API. Your Helium API key and other keys do not.
 
 ## Data freshness

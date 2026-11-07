@@ -51,6 +51,7 @@ Each store sends different fields, so many `revenue` columns are empty for some 
 
 - **Test purchases:** `environment` is `SANDBOX` for test purchases. Stripe test mode can be a large share of Stripe rows. Add `WHERE environment = 'PRODUCTION'` for revenue numbers.
 - **Zero amounts:** `revenue_usd` and `revenue_local` are `0` on rows without a charge, such as cancellations, expirations and free trial starts. That is most rows.
+- **Proceeds:** `proceeds_usd` and `proceeds_local` are Helium's estimate of what you keep after store commission and sales tax. They are negative on refunds. On Stripe refunds they equal the full refund amount.
 - **`event_timestamp`:** empty for some Stripe rows. Use `coalesce(event_timestamp, timestamp)`.
 - **Store-specific columns:** `recent_subscription_start_date` is empty for RevenueCat. `storefront` is empty for Paddle and often for Stripe. `offer_id` and `offer_code` are mostly empty outside Google Play.
 - **User columns:** `rc_app_user_id` is filled in only for RevenueCat and some Stripe and Paddle rows. `idfv` comes only from RevenueCat on iOS. `app_account_token` is filled in only when your app sets one at purchase.
@@ -60,7 +61,7 @@ Columns:
 
 - **Event:** `notification_id`, `event_type`, `timestamp`, `event_timestamp`, `store_notification_type`, `store_notification_subtype`, `source`, `app_store`, `environment`
 - **Transaction:** `transaction_id`, `original_transaction_id`, `app_transaction_id`, `app_account_token`, `quantity`, `family_shared`
-- **Money:** `revenue_usd`, `revenue_local`, `currency`, `storefront`
+- **Money:** `revenue_usd`, `proceeds_usd`, `revenue_local`, `proceeds_local`, `currency`, `storefront`
 - **Product and offer:** `product_id`, `product_type`, `subscription_group_id`, `renewal_date`, `recent_subscription_start_date`, `offer_id`, `offer_type`, `offer_code`, `ios_offer_type`, `ios_offer_period`
 - **User:** `rc_app_user_id`, `idfv`, `helium_persistent_id`
 

@@ -77,6 +77,12 @@ One row per subscription or purchase, with its revenue to date and the paywall, 
 
 The `attributed_*` columns are filled in only when Helium can link the subscription to a paywall session from the SDK, and `is_helium_attributed` is `1` for those rows. Purchases Helium cannot link to a paywall session have no attribution.
 
+Some timestamp columns use a placeholder date instead of being empty when something never happened:
+
+- **`2299-12-31`:** `trial_start_timestamp` and `trial_end_timestamp` when there was no trial, and `first_paid_timestamp` when the subscription was never paid. To count paid subscriptions, use `first_paid_timestamp < '2200-01-01'`, not a check for a non-empty value.
+- **`1970-01-01`:** `last_renewal_timestamp`, `last_cancellation_timestamp`, `expiration_timestamp`, `conversion_timestamp` and `event_timestamp` when there is no such event. A small number of older rows also have `trial_end_timestamp` set to `1970-01-01` when the trial end is unknown.
+- **Empty:** `latest_subscription_start_date` and `latest_renewal_date` are `NULL` when unknown.
+
 Columns:
 
 - **Subscription:** `subscription_id`, `product_id`, `product_type`, `store`, `webhook_source`, `environment`, `storefront`, `currency`, `family_shareable`, `has_access`, `subscription_status`

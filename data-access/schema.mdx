@@ -55,7 +55,7 @@ Each store sends different fields, so many `revenue` columns are empty for some 
 
 - **Test purchases:** `environment` is `SANDBOX` for test purchases. Stripe test mode can be a large share of Stripe rows. Add `WHERE environment = 'PRODUCTION'` for revenue numbers.
 - **Zero amounts:** `revenue_usd` and `revenue_local` are `0` on rows without a charge, such as cancellations, expirations and free trial starts. That is most rows.
-- **Proceeds:** `proceeds_usd` and `proceeds_local` are Helium's estimate of what you keep after store commission and sales tax. They are negative on refunds. On Stripe refunds they equal the full refund amount.
+- **Proceeds:** `proceeds_usd` and `proceeds_local` are Helium's estimate of what you keep after store commission and sales tax. They are negative on refunds. On Stripe refunds they equal the full refund amount. For App Store, Google Play and RevenueCat rows from before 22 June 2026, proceeds are `0` because Helium did not record them yet. Stripe and Paddle rows have proceeds for all dates.
 - **`event_timestamp`:** empty for some Stripe rows. Use `coalesce(event_timestamp, timestamp)`.
 - **Store-specific columns:** `recent_subscription_start_date` is empty for RevenueCat. `storefront` is empty for Paddle and often for Stripe. `offer_id` and `offer_code` are mostly empty outside Google Play.
 - **User columns:** `rc_app_user_id` is filled in only for RevenueCat and some Stripe and Paddle rows. `idfv` comes only from RevenueCat on iOS. `app_account_token` is filled in only when your app sets one at purchase.
@@ -77,6 +77,12 @@ One row per subscription or purchase, with its revenue to date and the paywall, 
 
 The `attributed_*` columns are filled in only when Helium can link the subscription to a paywall session from the SDK, and `is_helium_attributed` is `1` for those rows. Purchases Helium cannot link to a paywall session have no attribution.
 
+Revenue totals cover the subscription's whole life to date:
+
+- **`net_revenue_usd`:** gross charges minus refunds, before store fees. It equals `sum(revenue_usd)` over the subscription's rows in `revenue`. `total_revenue_usd` holds the same value.
+- **`net_proceeds_usd`:** what you keep after store commission, sales tax and refunds. It equals `sum(proceeds_usd)` over the same rows, so it has the same gap before 22 June 2026 for App Store, Google Play and RevenueCat.
+- **`total_refund_amount_usd`:** the refunded amount, as a negative number.
+
 Some timestamp columns use a placeholder date instead of being empty when something never happened:
 
 - **`2299-12-31`:** `trial_start_timestamp` and `trial_end_timestamp` when there was no trial, and `first_paid_timestamp` when the subscription was never paid. To count paid subscriptions, use `first_paid_timestamp < '2200-01-01'`, not a check for a non-empty value.
@@ -87,7 +93,7 @@ Columns:
 
 - **Subscription:** `subscription_id`, `product_id`, `product_type`, `store`, `webhook_source`, `environment`, `storefront`, `currency`, `family_shareable`, `has_access`, `subscription_status`
 - **Lifecycle:** `trial_start_timestamp`, `trial_end_timestamp`, `is_trial_pending`, `is_trial_resolved`, `first_paid_timestamp`, `conversion_timestamp`, `conversion_type`, `last_renewal_timestamp`, `latest_renewal_date`, `latest_subscription_start_date`, `last_cancellation_timestamp`, `expiration_timestamp`, `first_event_type`, `latest_event_type`, `first_revenue_event_type`, `transaction_type`, `earliest_revenue_event_timestamp`, `latest_revenue_event_timestamp`, `last_updated`
-- **Revenue:** `total_revenue_usd`, `net_revenue_usd`, `num_payments`, `renewal_count`, `has_paid_revenue`, `has_refund`, `num_refunds`, `total_refund_amount_usd`
+- **Revenue:** `total_revenue_usd`, `net_revenue_usd`, `net_proceeds_usd`, `num_payments`, `renewal_count`, `has_paid_revenue`, `has_refund`, `num_refunds`, `total_refund_amount_usd`
 - **Offer:** `offer_type`, `offer_id`, `store_offer_id`, `event_offer_id`
 - **User:** `rc_app_user_id`, `rc_app_id`, `app_transaction_id`, `app_account_id`, `idfv`, `helium_persistent_id`, `helium_session_id`, `app_session_id`, `attributed_user_id`, `user_country`
 - **Attribution:** `is_helium_attributed`, `attributed_paywall_id`, `attributed_paywall_name`, `attributed_paywall_template_name`, `attributed_paywall_session_id`, `attributed_trigger_name`, `attributed_experiment_id`, `attributed_experiment_name`, `attributed_experiment_type`, `attributed_experiment_audience_id`, `attributed_variant_allocation_id`, `attributed_variant_allocation_name`, `attributed_custom_traits_json`, `attributed_event_store_transaction_id`, `attributed_event_app_transaction_id`
@@ -128,7 +134,8 @@ SELECT
     attributed_experiment_name,
     attributed_variant_allocation_name,
     countIf(has_access = 1) AS active_subscribers,
-    round(sum(net_revenue_usd), 2) AS net_revenue_usd
+    round(sum(net_revenue_usd), 2) AS net_revenue_usd,
+    round(sum(net_proceeds_usd), 2) AS net_proceeds_usd
 FROM subscriptions
 WHERE attributed_experiment_id NOT IN ('', 'Unknown')
 GROUP BY attributed_experiment_name, attributed_variant_allocation_name

@@ -8,6 +8,14 @@ icon: "table"
 
 New columns may be added to `customer_v1` at any time, so select columns by name instead of relying on `SELECT *` column order. Removing or renaming a column, or changing what it means, only happens in a new schema version. See the [schema changelog](/data-access/changelog).
 
+## Personal data
+
+Helium leaves out direct contact details:
+
+- IP addresses and network provider fields are not included.
+- Email addresses in text and ID columns are replaced with `[redacted]`.
+- The `*_traits_json` and `latest_rc_subscriber_attributes_json` columns drop keys for names, emails, phone numbers, IP addresses, postal addresses, birth dates, advertising IDs and ad click IDs (for example `email`, `firstName`, `phone`, `fbclid`). Other keys are returned as sent.
+
 ## events
 
 One row per SDK event from your apps. This is the same event stream described in [Helium events](/guides/helium-events).

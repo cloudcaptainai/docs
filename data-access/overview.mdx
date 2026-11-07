@@ -71,7 +71,7 @@ Data Access is not real-time. Data reaches Helium over time from your users' dev
 
 To keep a copy of this data up to date:
 
-- **events:** `event_timestamp` is the time on the user's device. Each time you sync, reload the last 7 days instead of only new rows.
+- **events:** `event_timestamp` is the time on the user's device. Each time you sync, reload the last 7 days instead of only new rows. Upsert on `event_id`, which also removes the rare duplicate events.
 - **revenue:** `timestamp` is when Helium received the store notification. Sync rows with a `timestamp` after your last sync.
 - **subscriptions** and **users:** sync rows with a `last_updated` after your last sync, and replace the old copy of each row.
 

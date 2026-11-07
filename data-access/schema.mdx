@@ -43,6 +43,10 @@ Columns:
 - **App and device:** `app_bundle_id`, `app_version`, `app_build`, `app_environment`, `helium_sdk_version`, `platform`, `os_name`, `os_version`, `device_manufacturer`, `device_model`, `device_idiom`, `device_orientation`, `screen_width_points`, `screen_height_points`, `is_system_dark_mode`
 - **Location and locale:** `geo_country_name`, `geo_continent_code`, `geo_continent_name`, `geo_region_name`, `geo_region_code`, `geo_city`, `locale_language`, `locale_code`, `locale_country`
 
+<Note>
+  A very small number of events can appear twice with the same `event_id`, about 1 in 1,000 rows. It's rare, but you still need to deduplicate on `event_id` for exact counts: count with `uniqExact(event_id)` instead of `count()`, or upsert on `event_id` when you copy rows into your warehouse.
+</Note>
+
 ## revenue
 
 One row per store revenue event (purchase, renewal, refund and so on) from the App Store, Google Play, Stripe, Paddle or RevenueCat. Store webhooks that were delivered more than once appear once.
@@ -102,8 +106,8 @@ Paywall conversion by trigger over the last 30 days:
 ```sql
 SELECT
     trigger_name,
-    countIf(event_name = 'experience_opened') AS opens,
-    countIf(event_name = 'purchase_succeeded') AS purchases,
+    uniqExactIf(event_id, event_name = 'experience_opened') AS opens,
+    uniqExactIf(event_id, event_name = 'purchase_succeeded') AS purchases,
     round(purchases / nullIf(opens, 0), 4) AS conversion_rate
 FROM events
 WHERE event_timestamp > now() - INTERVAL 30 DAY

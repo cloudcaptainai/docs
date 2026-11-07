@@ -4,7 +4,7 @@ Use when the user asks how many free trials convert to paid, whether trial conve
 
 ## Definitions
 
-- **Trial:** a subscription with a real `trial_start_timestamp`. Missing values are stored as `1970-01-01` or `2999-12-31`, so always filter on `trial_start_timestamp > '1970-01-02' AND trial_start_timestamp < '2999-01-01'`.
+- **Trial:** a subscription with a real `trial_start_timestamp`. Subscriptions without a trial have the placeholder `2299-12-31`, and a few older rows have `1970-01-01`, so always filter on `trial_start_timestamp > '1970-01-02' AND trial_start_timestamp < '2200-01-01'`.
 - **Resolved:** `is_trial_resolved = 1`. The trial is at least 7 days old and at least 2 days past its trial end, so the store has had time to report the outcome.
 - **Pending:** `is_trial_pending = 1`. The outcome is not known yet. Leave pending trials out of conversion rates.
 - **Converted:** a resolved trial with `has_paid_revenue = 1`.
@@ -22,7 +22,7 @@ SELECT
 FROM subscriptions
 WHERE environment = 'PRODUCTION'
   AND trial_start_timestamp > '1970-01-02'
-  AND trial_start_timestamp < '2999-01-01'
+  AND trial_start_timestamp < '2200-01-01'
   AND trial_start_timestamp >= now() - INTERVAL 90 DAY
 GROUP BY trial_week
 ORDER BY trial_week
@@ -44,7 +44,7 @@ SELECT
 FROM subscriptions
 WHERE environment = 'PRODUCTION'
   AND trial_start_timestamp > '1970-01-02'
-  AND trial_start_timestamp < '2999-01-01'
+  AND trial_start_timestamp < '2200-01-01'
   AND trial_start_timestamp >= now() - INTERVAL 90 DAY
 GROUP BY product_id
 HAVING resolved >= 50
@@ -60,11 +60,11 @@ SELECT
 FROM subscriptions
 WHERE environment = 'PRODUCTION'
   AND trial_start_timestamp > '1970-01-02'
-  AND trial_start_timestamp < '2999-01-01'
+  AND trial_start_timestamp < '2200-01-01'
   AND trial_start_timestamp >= now() - INTERVAL 90 DAY
   AND has_paid_revenue = 1
   AND first_paid_timestamp > '1970-01-02'
-  AND first_paid_timestamp < '2999-01-01'
+  AND first_paid_timestamp < '2200-01-01'
 GROUP BY days_to_first_payment
 ORDER BY days_to_first_payment
 ```

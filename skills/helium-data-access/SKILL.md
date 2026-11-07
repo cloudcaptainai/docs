@@ -48,7 +48,7 @@ The response is ClickHouse JSON: `meta`, `data`, `rows`, `statistics`. Errors ar
 - **Active subscribers:** use `has_access = 1`, not `subscription_status`.
 - **Link revenue to paywalls and experiments through `subscriptions`.** Use its `attributed_*` columns, or join `revenue.original_transaction_id = subscriptions.subscription_id`. `revenue.helium_persistent_id` is often empty.
 - **Attribution is partial.** `attributed_*` columns are only set when `is_helium_attributed = 1`. Report the attributed share alongside attributed totals.
-- **Missing timestamps are sentinels, not NULL**, on some `subscriptions` columns. A real trial has `trial_start_timestamp > '1970-01-02' AND trial_start_timestamp < '2999-01-01'`.
+- **Missing timestamps are placeholder dates, not NULL**, on most `subscriptions` timestamp columns: `2299-12-31` for trial and first-payment columns, `1970-01-01` for the others. A real trial has `trial_start_timestamp < '2200-01-01'`; a paid subscription has `first_paid_timestamp < '2200-01-01'`. See the schema reference for the full list.
 - **64-bit integers come back as strings** in JSON. Convert before doing math outside SQL.
 - **Numbers can differ slightly from the Helium dashboard**, because late data arrives between reads. Differences of a few percent on recent days are expected.
 

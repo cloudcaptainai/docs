@@ -64,7 +64,7 @@ Uses store data attributed to the experiment, so it includes renewals and refund
 SELECT
     attributed_variant_allocation_name AS variant,
     count() AS subscriptions,
-    countIf(trial_start_timestamp > '1970-01-02' AND trial_start_timestamp < '2999-01-01') AS trials,
+    countIf(trial_start_timestamp > '1970-01-02' AND trial_start_timestamp < '2200-01-01') AS trials,
     countIf(has_paid_revenue = 1) AS paid_subscriptions,
     countIf(has_access = 1) AS active_subscriptions,
     round(sum(total_revenue_usd), 2) AS revenue_usd,

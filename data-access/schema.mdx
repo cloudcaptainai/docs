@@ -75,7 +75,7 @@ One row per subscription or purchase, with its revenue to date and the paywall, 
 
 `has_access` is `1` when the subscription currently grants access: it has a renewal date in the future or a pending trial, and its latest event is not a refund, revocation or expiration. Use `has_access` instead of `subscription_status` to count active subscribers. `subscription_status` only changes when a store event arrives, so it can lag behind.
 
-`is_trial_pending` is `1` until a trial is both at least 7 days old and at least 2 days past its `trial_end_timestamp`, so it stays `1` for 7 days even on a 3-day trial. `is_trial_resolved` is its opposite. To find trials that have ended, filter on `trial_end_timestamp < now()` instead. To measure trial-to-paid conversion, count ended trials where `first_paid_timestamp < '2200-01-01'`.
+`is_trial_pending` is `1` until a trial is both at least 7 days old and at least 2 days past its `trial_end_timestamp`, so it stays `1` for 7 days even on a 3-day trial. `is_trial_resolved` is its opposite. To find trials whose end date has passed, filter on `trial_end_timestamp < now()`. For trial-to-paid conversion rates, use `is_trial_resolved = 1`, because it waits 2 extra days for the store to report whether the trial converted.
 
 The `attributed_*` columns are filled in only when Helium can link the subscription to a paywall session from the SDK, and `is_helium_attributed` is `1` for those rows. Purchases Helium cannot link to a paywall session have no attribution.
 

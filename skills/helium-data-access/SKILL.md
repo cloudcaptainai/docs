@@ -43,6 +43,8 @@ The response is ClickHouse JSON: `meta`, `data`, `rows`, `statistics`. Errors ar
 - **Count events with `uniqExact(event_id)`**, not `count()`. About 1 in 1,000 events is stored twice.
 - **Count users with `uniqExact(persistent_id)`** on `events`, or `helium_persistent_id` on `subscriptions` and `users`.
 - **Exclude test data.** Use `environment = 'PRODUCTION'` on `revenue` and `subscriptions`. Check `app_environment` values on `events` before filtering on it.
+- **Refunds are negative** in `revenue_usd` and `proceeds_usd`, so `sum()` already nets them out.
+- **Proceeds have a gap.** App Store, Google Play and RevenueCat rows before 22 June 2026 have `proceeds_usd = 0`. Don't compare proceeds across that date for those stores; use `revenue_usd` instead.
 - **Two timestamps on `revenue`.** `timestamp` is when Helium received the store notification. `coalesce(event_timestamp, timestamp)` is when it happened. Pick one and say which.
 - **Recent data is incomplete.** About 1.5% of events arrive more than a day late, and store notifications can take hours or days. End comparison windows at least one full day ago, and compare whole days.
 - **Active subscribers:** use `has_access = 1`, not `subscription_status`.

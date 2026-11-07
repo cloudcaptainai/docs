@@ -28,7 +28,7 @@ If the change is in one store only, or on one day only, say so before going furt
 
 ## 2. Split by event type
 
-This shows whether the change is new purchases, renewals or refunds. Look at the sign of `revenue_usd` and `proceeds_usd` on `refund` rows before adding them up.
+This shows whether the change is new purchases, renewals or refunds. Refund rows are negative.
 
 ```sql
 WITH

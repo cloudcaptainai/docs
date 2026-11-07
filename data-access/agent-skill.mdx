@@ -1,0 +1,62 @@
+---
+title: "Agent skill"
+description: "Give Claude Code, Codex, Cursor and other AI agents a skill for investigating your Helium data with the Data Access API."
+icon: "wand-magic-sparkles"
+---
+
+The Helium Data Access skill teaches your AI agent how to answer questions about your Helium data the right way: which tables to use, which filters to always apply, how to handle late data, and step-by-step recipes for common investigations. It uses the [Data Access API](/data-access/overview), so you need a Data Access secret key.
+
+## Install
+
+Run this in your project:
+
+```bash
+npx skills add cloudcaptainai/docs --skill helium-data-access
+```
+
+Choose your agent when asked. Add `-g` to install it for all your projects. To update it later, run `npx skills update helium-data-access`.
+
+<Accordion title="Install without npx">
+  Copy the skill folder from GitHub into your agent's skills folder. For Claude Code, use `.claude/skills`. For Codex, use `.agents/skills`.
+
+  ```bash
+  git clone --depth 1 https://github.com/cloudcaptainai/docs.git /tmp/helium-docs
+  mkdir -p .claude/skills
+  cp -R /tmp/helium-docs/skills/helium-data-access .claude/skills/
+  rm -rf /tmp/helium-docs
+  ```
+
+  Or [view the skill on GitHub](https://github.com/cloudcaptainai/docs/tree/main/skills/helium-data-access) and copy `SKILL.md` and the `references` folder by hand.
+</Accordion>
+
+## Set your secret key
+
+Create a secret key in **Settings → Data Access** (see [Turn it on](/data-access/overview#turn-it-on)), then make it available to your agent as `HELIUM_SECRET_KEY`:
+
+```bash
+export HELIUM_SECRET_KEY="your-secret-key"
+```
+
+The skill tells your agent never to print or store the key. Keep it out of your repository.
+
+## Ask questions
+
+Ask your agent in plain language. It picks the skill when the question is about your Helium data. For example:
+
+- "Why did revenue drop last week compared to the week before?"
+- "Which variant is winning in my onboarding paywall experiment?"
+- "What's our trial-to-paid conversion rate by product for the last 90 days?"
+- "Where do users drop off on the paywall for the onboarding trigger?"
+
+The agent answers with the numbers, the time window and filters it used, the SQL it ran, and any caveats such as recent data still arriving.
+
+## What's included
+
+- **Rules for every query:** always filter on time, count events and users without duplicates, leave out test purchases, account for late data, and use attribution correctly.
+- **Investigation recipes:**
+  - **Revenue changed:** confirm the change, split it by event type and segment, and rule out missing store data.
+  - **Experiment results:** check the variant split, then compare conversion and revenue per variant.
+  - **Trial conversion:** conversion by trial start week and segment, and time to first payment.
+  - **Paywall funnel:** drop-off from open to purchase, render failures, fallback paywalls and purchase errors.
+
+The skill is read-only, like the Data Access API. For questions about your paywalls, workflows and experiment setup, also connect the [Helium MCP server](/ai-tools/mcp).

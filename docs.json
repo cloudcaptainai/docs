@@ -41,6 +41,7 @@
         "pages": [
           "data-access/overview",
           "data-access/schema",
+          "data-access/agent-skill",
           "data-access/changelog"
         ]
       },

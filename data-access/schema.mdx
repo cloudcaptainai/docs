@@ -47,6 +47,16 @@ Columns:
 
 One row per store revenue event (purchase, renewal, refund and so on) from the App Store, Google Play, Stripe, Paddle or RevenueCat. Store webhooks that were delivered more than once appear once.
 
+Each store sends different fields, so many `revenue` columns are empty for some stores. Only stores you have connected to Helium appear.
+
+- **Test purchases:** `environment` is `SANDBOX` for test purchases. Stripe test mode can be a large share of Stripe rows. Add `WHERE environment = 'PRODUCTION'` for revenue numbers.
+- **Zero amounts:** `revenue_usd` and `revenue_local` are `0` on rows without a charge, such as cancellations, expirations and free trial starts. That is most rows.
+- **`proceeds_usd`:** not filled in yet. Use `revenue_usd`.
+- **`event_timestamp`:** empty for some Stripe rows. Use `coalesce(event_timestamp, timestamp)`.
+- **Store-specific columns:** `recent_subscription_start_date` is empty for RevenueCat. `storefront` is empty for Paddle and often for Stripe. `offer_id` and `offer_code` are mostly empty outside Google Play.
+- **User columns:** `rc_app_user_id` is filled in only for RevenueCat and some Stripe and Paddle rows. `idfv` comes only from RevenueCat on iOS. `app_account_token` is filled in only when your app sets one at purchase.
+- **`helium_persistent_id`:** often empty. It is always empty for App Store Server Notifications and Google Play notifications. To link revenue to paywalls and experiments, join `revenue.original_transaction_id` to `subscriptions.subscription_id` and use the `attributed_*` columns.
+
 Columns:
 
 - **Event:** `notification_id`, `event_type`, `timestamp`, `event_timestamp`, `store_notification_type`, `store_notification_subtype`, `source`, `app_store`, `environment`
@@ -60,6 +70,8 @@ Columns:
 One row per subscription or purchase, with its revenue to date and the paywall, experiment and variant it is attributed to.
 
 `has_access` is `1` when the subscription currently grants access: it has a renewal date in the future or a pending trial, and its latest event is not a refund, revocation or expiration. Use `has_access` instead of `subscription_status` to count active subscribers. `subscription_status` only changes when a store event arrives, so it can lag behind.
+
+The `attributed_*` columns are filled in only when Helium can link the subscription to a paywall session from the SDK, and `is_helium_attributed` is `1` for those rows. Purchases Helium cannot link to a paywall session have no attribution.
 
 Columns:
 

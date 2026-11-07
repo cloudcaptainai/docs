@@ -5,7 +5,7 @@ icon: "database"
 ---
 
 <Warning>
-  Data Access is in private beta. Ask your Helium contact to turn it on for your organization.
+  Data Access is in private beta. If you don't see **Data Access** in **Settings**, ask your Helium contact to turn it on for your organization.
 </Warning>
 
 The Data Access API lets you run read-only SQL against your Helium data. Use it to load Helium data into your warehouse, build your own reports, or join paywall activity with your own product data.
@@ -16,15 +16,19 @@ Every query runs against the [`customer_v1` schema](/data-access/schema). Each q
 
 1. In the Helium dashboard, open **Settings** and scroll to **Data Access**. Only organization Admins see this section.
 2. Read and accept the terms, then click **Enable Data Access**.
-3. Enter a name for your key and click **Create key**. Copy the key right away: it is shown only once.
+3. Enter a name for your secret key and click **Create secret key**. Copy the key right away: it is shown only once.
+
+<Note>
+  Your Data Access secret key is not the Helium API key you use in your app's SDK setup. The API key cannot query data, and the secret key does not work in the SDK. Keep the secret key on your server: never put it in an app, a website or a public repository.
+</Note>
 
 ## Send a query
 
-Send a `POST` request with your key as a bearer token and the SQL in the body:
+Send a `POST` request with your secret key as a bearer token and the SQL in the body:
 
 ```bash
 curl -X POST https://app.tryhelium.com/api/metrics-query \
-  -H "Authorization: Bearer $HELIUM_DATA_KEY" \
+  -H "Authorization: Bearer $HELIUM_SECRET_KEY" \
   -H "Content-Type: application/json" \
   -d '{"sql": "SELECT event_name, count() AS events FROM events WHERE event_timestamp > now() - INTERVAL 7 DAY GROUP BY event_name ORDER BY events DESC"}'
 ```
@@ -46,13 +50,32 @@ A successful response is ClickHouse JSON:
 
 Every response has an `X-Request-Id` header. Include it when you contact support about a query.
 
-## Keys
+## Secret keys
 
-- Keys belong to your organization, not to the person who created them. Admins can see and revoke every key in **Settings → Data Access**.
+- Secret keys belong to your organization, not to the person who created them. Admins can see and revoke every key in **Settings → Data Access**.
 - A key expires 30 days after it was last used. Each day you use it, the 30 days start over, so a key in regular use does not expire.
 - A revoked key stops working within a minute.
 - Turning off Data Access revokes every key at once.
-- Only Data Access keys work with this API. Your other Helium API keys do not.
+- Only Data Access secret keys work with this API. Your Helium API key and other keys do not.
+
+## Data freshness
+
+Data Access is not real-time. Data reaches Helium over time from your users' devices and from the app stores, so the most recent hours are incomplete and recent numbers can still change.
+
+| Table | When new data shows up | What arrives late |
+| --- | --- | --- |
+| `events` | Seconds after the event reaches Helium. | Devices send events in batches and hold them while offline. About 5% of events reach Helium more than an hour after they happened, about 1.5% more than a day after, and a few more than a week after. |
+| `revenue` | Seconds after the store notifies Helium. | Stores send notifications on their own schedule. Most arrive within a few minutes, but some arrive hours or days later. Refunds often arrive weeks or months after the purchase. |
+| `subscriptions` | Rebuilt every 15 minutes, so up to about 20 minutes behind `revenue`. | Totals, status and `has_access` change as renewals, cancellations and refunds arrive. |
+| `users` | Seconds after new events reach Helium. | Counts and `latest_*` columns change as late events arrive. |
+
+To keep a copy of this data up to date:
+
+- **events:** `event_timestamp` is the time on the user's device. Each time you sync, reload the last 7 days instead of only new rows.
+- **revenue:** `timestamp` is when Helium received the store notification. Sync rows with a `timestamp` after your last sync.
+- **subscriptions** and **users:** sync rows with a `last_updated` after your last sync, and replace the old copy of each row.
+
+Numbers here can differ slightly from the Helium dashboard for the same period, because the dashboard and your query may read the data at different times.
 
 ## Limits
 
@@ -80,7 +103,7 @@ Errors return a JSON body with a type and a message:
 | Status | When | What to do |
 | --- | --- | --- |
 | `400` | Invalid request body, or invalid SQL (for example `SYNTAX_ERROR`, `UNKNOWN_IDENTIFIER`). | Fix the request or query. |
-| `401` | Missing, expired, revoked or wrong-type key. | Create a new key in **Settings → Data Access**. |
+| `401` | Missing, expired or revoked secret key, or a key that is not a Data Access secret key. | Create a new secret key in **Settings → Data Access**. |
 | `403` | Data Access is turned off for your organization. | An Admin can turn it back on. |
 | `422` | The query hit a limit: `TIMEOUT_EXCEEDED`, `TOO_MANY_BYTES`, `TOO_MANY_ROWS`, `TOO_MANY_ROWS_OR_BYTES` or `MEMORY_LIMIT_EXCEEDED`. | Narrow the date range, select fewer columns, or aggregate. |
 | `429` | Four of your queries are already running. | Wait for one to finish, then retry. |

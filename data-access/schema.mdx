@@ -67,7 +67,7 @@ Each store sends different fields, so many `revenue` columns are empty for some 
 - **Proceeds:** `proceeds_usd` and `proceeds_local` are Helium's estimate of what you keep after store commission and sales tax. They are negative on refunds. On Stripe refunds they equal the full refund amount. For App Store, Google Play and RevenueCat rows from before 22 June 2026, proceeds are `0` because Helium did not record them yet. Stripe and Paddle rows have proceeds for all dates.
 - **`event_timestamp`:** empty for some Stripe rows. Use `coalesce(event_timestamp, timestamp)`.
 - **Store-specific columns:** `recent_subscription_start_date` is empty for RevenueCat. `storefront` is empty for Paddle and often for Stripe. `offer_id` and `offer_code` are mostly empty outside Google Play.
-- **`product_type`:** `auto_renewable_subscription`, `non_renewing_subscription`, `consumable`, `non_consumable` or `one_time` (a one-off Stripe or Paddle purchase). Empty when the store doesn't send it, which is common for RevenueCat.
+- **`product_type`:** `auto_renewable_subscription`, `non_renewing_subscription`, `consumable`, `non_consumable` or `one_time` (a one-off Stripe or Paddle purchase). `NULL` when the store doesn't send it, which is common for RevenueCat.
 - **User columns:** `revenuecat_app_user_id` is filled in only for RevenueCat and some Stripe and Paddle rows. `idfv` comes only from RevenueCat on iOS. `app_account_token` is filled in only when your app sets one at purchase.
 - **`helium_persistent_id`:** often empty. It is always empty for App Store Server Notifications and Google Play notifications.
 

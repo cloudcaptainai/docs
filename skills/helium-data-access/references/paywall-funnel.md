@@ -41,7 +41,7 @@ SELECT
     app_version,
     error_description,
     uniqExact(event_id) AS events,
-    uniqExact(persistent_id) AS users
+    uniqExact(helium_persistent_id) AS users
 FROM events
 WHERE event_timestamp > now() - INTERVAL 7 DAY
   AND event_name IN ('experience_open_failed', 'experience_view_render_failed', 'initialization_failed')
@@ -73,7 +73,7 @@ SELECT
     platform,
     error_description,
     uniqExact(event_id) AS failures,
-    uniqExact(persistent_id) AS users
+    uniqExact(helium_persistent_id) AS users
 FROM events
 WHERE event_timestamp > now() - INTERVAL 7 DAY
   AND event_name = 'purchase_failed'
@@ -89,7 +89,7 @@ One product with most failures usually means a store setup problem for that prod
 `experience_skipped` means targeting decided not to show a paywall. Many skips on a trigger can explain low opens:
 
 ```sql
-SELECT trigger_name, uniqExact(event_id) AS skips, uniqExact(persistent_id) AS users
+SELECT trigger_name, uniqExact(event_id) AS skips, uniqExact(helium_persistent_id) AS users
 FROM events
 WHERE event_timestamp > now() - INTERVAL 7 DAY
   AND event_name = 'experience_skipped'

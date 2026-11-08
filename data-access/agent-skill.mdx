@@ -45,7 +45,6 @@ Ask your agent in plain language. It picks the skill when the question is about 
 
 - "Why did revenue drop last week compared to the week before?"
 - "Which variant is winning in my onboarding paywall experiment?"
-- "What's our trial-to-paid conversion rate by product for the last 90 days?"
 - "Where do users drop off on the paywall for the onboarding trigger?"
 
 The agent answers with the numbers, the time window and filters it used, the SQL it ran, and any caveats such as recent data still arriving.
@@ -55,8 +54,7 @@ The agent answers with the numbers, the time window and filters it used, the SQL
 - **Rules for every query:** always filter on time, count events and users without duplicates, leave out test purchases, account for late data, and use attribution correctly.
 - **Investigation recipes:**
   - **Revenue changed:** confirm the change, split it by event type and segment, and rule out missing store data.
-  - **Experiment results:** check the variant split, then compare conversion and revenue per variant.
-  - **Trial conversion:** conversion by trial start week and segment, and time to first payment.
+  - **Experiment results:** check the variant split, then compare paywall conversion per variant.
   - **Paywall funnel:** drop-off from open to purchase, render failures, fallback paywalls and purchase errors.
 
 The skill is read-only, like the Data Access API. For questions about your paywalls, workflows and experiment setup, also connect the [Helium MCP server](/ai-tools/mcp).

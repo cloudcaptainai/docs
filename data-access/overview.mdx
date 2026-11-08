@@ -1,6 +1,6 @@
 ---
 title: "Data Access API"
-description: "Query your organization's Helium events, revenue, subscriptions and users with SQL."
+description: "Query your organization's Helium events and revenue with SQL."
 icon: "database"
 ---
 
@@ -65,14 +65,11 @@ Data Access is not real-time. Data reaches Helium over time from your users' dev
 | --- | --- | --- |
 | `events` | Seconds after the event reaches Helium. | Devices send events in batches and hold them while offline. About 5% of events reach Helium more than an hour after they happened, about 1.5% more than a day after, and a few more than a week after. |
 | `revenue` | Seconds after the store notifies Helium. | Stores send notifications on their own schedule. Most arrive within a few minutes, but some arrive hours or days later. Refunds often arrive weeks or months after the purchase. |
-| `subscriptions` | Rebuilt every 15 minutes, so up to about 20 minutes behind `revenue`. | Totals, status and `has_access` change as renewals, cancellations and refunds arrive. |
-| `users` | Seconds after new events reach Helium. | Counts and `latest_*` columns change as late events arrive. |
 
 To keep a copy of this data up to date:
 
 - **events:** `event_timestamp` is the time on the user's device. Each time you sync, reload the last 7 days instead of only new rows. Upsert on `event_id`, which also removes the rare duplicate events.
 - **revenue:** `timestamp` is when Helium received the store notification. Sync rows with a `timestamp` after your last sync.
-- **subscriptions** and **users:** sync rows with a `last_updated` after your last sync, and replace the old copy of each row.
 
 Numbers here can differ slightly from the Helium dashboard for the same period, because the dashboard and your query may read the data at different times.
 
@@ -84,6 +81,7 @@ Numbers here can differ slightly from the Helium dashboard for the same period, 
 | Data read per query | 20 GB |
 | Memory per query | 8 GB |
 | Rows returned per query | 1,000,000 |
+| Result size per query | 1 GB |
 | Queries running at once | 4 per organization |
 | SQL length | 100,000 characters |
 
@@ -112,5 +110,4 @@ Errors return a JSON body with a type and a message:
 
 - Queries can only read your organization's data. Other organizations' data is never visible, and you cannot read Helium's internal tables.
 - For each query, Helium records the time, the key used, the SQL, the status, how long it took and how much data it read, to run and debug the service. Helium does not store your results.
-- Admins can see the last 30 days of usage in **Settings → Data Access**.
 - Helium leaves out IP addresses, emails and other contact details. See [Personal data](/data-access/schema#personal-data). Your data still includes personal data about your app's users, such as device IDs, user IDs and location. You are responsible for handling the data you export in line with your own privacy policy and the law that applies to you.

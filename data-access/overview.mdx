@@ -81,7 +81,7 @@ Numbers here can differ slightly from the Helium dashboard for the same period, 
 | Data read per query | 20 GB |
 | Memory per query | 8 GB |
 | Rows returned per query | 1,000,000 |
-| Result size per query | 1 GB |
+| Response size per query | 4 MB |
 | Queries running at once | 4 per organization |
 | SQL length | 100,000 characters |
 
@@ -102,8 +102,11 @@ Errors return a JSON body with a type and a message:
 | `400` | Invalid request body, or invalid SQL (for example `SYNTAX_ERROR`, `UNKNOWN_IDENTIFIER`). | Fix the request or query. |
 | `401` | Missing, expired or revoked secret key, or a key that is not a Data Access secret key. | Create a new secret key in **Settings → Data Access**. |
 | `403` | Data Access is turned off for your organization. | An Admin can turn it back on. |
-| `422` | The query hit a limit: `TIMEOUT_EXCEEDED`, `TOO_MANY_BYTES`, `TOO_MANY_ROWS`, `TOO_MANY_ROWS_OR_BYTES` or `MEMORY_LIMIT_EXCEEDED`. | Narrow the date range, select fewer columns, or aggregate. |
+| `422` | The query hit a limit: `TIMEOUT_EXCEEDED`, `TOO_MANY_BYTES`, `TOO_MANY_ROWS`, `TOO_MANY_ROWS_OR_BYTES`, `MEMORY_LIMIT_EXCEEDED`, or `RESULT_TOO_LARGE` for a response over 4 MB. | Narrow the date range, select fewer columns, aggregate, or add a `LIMIT`. |
+| `423` | Your organization's Helium access is locked, for example by an unpaid invoice. | Contact your Helium account manager. |
 | `429` | Four of your queries are already running. | Wait for one to finish, then retry. |
+| `502` | The query failed on Helium's side (`QUERY_FAILED` or `UPSTREAM_ERROR`). | Retry later. Contact support with the `X-Request-Id` if it keeps happening. |
+| `503` | Helium couldn't check your key or load your organization's settings (`AUTH_UNAVAILABLE` or `SERVICE_UNAVAILABLE`). Your key is still valid. | Retry after a few seconds. |
 | `502` | The query service is unavailable. | Retry with backoff. |
 
 ## Data use and privacy

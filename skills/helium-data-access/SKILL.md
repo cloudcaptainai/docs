@@ -53,7 +53,7 @@ The response is ClickHouse JSON: `meta`, `data`, `rows`, `statistics`. Errors ar
 
 ## Limits and errors
 
-Queries can run for 300 seconds, read 20 GB, use 8 GB of memory and return 1,000,000 rows or 1 GB. Each organization can run 4 queries at once, so run queries one after another.
+Queries can run for 300 seconds, read 20 GB, use 8 GB of memory and return 1,000,000 rows, with a 4 MB response. Each organization can run 4 queries at once, so run queries one after another. A `RESULT_TOO_LARGE` error means the result needs a `LIMIT` or more aggregation.
 
 - `422` (`TIMEOUT_EXCEEDED`, `TOO_MANY_BYTES`, `TOO_MANY_ROWS`, `MEMORY_LIMIT_EXCEEDED`): narrow the time window, select fewer columns, or aggregate more.
 - `429`: wait for a running query to finish, then retry.

@@ -15,6 +15,7 @@ SELECT
 FROM events
 WHERE event_name = 'user_experiment_allocated'
   AND event_timestamp > now() - INTERVAL 30 DAY
+  AND app_environment NOT IN ('SANDBOX', 'DEBUG')
 GROUP BY experiment_id, experiment_name, variant
 ORDER BY experiment_name, variant
 ```
@@ -27,7 +28,7 @@ Compare `allocated_users` per variant with the split configured in Helium. A lar
 
 ## 3. Paywall conversion per variant
 
-Counts users, not events. A user is converted if they had a `purchase_succeeded` event after allocation. Paywall and purchase events carry the experiment fields only when they come from the experiment's paywalls, so this measures conversion on those paywalls. For purchases from anywhere in the app, use step 4.
+Counts users, not events. A user is converted if they had a `purchase_succeeded` event after allocation. Paywall and purchase events carry the experiment fields only when they come from the experiment's paywalls, so this measures conversion on those paywalls. Purchases from other paywalls or from your own store screens are not counted here or in step 4.
 
 ```sql
 WITH 'EXPERIMENT_ID' AS exp
@@ -49,6 +50,7 @@ FROM
     FROM events
     WHERE experiment_id = exp
       AND event_timestamp > now() - INTERVAL 30 DAY
+      AND app_environment NOT IN ('SANDBOX', 'DEBUG')
     GROUP BY helium_persistent_id
     HAVING countIf(event_name = 'user_experiment_allocated') > 0
 )
@@ -58,13 +60,13 @@ ORDER BY variant
 
 ## 4. Revenue per variant
 
-Uses store data attributed to the experiment, so it includes renewals and refunds that the SDK never sees.
+Uses store data for subscriptions Helium linked to a paywall session in this experiment, so it includes renewals and refunds that the SDK never sees. Subscriptions bought outside the experiment's paywalls are attributed elsewhere or `Unknown` and are not counted.
 
 ```sql
 SELECT
     attributed_variant_allocation_name AS variant,
     count() AS subscriptions,
-    countIf(trial_start_timestamp > '1970-01-02' AND trial_start_timestamp < '2200-01-01') AS trials,
+    countIf(trial_start_timestamp < '2200-01-01') AS trials,
     countIf(has_paid_revenue = 1) AS paid_subscriptions,
     countIf(has_access = 1) AS active_subscriptions,
     round(sum(net_revenue_usd), 2) AS net_revenue_usd,
@@ -72,11 +74,12 @@ SELECT
 FROM subscriptions
 WHERE attributed_experiment_id = 'EXPERIMENT_ID'
   AND environment = 'PRODUCTION'
+  AND earliest_revenue_event_timestamp > now() - INTERVAL 30 DAY
 GROUP BY variant
 ORDER BY variant
 ```
 
-Revenue per allocated user is `net_revenue_usd` from this query divided by `allocated_users` from step 1. Use the same date window for both.
+`earliest_revenue_event_timestamp` limits this to subscriptions that started in the same 30 days as the allocations in step 1. Their revenue still includes renewals and refunds up to now. Revenue per allocated user is `net_revenue_usd` from this query divided by `allocated_users` from step 1; if you change the window, change it in both queries.
 
 ## Read the result
 

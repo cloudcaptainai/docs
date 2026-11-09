@@ -2,13 +2,17 @@
 
 Use when revenue or proceeds went up or down, or look wrong, and the user wants to know why.
 
-Replace the dates in each `WITH` line with the windows you are comparing. Use two windows of the same length, both ending at least one full day ago.
+Every query that compares periods starts with the same `WITH` lines. Replace `cur_start` and `cur_end` there with the current window; the previous window of the same length is computed from them. End the window at least one full day ago.
 
 ## 1. Confirm the change
 
 Daily revenue and proceeds by store. Use `coalesce(event_timestamp, timestamp)` to place money on the day it happened.
 
 ```sql
+WITH
+    toDate('2026-10-15') AS cur_start,
+    toDate('2026-10-29') AS cur_end,
+    cur_start - (cur_end - cur_start) AS prev_start
 SELECT
     toDate(coalesce(event_timestamp, timestamp)) AS day,
     source,
@@ -17,9 +21,9 @@ SELECT
     countIf(revenue_usd != 0) AS charged_rows
 FROM revenue
 WHERE environment = 'PRODUCTION'
-  AND timestamp >= toDate('2026-10-01') - INTERVAL 7 DAY
-  AND coalesce(event_timestamp, timestamp) >= toDate('2026-10-01')
-  AND coalesce(event_timestamp, timestamp) < toDate('2026-10-29')
+  AND timestamp >= prev_start - INTERVAL 7 DAY
+  AND coalesce(event_timestamp, timestamp) >= prev_start
+  AND coalesce(event_timestamp, timestamp) < cur_end
 GROUP BY day, source
 ORDER BY day, source
 ```
@@ -87,7 +91,7 @@ Then separate volume from price: if the number of charges is flat but revenue mo
 
 ## 4. Rule out missing data
 
-A drop on the most recent days is often late data. Check how late store notifications arrive for each store:
+A drop on the most recent days is often late data. Check how late store notifications arrive for each store. This looks at the last 14 days, which is what matters for recent days; widen it if your window is older:
 
 ```sql
 SELECT
@@ -102,19 +106,46 @@ WHERE environment = 'PRODUCTION'
 GROUP BY source
 ```
 
-Then compare purchases the SDK saw with charges the stores reported. A gap that opens on one day for one store points to a store connection problem, not a real drop:
+Then compare new purchases the SDK saw with new subscriptions and purchases the stores reported. SDK `purchase_succeeded` includes free-trial starts and never includes renewals, so compare it with store `subscription_start` and `purchase` rows, which also include trial starts (with `revenue_usd = 0`), not with charges:
 
 ```sql
+WITH
+    toDate('2026-10-15') AS cur_start,
+    toDate('2026-10-29') AS cur_end,
+    cur_start - (cur_end - cur_start) AS prev_start
 SELECT
     toDate(event_timestamp) AS day,
     platform,
-    uniqExactIf(event_id, event_name = 'purchase_succeeded') AS sdk_purchases
+    uniqExact(event_id) AS sdk_purchases
 FROM events
-WHERE event_timestamp >= toDate('2026-10-01')
-  AND event_timestamp < toDate('2026-10-29')
+WHERE event_name = 'purchase_succeeded'
+  AND app_environment NOT IN ('SANDBOX', 'DEBUG')
+  AND event_timestamp >= prev_start
+  AND event_timestamp < cur_end
 GROUP BY day, platform
 ORDER BY day, platform
 ```
+
+```sql
+WITH
+    toDate('2026-10-15') AS cur_start,
+    toDate('2026-10-29') AS cur_end,
+    cur_start - (cur_end - cur_start) AS prev_start
+SELECT
+    toDate(coalesce(event_timestamp, timestamp)) AS day,
+    source,
+    count() AS store_new_purchases
+FROM revenue
+WHERE environment = 'PRODUCTION'
+  AND event_type IN ('subscription_start', 'purchase')
+  AND timestamp >= prev_start - INTERVAL 7 DAY
+  AND coalesce(event_timestamp, timestamp) >= prev_start
+  AND coalesce(event_timestamp, timestamp) < cur_end
+GROUP BY day, source
+ORDER BY day, source
+```
+
+`platform = 'ios'` lines up with `app_store_server_notifications` and `platform = 'android'` with `google_play_rtdn`. RevenueCat, Stripe and Paddle rows can come from either platform, so compare totals for those. The two counts won't match exactly; look at the daily trend. A gap that opens on one day for one store, while the SDK count holds steady, points to a store connection problem, not a real drop.
 
 ## Report
 

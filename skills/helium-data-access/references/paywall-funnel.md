@@ -19,6 +19,7 @@ SELECT
     round(purchased / nullIf(opened, 0), 4) AS conversion_rate
 FROM events
 WHERE event_timestamp > now() - INTERVAL 14 DAY
+  AND app_environment NOT IN ('SANDBOX', 'DEBUG')
 GROUP BY trigger_name, paywall_name
 HAVING opened >= 100
 ORDER BY opened DESC
@@ -44,6 +45,7 @@ SELECT
     uniqExact(helium_persistent_id) AS users
 FROM events
 WHERE event_timestamp > now() - INTERVAL 7 DAY
+  AND app_environment NOT IN ('SANDBOX', 'DEBUG')
   AND event_name IN ('experience_open_failed', 'experience_view_render_failed', 'initialization_failed')
 GROUP BY event_name, platform, helium_sdk_version, app_version, error_description
 ORDER BY events DESC
@@ -60,6 +62,7 @@ SELECT
     round(uniqExactIf(event_id, is_fallback = 1) / opens, 4) AS fallback_share
 FROM events
 WHERE event_timestamp > now() - INTERVAL 14 DAY
+  AND app_environment NOT IN ('SANDBOX', 'DEBUG')
   AND event_name = 'experience_opened'
 GROUP BY day, platform
 ORDER BY day, platform
@@ -76,6 +79,7 @@ SELECT
     uniqExact(helium_persistent_id) AS users
 FROM events
 WHERE event_timestamp > now() - INTERVAL 7 DAY
+  AND app_environment NOT IN ('SANDBOX', 'DEBUG')
   AND event_name = 'purchase_failed'
 GROUP BY product_id, platform, error_description
 ORDER BY failures DESC
@@ -92,6 +96,7 @@ One product with most failures usually means a store setup problem for that prod
 SELECT trigger_name, uniqExact(event_id) AS skips, uniqExact(helium_persistent_id) AS users
 FROM events
 WHERE event_timestamp > now() - INTERVAL 7 DAY
+  AND app_environment NOT IN ('SANDBOX', 'DEBUG')
   AND event_name = 'experience_skipped'
 GROUP BY trigger_name
 ORDER BY skips DESC

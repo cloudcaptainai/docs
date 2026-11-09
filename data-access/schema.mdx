@@ -97,8 +97,8 @@ Revenue totals cover the subscription's whole life to date:
 
 Some timestamp columns use a placeholder date instead of being empty when something never happened:
 
-- **`2299-12-31`:** `trial_start_timestamp` and `trial_end_timestamp` when there was no trial, and `first_paid_timestamp` when the subscription was never paid. To count paid subscriptions, use `first_paid_timestamp < '2200-01-01'`, not a check for a non-empty value.
-- **`1970-01-01`:** `last_renewal_timestamp`, `last_cancellation_timestamp`, `expiration_timestamp`, `conversion_timestamp` and `event_timestamp` when there is no such event. A small number of older rows also have `trial_end_timestamp` set to `1970-01-01` when the trial end is unknown.
+- **`2299-12-31`:** `trial_start_timestamp` when there was no trial, and `first_paid_timestamp` when the subscription was never paid. To find trials, use `trial_start_timestamp < '2200-01-01'`. To count paid subscriptions, use `has_paid_revenue = 1`.
+- **`1970-01-01`:** `last_renewal_timestamp`, `last_cancellation_timestamp`, `expiration_timestamp`, `conversion_timestamp` and `event_timestamp` when there is no such event. `trial_end_timestamp` is either `1970-01-01` or `2299-12-31` when there was no trial, and `2299-12-31` for about 2% of trials whose end date is unknown. Use `trial_start_timestamp`, not `trial_end_timestamp`, to tell whether there was a trial.
 - **Empty:** `latest_subscription_start_date` and `latest_renewal_date` are `NULL` when unknown.
 
 Columns:
@@ -135,6 +135,7 @@ SELECT
     round(purchases / nullIf(opens, 0), 4) AS conversion_rate
 FROM events
 WHERE event_timestamp > now() - INTERVAL 30 DAY
+  AND app_environment NOT IN ('SANDBOX', 'DEBUG')
 GROUP BY trigger_name
 ORDER BY opens DESC
 ```

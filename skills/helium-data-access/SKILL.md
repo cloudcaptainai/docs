@@ -16,17 +16,23 @@ The secret key must be in the `HELIUM_SECRET_KEY` environment variable. If it is
 
 ```bash
 helium_sql() {
+  local out
+  out=$(mktemp -d)
   jq -n --arg sql "$1" '{sql: $sql}' |
     curl -sS -X POST https://app.tryhelium.com/api/metrics-query \
       -H "Authorization: Bearer $HELIUM_SECRET_KEY" \
       -H "Content-Type: application/json" \
-      --data-binary @-
+      -D "$out/headers" -o "$out/body" -w 'HTTP %{http_code}\n' \
+      --data-binary @- >&2
+  grep -i '^x-request-id:' "$out/headers" >&2
+  jq 'if .error then {error} else .data end' "$out/body" 2>/dev/null || cat "$out/body"
+  rm -rf "$out"
 }
 
-helium_sql "SELECT event_name, uniqExact(event_id) AS events FROM events WHERE event_timestamp > now() - INTERVAL 1 DAY GROUP BY event_name ORDER BY events DESC" | jq '.data'
+helium_sql "SELECT event_name, uniqExact(event_id) AS events FROM events WHERE event_timestamp > now() - INTERVAL 1 DAY AND app_environment NOT IN ('SANDBOX', 'DEBUG') GROUP BY event_name ORDER BY events DESC"
 ```
 
-The response is ClickHouse JSON: `meta`, `data`, `rows`, `statistics`. Errors are `{"error": {"type", "message"}}`. Keep the `X-Request-Id` response header (`curl -i`) if the user needs to contact Helium support.
+`helium_sql` prints the HTTP status and the `X-Request-Id` header on stderr, then the rows from `data`, or the `{"error": {"type", "message"}}` object. Check the status on every call: anything other than `HTTP 200` is an error, never an empty result. Keep the `X-Request-Id` if the user needs to contact Helium support.
 
 ## How to investigate
 
@@ -42,7 +48,7 @@ The response is ClickHouse JSON: `meta`, `data`, `rows`, `statistics`. Errors ar
 - **Aggregate in SQL.** Return summaries, not raw rows. Add `LIMIT` to any exploratory `SELECT`.
 - **Count events with `uniqExact(event_id)`**, not `count()`. About 1 in 1,000 events is stored twice.
 - **Count users with `uniqExact(helium_persistent_id)`**. It is the user column on `events`, `subscriptions` and `users`.
-- **Exclude test data.** Use `environment = 'PRODUCTION'` on `revenue` and `subscriptions`, and `app_environment = 'PRODUCTION'` on `events`.
+- **Exclude test data.** Use `environment = 'PRODUCTION'` on `revenue` and `subscriptions`, and `app_environment NOT IN ('SANDBOX', 'DEBUG')` on `events`. Older SDKs leave `app_environment` empty, so `= 'PRODUCTION'` would drop their users.
 - **Refunds are negative** in `revenue_usd` and `proceeds_usd`, so `sum()` already nets them out.
 - **Proceeds have a gap.** App Store, Google Play and RevenueCat rows before 22 June 2026 have `proceeds_usd = 0`. Don't compare proceeds across that date for those stores; use `revenue_usd` instead.
 - **Two timestamps on `revenue`.** `timestamp` is when Helium received the store notification. `coalesce(event_timestamp, timestamp)` is when it happened. Pick one and say which.
@@ -50,7 +56,7 @@ The response is ClickHouse JSON: `meta`, `data`, `rows`, `statistics`. Errors ar
 - **Active subscribers:** use `has_access = 1`, not `subscription_status`.
 - **Link revenue to paywalls and experiments through `subscriptions`.** Use its `attributed_*` columns, or join `revenue.original_transaction_id = subscriptions.subscription_id`. `revenue.helium_persistent_id` is often empty.
 - **Attribution is partial.** `attributed_*` columns are only set when `is_helium_attributed = 1`, and hold `Unknown` otherwise. Filter experiments and paywalls with `NOT IN ('', 'Unknown')`. Report the attributed share alongside attributed totals.
-- **Missing timestamps are placeholder dates, not NULL**, on most `subscriptions` timestamp columns: `2299-12-31` for trial and first-payment columns, `1970-01-01` for the others. A real trial has `trial_start_timestamp < '2200-01-01'`; a paid subscription has `first_paid_timestamp < '2200-01-01'`. See the schema reference for the full list.
+- **Missing timestamps are placeholder dates, not NULL**, on most `subscriptions` timestamp columns: `2299-12-31` for trial and first-payment columns, `1970-01-01` for the others. A real trial has `trial_start_timestamp < '2200-01-01'`. A paid subscription has `has_paid_revenue = 1`. See the schema reference for the full list.
 - **64-bit integers come back as strings** in JSON. Convert before doing math outside SQL.
 - **Numbers can differ slightly from the Helium dashboard**, because late data arrives between reads. Differences of a few percent on recent days are expected.
 
@@ -58,11 +64,14 @@ The response is ClickHouse JSON: `meta`, `data`, `rows`, `statistics`. Errors ar
 
 Queries can run for 300 seconds, read 20 GB, use 8 GB of memory and return 1,000,000 rows, with a 4 MB response. Each organization can run 4 queries at once, so run queries one after another. A `RESULT_TOO_LARGE` error means the result needs a `LIMIT` or more aggregation.
 
-- `422` (`TIMEOUT_EXCEEDED`, `TOO_MANY_BYTES`, `TOO_MANY_ROWS`, `MEMORY_LIMIT_EXCEEDED`): narrow the time window, select fewer columns, or aggregate more.
-- `429`: wait for a running query to finish, then retry.
 - `400` with `UNKNOWN_IDENTIFIER`: check the column name in the schema reference.
 - `401`: the key is missing, expired or revoked. Ask the user for a new one.
-- `403`: Data Access is turned off for the organization.
+- `403`: Data Access isn't turned on for the organization. Tell the user to ask their Helium contact. Don't retry.
+- `422` (`TIMEOUT_EXCEEDED`, `TOO_MANY_BYTES`, `TOO_MANY_ROWS`, `TOO_MANY_ROWS_OR_BYTES`, `MEMORY_LIMIT_EXCEEDED`, or `RESULT_TOO_LARGE` for a response over 4 MB): narrow the time window, select fewer columns, aggregate more, or add a `LIMIT`.
+- `423`: the organization's Helium access is locked, for example by an unpaid invoice. Tell the user to contact their Helium account manager. Don't retry.
+- `429`: wait for a running query to finish, then retry.
+- `502` (`QUERY_FAILED` or `UPSTREAM_ERROR`): the query failed on Helium's side. Retry once after a short wait; if it fails again, stop and give the user the `X-Request-Id`.
+- `503` (`AUTH_UNAVAILABLE` or `SERVICE_UNAVAILABLE`): Helium couldn't check the key right now. The key is still valid, so don't ask for a new one. Retry after a few seconds.
 
 ## Investigation recipes
 

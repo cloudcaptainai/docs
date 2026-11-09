@@ -83,7 +83,7 @@ ORDER BY abs(change_usd) DESC
 LIMIT 20
 ```
 
-Then separate volume from price: if the number of charges is flat but revenue moved, look at price, currency mix and offers. If charges moved, go to the paywall funnel (`paywall-funnel.md`).
+Then separate volume from price: if the number of charges is flat but revenue moved, look at price, currency mix and offers. If charges moved, go to the paywall funnel (`paywall-funnel.md`) and the trial recipe (`trial-conversion.md`).
 
 ## 4. Rule out missing data
 

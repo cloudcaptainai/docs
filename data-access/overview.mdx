@@ -1,0 +1,129 @@
+---
+title: "Data Access API"
+description: "Query your organization's Helium events, revenue, subscriptions and users with SQL."
+icon: "database"
+---
+
+<Warning>
+  Data Access is in private beta. If you don't see **Data Access** in **Settings**, ask your Helium contact to turn it on for your organization.
+</Warning>
+
+The Data Access API lets you run read-only SQL against your Helium data. Use it to load Helium data into your warehouse, build your own reports, or join paywall activity with your own product data.
+
+Every query runs against the [`customer_v1` schema](/data-access/schema). Each query only ever sees your organization's rows, whatever SQL you send.
+
+## Turn it on
+
+1. In the Helium dashboard, open **Settings** and scroll to **Data Access**. Only organization Admins see this section.
+2. Enter a name for your secret key and click **Create secret key**. Copy the key right away: it is shown only once.
+
+<Note>
+  Your Data Access secret key is not the Helium API key you use in your app's SDK setup. The API key cannot query data, and the secret key does not work in the SDK. Keep the secret key on your server: never put it in an app, a website or a public repository.
+</Note>
+
+## Send a query
+
+Send a `POST` request with your secret key as a bearer token and the SQL in the body:
+
+```bash
+curl -X POST https://app.tryhelium.com/api/metrics-query \
+  -H "Authorization: Bearer $HELIUM_SECRET_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"sql": "SELECT event_name, count() AS events FROM events WHERE event_timestamp > now() - INTERVAL 7 DAY GROUP BY event_name ORDER BY events DESC"}'
+```
+
+Queries use [ClickHouse SQL](https://clickhouse.com/docs/sql-reference). Table names resolve to `customer_v1`, so `events` and `customer_v1.events` are the same table.
+
+A successful response is ClickHouse JSON:
+
+```json
+{
+  "meta": [{ "name": "event_name", "type": "String" }, { "name": "events", "type": "UInt64" }],
+  "data": [{ "event_name": "experience_opened", "events": "18234" }],
+  "rows": 1,
+  "statistics": { "elapsed": 0.041, "rows_read": 52110, "bytes_read": 1834211 }
+}
+```
+
+64-bit integers come back as strings so they keep full precision.
+
+Every response has an `X-Request-Id` header. Include it when you contact support about a query.
+
+## Secret keys
+
+- Secret keys belong to your organization, not to the person who created them. Admins can see and revoke every key in **Settings → Data Access**.
+- A key expires 30 days after it was last used. Each day you use it, the 30 days start over, so a key in regular use does not expire.
+- A revoked key stops working within a minute.
+- Revoking your last key turns off Data Access for your organization. Create a new key to turn it back on.
+- Only Data Access secret keys work with this API. Your Helium API key and other keys do not.
+
+## Data freshness
+
+Data Access is not real-time. Data reaches Helium over time from your users' devices and from the app stores, so the most recent hours are incomplete and recent numbers can still change.
+
+| Table | When new data shows up | What arrives late |
+| --- | --- | --- |
+| `events` | Seconds after the event reaches Helium. | Devices send events in batches and hold them while offline. About 5% of events reach Helium more than an hour after they happened, about 1.5% more than a day after, and a few more than a week after. |
+| `revenue` | Seconds after the store notifies Helium. | Stores send notifications on their own schedule. Most arrive within a few minutes, but some arrive hours or days later. Refunds often arrive weeks or months after the purchase. |
+| `subscriptions` | Rebuilt every 15 minutes, so up to about 20 minutes behind `revenue`. | Totals, status and `has_access` change as renewals, cancellations and refunds arrive. |
+| `users` | Seconds after new events reach Helium. | Counts and `latest_*` columns change as late events arrive. |
+
+To keep a copy of this data up to date:
+
+- **events:** `event_timestamp` is the time on the user's device, and Helium doesn't expose when it received an event. Each time you sync, reload the last 7 days and upsert on `event_id`, which also removes the rare duplicate events. Events that arrive more than 7 days late are missed this way, so also reload the last 30 days about once a week.
+- **revenue:** `timestamp` is when Helium received the store notification. Each time you sync, reload rows from a day before your last sync and upsert on `notification_id`, so rows that become visible slightly late are not missed.
+- **subscriptions** and **users:** reload rows with a `last_updated` from a day before your last sync, and upsert on `subscription_id` and `helium_persistent_id`.
+
+Numbers here can differ slightly from the Helium dashboard for the same period, because the dashboard and your query may read the data at different times.
+
+## Limits
+
+| Limit | Value |
+| --- | --- |
+| Query run time | 300 seconds |
+| Data read per query | 20 GB |
+| Memory per query | 8 GB |
+| Rows returned per query | 1,000,000 |
+| Response size per query | 4 MB |
+| Queries running at once | 4 per organization |
+| SQL length | 100,000 characters |
+
+Queries are read-only. You cannot change these limits from your query.
+
+The 4 MB response limit is usually reached long before 1,000,000 rows. A day of `events` with every column is often tens of MB, so export in pages: select only the columns you need, sort on the time column and the row ID, and start each page after the last row of the previous one.
+
+```sql
+SELECT event_id, event_timestamp, event_name, helium_persistent_id, trigger_name, paywall_name
+FROM events
+WHERE event_timestamp >= '2026-11-01' AND event_timestamp < '2026-11-02'
+  AND (event_timestamp, event_id) > (toDateTime64('LAST_EVENT_TIMESTAMP', 3), 'LAST_EVENT_ID')
+ORDER BY event_timestamp, event_id
+LIMIT 10000
+```
+
+Leave out the `(event_timestamp, event_id)` line for the first page. Stop when a page returns fewer rows than the `LIMIT`. If a page returns `RESULT_TOO_LARGE`, lower the `LIMIT`. Page `revenue` the same way on `timestamp` and `notification_id`.
+
+## Errors
+
+Errors return a JSON body with a type and a message:
+
+```json
+{ "error": { "type": "TOO_MANY_BYTES", "message": "Limit for rows or bytes to read exceeded..." } }
+```
+
+| Status | When | What to do |
+| --- | --- | --- |
+| `400` | Invalid request body, or invalid SQL (for example `SYNTAX_ERROR`, `UNKNOWN_IDENTIFIER`). | Fix the request or query. |
+| `401` | Missing, expired or revoked secret key, or a key that is not a Data Access secret key. | Create a new secret key in **Settings → Data Access**. |
+| `403` | Data Access isn't turned on for your organization during the private beta. | Ask your Helium contact to turn it on. |
+| `422` | The query hit a limit: `TIMEOUT_EXCEEDED`, `TOO_MANY_BYTES`, `TOO_MANY_ROWS`, `TOO_MANY_ROWS_OR_BYTES`, `MEMORY_LIMIT_EXCEEDED`, or `RESULT_TOO_LARGE` for a response over 4 MB. | Narrow the date range, select fewer columns, aggregate, or add a `LIMIT`. |
+| `423` | Your organization's Helium access is locked, for example by an unpaid invoice. | Contact your Helium account manager. |
+| `429` | Four of your queries are already running. | Wait for one to finish, then retry. |
+| `502` | The query failed on Helium's side (`QUERY_FAILED` or `UPSTREAM_ERROR`). | Retry later. Contact support with the `X-Request-Id` if it keeps happening. |
+| `503` | Helium couldn't check your key or load your organization's settings (`AUTH_UNAVAILABLE` or `SERVICE_UNAVAILABLE`). Your key is still valid. | Retry after a few seconds. |
+
+## Data use and privacy
+
+- Queries can only read your organization's data. Other organizations' data is never visible, and you cannot read Helium's internal tables.
+- For each query, Helium records the time, the key used, the SQL, the status, how long it took and how much data it read, to run and debug the service. Helium does not store your results.
+- Helium leaves out IP addresses, emails and other contact details. See [Personal data](/data-access/schema#personal-data). Your data still includes personal data about your app's users, such as device IDs, user IDs and location. You are responsible for handling the data you export in line with your own privacy policy and the law that applies to you.

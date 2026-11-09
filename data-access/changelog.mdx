@@ -1,0 +1,11 @@
+---
+title: "Schema changelog"
+description: "Changes to the Data Access schemas."
+icon: "clock-rotate-left"
+---
+
+Helium only adds columns to a released schema. Removing or renaming a column, or changing what it means, ships as a new schema version (for example `customer_v2`). The older version keeps working for a deprecation period, announced on this page when the new version is released.
+
+<Update label="customer_v1" description="Initial release">
+  - Added the `events`, `revenue`, `subscriptions` and `users` views. See [the schema reference](/data-access/schema).
+</Update>

@@ -329,7 +329,9 @@ You can also test via **[Helium’s triple-tap flow](/guides/paywall-previews#pr
 </Accordion>
 
 <Accordion title="App2Web paywall not appearing?">
-  The device locale country, App Store storefront, and IP location must all be US. From the US, disable VPNs. From outside the US, use a US device region, a US sandbox Apple storefront, and a US VPN.
+  On a live Paddle account, the device locale country, App Store storefront, and IP location must all be US. From the US, disable VPNs. From outside the US, use a US device region, a US sandbox Apple storefront, and a US VPN.
+
+  Helium skips the buyer country and California checks for checkouts on a Paddle sandbox account, whose client token starts with `test_`. Before launch, repeat a checkout on your live account, where both checks apply.
 </Accordion>
 
 ## 8. Roll out your experiment

@@ -28,6 +28,8 @@ Real purchases follow the same regional rules as production. The device's locale
 
 To test the real purchase path from outside the US, all three signals must read US: use a US App Store account, set the device region to the US, and connect through a VPN to a US state.
 
+For Paddle paywalls, Helium skips the buyer country and California checks when the checkout runs on a Paddle sandbox account, whose client token starts with `test_`. Checkouts on a live Paddle account follow the rules above.
+
 <Frame>
   ![California consent modal shown before activating a Paddle subscription](/images/paywall-previews-ca-consent-modal.png)
 </Frame>

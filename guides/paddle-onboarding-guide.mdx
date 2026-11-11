@@ -314,22 +314,22 @@ RevenueCat can take a few seconds to reflect a purchase. Check Helium entitlemen
 
 ## 7. Test everything
 
-Create a test audience with **Paddle eligible users** and the **`sandbox` or `debug` app environment**. Target your in-app App2Web paywall to it.
-
-You can also test via **[Helium’s triple-tap flow](/guides/paywall-previews#preview-paywalls-from-your-app)**: open a Helium paywall in your test build, triple-tap it, and select your App2Web paywall. [App2Web previews](/guides/app2web-previews) support simulated checkout to check the flow without a charge; simulated purchases do not grant entitlements. Real checkout charges the payment method and lets you verify access.
+Test with a [Paddle sandbox account](/guides/app2web-paddle-sandbox-testing): debug and TestFlight builds check out with test money, entitlements are granted, and testers can buy from any country. Follow **[Testing App2Web with Paddle Sandbox](/guides/app2web-paddle-sandbox-testing)** to connect it and run these checks:
 
 - **Purchase:** open a real trigger → browser checkout → purchase → return to the app. Confirm access unlocks in your chosen entitlement system and `hasActivePaddleEntitlement()` returns `true`.
 - **Dismiss or cancel checkout:** return to the expected screen without granting access or showing success.
 - **Manage subscription:** open the customer portal, cancel, and confirm access lasts until period end.
 - **Webhooks:** confirm Paddle delivers to Helium with 2xx responses.
 
+To check the flow without any purchase, [App2Web previews](/guides/app2web-previews) support simulated checkout; simulated purchases do not grant entitlements.
+
 <Accordion title="If you use RevenueCat or allow purchases before sign-in">
   - Confirm RevenueCat updates within a few seconds of purchase, if connected.
   - If users can buy before you set a durable user ID, purchase first, then set the ID and confirm the entitlement attaches correctly.
 </Accordion>
 
-<Accordion title="App2Web paywall not appearing?">
-  The device locale country, App Store storefront, and IP location must all be US. From the US, disable VPNs. From outside the US, use a US device region, a US sandbox Apple storefront, and a US VPN.
+<Accordion title="Testing on your live account">
+  Without a sandbox account, debug and TestFlight builds check out on your live account and charge real money. Live checkout requires US users: the device region, App Store storefront, and IP location must all be US. From the US, disable VPNs. From outside the US, use a US device region, a US sandbox Apple storefront, and a US VPN.
 </Accordion>
 
 ## 8. Roll out your experiment

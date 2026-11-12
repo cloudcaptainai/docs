@@ -28,6 +28,8 @@ Real purchases follow the same regional rules as production. The device's locale
 
 To test the real purchase path from outside the US, all three signals must read US: use a US App Store account, set the device region to the US, and connect through a VPN to a US state.
 
+With a [Paddle sandbox account](/guides/app2web-paddle-sandbox-testing) connected, debug and TestFlight builds on Helium iOS SDK 4.15.0 or later skip these rules for Paddle checkouts: real sandbox purchases are available from any country and the California consent modal isn't required. Previews that include a Stripe checkout keep these rules.
+
 <Frame>
   ![California consent modal shown before activating a Paddle subscription](/images/paywall-previews-ca-consent-modal.png)
 </Frame>

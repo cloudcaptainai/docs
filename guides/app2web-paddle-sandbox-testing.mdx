@@ -27,7 +27,7 @@ App Store builds never use the sandbox account, even with one connected.
   - No sandbox account is connected.
   - The build runs a Helium iOS SDK older than 4.15.0, even if a sandbox account is connected.
 
-  Live checkouts keep the US-only purchase rules.
+  Live checkouts keep the US-only purchase rules, and testers in California see the California consent modal before the Paddle checkout.
 </Warning>
 
 ## 1. Connect your sandbox account
@@ -42,6 +42,8 @@ Each tab accepts keys from one environment only: the live connection rejects a `
 <Tip>
   Use one Paddle sandbox account per Helium organization. Sandbox purchases are attributed through that account's webhook, so a sandbox account shared between organizations can attribute a purchase to the wrong one.
 </Tip>
+
+You don't need a separate Helium app or organization for testing. Connect the sandbox in the same organization as your live account; each build's app environment decides which account it checks out on.
 
 ### What Helium copies into the sandbox
 
@@ -124,6 +126,9 @@ To stop sandbox testing, click **Disconnect** on the **Sandbox** tab. Only the s
   </Accordion>
   <Accordion title="A discount or trial is missing from the sandbox checkout">
     Click **Sync products** on the **Sandbox** tab, then check it for items that were not copied. A discount restricted to products or prices that were not copied is skipped.
+  </Accordion>
+  <Accordion title="Cancelling opens App Store subscriptions instead of Paddle">
+    Your app sent a Paddle subscriber to App Store subscription management. Open the Paddle customer portal when `hasActivePaddleEntitlement()` returns `true`, as in the [Manage Subscription button](/guides/paddle-onboarding-guide#5-add-web-checkout-to-your-app) from the onboarding guide.
   </Accordion>
   <Accordion title="Sandbox API key is expired or invalid">
     Sandbox checkouts and catalog copies stop until you replace the key. Create a new key in the same Paddle sandbox account and click **Update API key** on the **Sandbox** tab. To move to a different sandbox account, disconnect the sandbox and connect the new account.

@@ -14,7 +14,7 @@ If a paywall uses App2Web, previewing it from [Paywall Previews](/guides/paywall
 Previews support two purchase modes:
 
 - **Simulated purchase** — the checkout looks and behaves like the real flow, but no transaction is created, no revenue events fire, and no entitlement is granted. Useful for checking the experience without spending money, especially where real purchases aren't available.
-- **Real purchase** — charges your card, completes checkout, returns to your app, and grants a real entitlement. Useful for verifying webhooks and entitlement delivery.
+- **Real purchase** — charges your card (no charge on a [Paddle sandbox](/guides/app2web-paddle-sandbox-testing) build), completes checkout, returns to your app, and grants a real entitlement. Useful for verifying webhooks and entitlement delivery.
 
 The mode follows the device's purchase eligibility: a device that is not cleared for real purchases always runs simulated, while an eligible device defaults to a real purchase. You can switch an eligible device to simulated in the preview settings.
 
@@ -26,7 +26,7 @@ Real purchases follow the same regional rules as production. The device's locale
 - **US, California** — real purchases available, and the California consent modal is required before a Paddle checkout.
 - **Outside the US, or mixed signals** (for example a VPN with a non-US App Store account) — simulated purchases only.
 
-To test the real purchase path from outside the US, all three signals must read US: use a US App Store account, set the device region to the US, and connect through a VPN to a US state.
+Without a Paddle sandbox, testing the real purchase path from outside the US requires all three signals to read US: use a US App Store account, set the device region to the US, and connect through a VPN to a US state.
 
 With a [Paddle sandbox account](/guides/app2web-paddle-sandbox-testing) connected, debug and TestFlight builds on Helium iOS SDK 4.15.0 or later skip these rules for Paddle checkouts: real sandbox purchases are available from any country, and the California consent modal is not required. Previews that include a Stripe checkout keep these rules.
 

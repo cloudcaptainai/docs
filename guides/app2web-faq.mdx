@@ -24,9 +24,9 @@ description: "Paywalls, attribution, experiments, and entitlements with Paddle."
   </Accordion>
 
   <Accordion title="How do I test that entitlements are granted correctly?" id="test-entitlements">
-    We recommend starting with [App2Web previews](/guides/paywall-previews#app2web-previews). Use a real purchase on an [eligible US device](/guides/app2web-previews#purchase-eligibility) to test entitlement delivery; simulated purchases don't charge you or grant entitlements.
+    We recommend starting with [App2Web previews](/guides/paywall-previews#app2web-previews). To test entitlement delivery without being charged, use a [Paddle sandbox](/guides/app2web-paddle-sandbox-testing) purchase on a debug or TestFlight build, from any country. Simulated purchases don't charge you or grant entitlements.
 
-    Then make a real purchase through your app's trigger and check that access unlocks when you return. See the [Paddle tests](/guides/paddle-onboarding-guide#7-test-everything).
+    Then make a sandbox purchase through your app's trigger and check that access unlocks when you return. See the [Paddle tests](/guides/paddle-onboarding-guide#7-test-everything).
 
     You can use [Paddle's webhook simulator](https://developer.paddle.com/webhooks/simulator/test-webhooks/) to test delivery separately; it doesn't create a real purchase.
 

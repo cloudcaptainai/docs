@@ -17,9 +17,9 @@ A checklist for testing your App2Web flow before sending traffic to it. The test
 
 Open [Paywall Previews](/guides/paywall-previews#preview-paywalls-from-your-app) (triple tap) and select your App2Web paywall.
 
-- [ ] Check the [purchase mode](/guides/app2web-previews#simulated-and-real-purchases) in the [preview settings](/guides/app2web-previews#preview-settings) before each session — eligible devices default to real purchases, which charge your card.
+- [ ] Check the [purchase mode](/guides/app2web-previews#simulated-and-real-purchases) in the [preview settings](/guides/app2web-previews#preview-settings) before each session — eligible devices default to real purchases, which charge your card unless the build checks out on a [Paddle sandbox](/guides/app2web-paddle-sandbox-testing).
 - [ ] Run a simulated purchase and confirm no transaction or entitlement is created.
-- [ ] If the device is [eligible](/guides/app2web-previews#purchase-eligibility), run a real purchase and confirm the entitlement is granted.
+- [ ] If the device is [eligible](/guides/app2web-previews#purchase-eligibility) or the build uses a [Paddle sandbox](/guides/app2web-paddle-sandbox-testing), run a real purchase and confirm the entitlement is granted.
 - [ ] For Paddle paywalls, verify the California consent modal when it applies.
 - [ ] [Clean up test purchases](/guides/app2web-previews#how-preview-events-differ-from-production) in your Paddle dashboard when done.
 

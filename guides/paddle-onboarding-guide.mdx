@@ -314,7 +314,7 @@ RevenueCat can take a few seconds to reflect a purchase. Check Helium entitlemen
 
 ## 7. Test everything
 
-Test with a [Paddle sandbox account](/guides/app2web-paddle-sandbox-testing): debug and TestFlight builds check out with test money, entitlements are granted, and testers can buy from any country. Follow **[Testing App2Web with Paddle Sandbox](/guides/app2web-paddle-sandbox-testing)** to connect it and run these checks:
+Connect a Paddle sandbox account so debug and TestFlight builds check out with test money, grant entitlements, and work from any country. Follow **[Testing App2Web with Paddle Sandbox](/guides/app2web-paddle-sandbox-testing)** to connect it, then run these checks:
 
 - **Purchase:** open a real trigger → browser checkout → purchase → return to the app. Confirm access unlocks in your chosen entitlement system and `hasActivePaddleEntitlement()` returns `true`.
 - **Dismiss or cancel checkout:** return to the expected screen without granting access or showing success.
@@ -329,7 +329,7 @@ To check the flow without any purchase, [App2Web previews](/guides/app2web-previ
 </Accordion>
 
 <Accordion title="Testing on your live account">
-  Without a sandbox account, debug and TestFlight builds check out on your live account and charge real money. Live checkout requires US users: the device region, App Store storefront, and IP location must all be US. From the US, disable VPNs. From outside the US, use a US device region, a US sandbox Apple storefront, and a US VPN.
+  Without a sandbox account, debug and TestFlight builds check out on your live account and charge real money. Live checkout requires a US user: the device region, App Store storefront, and IP location must all be US. From the US, disable VPNs. From outside the US, use a US device region, a US sandbox Apple storefront, and a US VPN.
 </Accordion>
 
 ## 8. Roll out your experiment

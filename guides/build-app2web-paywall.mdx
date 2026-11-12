@@ -28,4 +28,16 @@ Dismissing the hosted web paywall or completing a subscription returns the user 
   - Check [names and pricing](/guides/app2web-faq#checkout-appearance) in the payment sheet.
 </Accordion>
 
+## Show a second try web paywall
+
+A hosted web paywall can have a second try paywall, which is another hosted web paywall that opens in the browser. Depending on its configuration, it opens when the user dismisses the first web paywall or cancels checkout. Use it to offer a different price or framing before the user leaves checkout.
+
+The second try paywall shows only if it's ready by the time the first web paywall opens. Otherwise, the first web paywall opens without it. Helium leaves out the second try paywall when:
+
+- Its products come from a different web provider than the first web paywall's. Pair Paddle products with a Paddle web paywall, and Stripe products with a Stripe web paywall.
+- The user already owns one of its products.
+- Its prices or Paddle checkouts haven't loaded when the first web paywall opens.
+
+A purchase on the second try paywall counts toward that paywall. Its `purchaseSucceeded` and `purchaseRestored` events report `isSecondTry` as `true` and carry the second try paywall's name. See [Helium events](/guides/helium-events#paywall-and-purchase-events).
+
 Next: [Go-live checklist](/guides/app2web-go-live-checklist) / [Evaluate your experiment](/guides/app2web-faq#experiment-results).

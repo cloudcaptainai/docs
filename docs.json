@@ -2,87 +2,13 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "aspen",
   "name": "Helium Docs",
+  "description": "Helium is a remote paywall platform for iOS, Android, React Native and Flutter apps: design and edit paywalls without app updates, run A/B tests and targeting, add Stripe or Paddle web checkout (App2Web), and track revenue. These docs cover the mobile SDKs, the dashboard, web checkout, testing and rollout, revenue tracking and analytics forwarding, the Data Access API, and the Helium MCP server.",
   "colors": {
     "primary": "#3b82f6",
     "light": "#60a5fa",
     "dark": "#2563eb"
   },
   "favicon": "/favicon.svg",
-  "navigation": {
-    "groups": [
-      {
-        "group": "GETTING STARTED",
-        "icon": "flag",
-        "pages": [
-          "getting-started/introduction",
-          "getting-started/quickstart"
-        ]
-      },
-      {
-        "group": "SDK QUICKSTARTS",
-        "icon": "code",
-        "pages": [
-          "sdk/quickstart-ios",
-          "sdk/quickstart-android",
-          "sdk/quickstart-react-native",
-          "sdk/quickstart-flutter"
-        ]
-      },
-      {
-        "group": "AI TOOLS",
-        "icon": "robot",
-        "pages": [
-          "ai-tools/mcp"
-        ]
-      },
-      {
-        "group": "DATA ACCESS",
-        "icon": "database",
-        "pages": [
-          "data-access/overview",
-          "data-access/schema",
-          "data-access/agent-skill",
-          "data-access/changelog"
-        ]
-      },
-      {
-        "group": "GUIDES",
-        "icon": "compass",
-        "pages": [
-          "guides/how-does-helium-work",
-          "guides/revenue-reporting",
-          "guides/fallback-bundle",
-          "guides/ways-to-show-paywall",
-          "guides/analytics-forwarding",
-          "guides/third-party-analytics",
-          "guides/helium-events",
-          "guides/custom-events",
-          "guides/storekit-testing",
-          "guides/paywall-traits",
-          "guides/paddle-onboarding-guide",
-          "guides/app2web-faq",
-          "guides/google-play-data-safety"
-        ]
-      },
-      {
-        "group": "MIGRATIONS",
-        "icon": "arrow-up-right-dots",
-        "pages": [
-          "migrations/ios-3-to-4",
-          "migrations/android-0-to-4",
-          "migrations/ios-2-to-3"
-        ]
-      },
-      {
-        "group": "AGENT CONTEXT",
-        "hidden": true,
-        "searchable": true,
-        "pages": [
-          "guides/dashboard-faq"
-        ]
-      }
-    ]
-  },
   "logo": {
     "light": "/logo/LargeLogo-cropped.svg",
     "dark": "/logo/LargeLogo-cropped.svg",
@@ -92,23 +18,278 @@
     "links": [
       {
         "label": "Dashboard",
-        "href": "https://docs.tryhelium.com/"
+        "href": "https://app.tryhelium.com"
+      },
+      {
+        "label": "Schedule demo",
+        "href": "https://cal.com/team/helium/20-minute-helium-demo"
       }
     ],
     "primary": {
       "type": "button",
-      "label": "Schedule Demo",
-      "href": "https://cal.com/team/helium/20-minute-helium-demo"
+      "label": "Sign up",
+      "href": "https://auth.tryhelium.com/signup?utm_source=docs&utm_medium=navbar"
     }
   },
-  "contextual": {
-        "options": [
-            "mcp",
-            "cursor",
-            "copy",
-            "chatgpt",
-            "claude"
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Guides",
+        "icon": "book-open",
+        "groups": [
+          {
+            "group": "Get started",
+            "icon": "flag",
+            "pages": [
+              "getting-started/introduction",
+              "getting-started/quickstart",
+              "ai-tools/agents"
+            ]
+          },
+          {
+            "group": "How Helium works",
+            "icon": "lightbulb",
+            "pages": [
+              "guides/how-does-helium-work",
+              "guides/how-helium-guarantees-performance",
+              "background/how-it-works"
+            ]
+          },
+          {
+            "group": "Dashboard",
+            "icon": "table-columns",
+            "pages": [
+              "guides/makingpaywalls",
+              "guides/paywall-traits",
+              "guides/promotional-offers",
+              "guides/dashboard-faq"
+            ]
+          },
+          {
+            "group": "Test & launch",
+            "icon": "rocket",
+            "pages": [
+              "guides/paywall-previews",
+              "guides/test-paywalls",
+              "guides/storekit-testing",
+              "guides/helium-qa-guide",
+              "guides/rolling-out-helium"
+            ]
+          },
+          {
+            "group": "Revenue & analytics",
+            "icon": "chart-line",
+            "pages": [
+              "guides/revenue-reporting",
+              "guides/analytics-forwarding",
+              "guides/third-party-analytics",
+              "guides/analytics-providers"
+            ]
+          },
+          {
+            "group": "Compliance",
+            "icon": "shield-halved",
+            "pages": [
+              "guides/google-play-data-safety"
+            ]
+          }
         ]
+      },
+      {
+        "tab": "SDK",
+        "icon": "code",
+        "groups": [
+          {
+            "group": "SDK",
+            "root": "sdk/overview",
+            "directory": "card",
+            "pages": [
+              {
+                "group": "Quickstarts",
+                "icon": "download",
+                "pages": [
+                  "sdk/quickstart-ios",
+                  "sdk/quickstart-android",
+                  "sdk/quickstart-react-native",
+                  "sdk/quickstart-flutter"
+                ],
+                "expanded": true
+              },
+              {
+                "group": "Paywalls",
+                "icon": "window-maximize",
+                "pages": [
+                  "guides/ways-to-show-paywall",
+                  "guides/fallback-bundle",
+                  "guides/custom-events"
+                ],
+                "expanded": true
+              },
+              {
+                "group": "Events",
+                "icon": "bolt",
+                "pages": [
+                  "guides/helium-events"
+                ],
+                "expanded": true
+              },
+              {
+                "group": "Migrations",
+                "icon": "arrow-up-right-dots",
+                "pages": [
+                  "migrations/ios-3-to-4",
+                  "migrations/ios-2-to-3",
+                  "migrations/android-0-to-4"
+                ],
+                "expanded": true
+              },
+              {
+                "group": "Legacy",
+                "icon": "box-archive",
+                "directory": "none",
+                "pages": [
+                  "sdk/quickstart-ios-v3",
+                  "sdk/quickstart-android-v0"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Web checkout",
+        "icon": "globe",
+        "groups": [
+          {
+            "group": "App2Web",
+            "root": "web-checkout/overview",
+            "directory": "card",
+            "pages": [
+              {
+                "group": "Set up",
+                "icon": "plug",
+                "pages": [
+                  "guides/paddle-onboarding-guide",
+                  "guides/build-app2web-paywall"
+                ],
+                "expanded": true
+              },
+              {
+                "group": "Test & launch",
+                "icon": "rocket",
+                "pages": [
+                  "guides/app2web-previews",
+                  "guides/app2web-go-live-checklist"
+                ],
+                "expanded": true
+              },
+              {
+                "group": "Reference",
+                "icon": "circle-question",
+                "pages": [
+                  "guides/app2web-faq"
+                ],
+                "expanded": true
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Data & AI",
+        "icon": "database",
+        "groups": [
+          {
+            "group": "Data Access API",
+            "icon": "database",
+            "pages": [
+              "data-access/overview",
+              "data-access/schema",
+              "data-access/agent-skill",
+              "data-access/changelog"
+            ]
+          },
+          {
+            "group": "AI tools",
+            "icon": "robot",
+            "pages": [
+              "ai-tools/mcp"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "seo": {
+    "indexing": "navigable",
+    "metatags": {
+      "og:site_name": "Helium Docs",
+      "twitter:card": "summary_large_image"
+    }
+  },
+  "search": {
+    "prompt": "Search Helium docs..."
+  },
+  "markdown": {
+    "instructions": [
+      "Helium is a paywall platform for mobile apps. Paywalls, workflows, triggers, targeting and experiments are configured in the dashboard (https://app.tryhelium.com); the SDK's job is to initialize, present a paywall for a trigger, and report purchases.",
+      "Pick the SDK page for the user's platform: /sdk/quickstart-ios (Swift), /sdk/quickstart-android (Kotlin), /sdk/quickstart-react-native, /sdk/quickstart-flutter. Method names differ per platform; copy them from the page for that platform, never from another platform's page.",
+      "Pages under /sdk/quickstart-ios-v3 and /sdk/quickstart-android-v0 are legacy SDK versions. Use them only when the user is on that version; for upgrades use the /migrations pages.",
+      "For live dashboard data (paywalls, workflows, metrics) connect the Helium MCP server at https://app.tryhelium.com/api/mcp (see /ai-tools/mcp). For SQL over events, revenue, subscriptions and users use the Data Access API (/data-access/overview) and the helium-data-access skill (/data-access/agent-skill). This documentation site also exposes a docs-search MCP server at https://docs.tryhelium.com/mcp.",
+      "Web checkout (App2Web) with Stripe or Paddle is a separate flow from in-app purchases; start at /web-checkout/overview.",
+      "Every page is available as Markdown by appending .md to its URL. The full index is at https://docs.tryhelium.com/llms.txt."
+    ]
+  },
+  "contextual": {
+    "display": "toc",
+    "options": [
+      "copy",
+      "view",
+      "mcp",
+      "cursor",
+      "vscode",
+      "chatgpt",
+      "claude",
+      {
+        "title": "Sign up for Helium",
+        "description": "Create a free Helium account and build your first paywall",
+        "icon": "rocket",
+        "href": {
+          "base": "https://auth.tryhelium.com/signup",
+          "query": [
+            {
+              "key": "utm_source",
+              "value": "docs"
+            },
+            {
+              "key": "utm_medium",
+              "value": "toc"
+            },
+            {
+              "key": "doc",
+              "value": "$path"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "redirects": [
+    {
+      "source": "/ai-tools",
+      "destination": "/ai-tools/agents"
     },
-    "description": "Documentation for Helium - App Monetization for the AI Era"
+    {
+      "source": "/sdk",
+      "destination": "/sdk/overview"
+    },
+    {
+      "source": "/web-checkout",
+      "destination": "/web-checkout/overview"
+    },
+    {
+      "source": "/app2web",
+      "destination": "/web-checkout/overview"
+    }
+  ]
 }

@@ -1,0 +1,70 @@
+---
+title: "Helium for AI agents"
+sidebarTitle: "For AI agents"
+description: "How Claude, Cursor, Codex and other AI tools can read these docs, query your Helium dashboard, and investigate your data: MCP servers, agent skills, llms.txt and Markdown pages."
+icon: "robot"
+---
+
+Helium exposes everything an AI agent needs to integrate the SDK, debug a paywall, or answer questions about your data. Use this page to pick the right interface.
+
+## Which interface to use
+
+| You want to... | Use |
+| :- | :- |
+| Read or search these docs from an agent | [Docs as Markdown](#docs-as-markdown) or the [docs search MCP](#docs-search-mcp) |
+| Ask about your paywalls, workflows, triggers, experiments and metrics | [Helium MCP server](/ai-tools/mcp) |
+| Run SQL over your events, revenue, subscriptions and users | [Data Access API](/data-access/overview) with the [`helium-data-access` skill](/data-access/agent-skill) |
+| Integrate the Helium SDK into an app | The quickstart for your platform: [iOS](/sdk/quickstart-ios), [Android](/sdk/quickstart-android), [React Native](/sdk/quickstart-react-native), [Flutter](/sdk/quickstart-flutter) |
+
+## Docs as Markdown
+
+Every page on this site is available as plain Markdown. Append `.md` to any URL, or send `Accept: text/markdown`:
+
+```bash
+curl -L https://docs.tryhelium.com/sdk/quickstart-ios.md
+curl -L -H "Accept: text/markdown" https://docs.tryhelium.com/sdk/quickstart-ios
+```
+
+Site-wide indexes:
+
+- [`/llms.txt`](https://docs.tryhelium.com/llms.txt): every page with a one-line description. Start here.
+- [`/llms-full.txt`](https://docs.tryhelium.com/llms-full.txt): the full content of every page in one file.
+
+Agent instructions for these docs are included at the top of `llms.txt` and of every `.md` page.
+
+## Docs search MCP
+
+The docs site hosts an MCP server that searches this documentation. It needs no login.
+
+```text
+https://docs.tryhelium.com/mcp
+```
+
+Use it when an agent needs grounded answers about Helium's SDKs or dashboard. For your organization's live data, use the Helium MCP server below instead.
+
+## Helium MCP server
+
+The [Helium MCP server](/ai-tools/mcp) at `https://app.tryhelium.com/api/mcp` gives an agent a read-only view of your dashboard: paywalls, workflows, triggers, targeting, experiments and metrics, plus docs search. Sign-in happens in the browser when the client first connects.
+
+## Agent skills
+
+Skills are installable instruction packs for coding agents such as Claude Code, Codex and Cursor.
+
+- [`helium-data-access`](/data-access/agent-skill): how to answer questions about your Helium data with the Data Access API: which tables to use, which filters to always apply, and recipes for common investigations.
+
+```bash
+npx skills add cloudcaptainai/docs --skill helium-data-access
+```
+
+Skills are also published at [`/.well-known/agent-skills/index.json`](https://docs.tryhelium.com/.well-known/agent-skills/index.json) for tools that discover skills automatically.
+
+## Discovery endpoints
+
+Agents that support them can find all of the above from the site root:
+
+| Endpoint | Contents |
+| :- | :- |
+| `/.well-known/mcp/server-card.json` | Docs search MCP server card |
+| `/.well-known/agent-card.json` | Agent card for this site |
+| `/.well-known/agent-skills/index.json` | Skills index |
+| `/llms.txt`, `/llms-full.txt` | Page indexes |

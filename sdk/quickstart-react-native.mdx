@@ -346,10 +346,10 @@ Let eligible users pay in the browser with Paddle instead of through the App Sto
 **Unlock access from either path.** Check the web entitlement alongside your store entitlement checks:
 
 ```tsx
-import { hasActivePaddleEntitlement, hasAnyActiveSubscription } from 'expo-helium';
+import { hasActivePaddleEntitlement, hasAnyEntitlement } from 'expo-helium';
 // or from '@tryheliumai/paywall-sdk-react-native'
 
-const isPremium = (await hasActivePaddleEntitlement()) || (await hasAnyActiveSubscription());
+const isPremium = (await hasActivePaddleEntitlement()) || (await hasAnyEntitlement());
 ```
 
 Using RevenueCat or your own backend for entitlements? See [Configure your entitlements](/guides/paddle-onboarding-guide#6-configure-your-entitlements). Dashboard side (Paddle connection, web product, linked web paywall): [Paddle onboarding](/guides/paddle-onboarding-guide) and [Build an App2Web paywall](/guides/build-app2web-paywall).

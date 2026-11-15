@@ -408,7 +408,7 @@ Let eligible users pay in the browser with Paddle instead of through the App Sto
 
 ```swift
 let hasWebAccess = await Helium.entitlements.hasActivePaddleEntitlement()
-let hasStoreAccess = await Helium.entitlements.hasAnyActiveSubscription()
+let hasStoreAccess = await Helium.entitlements.hasAny()
 let isPremium = hasWebAccess || hasStoreAccess
 ```
 

@@ -331,7 +331,7 @@ Let eligible users pay in the browser with Paddle instead of through the App Sto
 
 ```dart
 final hasWebAccess = await heliumFlutter.hasActivePaddleEntitlement();
-final hasStoreAccess = await heliumFlutter.hasAnyActiveSubscription();
+final hasStoreAccess = await heliumFlutter.hasAnyEntitlement();
 final isPremium = hasWebAccess || hasStoreAccess;
 ```
 

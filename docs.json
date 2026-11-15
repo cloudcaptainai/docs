@@ -110,5 +110,11 @@
             "claude"
         ]
     },
-    "description": "Documentation for Helium - App Monetization for the AI Era"
+    "description": "Documentation for Helium - App Monetization for the AI Era",
+    "integrations": {
+        "posthog": {
+            "apiKey": "phc_wVUKg83cjNmuYP5RoPrd9WzskpOLsXbZmz01bBE4DiJ",
+            "sessionRecording": true
+        }
+    }
 }

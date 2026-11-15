@@ -73,6 +73,16 @@
             ]
           },
           {
+            "group": "Revenue & analytics",
+            "icon": "chart-line",
+            "pages": [
+              "guides/revenue-reporting",
+              "guides/analytics-forwarding",
+              "guides/third-party-analytics",
+              "guides/analytics-providers"
+            ]
+          },
+          {
             "group": "Compliance",
             "icon": "shield-halved",
             "pages": [
@@ -185,16 +195,6 @@
         "tab": "Data & AI",
         "icon": "database",
         "groups": [
-          {
-            "group": "Revenue & analytics",
-            "icon": "chart-line",
-            "pages": [
-              "guides/revenue-reporting",
-              "guides/analytics-forwarding",
-              "guides/third-party-analytics",
-              "guides/analytics-providers"
-            ]
-          },
           {
             "group": "Data Access API",
             "icon": "database",

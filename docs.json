@@ -232,11 +232,11 @@
   },
   "markdown": {
     "instructions": [
-      "Helium is a paywall platform for mobile apps. Paywalls, workflows, triggers, targeting and experiments are configured in the dashboard (https://app.tryhelium.com); the SDK's job is to initialize, present a paywall for a trigger, and report purchases.",
+      "Helium is a paywall platform for mobile apps. Paywalls, workflows, triggers, targeting and experiments are configured in the dashboard (https://app.tryhelium.com); the SDK's job is to initialize, present a paywall for a trigger, handle purchases (in-app or web checkout) and report them.",
       "Pick the SDK page for the user's platform: /sdk/quickstart-ios (Swift), /sdk/quickstart-android (Kotlin), /sdk/quickstart-react-native, /sdk/quickstart-flutter. Method names differ per platform; copy them from the page for that platform, never from another platform's page.",
       "Pages under /sdk/quickstart-ios-v3 and /sdk/quickstart-android-v0 are legacy SDK versions. Use them only when the user is on that version; for upgrades use the /migrations pages.",
       "For live dashboard data (paywalls, workflows, metrics) connect the Helium MCP server at https://app.tryhelium.com/api/mcp (see /ai-tools/mcp). For SQL over events, revenue, subscriptions and users use the Data Access API (/data-access/overview) and the helium-data-access skill (/data-access/agent-skill). This documentation site also exposes a docs-search MCP server at https://docs.tryhelium.com/mcp.",
-      "Web checkout (App2Web) with Stripe or Paddle is a separate flow from in-app purchases; start at /web-checkout/overview.",
+      "Web checkout (App2Web) is part of the standard setup, not a separate product: an in-app paywall also offers a Paddle web product; tapping it opens a hosted web paywall in the browser and a deep link returns the user with the entitlement. iOS and US storefronts only; Android keeps in-app purchases. Start at /web-checkout/overview; SDK code is the 'Web checkout (App2Web)' section of each SDK quickstart; dashboard steps are /guides/paddle-onboarding-guide and /guides/build-app2web-paywall. Paddle is the default provider; Stripe is supported as bring-your-own-provider (/guides/stripe-onboarding-guide).",
       "Every page is available as Markdown by appending .md to its URL. The full index is at https://docs.tryhelium.com/llms.txt."
     ]
   },

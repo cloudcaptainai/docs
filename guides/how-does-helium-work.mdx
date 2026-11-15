@@ -30,6 +30,10 @@ A general overview of how the Helium platform works.
   An experiment is an A/B/n test that allows you to compare paywall A versus paywall B for a specific audience.
 </Card>
 
+<Card icon="globe" horizontal href="/web-checkout/overview" title="Web product & hosted web paywall (App2Web)">
+  A web product is a Paddle price synced to Helium next to your store products. When a user taps it on an in-app paywall, Helium opens the linked **hosted web paywall** in the browser, the purchase completes with Paddle, and the user returns to the app with the entitlement. Hosted web paywalls are never targeted directly; they open only from their in-app paywall.
+</Card>
+
 # How do paywalls get displayed on my app?
 
 This is an overview of how paywalls are actually served to users.
@@ -48,10 +52,18 @@ flowchart LR
     Server --> E([📲 Helium SDK Prepares Paywalls])
     E --> F([🎬 App Calls 'Present Paywall' for Trigger])
     F --> G([✅ Mobile SDK Displays Paywall])
+    G --> H{User taps a product}
+    H -->|Store product| I([🛒 App Store / Google Play purchase])
+    H -->|Web product, eligible iOS user| J([🌐 Browser opens hosted web paywall → Paddle checkout])
+    J --> K([↩️ Deep link returns to app, entitlement granted])
 
     style Server fill:#e8f0fe,stroke:#4a90d9,stroke-width:1.5px
     style A fill:#d4edda,stroke:#28a745,color:#000
     style E fill:#d4edda,stroke:#28a745,color:#000
     style F fill:#fff3cd,stroke:#ffc107,color:#000
     style G fill:#cce5ff,stroke:#004085,color:#000
+    style J fill:#fff3cd,stroke:#ffc107,color:#000
+    style K fill:#d4edda,stroke:#28a745,color:#000
 ```
+
+Both purchase paths come from the same paywall; which products a user sees is decided by targeting (the **App2Web eligibility** audience preset) and the products attached to the paywall. See [Web checkout (App2Web)](/web-checkout/overview).

@@ -6,6 +6,9 @@ icon: "p"
 ---
 
 import ApplePayReadiness from "/snippets/apple-pay-readiness.mdx";
+import WebCheckoutIOS from "/snippets/app2web/sdk-ios.mdx";
+import WebCheckoutReactNative from "/snippets/app2web/sdk-react-native.mdx";
+import WebCheckoutFlutter from "/snippets/app2web/sdk-flutter.mdx";
 
 Take users from your paywall to web checkout, then back to your app with access unlocked.
 
@@ -56,185 +59,13 @@ Choose your SDK, then enable checkout, identify your user, handle the return lin
 
 <Tabs>
   <Tab title="iOS (native, Helium 4.6.0+)">
-    **Enable checkout before initializing Helium:**
-
-    ```swift
-    Helium.config.enableExternalWebCheckout(
-      redirectURL: "yourapp://openapp",
-      paymentProcessors: .paddle
-    )
-    ```
-
-    Set up a deep link in your app, then use it as `redirectURL`. Checkout returns here after success, cancellation, or failure.
-
-    **Set your user ID on Helium** before showing a paywall.
-
-    <Accordion title="Purchases before sign-in">
-      If you must set the user ID after showing a paywall, set `allowWebCheckoutWithoutUserId` to `true`.
-    </Accordion>
-
-    **Handle the return link.** Forward incoming links to `Helium.shared.handleURL(url)` from your `onOpenURL` / `application(_:open:)` handler.
-
-    **Add a "Manage Subscription" button** so users can cancel or update payment methods via Paddle's customer portal:
-
-    ```swift
-    if await Helium.entitlements.hasActivePaddleEntitlement() {
-        // show the manage subscription button
-    }
-    
-    // when the button is tapped:
-    do {
-        let url = try await Helium.shared.createPaddlePortalSession()
-        UIApplication.shared.open(url)
-    } catch {
-        print("Failed to open customer portal: \\(error)")
-    }
-    ```
-
-    The portal opens `paddle.net` for subscription management. Cancellation emails use the [checkout billing email](/guides/app2web-faq#billing-email).
-
-    <Accordion title="Optional: pre-authenticated portal links">
-    To open a pre-authenticated customer portal session, generate the link from your backend instead. Look up the user's Paddle customer ID with Helium:
-
-    ```swift
-    let paddleCustomerId = await Helium.shared.getPaddleCustomerId()
-    ```
-
-    Send that ID to your server and follow [Paddle's guide for generating pre-authenticated customer portal links](https://developer.paddle.com/build/customers/integrate-customer-portal/).
-    </Accordion>
+    <WebCheckoutIOS />
   </Tab>
   <Tab title="React Native / Expo">
-    Available in `expo-helium` 3.4.13\+ and `@tryheliumai/paywall-sdk-react-native` 3.1.2\+.
-
-    **Enable checkout before initializing Helium:**
-
-    ```tsx
-    enableExternalWebCheckout({
-      redirectURL: "yourapp://openapp",
-      paymentProcessors: ["paddle"],
-    });
-    ```
-
-    Set up a deep link in your app, then use it as `redirectURL`. Checkout returns here after success, cancellation, or failure.
-
-    **Set your user ID on Helium** before showing a paywall.
-
-    <Accordion title="Purchases before sign-in">
-      If you must set the user ID after showing a paywall, call `setAllowWebCheckoutWithoutUserId(true)`.
-    </Accordion>
-
-    **Handle the return link.** Forward incoming links to `heliumHandleURL(url)` from your deep link handling:
-
-    ```tsx
-    useEffect(() => {
-      const sub = Linking.addEventListener('url', (event) => heliumHandleURL(event.url));
-      void Linking.getInitialURL().then(heliumHandleURL);
-      return () => sub.remove();
-    }, []);
-    ```
-
-    <Note>
-      With **Expo Router**, you may need to [override the default behavior](https://docs.expo.dev/router/advanced/native-intent/#sending-navigation-events-to-third-party-services).
-    </Note>
-
-    **Add a "Manage Subscription" button** so users can cancel or update payment methods via Paddle's customer portal:
-
-    ```tsx
-    if (await hasActivePaddleEntitlement()) {
-        // show the manage subscription button
-    }
-    
-    // when the button is tapped:
-    const url = await createPaddlePortalSession();
-    if (url) {
-      await Linking.openURL(url);
-    }
-    ```
-
-    The portal opens `paddle.net` for subscription management. Cancellation emails use the [checkout billing email](/guides/app2web-faq#billing-email).
-
-    <Accordion title="Optional: pre-authenticated portal links">
-    To open a pre-authenticated customer portal session, generate the link from your backend instead. Look up the user's Paddle customer ID with Helium:
-
-    ```tsx
-    const paddleCustomerId = await getPaddleCustomerId();
-    ```
-
-    Send that ID to your server and follow [Paddle's guide for generating pre-authenticated customer portal links](https://developer.paddle.com/build/customers/integrate-customer-portal/).
-    </Accordion>
+    <WebCheckoutReactNative />
   </Tab>
   <Tab title="Flutter (Helium 3.3.8+)">
-    **Enable checkout before initializing Helium:**
-
-    ```dart
-    await HeliumFlutter().enableExternalWebCheckout(
-      redirectURL: "yourapp://openapp",
-      paymentProcessors: {HeliumWebCheckoutProcessor.paddle},
-    );
-    ```
-
-    Set up a deep link in your app, then use it as `redirectURL`. Checkout returns here after success, cancellation, or failure.
-
-    <Accordion title="Register a Flutter deep link">
-    For a custom scheme, add a `CFBundleURLTypes` entry to `ios/Runner/Info.plist`:
-
-    ```xml
-    <key>CFBundleURLTypes</key>
-    <array>
-      <dict>
-        <key>CFBundleURLName</key>
-        <string>com.yourcompany.yourapp</string>
-        <key>CFBundleURLSchemes</key>
-        <array>
-          <string>yourapp</string>
-        </array>
-      </dict>
-    </array>
-    ```
-
-    To use a universal link (`https://...`) instead, set up [associated domains](https://docs.flutter.dev/ui/navigation/deep-linking) and use that URL as the `redirectURL`.
-    </Accordion>
-
-    **Set your user ID on Helium** before showing a paywall.
-
-    <Accordion title="Purchases before sign-in">
-      If you must set the user ID after showing a paywall, call `setAllowWebCheckoutWithoutUserId(true)`.
-    </Accordion>
-
-    **Handle the return link.** Forward incoming links to `handleURL(url)`; Helium ignores unrelated URLs. If you don’t already handle deep links, add [app_links](https://pub.dev/packages/app_links) with `flutter pub add app_links`:
-
-    ```dart
-    import 'package:app_links/app_links.dart';
-
-    _linkSubscription = AppLinks().uriLinkStream.listen((uri) {
-      HeliumFlutter().handleURL(uri.toString());
-    });
-    ```
-
-    <Note>
-      `uriLinkStream` also emits the link that launched the app, so cold starts are covered — there is no separate initial-link step. If you use `app_links`, set `FlutterDeepLinkingEnabled` to `false` in `Info.plist` so Flutter's built-in deep-link handling doesn't consume the link first.
-    </Note>
-
-    **Add a "Manage Subscription" button** so users can cancel or update payment methods via Paddle's customer portal. `launchUrl` comes from the [url_launcher](https://pub.dev/packages/url_launcher) package:
-
-    ```dart
-    final hasPaddle = await HeliumFlutter().hasActivePaddleEntitlement();
-    if (hasPaddle) {
-        // show the manage subscription button
-    }
-
-    // when the button is tapped:
-    final urlString = await HeliumFlutter().createPaddlePortalSession();
-    if (urlString != null) {
-      await launchUrl(Uri.parse(urlString));
-    }
-    ```
-
-    The portal opens `paddle.net` for subscription management. Cancellation emails use the [checkout billing email](/guides/app2web-faq#billing-email).
-
-    <Accordion title="Optional: pre-authenticated portal links">
-    To open a pre-authenticated customer portal session, generate the link from your backend instead. Look up the user's Paddle customer ID with Helium's `getPaddleCustomerId()`, send it to your server, and follow [Paddle's guide for generating pre-authenticated customer portal links](https://developer.paddle.com/build/customers/integrate-customer-portal/).
-    </Accordion>
+    <WebCheckoutFlutter />
   </Tab>
 </Tabs>
 

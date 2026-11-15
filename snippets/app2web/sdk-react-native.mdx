@@ -1,0 +1,58 @@
+Available in `expo-helium` 3.4.13\+ and `@tryheliumai/paywall-sdk-react-native` 3.1.2\+.
+
+**Enable checkout before initializing Helium:**
+
+```tsx
+enableExternalWebCheckout({
+  redirectURL: "yourapp://openapp",
+  paymentProcessors: ["paddle"],
+});
+```
+
+Set up a deep link in your app, then use it as `redirectURL`. Checkout returns here after success, cancellation, or failure.
+
+**Set your user ID on Helium** before showing a paywall.
+
+<Accordion title="Purchases before sign-in">
+  If you must set the user ID after showing a paywall, call `setAllowWebCheckoutWithoutUserId(true)`.
+</Accordion>
+
+**Handle the return link.** Forward incoming links to `heliumHandleURL(url)` from your deep link handling:
+
+```tsx
+useEffect(() => {
+  const sub = Linking.addEventListener('url', (event) => heliumHandleURL(event.url));
+  void Linking.getInitialURL().then(heliumHandleURL);
+  return () => sub.remove();
+}, []);
+```
+
+<Note>
+  With **Expo Router**, you may need to [override the default behavior](https://docs.expo.dev/router/advanced/native-intent/#sending-navigation-events-to-third-party-services).
+</Note>
+
+**Add a "Manage Subscription" button** so users can cancel or update payment methods via Paddle's customer portal:
+
+```tsx
+if (await hasActivePaddleEntitlement()) {
+    // show the manage subscription button
+}
+
+// when the button is tapped:
+const url = await createPaddlePortalSession();
+if (url) {
+  await Linking.openURL(url);
+}
+```
+
+The portal opens `paddle.net` for subscription management. Cancellation emails use the [checkout billing email](/guides/app2web-faq#billing-email).
+
+<Accordion title="Optional: pre-authenticated portal links">
+To open a pre-authenticated customer portal session, generate the link from your backend instead. Look up the user's Paddle customer ID with Helium:
+
+```tsx
+const paddleCustomerId = await getPaddleCustomerId();
+```
+
+Send that ID to your server and follow [Paddle's guide for generating pre-authenticated customer portal links](https://developer.paddle.com/build/customers/integrate-customer-portal/).
+</Accordion>

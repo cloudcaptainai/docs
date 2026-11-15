@@ -98,7 +98,8 @@
                   "sdk/quickstart-android",
                   "sdk/quickstart-react-native",
                   "sdk/quickstart-flutter"
-                ]
+                ],
+                "expanded": true
               },
               {
                 "group": "Paywalls",
@@ -107,14 +108,16 @@
                   "guides/ways-to-show-paywall",
                   "guides/fallback-bundle",
                   "guides/custom-events"
-                ]
+                ],
+                "expanded": true
               },
               {
                 "group": "Events",
                 "icon": "bolt",
                 "pages": [
                   "guides/helium-events"
-                ]
+                ],
+                "expanded": true
               },
               {
                 "group": "Migrations",
@@ -123,7 +126,8 @@
                   "migrations/ios-3-to-4",
                   "migrations/ios-2-to-3",
                   "migrations/android-0-to-4"
-                ]
+                ],
+                "expanded": true
               },
               {
                 "group": "Legacy",
@@ -153,7 +157,8 @@
                 "pages": [
                   "guides/paddle-onboarding-guide",
                   "guides/build-app2web-paywall"
-                ]
+                ],
+                "expanded": true
               },
               {
                 "group": "Test & launch",
@@ -161,14 +166,16 @@
                 "pages": [
                   "guides/app2web-previews",
                   "guides/app2web-go-live-checklist"
-                ]
+                ],
+                "expanded": true
               },
               {
                 "group": "Reference",
                 "icon": "circle-question",
                 "pages": [
                   "guides/app2web-faq"
-                ]
+                ],
+                "expanded": true
               }
             ]
           }

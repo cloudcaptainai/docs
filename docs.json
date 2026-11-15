@@ -291,5 +291,11 @@
       "source": "/app2web",
       "destination": "/web-checkout/overview"
     }
-  ]
+  ],
+  "integrations": {
+    "posthog": {
+      "apiKey": "phc_wVUKg83cjNmuYP5RoPrd9WzskpOLsXbZmz01bBE4DiJ",
+      "sessionRecording": true
+    }
+  }
 }

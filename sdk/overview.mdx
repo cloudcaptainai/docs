@@ -1,0 +1,42 @@
+---
+title: "Helium SDK"
+sidebarTitle: "Overview"
+description: "What the Helium mobile SDK does, which platforms it supports, and where to start for iOS, Android, React Native and Flutter."
+icon: "code"
+---
+
+The Helium SDK fetches your paywalls when the app launches, presents the right one when your code fires a trigger, and reports purchases and paywall events back to Helium. Paywall design, targeting and experiments live in the [dashboard](https://app.tryhelium.com), so you ship the SDK once and change paywalls without app updates.
+
+## Platforms
+
+<CardGroup cols={2}>
+  <Card title="iOS" icon="apple" href="/sdk/quickstart-ios">
+    Swift, iOS 15+. Swift Package Manager or CocoaPods.
+  </Card>
+  <Card title="Android" icon="android" href="/sdk/quickstart-android">
+    Kotlin, Gradle.
+  </Card>
+  <Card title="React Native" icon="react" href="/sdk/quickstart-react-native">
+    npm package wrapping the native SDKs.
+  </Card>
+  <Card title="Flutter" icon="flutter" href="/sdk/quickstart-flutter">
+    pub.dev package wrapping the native SDKs.
+  </Card>
+</CardGroup>
+
+## What every integration does
+
+1. **Initialize** Helium on app launch with your API key and a delegate for purchases.
+2. **Present** a paywall for a trigger name at the point in your app where the paywall should appear.
+3. **Ship fallbacks** so a paywall shows even if the device is offline on first launch. See [Fallback paywalls](/guides/fallback-bundle).
+4. **Report revenue** by connecting your store or RevenueCat webhooks. See [Revenue reporting](/guides/revenue-reporting).
+
+The quickstart for each platform walks through all four steps with the exact method names for that platform.
+
+## Beyond the quickstart
+
+- [Ways to show a paywall](/guides/ways-to-show-paywall): embedded, programmatic and deep-link presentation.
+- [Paywall traits](/guides/paywall-traits): pass values into a paywall at presentation time.
+- [Custom events](/guides/custom-events): react in your app to actions taken inside a paywall.
+- [Helium events](/guides/helium-events): the full list of events the SDK emits.
+- [Migrations](/migrations/ios-3-to-4): upgrade guides for major SDK versions.

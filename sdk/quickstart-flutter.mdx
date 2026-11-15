@@ -4,6 +4,8 @@ description: "Integrate Helium into your Flutter App"
 icon: "/images/sdk/logos/flutter-svgrepo-com.svg"
 sidebarTitle: "Flutter"
 ---
+import WebCheckoutFlutter from "/snippets/app2web/sdk-flutter.mdx";
+
 
 <Tip>
   To get a better understanding of how paywalls are served, visit [here](/guides/how-does-helium-work).
@@ -314,6 +316,26 @@ if (hasActiveSubscription) {
 ```
 
 </CodeGroup>
+
+### Web checkout (App2Web)
+
+Let eligible users pay in the browser with Paddle instead of through the App Store: the user taps a web product on your paywall, Helium opens the hosted web paywall, and a deep link brings them back with the entitlement granted. Do this **before `initialize`** so you don't have to revisit startup code later. Your app needs a [custom URL scheme](https://developer.apple.com/documentation/xcode/defining-a-custom-url-scheme-for-your-app) or [universal link](https://developer.apple.com/documentation/xcode/allowing-apps-and-websites-to-link-to-your-content) for the return.
+
+<Info>
+  App2Web is available on iOS for US storefronts and uses Paddle. Users outside the **App2Web eligibility** audience see your normal in-app purchase paywall from the same trigger, so this is safe to ship to everyone. Overview, eligibility and dashboard setup: [Web checkout (App2Web)](/web-checkout/overview).
+</Info>
+
+<WebCheckoutFlutter />
+
+**Unlock access from either path.** Check the web entitlement alongside your store entitlement checks:
+
+```dart
+final hasWebAccess = await heliumFlutter.hasActivePaddleEntitlement();
+final hasStoreAccess = await heliumFlutter.hasAnyActiveSubscription();
+final isPremium = hasWebAccess || hasStoreAccess;
+```
+
+Using RevenueCat or your own backend for entitlements? See [Configure your entitlements](/guides/paddle-onboarding-guide#6-configure-your-entitlements). Dashboard side (Paddle connection, web product, linked web paywall): [Paddle onboarding](/guides/paddle-onboarding-guide) and [Build an App2Web paywall](/guides/build-app2web-paywall).
 
 # Advanced
 

@@ -1,0 +1,71 @@
+**Enable checkout before initializing Helium:**
+
+```dart
+await HeliumFlutter().enableExternalWebCheckout(
+  redirectURL: "yourapp://openapp",
+  paymentProcessors: {HeliumWebCheckoutProcessor.paddle},
+);
+```
+
+Set up a deep link in your app, then use it as `redirectURL`. Checkout returns here after success, cancellation, or failure.
+
+<Accordion title="Register a Flutter deep link">
+For a custom scheme, add a `CFBundleURLTypes` entry to `ios/Runner/Info.plist`:
+
+```xml
+<key>CFBundleURLTypes</key>
+<array>
+  <dict>
+    <key>CFBundleURLName</key>
+    <string>com.yourcompany.yourapp</string>
+    <key>CFBundleURLSchemes</key>
+    <array>
+      <string>yourapp</string>
+    </array>
+  </dict>
+</array>
+```
+
+To use a universal link (`https://...`) instead, set up [associated domains](https://docs.flutter.dev/ui/navigation/deep-linking) and use that URL as the `redirectURL`.
+</Accordion>
+
+**Set your user ID on Helium** before showing a paywall.
+
+<Accordion title="Purchases before sign-in">
+  If you must set the user ID after showing a paywall, call `setAllowWebCheckoutWithoutUserId(true)`.
+</Accordion>
+
+**Handle the return link.** Forward incoming links to `handleURL(url)`; Helium ignores unrelated URLs. If you don’t already handle deep links, add [app_links](https://pub.dev/packages/app_links) with `flutter pub add app_links`:
+
+```dart
+import 'package:app_links/app_links.dart';
+
+_linkSubscription = AppLinks().uriLinkStream.listen((uri) {
+  HeliumFlutter().handleURL(uri.toString());
+});
+```
+
+<Note>
+  `uriLinkStream` also emits the link that launched the app, so cold starts are covered — there is no separate initial-link step. If you use `app_links`, set `FlutterDeepLinkingEnabled` to `false` in `Info.plist` so Flutter's built-in deep-link handling doesn't consume the link first.
+</Note>
+
+**Add a "Manage Subscription" button** so users can cancel or update payment methods via Paddle's customer portal. `launchUrl` comes from the [url_launcher](https://pub.dev/packages/url_launcher) package:
+
+```dart
+final hasPaddle = await HeliumFlutter().hasActivePaddleEntitlement();
+if (hasPaddle) {
+    // show the manage subscription button
+}
+
+// when the button is tapped:
+final urlString = await HeliumFlutter().createPaddlePortalSession();
+if (urlString != null) {
+  await launchUrl(Uri.parse(urlString));
+}
+```
+
+The portal opens `paddle.net` for subscription management. Cancellation emails use the [checkout billing email](/guides/app2web-faq#billing-email).
+
+<Accordion title="Optional: pre-authenticated portal links">
+To open a pre-authenticated customer portal session, generate the link from your backend instead. Look up the user's Paddle customer ID with Helium's `getPaddleCustomerId()`, send it to your server, and follow [Paddle's guide for generating pre-authenticated customer portal links](https://developer.paddle.com/build/customers/integrate-customer-portal/).
+</Accordion>

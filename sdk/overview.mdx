@@ -5,7 +5,7 @@ description: "What the Helium mobile SDK does, which platforms it supports, and 
 icon: "code"
 ---
 
-The Helium SDK fetches your paywalls when the app launches, presents the right one when your code fires a trigger, and reports purchases and paywall events back to Helium. Paywall design, targeting and experiments live in the [dashboard](https://app.tryhelium.com), so you ship the SDK once and change paywalls without app updates.
+The Helium SDK fetches your paywalls when the app launches, presents the right one when your code fires a trigger, handles the purchase (in-app, or via a web checkout in the browser), and reports purchases and paywall events back to Helium. Paywall design, targeting and experiments live in the [dashboard](https://app.tryhelium.com), so you ship the SDK once and change paywalls without app updates.
 
 ## Platforms
 
@@ -30,8 +30,9 @@ The Helium SDK fetches your paywalls when the app launches, presents the right o
 2. **Present** a paywall for a trigger name at the point in your app where the paywall should appear.
 3. **Ship fallbacks** so a paywall shows even if the device is offline on first launch. See [Fallback paywalls](/guides/fallback-bundle).
 4. **Report revenue** by connecting your store or RevenueCat webhooks. See [Revenue reporting](/guides/revenue-reporting).
+5. **Enable web checkout** (iOS) so eligible users can pay in the browser with Paddle and return with the entitlement. See [Web checkout (App2Web)](/web-checkout/overview).
 
-The quickstart for each platform walks through all four steps with the exact method names for that platform.
+The quickstart for each platform walks through all five steps with the exact method names for that platform.
 
 ## Beyond the quickstart
 

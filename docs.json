@@ -19,12 +19,16 @@
       {
         "label": "Dashboard",
         "href": "https://app.tryhelium.com"
+      },
+      {
+        "label": "Schedule demo",
+        "href": "https://cal.com/team/helium/20-minute-helium-demo"
       }
     ],
     "primary": {
       "type": "button",
-      "label": "Schedule Demo",
-      "href": "https://cal.com/team/helium/20-minute-helium-demo"
+      "label": "Sign up",
+      "href": "https://auth.tryhelium.com/signup?utm_source=docs&utm_medium=navbar"
     }
   },
   "navigation": {
@@ -237,6 +241,7 @@
     ]
   },
   "contextual": {
+    "display": "toc",
     "options": [
       "copy",
       "view",
@@ -244,7 +249,29 @@
       "cursor",
       "vscode",
       "chatgpt",
-      "claude"
+      "claude",
+      {
+        "title": "Sign up for Helium",
+        "description": "Create a free Helium account and build your first paywall",
+        "icon": "rocket",
+        "href": {
+          "base": "https://auth.tryhelium.com/signup",
+          "query": [
+            {
+              "key": "utm_source",
+              "value": "docs"
+            },
+            {
+              "key": "utm_medium",
+              "value": "toc"
+            },
+            {
+              "key": "doc",
+              "value": "$path"
+            }
+          ]
+        }
+      }
     ]
   },
   "redirects": [

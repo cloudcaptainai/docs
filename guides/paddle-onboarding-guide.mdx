@@ -6,6 +6,7 @@ icon: "p"
 ---
 
 import ApplePayReadiness from "/snippets/apple-pay-readiness.mdx";
+import App2WebEligibility from "/snippets/app2web-eligibility.mdx";
 
 Take users from your paywall to web checkout, then back to your app with access unlocked.
 
@@ -47,7 +48,9 @@ Your in-app paywall opens a linked web paywall when the user purchases a Paddle 
 See [Build an App2Web paywall](/guides/build-app2web-paywall) for the walkthrough.
 
 <Accordion title="Supported platforms and languages">
-  App2Web is iOS-only and limited to US storefronts. Hosted paywalls currently support one language. On Android, the React Native and Flutter web-checkout APIs are safe no-ops; keep your regular IAP flow.
+  <App2WebEligibility />
+
+  Hosted paywalls currently support one language. On Android, the React Native and Flutter web-checkout APIs are safe no-ops; keep your regular IAP flow.
 </Accordion>
 
 ## 5. Add web checkout to your app

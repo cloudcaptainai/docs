@@ -5,6 +5,8 @@ hidden: true
 noindex: true
 ---
 
+import App2WebEligibility from "/snippets/app2web-eligibility.mdx";
+
 <video src="/videos/stripeapple.mp4" controls={true} />
 
 ## Context
@@ -277,7 +279,7 @@ If you use [RevenueCat alongside Stripe](https://www.revenuecat.com/docs/web/int
   </Step>
 </Steps>
 
-## Creating and Target your Stripe Paywall
+## Create and target your Stripe paywall
 
 <Steps>
   <Step title="In your Helium Dashboard, create a paywall and add your Stripe product buckets">
@@ -300,21 +302,12 @@ If you use [RevenueCat alongside Stripe](https://www.revenuecat.com/docs/web/int
       It's generally best practice to pair each Stripe product with a corresponding iOS product. Present only Stripe products by default, surfacing iOS products only when absolutely necessary.
     </Tip>
   </Step>
-  <Step title="Workflows should target US storefront and Apple Pay enabled only">
-    <Warning>
-      This is required to make sure that paywalls with Stripe are shown in the US.
-    </Warning>
+  <Step title="Target your workflow with an audience preset">
+    Go to **Targeting → Create Audience** and add **Stripe A2W Recommended** for App2Web, or **Stripe One Tap Recommended** for in-app Apple Pay. Save the audience, then select it in the workflow rule for your Stripe paywall.
 
-    When adding paywalls to a workflow make sure to use a Stripe eligible targeting rule that selects:
+    The One Tap preset requires a US App Store storefront.
 
-    - Country Storefront: US
-    - Apple Pay: Enabled
-
-    To make this easy we've added a button within audeince creation to easily add the neccessary attributes for Stripe targeting. Navigate to Targeting \> Create Audience \> Press the 3 dot menu in **Targeting Rules** \> add Stripe Eligible!
-
-    <Frame>
-      ![Screenshot 2026 03 11 At 1 17 11 PM](/images/Screenshot2026-03-11at1.17.11PM.png)
-    </Frame>
+    <App2WebEligibility />
   </Step>
 </Steps>
 

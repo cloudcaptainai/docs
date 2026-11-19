@@ -27,6 +27,8 @@ You don't change any code. Helium reads how the build was installed and picks th
 | TestFlight, Firebase App Distribution, other ad hoc builds | Sandbox | No |
 | App Store | Live | Yes |
 
+This applies only when a sandbox account is connected and the installed build runs a supported SDK version. Otherwise, test builds check out on your live account and charge real money. Step 3 shows how to check.
+
 The App Store build never uses your sandbox account. Your customers are never affected.
 
 On a sandbox build, the US-only purchase rules are skipped. A tester in Mexico, Germany or anywhere else sees the App2Web paywall and can buy, with no VPN and no US App Store account.
@@ -71,14 +73,14 @@ Your paywalls keep pointing at your live products. On a sandbox build, Helium sw
 
 The Sandbox tab now shows **Webhooks: Configured** and **Live copies** with a count and a date.
 
-After any catalog change in Paddle, such as a new price, a new trial or a removed discount, click **Sync products** on the Sandbox tab before you test. Copies don't update on their own.
+After any catalog change in Paddle, such as a new price, a new trial or a removed discount, click **Sync products** on the **Production** tab before you test. Each live sync also refreshes the sandbox copies; they don't update on their own.
 
 ## 3. Show your App2Web paywall on a test build
 
 Pick one:
 
 - **A test audience.** Create an audience with the `sandbox` or `debug` app environment and target your App2Web paywall to it. Leave out the **Paddle A2W Eligible** preset: it requires US users, and sandbox builds don't.
-- **Paywall previews.** In your test build, [triple-tap any Helium paywall](/guides/paywall-previews#preview-paywalls-from-your-app) and pick your App2Web paywall. Choose **Sandbox purchase**, the default when a sandbox account is connected.
+- **Paywall previews.** In your test build, [triple-tap any Helium paywall](/guides/paywall-previews#preview-paywalls-from-your-app) and pick your App2Web paywall. Choose **Sandbox purchase**, the default when a sandbox account is connected. Previews that include a Stripe checkout keep the [regional rules](/guides/app2web-previews#purchase-eligibility): outside the US they simulate the purchase and grant no entitlement.
 
 Run the build from Xcode and look for this line in the console:
 
@@ -92,7 +94,7 @@ You'll know it worked when the console names your sandbox account and the App2We
 
 ## 4. Make a test purchase
 
-1. On your iPhone, open the trigger and tap through to the web checkout.
+1. On your iPhone, open the trigger that shows your App2Web paywall, or the paywall you picked in Paywall previews, and tap through to the web checkout.
 2. Check the banner at the top of the checkout. It reads “Sandbox checkout. Your card is not charged.”
 3. Pay with Apple Pay using your real card. Sandbox Apple Pay payments are [not charged](https://developer.paddle.com/concepts/payment-methods/apple-pay).
 4. Return to the app.
@@ -125,7 +127,7 @@ Using RevenueCat or your own entitlement system? Connect it to your Paddle sandb
 
 An active sandbox subscription keeps you subscribed on test builds until it ends. To test again:
 
-1. In the Paddle sandbox dashboard, open [**Subscriptions**](https://sandbox-vendors.paddle.com/subscriptions-v2) and cancel the test subscription.
+1. In the Paddle sandbox dashboard, open [**Subscriptions**](https://sandbox-vendors.paddle.com/subscriptions-v2) and cancel the test subscription **immediately**, not at the end of the billing period. Access stays active until the subscription ends.
 2. Open the trigger again.
 
 Sandbox purchases never reach your live Paddle account, and your App Store build never sees them.

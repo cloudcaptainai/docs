@@ -210,7 +210,7 @@ Optimize **web purchase share and total conversion together**. Moving existing b
       A 15% web discount and a 15% IAP price increase are different tests—calculate the savings from the actual prices you ship.
     </Accordion>
 
-    **Measure:** web purchase share, total paid conversion, and take-home revenue per exposed user. Higher proceeds per purchase can be offset by fewer buyers. Apply the experiment to the intended new-purchase cohort; don’t silently change existing subscribers’ pricing.
+    **Measure:** web purchase share, total paid conversion, and proceeds per user. Higher proceeds per purchase can be offset by fewer buyers. Apply the experiment to the intended new-purchase cohort; don’t silently change existing subscribers’ pricing.
   </Accordion>
 
   <Accordion title="Offer the trial on web; keep IAP as a paid option">
@@ -253,12 +253,14 @@ Optimize **web purchase share and total conversion together**. Moving existing b
 
       **Notice:** the intro shows the product before showing a price. The next page puts **“2 days before”** at the center of the reminder promise and introduces the secondary in-app route.
 
-      The IAP branch has a straightforward **Start Now** button with no trial. The web branch explains the introductory period with a timeline. This template uses a paid introductory offer; the same routing pattern can use a genuinely free web trial.
+      The IAP branch has a straightforward **Start Now** button with no trial. **That in-app paywall has no secondary CTA back to the web offer. We recommend adding something like “View trial options.”** Experiment with how prominent it is: a subtle text link, a secondary button, or a more visible trial callout.
+
+      The web branch explains the introductory period with a timeline. This template uses a paid introductory offer; the same routing pattern can use a genuinely free web trial.
     </Accordion>
 
     **Why:** the web route offers something users value beyond a different payment method.
 
-    **Measure:** trial starts first, then trial-to-paid conversion and take-home ARPU once those trials mature. Don’t compare trial starts on web with paid purchases in app as if they were the same outcome.
+    **Measure:** trial starts first, then trial-to-paid conversion and proceeds per user once those trials mature. Don’t compare trial starts on web with paid purchases in app as if they were the same outcome.
   </Accordion>
 
   <Accordion title="Test the web CTA’s copy and prominence">
@@ -465,8 +467,10 @@ Start with the **web paywall**: it’s the last opportunity to explain the offer
 
 ## Pick a winner
 
-**Start with conversion rate.** Compare trial starts and direct purchases separately, plus how many exposed users reach web checkout.
+**Your north star is proceeds per user:** total take-home revenue across IAP and web, divided by everyone exposed to the variant—including people who don’t buy.
 
-**Then look at take-home ARPU** once trials have converted and enough paid data has arrived. Compare cohorts of the same age and include fees, taxes, refunds, and later renewals. A higher web share alone is not a win.
+**Start with conversion rate** for an early read. But an App2Web paywall with a lower conversion rate can still earn more if it moves more purchases to web or gets more people onto higher-value plans.
 
-Keep a control, change one major variable at a time, and use confidence intervals rather than a fixed conversion count to declare significance. Follow the [rollout guide](/guides/paddle-onboarding-guide#8-roll-out-your-experiment) for the initial audience and 24-hour health check.
+**Once trials convert and enough paid data comes in, compare proceeds per user.** Use the same observation period for each variant and account for fees, taxes, and refunds. Pick the variant that earns more per exposed user, not simply the one with the most purchases or the highest web share.
+
+Follow the [rollout guide](/guides/paddle-onboarding-guide#8-roll-out-your-experiment) for the initial audience and 24-hour health check.

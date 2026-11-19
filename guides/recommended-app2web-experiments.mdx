@@ -7,23 +7,7 @@ noindex: true
 
 Start with a flow, pick one thing to improve, and test it against what you run today. These are patterns we use with customers—not promises that every variant will win.
 
-| Your goal | Start here |
-| --- | --- |
-| Choose a layout | [Four flows to try](#four-flows-to-try) |
-| Move more purchases to web | [Make the web offer more compelling](#get-more-people-to-check-out-on-web) |
-| Turn more visitors into subscribers | [Improve your web paywall](#increase-your-conversion-rate) |
-| Recover people who leave checkout | [Try a second offer](#give-web-checkout-a-second-try) |
-| Improve the whole journey | [Before and after the paywall](#improve-the-whole-flow) |
-
-<Warning>
-Many of the web design ideas below aren’t allowed on in-app purchase paywalls. Treat web and IAP as separate surfaces; a reference screenshot is not an App Review approval.
-
-**You must clearly show the price the user will be charged, when they will be charged, and that the subscription automatically renews on a specific cadence.** Keep this readable on the purchase screen, not hidden in a toggle or left only to the payment sheet.
-
-For example: **“7 days free, then $59.99/year. Automatically renews annually until canceled.”** Show any applicable tax treatment clearly. A monthly equivalent never replaces the actual annual charge. See [Apple’s subscription guidance](https://developer.apple.com/app-store/subscriptions/) for IAP requirements.
-</Warning>
-
-## Four flows to try
+## Four flows to start with
 
 Pick the shortest flow that explains your offer well. Keep your own branding, product promise, and plan names throughout.
 
@@ -71,6 +55,24 @@ Pick the shortest flow that explains your offer well. Keep your own branding, pr
   </Accordion>
 </AccordionGroup>
 
+| Your goal | Start here |
+| --- | --- |
+| Choose a layout | [Four flows to start with](#four-flows-to-start-with) |
+| Move more purchases to web | [Make the web offer more compelling](#get-more-people-to-check-out-on-web) |
+| Turn more visitors into subscribers | [Improve your web paywall](#increase-your-conversion-rate) |
+| Recover people who leave checkout | [Try a second offer](#give-web-checkout-a-second-try) |
+| Improve the whole journey | [Before and after the paywall](#improve-the-whole-flow) |
+
+<Accordion title="Before you ship: pricing disclosures and in-app restrictions">
+<Warning>
+Many of the web design ideas below aren’t allowed on in-app purchase paywalls. Treat web and IAP as separate surfaces; a reference screenshot is not an App Review approval.
+
+**You must clearly show the price the user will be charged, when they will be charged, and that the subscription automatically renews on a specific cadence.** Keep this readable on the purchase screen, not hidden in a toggle or left only to the payment sheet.
+
+For example: **“7 days free, then $59.99/year. Automatically renews annually until canceled.”** Show any applicable tax treatment clearly. A monthly equivalent never replaces the actual annual charge. See [Apple’s subscription guidance](https://developer.apple.com/app-store/subscriptions/) for IAP requirements.
+</Warning>
+</Accordion>
+
 ## Get more people to check out on web
 
 Optimize **web purchase share and total conversion together**. Moving existing buyers to web is useful only if the overall economics improve.
@@ -81,12 +83,23 @@ Optimize **web purchase share and total conversion together**. Moving existing b
 
     **Why:** gives customers a concrete reason to choose web while keeping an in-app option.
 
-    <Accordion title="Example: Candle’s discount-toggle flow">
-      <Frame caption="Candle’s ‘Want 15% Off?’ toggle flow and matching hosted paywall, shown in the live gallery. These thumbnails show the entry and web destination, not the intermediate toggle state.">
-        <img src="/images/app2web-experiments/candle-toggle-gallery.jpg" alt="Candle gallery showing the live Want 15% Off toggle flow entry screen and its hosted web paywall" />
-      </Frame>
+    <Accordion title='Example: “Want 15% off?” toggle'>
+      <Columns cols={2}>
+        <div>
+          **Toggle off: in-app prices**
+          <img src="/images/app2web-experiments/discount-toggle-off.jpg" alt="In-app prices with the Want 15% off toggle turned off" />
+        </div>
+        <div>
+          **Toggle on: web prices**
+          <img src="/images/app2web-experiments/discount-toggle-on.jpg" alt="Lower web prices with the Want 15% off toggle turned on" />
+        </div>
+      </Columns>
 
-      The pattern gives the web route a concrete offer advantage. A 15% web discount and a 15% IAP price increase are different tests—calculate the savings from the actual prices you ship.
+      The toggle updates the displayed prices and routes the CTA to web checkout. Here, the annual price changes from $39.99 to $33.99.
+
+      *Captured from the paywall’s exported source; cropped to the offer controls to omit app identity.*
+
+      A 15% web discount and a 15% IAP price increase are different tests—calculate the savings from the actual prices you ship.
     </Accordion>
 
     **Measure:** web purchase share, total paid conversion, and take-home revenue per exposed user. Higher proceeds per purchase can be offset by fewer buyers. Apply the experiment to the intended new-purchase cohort; don’t silently change existing subscribers’ pricing.
@@ -101,12 +114,18 @@ Optimize **web purchase share and total conversion together**. Moving existing b
     - A clear **“View trial options”** button leading to the web offer.
     - A trial-reminder page with a primary web CTA and secondary **“or pay in app.”**
 
-    <Accordion title="Example: Hume’s live no-IAP-trial variants">
-      <Frame caption="Hume’s ‘No Apple Trial v1’ and ‘v2,’ both marked Live in Helium on November 18, 2026. Gallery captures show the shared entry screen: Start Free Trial, with ‘or pay in app’ underneath.">
-        <img src="/images/app2web-experiments/hume-live-no-trial.jpg" alt="Hume No Apple Trial v1 and v2 live gallery screenshots with a primary trial CTA and secondary pay-in-app choice" />
-      </Frame>
+    <Accordion title="Example: a trial-first flow with a paid in-app option">
+      ```mermaid
+      flowchart LR
+        A["Trial introduction"] --> B["Start free trial"]
+        A --> C["or pay in app"]
+        B --> D["Web paywall · trial offer"]
+        C --> E["IAP paywall · no trial"]
+      ```
 
-      Both use a web-only trial with non-trial iOS plans. The gallery thumbnails do not show the downstream differences between these variants; use the UI options above as separate experiments, not as claims about unseen screens.
+      *Illustrative flow; branding and customer details omitted.*
+
+      Give the trial the primary CTA and keep the paid in-app alternative clear. On each route, show the correct price, charge timing, and renewal cadence before purchase.
     </Accordion>
 
     **Why:** the web route offers something users value beyond a different payment method.

@@ -27,7 +27,7 @@ You don't change any code. Helium reads how the build was installed and picks th
 | TestFlight, Firebase App Distribution, other ad hoc builds | Sandbox | No |
 | App Store | Live | Yes |
 
-This applies only when a sandbox account is connected and the installed build runs a supported SDK version. Otherwise, test builds check out on your live account and charge real money. Step 3 shows how to check.
+This applies only when a sandbox account is connected. Without one, test builds check out on your live account and charge real money. If a sandbox account is connected but the build runs an older Helium SDK, the App2Web paywall is not shown on that build; see [Troubleshooting](#troubleshooting). Step 3 shows how to check which account a build uses.
 
 The App Store build never uses your sandbox account. Your customers are never affected.
 

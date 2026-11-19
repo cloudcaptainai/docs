@@ -1,136 +1,221 @@
 ---
-title: "Testing App2Web with Paddle Sandbox"
-description: "Run real App2Web checkouts with test money, from any country, before you go live."
+title: "Test App2Web purchases with a Paddle sandbox"
+description: "Buy your own App2Web subscription on a test build, from any country, without being charged."
 icon: "flask"
 ---
 
 <Badge color="blue">iOS 4.15.0+</Badge> <Badge color="orange">React Native 3.1.15+</Badge> <Badge color="gray">Expo 3.6.6+</Badge> <Badge color="purple">Flutter 3.3.16+</Badge>
 
-Sandbox testing is iOS only. Connect a [Paddle sandbox account](https://developer.paddle.com/build/tools/sandbox) next to your live one. Your debug and TestFlight builds then check out with your Paddle sandbox account: the full purchase flow runs, entitlements are granted, and no money changes hands. Sandbox checkouts also skip the US-only purchase rules, so a tester anywhere in the world can buy without a VPN or a US App Store account.
+Buy your own App2Web subscription on a test build, from any country, without being charged. This guide takes you from connecting a Paddle sandbox account to running your first test purchase, checking that it worked, and testing again.
 
-When the California consent modal is enabled, testers in California see it before the Paddle checkout on both accounts, sandbox and live.
+## Before you start
 
-## Which builds check out with your sandbox account
+- [ ] Your live Paddle account is connected to Helium. If not, follow the [Paddle onboarding guide](/guides/paddle-onboarding-guide) first.
+- [ ] Your app runs Helium iOS SDK 4.15.0 or later (React Native 3.1.15, Expo 3.6.6, Flutter 3.3.16).
+- [ ] You have a [Paddle sandbox account](https://developer.paddle.com/build/tools/sandbox). It is free and separate from your live account.
+- [ ] You have a physical iPhone with a card in Apple Wallet. The simulator cannot pay with Apple Pay.
 
-Helium picks the Paddle account from the build's app environment:
+Sandbox testing works on iOS only.
 
-| Build | App environment | Paddle account |
+## How Helium picks the Paddle account
+
+You don't change any code. Helium reads how the build was installed and picks the account for you.
+
+| How the app was installed | Paddle account | Charged? |
 |---|---|---|
-| Debug configuration from Xcode, or the simulator | `debug` | Sandbox |
-| TestFlight | `sandbox` | Sandbox |
-| Firebase App Distribution and other ad hoc builds | `sandbox` | Sandbox |
-| App Store | `production` | Live |
+| Run from Xcode, or the simulator | Sandbox | No |
+| TestFlight, Firebase App Distribution, other ad hoc builds | Sandbox | No |
+| App Store | Live | Yes |
 
-App Store builds never use your sandbox account, even with one connected.
+The App Store build never uses your sandbox account. Your customers are never affected.
+
+On a sandbox build, the US-only purchase rules are skipped. A tester in Mexico, Germany or anywhere else sees the App2Web paywall and can buy, with no VPN and no US App Store account.
+
+Testers in California still see the consent modal when it's enabled, on both accounts.
+
+## 1. Prepare your Paddle sandbox
+
+1. Open your [Paddle sandbox dashboard](https://sandbox-vendors.paddle.com).
+2. Go to **Checkout settings**. Set a **Default payment link**. Any domain works in the sandbox, no website approval needed.
+3. On the same page, turn on **Apple Pay**.
+4. Go to **Developer tools → Authentication** and click **New API key**.
+5. Set **Expires at** to **Never expires**.
+6. In the permissions table, check **Write** on the **All** row.
+7. Copy the key. Sandbox keys start with `pdl_sdbx_`.
+
+You'll know it worked when you have a key that starts with `pdl_sdbx_`, set to never expire, with Write on All.
+
+## 2. Connect the sandbox to Helium
+
+1. In the Helium dashboard, open [**Integrations → Products → Paddle**](https://app.tryhelium.com/integrations/products).
+2. Open the **Sandbox** tab and click **Connect Paddle sandbox**.
+3. Paste the key, confirm it never expires, and click **Connect**.
+
+<Frame>
+  ![The connect dialog on the Sandbox tab](/images/paddle-sandbox/sandbox-connect-dialog.png)
+</Frame>
+
+Use the same Helium organization as your live account. You don't need a separate app or organization for testing.
+
+You'll know it worked when you see:
+
+> Paddle sandbox connected & webhooks configured. Test builds pick this up within 30 seconds.
+
+When you connect, Helium copies your live Paddle catalog into the sandbox: every product you synced to Helium, with all its prices, trials and discounts. Copies are named `[Helium Live Copy] <product name>`.
+
+Your paywalls keep pointing at your live products. On a sandbox build, Helium swaps in the copies at checkout. Code that checks for a specific product ID keeps working.
+
+<Frame>
+  ![The Sandbox tab after connecting](/images/paddle-sandbox/sandbox-connected.png)
+</Frame>
+
+The Sandbox tab now shows **Webhooks: Configured** and **Live copies** with a count and a date.
+
+After any catalog change in Paddle, such as a new price, a new trial or a removed discount, click **Sync products** on the Sandbox tab before you test. Copies don't update on their own.
+
+## 3. Show your App2Web paywall on a test build
+
+Pick one:
+
+- **A test audience.** Create an audience with the `sandbox` or `debug` app environment and target your App2Web paywall to it. Leave out the **Paddle A2W Eligible** preset: it requires US users, and sandbox builds don't.
+- **Paywall previews.** In your test build, [triple-tap any Helium paywall](/guides/paywall-previews#preview-paywalls-from-your-app) and pick your App2Web paywall. Choose **Sandbox purchase**, the default when a sandbox account is connected.
+
+Run the build from Xcode and look for this line in the console:
+
+> [Helium] Paddle checkout on this build uses your sandbox account. No card is charged.
 
 <Warning>
-  Debug, TestFlight and ad hoc builds use your **live** account instead, and charge real money, in two cases:
-
-  - No sandbox account is connected.
-  - The build runs an older SDK than the versions at the top of this guide, even if a sandbox account is connected.
-
-  Live checkouts keep the US-only purchase rules.
+  If it says `uses your live account. Cards are charged.` instead, stop. That build charges real money. See [Troubleshooting](#troubleshooting).
 </Warning>
 
-## 1. Connect your sandbox account
+You'll know it worked when the console names your sandbox account and the App2Web paywall appears.
 
-1. [Connect your live Paddle account](/guides/paddle-onboarding-guide#3-connect-paddle-to-helium) first. A sandbox account can only be connected next to a live one.
-2. In your [Paddle sandbox dashboard](https://sandbox-vendors.paddle.com), go to **Checkout Settings**, set a **Default payment link**, and turn on **Apple Pay**. Paddle needs a [default payment link in each account](https://developer.paddle.com/build/transactions/default-payment-link) before it can create a checkout. In the sandbox, any domain works without website approval.
-3. In the sandbox dashboard, create an API key as the **Sandbox** tab describes: **Never expires**, **Write** on the **All** row. Sandbox keys start with `pdl_sdbx_`.
-4. In the Helium dashboard, open [**Integrations → Products**](https://app.tryhelium.com/integrations/products), select **Paddle**, open the **Sandbox** tab, click **Connect Paddle sandbox**, and paste the key.
+## 4. Make a test purchase
 
-Each tab accepts keys from one environment only: the live connection rejects a `pdl_sdbx_` key, and the **Sandbox** tab rejects a live key.
+1. On your iPhone, open the trigger and tap through to the web checkout.
+2. Check the banner at the top of the checkout. It reads “Sandbox checkout. Your card is not charged.”
+3. Pay with Apple Pay using your real card. Sandbox Apple Pay payments are [not charged](https://developer.paddle.com/concepts/payment-methods/apple-pay).
+4. Return to the app.
 
-You don't need a separate Helium app or organization for testing. Connect your sandbox account in the same organization as your live account; each build's app environment decides which account it checks out on.
+<Frame>
+  ![The sandbox banner on the web checkout](/images/paddle-sandbox/checkout-banner-light.png)
+</Frame>
 
-### What Helium copies into your sandbox account
+You'll know it worked when you're back in the app with access unlocked.
 
-Connecting your sandbox account configures its webhook and copies your live catalog into it:
+While you're here, also try:
 
-- **Products and prices.** Every Paddle product you have synced to Helium, with all of its prices, including free trials and paid trial charges. Copies are named `[Helium Live Copy] <product name>`.
-- **Discounts.** Your live discounts, with the same codes. A discount restricted to specific products or prices is copied with the ones that were copied, and skipped only when none of them were.
+- **Trials and discounts.** If the product has a trial or a discount, check that the checkout shows it.
+- **Cancel the checkout.** Close it and check that the app returns to the paywall without granting access.
+- **Manage subscription.** Open the customer portal, cancel, and check that access lasts until the period ends.
 
-Your paywalls keep using your live products. On a sandbox build, Helium swaps in the copies at checkout, and entitlement checks still report your live product and price IDs. Code that checks for a specific product works unchanged.
+## 5. Check that it worked
 
-After connecting, check the **Sandbox** tab under **Integrations → Products → Paddle** in the Helium dashboard:
+- **In your app.** `hasActivePaddleEntitlement()` returns `true`. `purchasedProductIds()` reports your live product and price IDs, not the copies, so your existing checks work.
+- **In Paddle.** In the sandbox dashboard, open **Developer tools → Notifications**. Deliveries to Helium return 2xx.
+- **In Helium.** Metrics show production data by default. Open **Filters → Environment** and select **Sandbox** to see your test purchase.
 
-- **Webhooks** shows **Configured**. If it shows **Not configured**, click **Configure**.
-- **Live copies** shows how many prices were copied and when.
+<Frame>
+  ![Metrics with the Environment filter set to Sandbox](/images/paddle-sandbox/metrics-environment-sandbox.png)
+</Frame>
 
-### Keep the copies current
+Using RevenueCat or your own entitlement system? Connect it to your Paddle sandbox account too. Helium only sets up its own webhook.
 
-Copies refresh when you connect your sandbox account and each time you click **Sync products** on the **Production** tab of the Paddle card. They do not follow changes you make to your live catalog in Paddle on their own. Sync products before testing whenever you have:
+## 6. Test again
 
-- added or changed a product, price, trial, or discount;
-- archived or removed a price. Copies of removed prices and discounts are archived in your sandbox account, and a product copy is archived once it has no prices left.
+An active sandbox subscription keeps you subscribed on test builds until it ends. To test again:
 
-If some items could not be copied, the **Sandbox** tab lists them with its own **Sync products** button. Fix the cause in Paddle and sync again.
+1. In the Paddle sandbox dashboard, open [**Subscriptions**](https://sandbox-vendors.paddle.com/subscriptions-v2) and cancel the test subscription.
+2. Open the trigger again.
+
+Sandbox purchases never reach your live Paddle account, and your App Store build never sees them.
 
 <Warning>
-  A paywall that sells a price with no sandbox copy is not served on debug and TestFlight builds; the trigger shows your fallback paywall or nothing. Xcode logs and the paywall diagnostic on these builds name the missing copy. Both a live and a sandbox connection are needed for the copies to exist. A discount with no sandbox copy is left off the checkout.
+  Keep the sandbox connected between rounds. If you disconnect it, debug and TestFlight builds go back to your live account and charge real money. Your live connection and products are not affected.
 </Warning>
 
-## 2. Show your App2Web paywall on a test build
+## Before you submit for App Review
 
-Two common ways. Any way that shows the paywall on a debug or TestFlight build works.
-
-- **Test audience.** Create an audience with the **`sandbox` or `debug` app environment** and target your in-app App2Web paywall to it. Leave the **Paddle A2W Eligible** preset out of this audience; it requires US users, and sandbox builds do not.
-- **Paywall Previews.** Open any Helium paywall in your test build, [triple-tap it](/guides/paywall-previews#preview-paywalls-from-your-app), and pick your App2Web paywall. On a sandbox build, [App2Web previews](/guides/app2web-previews) can run a sandbox purchase from any country. Previews that include a Stripe checkout keep the [regional rules](/guides/app2web-previews#purchase-eligibility).
-
-## 3. Make a test purchase
-
-Test on a physical iPhone: Paddle checkout pays with Apple Pay, and Apple Pay needs a real device. Use a real card in Apple Pay. On a sandbox build, [Apple Pay purchases are not charged](https://developer.paddle.com/concepts/payment-methods/apple-pay).
-
-Run through each of these:
-
-- **Purchase.** Open the trigger, go through the browser checkout, pay with Apple Pay, and return to the app. Confirm `hasActivePaddleEntitlement()` returns `true` and access unlocks.
-- **Trials and discounts.** If the product has a trial or a discount, confirm the checkout shows it.
-- **Cancel checkout.** Close the checkout and confirm the app returns to the paywall without granting access.
-- **Manage subscription.** Open the customer portal, cancel, and confirm access lasts until the period ends.
-- **Webhooks.** In the Paddle sandbox dashboard, open **Developer tools → Notifications** and confirm deliveries to Helium return 2xx.
-
-Sandbox purchases grant access on debug and TestFlight builds only. Your App Store build reads the live account and never sees them.
-
-Sandbox purchases are recorded with the `SANDBOX` environment. Helium's revenue metrics show production data by default. Use the **Environment** filter to see sandbox revenue.
-
-<Note>
-  If you use RevenueCat or your own entitlement system, connect it to your Paddle sandbox account as well. Helium configures only its own webhook.
-</Note>
-
-## 4. Clean up
-
-Cancel a test subscription in the [Paddle sandbox dashboard](https://sandbox-vendors.paddle.com/subscriptions-v2) when you want the tester to see the paywall again; access lasts until the period ends. Sandbox data never reaches your live Paddle account.
-
-### Disconnecting the sandbox
-
-You normally keep your sandbox account connected; disconnect only to stop testing for good. Click **Disconnect** on the **Sandbox** tab. Only the sandbox connection is removed; your live connection and products stay. Debug and TestFlight builds go back to checking out on your live account. The copies stay in your Paddle sandbox account. Disconnecting your live Paddle account also disconnects your sandbox account.
-
-## Best practices
-
-- **Connect your sandbox account before your first App2Web test build goes out.** Until it is connected, debug and TestFlight builds charge real money.
-- **Check the SDK version in the build first.** A build on an older SDK looks identical but checks out on your live account.
-- **Sync products after every catalog change.** A paywall that sells a price with no sandbox copy is not served on debug and TestFlight builds, which is easy to mistake for a targeting problem.
-- **Production targeting needs no change for sandbox testing.**
-- **Test on a physical iPhone, from wherever your testers are.** No VPN, US App Store account, or US device region is needed on a sandbox build.
-- **Read metrics with the Environment filter in mind.** Sandbox purchases never appear in production numbers.
-- **Cancel test subscriptions when you want to test the paywall again.** An active sandbox subscription keeps the tester entitled on test builds until the period ends.
+App Review runs your build in the `sandbox` app environment, the same as TestFlight. An audience on the `sandbox` app environment with no other condition reaches the reviewers too, and they see your App2Web paywall. Before you submit, turn the test audience off, or add a user ID condition so it matches only your testers.
 
 ## Troubleshooting
 
-<AccordionGroup>
-  <Accordion title="The App2Web paywall doesn't appear">
-    - Update to the SDK version at the top of this guide. Older SDKs use the live account and its US-only rules.
-    - On the **Sandbox** tab, check that **Live copies** shows prices copied, then sync products. A paywall that sells a price with no sandbox copy is not served on debug and TestFlight builds; Xcode logs and the paywall diagnostic name the missing copy.
-    - Check that your audience does not include the **Paddle A2W Eligible** preset.
-    - Check that the build is a debug, TestFlight or ad hoc build. App Store builds always use the live account.
-  </Accordion>
-  <Accordion title="A discount or trial is missing from the sandbox checkout">
-    Sync products, then check the **Sandbox** tab for items that were not copied. A discount restricted to specific products or prices is skipped when none of them were copied.
-  </Accordion>
-  <Accordion title="Cancelling opens App Store subscriptions instead of Paddle">
-    Your app sent a Paddle subscriber to App Store subscription management. Open the Paddle customer portal when `hasActivePaddleEntitlement()` returns `true`, as in the [Manage Subscription button](/guides/paddle-onboarding-guide#5-add-web-checkout-to-your-app) from the onboarding guide.
-  </Accordion>
-  <Accordion title="Sandbox API key is expired or invalid">
-    Sandbox checkouts and catalog copies stop until you replace the key. Create a new key in the same Paddle sandbox account and click **Update API key** on the **Sandbox** tab. To move to a different sandbox account, disconnect your sandbox account and connect the new one.
-  </Accordion>
-</AccordionGroup>
+Each message below is what you see in the Xcode console, the paywall diagnostic, or the dashboard.
+
+### The App2Web paywall doesn't show
+
+> This paywall sells a Paddle price that has no copy in your sandbox account. In the Helium dashboard, open Integrations → Products → Paddle → Sandbox and click Sync products.
+
+Do what it says. Then check the Sandbox tab for items that could not be copied.
+
+<Frame>
+  ![Items that could not be copied, with Sync products](/images/paddle-sandbox/sandbox-copy-warning.png)
+</Frame>
+
+> Debug and TestFlight builds use your Paddle sandbox account, and this requires a newer Helium SDK version. Update to the latest Helium SDK.
+
+Update the SDK to the versions in [Before you start](#before-you-start).
+
+> Paddle App-to-Web checkout is only available in the US. This device's IP country is not US. Connect a Paddle sandbox account to check out from any country on debug and TestFlight builds.
+
+The build has no sandbox account, so it uses your live account and its US-only rules. Go back to [step 2](#2-connect-the-sandbox-to-helium).
+
+> The Paddle sandbox account can't be read. Please reconnect it in the Helium dashboard.
+
+Disconnect and connect your sandbox account again on the Sandbox tab.
+
+Still nothing? Check that your audience doesn't include the **Paddle A2W Eligible** preset, and that the build isn't from the App Store.
+
+### The checkout says Apple Pay isn't available
+
+<Frame>
+  ![The Apple Pay message on the web checkout](/images/paddle-sandbox/checkout-apple-pay-unavailable.png)
+</Frame>
+
+> Apple Pay isn't available
+>
+> Apple Pay can't be used on this browser. Return to app to continue.
+
+You're on the simulator, a desktop browser, or an iPhone with no card in Wallet. Use a physical iPhone with a card.
+
+> Apple Pay is not turned on in your Paddle sandbox account. Turn it on under Checkout settings, then try again.
+
+Turn on Apple Pay in [step 1](#1-prepare-your-paddle-sandbox), then try again.
+
+### The dashboard rejects your key
+
+<Frame>
+  ![A live key pasted on the Sandbox tab](/images/paddle-sandbox/sandbox-key-rejected.png)
+</Frame>
+
+> Invalid API key. Paddle sandbox API keys start with pdl_sdbx_
+
+You pasted a live key. Create a key in your sandbox dashboard instead.
+
+> This key cannot write to your Paddle sandbox account. Create a key with Write on the All row.
+
+Create a new key with Write on the All row, as in [step 1](#1-prepare-your-paddle-sandbox).
+
+### The Sandbox tab says your key expired
+
+<Frame>
+  ![An expired sandbox key on the Sandbox tab](/images/paddle-sandbox/sandbox-key-expired.png)
+</Frame>
+
+> Sandbox API key is expired or invalid
+
+Sandbox checkouts and product copies stop until you replace the key. Create a new key in the same sandbox account, set to never expire, and click **Update API key**.
+
+### Web checkout needs a custom user ID
+
+Web checkout requires a user ID from your app unless you set `allowWebCheckoutWithoutUserId` to `true`. Set a user ID before opening the paywall. See [Add web checkout to your app](/guides/paddle-onboarding-guide#5-add-web-checkout-to-your-app).
+
+### Cancelling opens App Store subscriptions instead of Paddle
+
+Your app sent a Paddle subscriber to App Store subscription management. When `hasActivePaddleEntitlement()` returns `true`, open the Paddle customer portal instead, as in the Manage Subscription button from [Add web checkout to your app](/guides/paddle-onboarding-guide#5-add-web-checkout-to-your-app).
+
+## Next steps
+
+- Test any App2Web paywall from the triple-tap menu with [App2Web Paywall Previews](/guides/app2web-previews).
+- Run the [App2Web Go-Live Checklist](/guides/app2web-go-live-checklist) before you roll out to customers.
+- Find answers on attribution, experiments and entitlements in the [App2Web FAQ](/guides/app2web-faq).

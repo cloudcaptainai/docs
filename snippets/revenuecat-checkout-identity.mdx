@@ -1,0 +1,6 @@
+**Using RevenueCat?** Always identify checkout with the current RevenueCat App User ID, regardless of when users sign in. Either:
+
+- In Helium's **Paddle integration**, map the RevenueCat App User ID to the metadata field RevenueCat reads (e.g. `userId`), when source mapping is available.
+- Set Helium's user ID to RevenueCat's `$RCAnonymousID:...` before sign-in, then to its current App User ID after RevenueCat's `logIn()` completes. Leave `allowWebCheckoutWithoutUserId` disabled for this option.
+
+Keep Helium's `revenueCatAppUserId` in sync. RevenueCat [links eligible anonymous and signed-in customers](https://www.revenuecat.com/docs/customers/identifying-customers#logging-in-after-configuration); Helium's persistent ID is not a substitute.

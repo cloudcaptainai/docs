@@ -7,6 +7,7 @@ icon: "p"
 
 import ApplePayReadiness from "/snippets/apple-pay-readiness.mdx";
 import App2WebEligibility from "/snippets/app2web-eligibility.mdx";
+import RevenueCatCheckoutIdentity from "/snippets/revenuecat-checkout-identity.mdx";
 
 Take users from your paywall to web checkout, then back to your app with access unlocked.
 
@@ -73,7 +74,9 @@ Choose your SDK, then enable checkout, identify your user, handle the return lin
     **Set your user ID on Helium** before showing a paywall.
 
     <Accordion title="Purchases before sign-in">
-      If you must set the user ID after showing a paywall, set `allowWebCheckoutWithoutUserId` to `true`.
+      Without RevenueCat, set `allowWebCheckoutWithoutUserId` to `true` if users purchase before signing in.
+
+      <RevenueCatCheckoutIdentity />
     </Accordion>
 
     **Handle the return link.** Forward incoming links to `Helium.shared.handleURL(url)` from your `onOpenURL` / `application(_:open:)` handler.
@@ -123,7 +126,9 @@ Choose your SDK, then enable checkout, identify your user, handle the return lin
     **Set your user ID on Helium** before showing a paywall.
 
     <Accordion title="Purchases before sign-in">
-      If you must set the user ID after showing a paywall, call `setAllowWebCheckoutWithoutUserId(true)`.
+      Without RevenueCat, call `setAllowWebCheckoutWithoutUserId(true)` if users purchase before signing in.
+
+      <RevenueCatCheckoutIdentity />
     </Accordion>
 
     **Handle the return link.** Forward incoming links to `heliumHandleURL(url)` from your deep link handling:
@@ -201,7 +206,9 @@ Choose your SDK, then enable checkout, identify your user, handle the return lin
     **Set your user ID on Helium** before showing a paywall.
 
     <Accordion title="Purchases before sign-in">
-      If you must set the user ID after showing a paywall, call `setAllowWebCheckoutWithoutUserId(true)`.
+      Without RevenueCat, call `setAllowWebCheckoutWithoutUserId(true)` if users purchase before signing in.
+
+      <RevenueCatCheckoutIdentity />
     </Accordion>
 
     **Handle the return link.** Forward incoming links to `handleURL(url)`; Helium ignores unrelated URLs. If you don’t already handle deep links, add [app_links](https://pub.dev/packages/app_links) with `flutter pub add app_links`:

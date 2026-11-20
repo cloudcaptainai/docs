@@ -178,6 +178,7 @@
                 "group": "Test & launch",
                 "icon": "rocket",
                 "pages": [
+                  "guides/app2web-paddle-sandbox-testing",
                   "guides/app2web-previews",
                   "guides/app2web-go-live-checklist"
                 ],

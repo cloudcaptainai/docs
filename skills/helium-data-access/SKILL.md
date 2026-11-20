@@ -1,6 +1,6 @@
 ---
 name: helium-data-access
-description: Investigate a Helium organization's paywall, experiment, subscription and revenue data with read-only SQL through the Helium Data Access API. Use when asked why revenue or conversion changed, which experiment variant is winning, how trials convert, where users drop off in a paywall, or to export Helium data.
+description: Investigate a Helium organization's paywall, experiment, subscription and revenue data with read-only SQL through the Helium Data Access API. Use for integration validation, revenue or conversion changes, experiment and trial analysis, paywall drop-off, or data exports.
 ---
 
 # Helium Data Access
@@ -36,6 +36,8 @@ helium_sql "SELECT event_name, uniqExact(event_id) AS events FROM events WHERE e
 
 ## How to investigate
 
+For SDK or App2Web integration validation, follow the [integration workflow](https://docs.tryhelium.com/data-access/overview#validate-your-integration). Pin the test user, build, trigger, product and time window; include the actual test environment. Check available events and revenue alongside device/provider entitlement evidence. Missing or delayed data is not a QA result, and simulated checkout is not proof of a real payment.
+
 1. **Pin down the question.** Write down the metric, the time window, the comparison (previous period, variant, platform) and any filters before querying. Ask the user if any of these are unclear.
 2. **Look before you measure.** Run small queries first: which `event_name`, `trigger_name`, `app_store`, `environment` and experiment values exist in the window, and how many rows each has. Never assume a value exists.
 3. **Follow the matching recipe** in `references/` (list below). If none fits, use the rules below and the column reference.
@@ -48,7 +50,7 @@ helium_sql "SELECT event_name, uniqExact(event_id) AS events FROM events WHERE e
 - **Aggregate in SQL.** Return summaries, not raw rows. Add `LIMIT` to any exploratory `SELECT`.
 - **Count events with `uniqExact(event_id)`**, not `count()`. About 1 in 1,000 events is stored twice.
 - **Count users with `uniqExact(helium_persistent_id)`**. It is the user column on `events`, `subscriptions` and `users`.
-- **Exclude test data.** Use `environment = 'PRODUCTION'` on `revenue` and `subscriptions`, and `app_environment NOT IN ('SANDBOX', 'DEBUG')` on `events`. Older SDKs leave `app_environment` empty, so `= 'PRODUCTION'` would drop their users.
+- **Match the environment to the task.** For production analytics, use `environment = 'PRODUCTION'` on `revenue` and `subscriptions`, and `app_environment NOT IN ('SANDBOX', 'DEBUG')` on `events`. Older SDKs leave `app_environment` empty, so `= 'PRODUCTION'` would drop their users. For integration validation, include the intended test environment instead; an app's environment does not establish its payment provider's mode.
 - **Refunds are negative** in `revenue_usd` and `proceeds_usd`, so `sum()` already nets them out.
 - **Proceeds have a gap.** App Store, Google Play and RevenueCat rows before 22 June 2026 have `proceeds_usd = 0`. Don't compare proceeds across that date for those stores; use `revenue_usd` instead.
 - **Two timestamps on `revenue`.** `timestamp` is when Helium received the store notification. `coalesce(event_timestamp, timestamp)` is when it happened. Pick one and say which.

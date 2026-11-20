@@ -49,6 +49,50 @@ A successful response is ClickHouse JSON:
 
 Every response has an `X-Request-Id` header. Include it when you contact support about a query.
 
+## Validate your integration
+
+Use Data Access while implementing the SDK or App2Web to inspect what Helium received from your test flow.
+
+1. **Connect.** An organization Admin [creates a secret key](#turn-it-on) in [Settings → Data Access](https://app.tryhelium.com/profile). Store it locally as `HELIUM_SECRET_KEY`; keep it out of your mobile app and repository. For a coding agent, [install the Data Access skill](/data-access/agent-skill).
+2. **Run one known test.** Record the app version/build, SDK version, test user ID, environment, trigger and expected product. Open the paywall through the real app trigger and test the purchase, dismiss and failure paths relevant to your integration. For App2Web, follow your provider's [Paddle](/guides/paddle-onboarding-guide#7-test-everything) or [Stripe](/guides/stripe-onboarding-guide#testing) testing instructions.
+3. **Find that user's events.** Send the query below through [the query endpoint](#send-a-query). Replace `YOUR_TEST_USER_ID` with the non-email custom user ID you set in the SDK, or filter on `helium_persistent_id` instead. Check the returned build and environment match your test.
+
+```sql
+SELECT event_timestamp, event_id, event_name, user_id, helium_persistent_id,
+       app_build, app_environment, helium_sdk_version,
+       trigger_name, paywall_id, paywall_name, product_id,
+       open_failure_reason, error_description
+FROM events
+WHERE event_timestamp > now() - INTERVAL 1 HOUR
+  AND user_id = 'YOUR_TEST_USER_ID'
+ORDER BY event_timestamp, event_id
+LIMIT 100
+```
+
+For integration tests, include the `SANDBOX`, `DEBUG` or production environment you actually used. Do not apply a production-only analytics filter to a test build. The app environment does not determine whether your payment provider charges real money.
+
+4. **Compare expected and observed behavior.**
+
+| Check | What to verify |
+| --- | --- |
+| Identity and configuration | The user, build, trigger, paywall and product match your test plan. |
+| Paywall presentation | The expected open/render events arrive; inspect `open_failure_reason` and `error_description` when they do not. |
+| Purchase reporting | Inspect the available purchase events and connected `revenue` data for your test. Keep store/provider identifiers and environments distinct; see the [schema](/data-access/schema). |
+| App2Web access | Verify checkout, return-to-app, cancellation and entitlement behavior on the device and in your provider/backend. A query result alone does not prove the user has the correct access. |
+
+Save the test case, expected result and evidence with your integration/QA notes. Missing rows are not an automatic failure: [device batching and store notifications can delay data](#data-freshness). The API exposes a [defined subset of SDK events](/data-access/schema#events), not every internal checkout event. A simulated preview purchase does not establish real payment or entitlement delivery.
+
+**Example request for your coding agent:**
+
+```text
+Use the Helium Data Access skill and my configured HELIUM_SECRET_KEY to check
+this integration test: user [ID], build [number], environment [environment],
+trigger [name], product [ID], tested between [start/end, timezone].
+Include the test environment. Compare expected behavior with available events
+and revenue, report errors and missing evidence, and list the device/provider
+checks we still need. Do not infer a QA pass from the data alone.
+```
+
 ## Secret keys
 
 - Secret keys belong to your organization, not to the person who created them. Admins can see and revoke every key in **Settings → Data Access**.

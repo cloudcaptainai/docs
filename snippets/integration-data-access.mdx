@@ -1,0 +1,9 @@
+<Accordion title="Recommended: inspect your data while integrating" icon="database">
+  Direct access to your Helium data makes it easier to check what happened as you test: which paywall opened, which product was selected, and any reported errors.
+
+  1. Have an organization Admin open [Settings → Data Access](https://app.tryhelium.com/profile) and **Create secret key**. If the section is missing, ask your Helium contact to enable it.
+  2. Follow the [setup and integration validation steps](/data-access/overview#validate-your-integration). You can query the API yourself or give your coding agent the [Data Access skill](/data-access/agent-skill) and configure its secret key locally.
+  3. Test a real trigger, then check the matching test user, build and environment. For App2Web, also verify checkout, return-to-app and access in your entitlement system.
+
+  Data Access is read-only and scoped to your organization. Data can arrive late, and some internal events are not exposed; use it alongside device testing.
+</Accordion>

@@ -5,6 +5,8 @@ description: "Step-by-step Paddle setup for App2Web: account, payment link, conn
 icon: "p"
 ---
 
+import IntegrationDataAccess from "/snippets/integration-data-access.mdx";
+
 import ApplePayReadiness from "/snippets/apple-pay-readiness.mdx";
 import App2WebEligibility from "/snippets/app2web-eligibility.mdx";
 
@@ -56,6 +58,8 @@ See [Build an App2Web paywall](/guides/build-app2web-paywall) for the walkthroug
 ## 5. Add web checkout to your app
 
 Choose your SDK, then enable checkout, identify your user, handle the return link, and add subscription management. Your app needs a [custom URL scheme](https://developer.apple.com/documentation/xcode/defining-a-custom-url-scheme-for-your-app) or [universal link](https://developer.apple.com/documentation/xcode/allowing-apps-and-websites-to-link-to-your-content) so checkout can return users to it.
+
+<IntegrationDataAccess />
 
 <Tabs>
   <Tab title="iOS (native, Helium 4.6.0+)">

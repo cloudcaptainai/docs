@@ -1,4 +1,4 @@
 **Using RevenueCat?** Either:
 
-1. In Helium's **Paddle integration**, map our `rc_app_user_id` to the user ID field configured in your RevenueCat/Paddle integration (`rc_user_id` by default).
-2. Set Helium's user ID to the RevenueCat anonymous ID before sign-in and the RevenueCat App User ID after sign-in. RevenueCat handles linking through `logIn()`.
+1. In Helium's **Paddle integration** (when available), map the **RevenueCat App User ID** to the field RevenueCat uses to identify users (`rc_user_id` in the default setup).
+2. Set Helium's user ID to RevenueCat's anonymous ID before sign-in, then its current App User ID after sign-in. RevenueCat links the account through `logIn()`.

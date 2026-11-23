@@ -14,7 +14,7 @@ If a paywall uses App2Web, previewing it from [Paywall Previews](/guides/paywall
 Previews support two purchase modes:
 
 - **Simulated purchase** — the checkout looks and behaves like the real flow, but no transaction is created, no revenue events fire, and no entitlement is granted. Useful for checking the experience without spending money, especially where real purchases aren't available.
-- **Real purchase** — charges your card, completes checkout, returns to your app, and grants a real entitlement. Useful for verifying webhooks and entitlement delivery.
+- **Real purchase** — completes checkout, returns to your app, and grants a real entitlement. Useful for verifying webhooks and entitlement delivery. Your card is charged unless the build checks out on a Paddle sandbox account. The preview settings name the Paddle account the session uses. See [which Paddle account a test build checks out on](/guides/paddle-onboarding-guide#7-test-everything).
 
 The mode follows the device's purchase eligibility: a device that is not cleared for real purchases always runs simulated, while an eligible device defaults to a real purchase. You can switch an eligible device to simulated in the preview settings.
 

@@ -321,7 +321,23 @@ RevenueCat can take a few seconds to reflect a purchase. Check Helium entitlemen
 
 Create a test audience with **Paddle eligible users** and the **`sandbox` or `debug` app environment**. Target your in-app App2Web paywall to it.
 
-You can also test via **[Helium’s triple-tap flow](/guides/paywall-previews#preview-paywalls-from-your-app)**: open a Helium paywall in your test build, triple-tap it, and select your App2Web paywall. [App2Web previews](/guides/app2web-previews) support simulated checkout to check the flow without a charge; simulated purchases do not grant entitlements. Real checkout charges the payment method and lets you verify access.
+You can also test via **[Helium’s triple-tap flow](/guides/paywall-previews#preview-paywalls-from-your-app)**: open a Helium paywall in your test build, triple-tap it, and select your App2Web paywall. [App2Web previews](/guides/app2web-previews) support simulated checkout to check the flow without a charge; simulated purchases do not grant entitlements. Real checkout grants access so you can verify it. Whether it charges the payment method depends on the Paddle account the build checks out on.
+
+<Accordion title="Which Paddle account a test build checks out on">
+  If your organization has a Paddle sandbox account connected to Helium, debug and TestFlight builds check out on it. Those purchases don't charge a card. App Store builds always check out on your live Paddle account.
+
+  To test the live checkout from a debug or TestFlight build, call `Helium.testing.useLiveWebCheckoutAccount()` before you initialize Helium. This requires a Helium iOS SDK release later than 4.15.0.
+
+  ```swift
+  // Must run before initialize; later calls are ignored
+  Helium.testing.useLiveWebCheckoutAccount()
+  Helium.shared.initialize(apiKey: "<your-helium-api-key>")
+  ```
+
+  The account stays fixed until the app relaunches, including after `Helium.resetHelium()`. A call made after `initialize` is ignored and logs a warning. To test sandbox and live checkouts separately, distribute a separate TestFlight build for each. The setting applies to Paddle only: Stripe web checkout always uses your connected Stripe account.
+
+  In the triple-tap preview settings, the **Real purchase** description names the Paddle account the session checks out on.
+</Accordion>
 
 - **Purchase:** open a real trigger → browser checkout → purchase → return to the app. Confirm access unlocks in your chosen entitlement system and `hasActivePaddleEntitlement()` returns `true`.
 - **Dismiss or cancel checkout:** return to the expected screen without granting access or showing success.

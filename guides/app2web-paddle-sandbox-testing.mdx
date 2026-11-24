@@ -25,6 +25,8 @@ You don't change any code. Helium reads how the build was installed and picks th
 | TestFlight | Sandbox | No |
 | App Store | Live | Yes |
 
+Test builds use your sandbox account only while one is connected. Without one, they check out on your live account and charge real money.
+
 The App Store build never uses your sandbox account. Your customers are never affected.
 
 On a sandbox build, the US-only purchase rules are skipped. A tester in Mexico, Germany or anywhere else sees the App2Web paywall and can buy, with no VPN and no US App Store account.
@@ -105,7 +107,7 @@ An active sandbox subscription keeps you subscribed on test builds until it ends
 
 If the App2Web paywall doesn't show or checkout has no sandbox banner, check:
 
-- Your sandbox account is connected and its key hasn't expired or been revoked; reconnect via **Update API key** on the **Sandbox** tab.
+- Your sandbox account is connected on the **Sandbox** tab ([step 2](#2-connect-your-sandbox-account-to-helium)). If its key expired or was revoked, replace it with **Update API key**.
 - Your app runs the SDK versions listed [at the top](#before-you-start); older SDKs don't show the App2Web paywall on test builds while a sandbox is connected.
 - Every Paddle price on the paywall has a sandbox copy; run **Sync products** on the **Production** tab.
 - You're using a debug or TestFlight build, not an App Store build.

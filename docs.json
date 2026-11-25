@@ -220,7 +220,7 @@
     "instructions": [
       "Helium is a paywall platform for mobile apps. Paywalls, workflows, triggers, targeting and experiments are configured in the dashboard (https://app.tryhelium.com); the SDK's job is to initialize, present a paywall for a trigger, and report purchases.",
       "Pick the SDK page for the user's platform: /sdk/quickstart-ios (Swift), /sdk/quickstart-android (Kotlin), /sdk/quickstart-react-native, /sdk/quickstart-flutter. Method names differ per platform; copy them from the page for that platform, never from another platform's page.",
-      "Pages under /sdk/quickstart-ios-v3 and /sdk/quickstart-android-v0 are legacy SDK versions. Use them only when the user is on that version; for upgrades use the /migrations pages.",
+      "/sdk/quickstart-ios-v3 is the legacy iOS SDK v3. Use it only when the user is on that version; for upgrades use the /migrations pages.",
       "For live dashboard data (paywalls, workflows, metrics) connect the Helium MCP server at https://app.tryhelium.com/api/mcp (see /ai-tools/mcp). For SQL over events, revenue, subscriptions and users use the Data Access API (/data-access/overview) and the helium-data-access skill (/data-access/agent-skill). This documentation site also exposes a docs-search MCP server at https://docs.tryhelium.com/mcp.",
       "Web checkout (App2Web) with Stripe or Paddle is a separate flow from in-app purchases; start at /web-checkout/overview.",
       "Every page is available as Markdown by appending .md to its URL. The full index is at https://docs.tryhelium.com/llms.txt."

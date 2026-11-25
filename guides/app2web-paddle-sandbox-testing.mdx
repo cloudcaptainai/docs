@@ -67,6 +67,7 @@ Two ways to show it:
 ## 4. Make a test purchase
 
 1. On your iPhone, open your App2Web paywall, from your app or from Paywall previews, and tap through to the web checkout.
+   Close the checkout once and check that the app returns to the paywall without granting access, then open it again.
 2. Check for the banner at the top of the checkout saying purchases go through your Paddle sandbox account. If there's no banner, stop: that checkout uses your live account and charges real money. See [Troubleshooting](#troubleshooting).
 3. Pay with Apple Pay using your real card. Sandbox Apple Pay payments are [not charged](https://developer.paddle.com/concepts/payment-methods/apple-pay).
 4. Return to the app.
@@ -82,7 +83,7 @@ Two ways to show it:
 3. **Test subscription management.** Check that your [**Manage Subscription** button](/guides/paddle-onboarding-guide#5-add-web-checkout-to-your-app) shows only for subscribers and opens the Paddle customer portal. Walk through cancelling and check what the user sees at each step, including any retention offers you set up. A cancellation at the end of the billing period keeps access until then ([what users see when they cancel](/guides/app2web-faq#cancellation)).
 4. **Check webhooks.** In your sandbox dashboard, open **Developer tools → Notifications**. Deliveries to Helium return 2xx.
 
-Also check that closing the checkout returns to the paywall without granting access, and that any trial or discount shows on the checkout.
+Also check that any trial or discount showed on the checkout.
 
 <Accordion title="Want to test again?">
   An active sandbox subscription keeps you subscribed on test builds. In your Paddle sandbox dashboard, open [**Subscriptions**](https://sandbox-vendors.paddle.com/subscriptions-v2) and cancel the test subscription **immediately**, then make another test purchase.

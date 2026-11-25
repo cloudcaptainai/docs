@@ -86,6 +86,8 @@ Also check that any trial or discount showed on the checkout.
 
 ## 6. Test cancellation
 
+Before you start, ask Helium support to enable sandbox subscription management for your organization. Without it, the portal doesn't list your test subscription.
+
 1. Check that your [**Manage Subscription** button](/guides/paddle-onboarding-guide#5-add-web-checkout-to-your-app) shows only while the user has an active Paddle subscription.
 2. Tap it on your test build. It opens your Paddle sandbox account's customer portal. Check that your test subscription is listed.
 3. Cancel the subscription, walking through every screen, including any retention offers you set up.
@@ -94,9 +96,9 @@ Also check that any trial or discount showed on the checkout.
 To end access right away and retest, open [**Subscriptions**](https://sandbox-vendors.paddle.com/subscriptions-v2) in your Paddle sandbox dashboard and cancel the test subscription **immediately**.
 
 <Note>
-  **How Manage Subscription picks the account:** Helium picks the portal the same way it picks checkout: test builds (debug, TestFlight or sandbox) open your sandbox account's portal; App Store builds open your live account's portal. Subscribers on your live account never see sandbox subscriptions, and the other way around.
+  **How Manage Subscription picks the account:** When your button uses `createPaddlePortalSession()`, Helium picks the portal the same way it picks checkout: test builds (debug, TestFlight or sandbox) open your sandbox account's portal; App Store builds open your live account's portal. Subscribers on your live account never see sandbox subscriptions, and the other way around.
 
-  If the portal opens without your test subscription, contact Helium support to enable sandbox subscription management for your organization.
+  If your backend generates [pre-authenticated portal links](/guides/paddle-onboarding-guide#5-add-web-checkout-to-your-app), it picks the account: use your sandbox API key for test builds.
 </Note>
 
 <Accordion title="Want to test again?">

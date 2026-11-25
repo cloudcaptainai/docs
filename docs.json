@@ -262,6 +262,10 @@
   },
   "redirects": [
     {
+      "source": "/guides/test-paywalls",
+      "destination": "/guides/paywall-previews"
+    },
+    {
       "source": "/ai-tools",
       "destination": "/ai-tools/agents"
     },

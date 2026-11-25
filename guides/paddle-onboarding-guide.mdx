@@ -1,9 +1,12 @@
 ---
 title: "Paddle Onboarding Guide"
+sidebarTitle: "Paddle onboarding"
+description: "Step-by-step Paddle setup for App2Web: account, payment link, connecting Paddle to Helium, building paywalls, adding web checkout to your app, entitlements, testing and rollout."
 icon: "p"
 ---
 
 import ApplePayReadiness from "/snippets/apple-pay-readiness.mdx";
+import App2WebEligibility from "/snippets/app2web-eligibility.mdx";
 
 Take users from your paywall to web checkout, then back to your app with access unlocked.
 
@@ -45,7 +48,9 @@ Your in-app paywall opens a linked web paywall when the user purchases a Paddle 
 See [Build an App2Web paywall](/guides/build-app2web-paywall) for the walkthrough.
 
 <Accordion title="Supported platforms and languages">
-  App2Web is iOS-only and limited to US storefronts. Hosted paywalls currently support one language. On Android, the React Native and Flutter web-checkout APIs are safe no-ops; keep your regular IAP flow.
+  <App2WebEligibility />
+
+  Hosted paywalls currently support one language. On Android, the React Native and Flutter web-checkout APIs are safe no-ops; keep your regular IAP flow.
 </Accordion>
 
 ## 5. Add web checkout to your app
@@ -316,12 +321,14 @@ RevenueCat can take a few seconds to reflect a purchase. Check Helium entitlemen
 
 Create a test audience with **Paddle eligible users** and the **`sandbox` or `debug` app environment**. Target your in-app App2Web paywall to it.
 
-You can also test via **[Helium’s triple-tap flow](/guides/paywall-previews#preview-paywalls-from-your-app)**: open a Helium paywall in your test build, triple-tap it, and select your App2Web paywall. [App2Web previews](/guides/app2web-previews) support simulated checkout to check the flow without a charge; simulated purchases do not grant entitlements. Real checkout charges the payment method and lets you verify access.
+You can also test via **[Helium’s triple-tap flow](/guides/paywall-previews#preview-paywalls-from-your-app)**: open a Helium paywall in your test build, triple-tap it, and select your App2Web paywall. Real checkout charges the payment method and lets you verify access.
 
 - **Purchase:** open a real trigger → browser checkout → purchase → return to the app. Confirm access unlocks in your chosen entitlement system and `hasActivePaddleEntitlement()` returns `true`.
 - **Dismiss or cancel checkout:** return to the expected screen without granting access or showing success.
 - **Manage subscription:** open the customer portal, cancel, and confirm access lasts until period end.
 - **Webhooks:** confirm Paddle delivers to Helium with 2xx responses.
+
+To check the flow without any purchase, [App2Web previews](/guides/app2web-previews) support simulated checkout; simulated purchases do not grant entitlements.
 
 <Accordion title="If you use RevenueCat or allow purchases before sign-in">
   - Confirm RevenueCat updates within a few seconds of purchase, if connected.
@@ -329,7 +336,7 @@ You can also test via **[Helium’s triple-tap flow](/guides/paywall-previews#pr
 </Accordion>
 
 <Accordion title="App2Web paywall not appearing?">
-  On a live Paddle account, the device locale country, App Store storefront, and IP location must all be US. From the US, disable VPNs. From outside the US, use a US device region, a US sandbox Apple storefront, and a US VPN.
+  On a live Paddle account, the device region, App Store storefront, and IP location must all be US. From the US, disable VPNs. From outside the US, use a US device region, a US sandbox Apple storefront, and a US VPN.
 
   Helium skips the buyer country and California checks for checkouts on a Paddle sandbox account, whose client token starts with `test_`. Before launch, repeat a checkout on your live account, where both checks apply.
 </Accordion>

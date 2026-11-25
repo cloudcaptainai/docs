@@ -3,6 +3,8 @@ title: "App2Web FAQ"
 description: "Paywalls, attribution, experiments, and entitlements with Paddle."
 ---
 
+import App2WebEligibility from "/snippets/app2web-eligibility.mdx";
+
 {/* Paddle-only version. The unlisted companion is guides/app2web-faq-stripe.mdx.
     Keep shared answers and question IDs in sync. SDK minimums live only in
     guides/paywall-previews.mdx. Provider-specific links stay in their respective
@@ -11,6 +13,10 @@ description: "Paywalls, attribution, experiments, and entitlements with Paddle."
 [Paddle integration](/guides/paddle-onboarding-guide) / [Go-live checklist](/guides/app2web-go-live-checklist).
 
 <AccordionGroup>
+  <Accordion title="Who can see App2Web paywalls?" id="app2web-eligibility">
+    <App2WebEligibility />
+  </Accordion>
+
   <Accordion title="How do I add web products to my paywall?" id="build-paywall">
     It's pretty simple: once you've synced your web products, add them to a standard paywall and link a simple hosted web paywall. A **purchase action on a web product** opens that web paywall in the browser.
 
@@ -24,9 +30,9 @@ description: "Paywalls, attribution, experiments, and entitlements with Paddle."
   </Accordion>
 
   <Accordion title="How do I test that entitlements are granted correctly?" id="test-entitlements">
-    We recommend starting with [App2Web previews](/guides/paywall-previews#app2web-previews). Use a real purchase on an [eligible US device](/guides/app2web-previews#purchase-eligibility) to test entitlement delivery; simulated purchases don't charge you or grant entitlements.
+    Make a real purchase through your app's trigger and check that access unlocks when you return. See the [Paddle tests](/guides/paddle-onboarding-guide#7-test-everything).
 
-    Then make a real purchase through your app's trigger and check that access unlocks when you return. See the [Paddle tests](/guides/paddle-onboarding-guide#7-test-everything).
+    [App2Web previews](/guides/paywall-previews#app2web-previews) are a quick second check. Simulated purchases don't charge you or grant entitlements.
 
     You can use [Paddle's webhook simulator](https://developer.paddle.com/webhooks/simulator/test-webhooks/) to test delivery separately; it doesn't create a real purchase.
 

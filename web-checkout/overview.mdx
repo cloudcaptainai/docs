@@ -1,0 +1,32 @@
+---
+title: "Web checkout (App2Web)"
+sidebarTitle: "Overview"
+description: "Send users from an in-app paywall to a Stripe or Paddle checkout in the browser and bring them back with access unlocked. Start here for App2Web setup, testing and launch."
+icon: "globe"
+---
+
+App2Web adds a web checkout path to a Helium paywall. The user taps a web product on your in-app paywall, Helium opens a hosted web paywall in the browser, the purchase completes with your payment provider, and the user returns to your app with the entitlement granted.
+
+<CardGroup cols={2}>
+  <Card title="Paddle onboarding" icon="p" href="/guides/paddle-onboarding-guide">
+    Account setup, payment link, connecting Paddle to Helium, entitlements and rollout.
+  </Card>
+  <Card title="Build an App2Web paywall" icon="window-maximize" href="/guides/build-app2web-paywall">
+    Add web products and a hosted web paywall to an existing in-app paywall.
+  </Card>
+  <Card title="App2Web previews" icon="mobile-screen" href="/guides/app2web-previews">
+    Test the full app-to-web flow on device with simulated or real purchases.
+  </Card>
+  <Card title="Go-live checklist" icon="list-check" href="/guides/app2web-go-live-checklist">
+    What to verify before you launch.
+  </Card>
+</CardGroup>
+
+## How the pieces fit
+
+1. **Payment provider**: products and prices are created in Paddle (or Stripe) and synced to Helium.
+2. **Paywalls**: an in-app paywall with a purchase action on a web product, linked to a hosted web paywall built in the same editor.
+3. **SDK**: the Helium SDK handles the hand-off to the browser and the return to the app. Minimum SDK versions are listed in [Paywall previews](/guides/paywall-previews#app2web-previews).
+4. **Entitlements**: provider webhooks tell Helium (and RevenueCat, if you use it) about the purchase so access unlocks when the user returns.
+
+Have a question that isn't covered? See the [App2Web FAQ](/guides/app2web-faq).

@@ -80,10 +80,24 @@ Two ways to show it:
 
 1. **Use your app.** Check that the purchase unlocks the right entitlement tier and the features you expect.
 2. **Check the SDK.** `hasActivePaddleEntitlement()` returns `true`, and `purchasedProductIds()` reports your live product and price IDs, not the copies.
-3. **Test subscription management.** Check that your [**Manage Subscription** button](/guides/paddle-onboarding-guide#5-add-web-checkout-to-your-app) shows only for subscribers and opens the Paddle customer portal. Walk through cancelling and check what the user sees at each step, including any retention offers you set up. A cancellation at the end of the billing period keeps access until then ([what users see when they cancel](/guides/app2web-faq#cancellation)).
-4. **Check webhooks.** In your sandbox dashboard, open **Developer tools → Notifications**. Deliveries to Helium return 2xx.
+3. **Check webhooks.** In your sandbox dashboard, open **Developer tools → Notifications**. Deliveries to Helium return 2xx.
 
 Also check that any trial or discount showed on the checkout.
+
+## 6. Test cancellation
+
+1. Check that your [**Manage Subscription** button](/guides/paddle-onboarding-guide#5-add-web-checkout-to-your-app) shows only while the user has an active Paddle subscription.
+2. Tap it on your test build. It opens your Paddle sandbox account's customer portal. Check that your test subscription is listed.
+3. Cancel the subscription, walking through every screen, including any retention offers you set up.
+4. A cancellation at the end of the billing period [keeps access until then](/guides/app2web-faq#cancellation). Return to your app and check that access is still active.
+
+To end access right away and retest, open [**Subscriptions**](https://sandbox-vendors.paddle.com/subscriptions-v2) in your Paddle sandbox dashboard and cancel the test subscription **immediately**.
+
+<Note>
+  **How Manage Subscription picks the account:** Helium picks the portal the same way it picks checkout: test builds (debug, TestFlight or sandbox) open your sandbox account's portal; App Store builds open your live account's portal. Subscribers on your live account never see sandbox subscriptions, and the other way around.
+
+  If the portal opens without your test subscription, contact Helium support to enable sandbox subscription management for your organization.
+</Note>
 
 <Accordion title="Want to test again?">
   An active sandbox subscription keeps you subscribed on test builds. In your Paddle sandbox dashboard, open [**Subscriptions**](https://sandbox-vendors.paddle.com/subscriptions-v2) and cancel the test subscription **immediately**, then make another test purchase.

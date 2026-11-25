@@ -6,7 +6,7 @@ icon: "flask"
 
 <Badge color="blue">iOS 4.15.0+</Badge> <Badge color="orange">React Native 3.1.15+</Badge> <Badge color="gray">Expo 3.6.6+</Badge> <Badge color="purple">Flutter 3.3.16+</Badge>
 
-Buy your own App2Web subscription on a test build, from any country, without being charged. This guide takes you from connecting a Paddle sandbox account to running your first test purchase, checking that it worked, and testing again.
+Connect a Paddle sandbox account once, then buy your own App2Web subscription on a test build, from any country, without being charged.
 
 ## Before you start
 
@@ -17,7 +17,7 @@ Buy your own App2Web subscription on a test build, from any country, without bei
 
 ## How Helium picks the Paddle account
 
-You don't change any code. Helium reads how the build was installed and picks the account for you.
+You don't change any code. Helium picks the account from how the build was installed:
 
 | How the app was installed | Paddle account | Charged? |
 |---|---|---|
@@ -25,13 +25,9 @@ You don't change any code. Helium reads how the build was installed and picks th
 | TestFlight | Sandbox | No |
 | App Store | Live | Yes |
 
-Test builds use your sandbox account only while one is connected. Without one, they use your live account: they charge real money and follow the US-only purchase rules.
-
-The App Store build never uses your sandbox account. Your customers are never affected.
-
-On a sandbox build, the US-only purchase rules are skipped. A tester in Mexico, Germany or anywhere else sees the App2Web paywall and can buy, with no VPN and no US App Store account.
-
-Testers in California still see the consent modal when it's enabled, on both accounts.
+- Test builds use your sandbox account only while one is connected. Without one, they use your live account, charge real money and follow the US-only purchase rules.
+- App Store builds never use your sandbox account, so your customers are never affected.
+- Sandbox builds skip the US-only purchase rules: testers in any country can buy, with no VPN or US App Store account. The California consent modal still shows when it's enabled.
 
 ## 1. Prepare your sandbox account
 
@@ -51,22 +47,22 @@ The key needs write permission; the dashboard rejects keys without it.
   ![The connect dialog on the Sandbox tab](/images/paddle-sandbox/sandbox-connect-dialog.png)
 </Frame>
 
-When you connect, Helium copies your live Paddle catalog into your sandbox account: every product you synced to Helium, with all its prices, trials and discounts. Copies are named `[Helium Live Copy] <product name>`.
-
-Your paywalls keep pointing at your live products. On a sandbox build, Helium swaps in the copies at checkout.
+**You don't need to create sandbox products or prices yourself. Helium automatically creates matching sandbox copies of your production products and prices.** It copies every product you synced to Helium, with its prices, trials and discounts, named `[Helium Live Copy] <product name>`. Your paywalls keep pointing at your live products; sandbox builds use the copies at checkout.
 
 <Frame>
   ![The Sandbox tab after connecting](/images/paddle-sandbox/sandbox-connected.png)
 </Frame>
 
-After any catalog change in Paddle, such as a new price, a new trial or a removed discount, click **Sync products** on the **Production** tab before you test. Each live sync also refreshes the sandbox copies; they don't update on their own.
+After you change your catalog in Paddle, click **Sync products** on the **Production** tab before you test. This also refreshes the sandbox copies.
+
+Using RevenueCat or your own entitlement system? Connect it to your Paddle sandbox account too, before you test. Helium only sets up its own webhook, so otherwise access won't unlock in your system after a purchase.
 
 ## 3. Show your App2Web paywall on a test build
 
-Here are two examples of ways to show your App2Web paywall:
+Two ways to show it:
 
 - **A test audience.** Create an audience with the `sandbox` or `debug` app environment and target your App2Web paywall to it. Leave out the **Paddle A2W Eligible** preset: it requires US users, and sandbox builds don't.
-- **Paywall previews.** In your test build, [triple-tap any Helium paywall](/guides/paywall-previews#preview-paywalls-from-your-app) and pick your App2Web paywall. Choose **Sandbox purchase**, the default when a sandbox account is connected. Previews that include a Stripe checkout keep the [regional rules](/guides/app2web-previews#purchase-eligibility): outside the US they simulate the purchase and grant no entitlement.
+- **Paywall previews.** In your test build, [triple-tap any Helium paywall](/guides/paywall-previews#preview-paywalls-from-your-app) and pick your App2Web paywall. Choose **Sandbox purchase**, the default when a sandbox account is connected. Previews that include a Stripe checkout keep the [regional rules](/guides/app2web-previews#purchase-eligibility).
 
 ## 4. Make a test purchase
 
@@ -79,29 +75,20 @@ Here are two examples of ways to show your App2Web paywall:
   ![The sandbox banner on the web checkout](/images/paddle-sandbox/checkout-banner-light.png)
 </Frame>
 
-While you're here, also try:
-
-- **Trials and discounts.** If the product has a trial or a discount, check that the checkout shows it.
-- **Cancel the checkout.** Close it and check that the app returns to the paywall without granting access.
-- **Manage subscription.** Open the customer portal, cancel, and check that access lasts until the period ends.
-
 ## 5. Check that it worked
 
-- **In your app.** `hasActivePaddleEntitlement()` returns `true`. `purchasedProductIds()` reports your live product and price IDs, not the copies, so your existing checks work.
-- **In Paddle.** In your sandbox dashboard, open **Developer tools → Notifications**. Deliveries to Helium return 2xx.
+1. **Use your app.** Check that the purchase unlocks the right entitlement tier and the features you expect.
+2. **Check the SDK.** `hasActivePaddleEntitlement()` returns `true`, and `purchasedProductIds()` reports your live product and price IDs, not the copies.
+3. **Test subscription management.** Check that your [**Manage Subscription** button](/guides/paddle-onboarding-guide#5-add-web-checkout-to-your-app) shows only for subscribers and opens the Paddle customer portal. Walk through cancelling and check what the user sees at each step, including any retention offers you set up. A cancellation at the end of the billing period keeps access until then ([what users see when they cancel](/guides/app2web-faq#cancellation)).
+4. **Check webhooks.** In your sandbox dashboard, open **Developer tools → Notifications**. Deliveries to Helium return 2xx.
 
-Using RevenueCat or your own entitlement system? Connect it to your Paddle sandbox account too. Helium only sets up its own webhook.
+Also check that closing the checkout returns to the paywall without granting access, and that any trial or discount shows on the checkout.
 
-## 6. Test again
+<Accordion title="Want to test again?">
+  An active sandbox subscription keeps you subscribed on test builds. In your Paddle sandbox dashboard, open [**Subscriptions**](https://sandbox-vendors.paddle.com/subscriptions-v2) and cancel the test subscription **immediately**, then make another test purchase.
 
-An active sandbox subscription keeps you subscribed on test builds until it ends. To test again:
-
-1. In your Paddle sandbox dashboard, open [**Subscriptions**](https://sandbox-vendors.paddle.com/subscriptions-v2) and cancel the test subscription **immediately**, not at the end of the billing period. Access stays active until the subscription ends.
-2. Open your App2Web paywall again and make another test purchase. With the subscription cancelled, the paywall shows again.
-
-<Warning>
-  Keep your sandbox account connected between rounds. If you disconnect it, debug and TestFlight builds go back to your live account and charge real money. Your live connection and products are not affected.
-</Warning>
+  Keep your sandbox account connected between rounds. If you disconnect it, test builds go back to your live account and charge real money.
+</Accordion>
 
 ## Troubleshooting
 

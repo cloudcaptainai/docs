@@ -50,18 +50,14 @@
             "group": "How Helium works",
             "icon": "lightbulb",
             "pages": [
-              "guides/how-does-helium-work",
-              "guides/how-helium-guarantees-performance",
-              "background/how-it-works"
+              "guides/how-does-helium-work"
             ]
           },
           {
             "group": "Dashboard",
             "icon": "table-columns",
             "pages": [
-              "guides/makingpaywalls",
               "guides/paywall-traits",
-              "guides/promotional-offers",
               "guides/dashboard-faq"
             ]
           },
@@ -70,7 +66,6 @@
             "icon": "rocket",
             "pages": [
               "guides/paywall-previews",
-              "guides/test-paywalls",
               "guides/storekit-testing",
               "guides/helium-qa-guide",
               "guides/rolling-out-helium"
@@ -142,15 +137,6 @@
                   "migrations/android-0-to-4"
                 ],
                 "expanded": true
-              },
-              {
-                "group": "Legacy",
-                "icon": "box-archive",
-                "directory": "none",
-                "pages": [
-                  "sdk/quickstart-ios-v3",
-                  "sdk/quickstart-android-v0"
-                ]
               }
             ]
           }

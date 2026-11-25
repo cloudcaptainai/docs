@@ -541,7 +541,7 @@ public protocol HeliumPaywallDelegate: AnyObject {
 </Accordion>
 
 <Accordion title="Hiding Paywalls Programmatically">
-  You can programmatically hide paywalls using:
+  Paywalls shown with `presentPaywall` hide themselves, for example after a purchase or when the user closes them. A normal presentation flow doesn't need to hide them from code. If your app does need to, use:
 
   ```swift
   // Hide the current paywall

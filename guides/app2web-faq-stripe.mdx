@@ -5,6 +5,8 @@ hidden: true
 noindex: true
 ---
 
+import App2WebEligibility from "/snippets/app2web-eligibility.mdx";
+
 {/* Unlisted Paddle + Stripe version, linked only from Stripe documentation.
     The Paddle-only companion is guides/app2web-faq.mdx. Keep shared answers,
     question IDs in sync; retain the provider-specific links. SDK minimums live
@@ -16,6 +18,10 @@ Integration guides: [Paddle](/guides/paddle-onboarding-guide) / [Stripe](/guides
 [Go-live checklist](/guides/app2web-go-live-checklist).
 
 <AccordionGroup>
+  <Accordion title="Who can see App2Web paywalls?" id="app2web-eligibility">
+    <App2WebEligibility />
+  </Accordion>
+
   <Accordion title="How do I add web products to my paywall?" id="build-paywall">
     It's pretty simple: once you've synced your web products, add them to a standard paywall and link a simple hosted web paywall. A **purchase action on a web product** opens that web paywall in the browser.
 

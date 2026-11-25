@@ -1,6 +1,8 @@
 ---
 title: "SDK Quickstart (iOS)"
-description: "Integrate Helium into your iOS app"
+deprecated: true
+sidebarTitle: "iOS v3 (legacy)"
+description: "Legacy quickstart for Helium iOS SDK v3. New integrations should use the current iOS quickstart; v3 users should follow the v3 to v4 migration guide."
 icon: "/images/sdk/logos/apple-173-svgrepo-com.svg"
 ---
 
@@ -20,7 +22,7 @@ We recommend using Swift Package Manager (SPM), but if your project primarily us
   <Tab title="Swift Package Manager (SPM)">
     1. In Xcode, navigate to your project's **Package Dependencies:**
 
-       ![Spm Add Pn](/images/spm-add.png)
+       ![Spm Add Pn](/images/spmadd.png)
     2. Click the **\+** button and search for the Helium package URL:
 
        ```
@@ -33,7 +35,7 @@ We recommend using Swift Package Manager (SPM), but if your project primarily us
     3. Click **Add Package**.
     4. In the dialog that appears, make sure to add the **Helium** product to your app's main target:
 
-       ![Spm Target Pn](/images/spm_target.png)
+       ![Spm Target Pn](/images/spmtarget.png)
     5. _(Optional)_ If you are using RevenueCat to manage purchases, we recommended you also add **HeliumRevenueCat** to your target so that you can use our RevenueCatDelegate referenced in the **Purchase Handling** section of this guide. Otherwise leave as **None** for the HeliumRevenueCat row.
 
     <Warning>

@@ -1,0 +1,46 @@
+---
+title: "App2Web compliance"
+description: "The rules for US web payments and what to tell App Review."
+hidden: true
+noindex: true
+---
+
+## What the rules are
+
+**App2Web is explicitly permitted on the US App Store storefront.** Apple’s [Guideline 3.1.1(a)](https://developer.apple.com/app-store/review/guidelines/#link-to-other-purchase-methods) allows apps to include buttons and links to web purchases without an external-purchase entitlement.
+
+**Eligibility depends on the user’s App Store storefront—not just their physical location.** Helium currently supports App2Web only in the US, with more regions planned. Our regional checks require the App Store storefront, device region, and IP location to all be US. Use Helium’s eligibility targeting when setting up your rollout.
+
+**Our recommended approach:** on every in-app screen with a button that opens web checkout, also offer an IAP option. This applies whether the button is on a paywall or a page before it; an IAP option somewhere earlier in the flow does not meet this recommendation.
+
+Give the two options comparable visual weight: the same font size, similarly sized buttons, clear contrast, and accessible placement. Web can be the default selection in this approach, but IAP should remain easy to see and choose.
+
+<Accordion title="How this applies to your paywall">
+  Our recommendations draw on our experience supporting apps using App2Web with Helium and our reading of the published rules. Approval of one flow does not guarantee approval of another.
+
+  Apple’s [multiplatform-services rule](https://developer.apple.com/app-store/review/guidelines/#multiplatform-services) requires qualifying services to also offer the relevant items through IAP. The [US appeals ruling, page 34](https://cdn.ca9.uscourts.gov/datastore/opinions/2025/12/11/25-2935.pdf#page=34) allows Apple to restrict web purchase CTAs from being more prominent than IAP—including fonts, sizes, quantity, and placement.
+
+  We recommend same-screen choice and comparable prominence as a conservative design baseline. The US guidelines do not explicitly state the every-screen requirement that appears in Apple’s [Japan-specific guidance](https://developer.apple.com/support/payment-options-on-the-app-store-in-japan/). Matching font sizes alone is not an approval guarantee.
+</Accordion>
+
+## Submitting your first build
+
+**We strongly recommend clearly stating that the build supports App2Web in Notes for Review, even if you plan to roll it out slowly after approval.** Give reviewers a working way to access both purchase paths.
+
+Apple expects new functionality to be disclosed and accessible during review under [Guideline 2.3.1](https://developer.apple.com/app-store/review/guidelines/#accurate-metadata). A gradual production rollout is different from keeping the feature out of review. Explaining the plan helps avoid the impression that you are bypassing that process.
+
+<Accordion title="Copy into Notes for Review">
+  Replace the bracketed details with how your submitted build actually works.
+
+  > This build includes an external purchase option available only to users on the United States App Store storefront, consistent with App Review Guideline 3.1.1(a), “Link to Other Purchase Methods.” Selecting this option opens our web checkout in [Safari / an in-app Safari browser (SFSafariViewController)], where users can complete payment before returning to the app. External purchase links are not shown in other storefronts.
+  >
+  > We plan to roll out this option gradually after approval. To access it during review: [test account and exact steps to enable and test both the web and in-app purchase paths].
+</Accordion>
+
+If Apple raises a concern, share the feedback with our team so we can help adjust the flow. Being clear upfront is the best way to keep the conversation focused on the implementation.
+
+<Accordion title="Keeping up with changes">
+  This is an evolving landscape. Check back here regularly or reach out to our team before changing your flow. Apple may enforce its rules differently across reviews, and the law can change.
+
+  This guidance reflects our experience and interpretation; it is not legal advice or a guarantee of approval. Helium will monitor material changes and proactively reach out when we think a change in enforcement warrants considering alternative flows.
+</Accordion>
